@@ -6,8 +6,12 @@ metadata:
 spec:
   project: platform
 
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: microcks
+
   source:
-    repoURL: oci://quay.io/microcks/helm-charts
+    repoURL: https://microcks.io/helm
     chart: microcks
     targetRevision: 1.13.2
     helm:
@@ -45,10 +49,6 @@ spec:
           ingressClassName: traefik
           ingressSecretRef: microcks-tls
           url: microcks.local
-
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: microcks
 
   syncPolicy:
     automated:
