@@ -1,0 +1,58 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: microcks
+  namespace: argocd
+spec:
+  project: platform
+
+  source:
+    repoURL: https://microcks.github.io/helm-charts
+    chart: microcks
+    targetRevision: 1.13.2
+    helm:
+      values: |
+        appName: microcks
+
+        features:
+          async:
+            enabled: false
+
+        ingresses: true
+
+        keycloak:
+          enabled: true
+          generateCert: false
+          ingressAnnotations:
+            cert-manager.io/cluster-issuer: local-ca
+            kubernetes.io/ingress.class: traefik
+          ingressClassName: traefik
+          ingressSecretRef: microcks-keycloak-tls
+          install: true
+          privateUrl: http://microcks-keycloak.microcks.svc.cluster.local:8080
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              memory: 768Mi
+          url: keycloak-microcks.local
+
+        microcks:
+          generateCert: false
+          ingressAnnotations:
+            cert-manager.io/cluster-issuer: local-ca
+            kubernetes.io/ingress.class: traefik
+          ingressClassName: traefik
+          ingressSecretRef: microcks-tls
+          url: microcks.local
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: microcks
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
