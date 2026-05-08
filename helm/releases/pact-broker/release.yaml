@@ -1,4 +1,30 @@
-repoURL: https://pact-foundation.github.io/pact-broker-chart
-chart: pact-broker
-targetRevision: 6.1.0
-namespace: pact-broker
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: pact-broker
+  namespace: argocd
+
+spec:
+  project: platform
+
+  source:
+    repoURL: https://pact-foundation.github.io/pact-broker-chart
+    chart: pact-broker
+    targetRevision: 6.1.0
+
+    helm:
+      valueFiles:
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: pact-broker
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true

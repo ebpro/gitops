@@ -1,4 +1,30 @@
-repoURL: https://helm.goharbor.io
-chart: harbor
-targetRevision: 1.18.3
-namespace: harbor
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: harbor
+  namespace: argocd
+
+spec:
+  project: platform
+
+  source:
+    repoURL: https://helm.goharbor.io
+    chart: harbor
+    targetRevision: 1.18.3
+
+    helm:
+      valueFiles:
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: harbor
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true

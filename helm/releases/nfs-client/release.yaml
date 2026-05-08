@@ -1,4 +1,30 @@
-repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
-chart: nfs-subdir-external-provisioner
-targetRevision: 4.0.18
-namespace: kube-system
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: nfs-client
+  namespace: argocd
+
+spec:
+  project: platform
+
+  source:
+    repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+    chart: nfs-subdir-external-provisioner
+    targetRevision: 4.0.18
+
+    helm:
+      valueFiles:
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true
