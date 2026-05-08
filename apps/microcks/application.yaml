@@ -7,7 +7,7 @@ spec:
   project: platform
 
   source:
-    repoURL: https://microcks.github.io/helm-charts
+    repoURL: oci://quay.io/microcks/helm-charts
     chart: microcks
     targetRevision: 1.13.2
     helm:
