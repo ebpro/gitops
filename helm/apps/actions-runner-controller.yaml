@@ -1,3 +1,4 @@
-repoURL: 
-version: latest
-namespace: default
+app: actions-runner-controller
+repoURL: https://actions-runner-controller.github.io/actions-runner-controller
+version: 0.23.7
+namespace: actions-runner-controller

@@ -1,3 +1,4 @@
-repoURL: 
-version: latest
-namespace: default
+app: vault
+repoURL: https://helm.releases.hashicorp.com
+version: 0.32.0
+namespace: vault

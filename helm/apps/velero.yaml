@@ -1,3 +1,4 @@
-repoURL: 
-version: latest
-namespace: default
+app: velero
+repoURL: https://vmware-tanzu.github.io/helm-charts
+version: 6.0.0
+namespace: velero
