@@ -1,0 +1,16 @@
+auth:
+  database: nexus
+  password: 0f93d63fe3bd70655c1349aecc5261211ea8ca497f79e9e5
+  username: nexus
+primary:
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: local-path
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi

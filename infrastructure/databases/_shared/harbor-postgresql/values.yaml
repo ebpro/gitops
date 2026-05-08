@@ -1,0 +1,7 @@
+auth:
+  database: registry
+  postgresPassword: X3CnjFxUbTPrL3tNsypZTslX
+  username: harbor
+primary:
+  persistence:
+    size: 10Gi

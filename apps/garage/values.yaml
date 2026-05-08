@@ -1,0 +1,26 @@
+deployment:
+  replicaCount: 1
+garage:
+  replicationFactor: 1
+ingress:
+  s3:
+    api:
+      enabled: true
+      hosts:
+      - host: garage.ebruno.fr
+        paths:
+        - path: /
+          pathType: Prefix
+      tls: []
+  web:
+    enabled: false
+persistence:
+  data:
+    size: 200Mi
+  meta:
+    size: 100Mi
+resources:
+  limits: {}
+  requests: {}
+service:
+  type: ClusterIP

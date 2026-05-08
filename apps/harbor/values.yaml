@@ -1,0 +1,59 @@
+expose:
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: local-ca
+      kubernetes.io/ingress.class: nginx
+    hosts:
+      core: harbor.local
+    tls:
+    - hosts:
+      - harbor.local
+      secretName: harbor-tls
+  tls:
+    enabled: true
+  type: ingress
+externalDatabase:
+  enabled: true
+  host: harbor-postgresql.harbor.svc.cluster.local
+  password: X3CnjFxUbTPrL3tNsypZTslX
+  port: 5432
+  username: harbor
+externalURL: https://harbor.local
+persistence:
+  enabled: true
+  persistentVolumeClaim:
+    chartmuseum:
+      accessMode: ReadWriteOnce
+      size: 10Gi
+      storageClass: local-path
+    database:
+      accessMode: ReadWriteOnce
+      size: 20Gi
+      storageClass: local-path
+    jobservice:
+      accessMode: ReadWriteOnce
+      size: 5Gi
+      storageClass: local-path
+    redis:
+      accessMode: ReadWriteOnce
+      size: 10Gi
+      storageClass: standard
+    registry:
+      accessMode: ReadWriteOnce
+      size: 50Gi
+      storageClass: local-path
+  resourcePolicy: keep
+resources:
+  core:
+    limits:
+      cpu: 1
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  portal:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+service:
+  type: ClusterIP

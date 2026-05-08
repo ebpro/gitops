@@ -1,0 +1,30 @@
+global:
+  enabled: true
+  tlsDisable: true
+injector:
+  enabled: true
+  replicas: 1
+server:
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: local-path
+  enabled: true
+  ha:
+    enabled: true
+    raft:
+      enabled: true
+      setNodeId: true
+    replicas: 1
+  image:
+    repository: hashicorp/vault
+    tag: 1.21.2
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  ui:
+    enabled: true

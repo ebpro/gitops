@@ -1,0 +1,71 @@
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
+          storageClassName: local-path
+  enabled: true
+coreDns:
+  enabled: true
+grafana:
+  additionalDataSources:
+  - access: proxy
+    editable: true
+    isDefault: false
+    name: Loki
+    type: loki
+    url: http://loki:3100
+  adminPassword: admin
+  enabled: true
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: local-ca
+    enabled: true
+    hosts:
+    - grafana.local
+    ingressClassName: traefik
+    tls:
+    - hosts:
+      - grafana.local
+      secretName: grafana-tls
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClassName: local-path
+kubeControllerManager:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeStateMetrics:
+  enabled: true
+nodeExporter:
+  enabled: true
+prometheus:
+  enabled: true
+  prometheusSpec:
+    podMonitorSelectorNilUsesHelmValues: false
+    resources:
+      limits:
+        cpu: 2
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+    retention: 30d
+    serviceMonitorSelectorNilUsesHelmValues: false
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Gi
+          storageClassName: local-path
