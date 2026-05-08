@@ -1,17 +1,17 @@
 configuration:
   backupStorageLocation:
-  - bucket: velero-backups
-    config:
-      region: minio
-      s3ForcePathStyle: "true"
-      s3Url: http://minio.velero.svc:9000
-    name: default
-    provider: aws
+    - bucket: velero-backups
+      config:
+        region: minio
+        s3ForcePathStyle: "true"
+        s3Url: http://minio.velero.svc:9000
+      name: default
+      provider: aws
   volumeSnapshotLocation:
-  - config:
-      region: minio
-    name: default
-    provider: aws
+    - config:
+        region: minio
+      name: default
+      provider: aws
 credentials:
   name: velero-credentials
   secretContents:
@@ -22,11 +22,11 @@ credentials:
   useSecret: true
 deployNodeAgent: true
 initContainers:
-- image: velero/velero-plugin-for-aws:v1.10.0
-  name: velero-plugin-for-aws
-  volumeMounts:
-  - mountPath: /target
-    name: plugins
+  - image: velero/velero-plugin-for-aws:v1.10.0
+    name: velero-plugin-for-aws
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
 nodeAgent:
   podVolumePath: /var/lib/kubelet/pods
   privileged: true
@@ -36,10 +36,11 @@ schedules:
     schedule: 0 2 * * *
     template:
       includedNamespaces:
-      - argocd
-      - harbor
-      - nexus
-      - sonarqube
-      - actions-runner-system
-      - monitoring
+        - argocd
+        - harbor
+        - nexus
+        - sonarqube
+        - actions-runner-system
+        - monitoring
       ttl: 168h
+app: velero

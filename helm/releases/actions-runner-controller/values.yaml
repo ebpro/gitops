@@ -21,9 +21,9 @@ actionsMetricsServer:
     annotations: {}
     enabled: false
     hosts:
-    - extraPaths: []
-      host: chart-example.local
-      paths: []
+      - extraPaths: []
+        host: chart-example.local
+        paths: []
     ingressClassName: ""
     tls: []
   lifecycle: {}
@@ -46,10 +46,10 @@ actionsMetricsServer:
     annotations: {}
     loadBalancerSourceRanges: []
     ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: http
+      - name: http
+        port: 80
+        protocol: TCP
+        targetPort: http
     type: ClusterIP
   serviceAccount:
     annotations: {}
@@ -81,9 +81,9 @@ githubWebhookServer:
     annotations: {}
     enabled: false
     hosts:
-    - extraPaths: []
-      host: chart-example.local
-      paths: []
+      - extraPaths: []
+        host: chart-example.local
+        paths: []
     ingressClassName: ""
     tls: []
   lifecycle: {}
@@ -108,10 +108,10 @@ githubWebhookServer:
     annotations: {}
     loadBalancerSourceRanges: []
     ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: http
+      - name: http
+        port: 80
+        protocol: TCP
+        targetPort: http
     type: ClusterIP
   serviceAccount:
     annotations: {}
@@ -154,15 +154,15 @@ podSecurityContext: {}
 postJobLifecycleHook:
   exec:
     command:
-    - sh
-    - -c
-    - docker system prune -af && docker volume prune -f && rm -rf /tmp/*
+      - sh
+      - -c
+      - docker system prune -af && docker volume prune -f && rm -rf /tmp/*
 preJobLifecycleHook:
   exec:
     command:
-    - sh
-    - -c
-    - docker system prune -af && docker volume prune -f && rm -rf /tmp/*
+      - sh
+      - -c
+      - docker system prune -af && docker volume prune -f && rm -rf /tmp/*
 priorityClassName: ""
 rbac: {}
 replicaCount: 1
@@ -177,15 +177,15 @@ runner:
   statusUpdateHook:
     enabled: false
   volumes:
-  - name: m2-cache
-    persistentVolumeClaim:
-      claimName: arc-runner-m2-cache
-  - name: jib-cache
-    persistentVolumeClaim:
-      claimName: arc-runner-jib-cache
-  - name: npm-cache
-    persistentVolumeClaim:
-      claimName: arc-runner-npm-cache
+    - name: m2-cache
+      persistentVolumeClaim:
+        claimName: arc-runner-m2-cache
+    - name: jib-cache
+      persistentVolumeClaim:
+        claimName: arc-runner-jib-cache
+    - name: npm-cache
+      persistentVolumeClaim:
+        claimName: arc-runner-npm-cache
 runners:
   extraDeploy: |
     apiVersion: actions.summerwind.dev/v1alpha1
@@ -229,40 +229,41 @@ serviceAccount:
   name: actions-runner-controller
 syncPeriod: 1m
 tolerations:
-- effect: NoSchedule
-  key: ci-runner
-  operator: Equal
-  value: "true"
+  - effect: NoSchedule
+    key: ci-runner
+    operator: Equal
+    value: "true"
 volumeMounts:
-- mountPath: /home/runner/.m2
-  name: m2-cache
-- mountPath: /home/runner/.npm
-  name: npm-cache
-- mountPath: /opt/hostedtoolcache
-  name: tool-cache
-- mountPath: /var/lib/docker
-  name: docker-storage
-- mountPath: /var/run/docker
-  name: docker-run-storage
-- mountPath: /var/run/containerd
-  name: containerd-run-storage
+  - mountPath: /home/runner/.m2
+    name: m2-cache
+  - mountPath: /home/runner/.npm
+    name: npm-cache
+  - mountPath: /opt/hostedtoolcache
+    name: tool-cache
+  - mountPath: /var/lib/docker
+    name: docker-storage
+  - mountPath: /var/run/docker
+    name: docker-run-storage
+  - mountPath: /var/run/containerd
+    name: containerd-run-storage
 volumes:
-- name: npm-cache
-  persistentVolumeClaim:
-    claimName: arc-runner-npm-cache
-- name: tool-cache
-  persistentVolumeClaim:
-    claimName: runner-tool-cache-pvc
-- emptyDir:
-    sizeLimit: 50Gi
-  name: var-run
-- emptyDir:
-    sizeLimit: 50Gi
-  name: docker-storage
-- emptyDir:
-    sizeLimit: 10Gi
-  name: docker-run-storage
-- emptyDir:
-    sizeLimit: 5Gi
-  name: containerd-run-storage
+  - name: npm-cache
+    persistentVolumeClaim:
+      claimName: arc-runner-npm-cache
+  - name: tool-cache
+    persistentVolumeClaim:
+      claimName: runner-tool-cache-pvc
+  - emptyDir:
+      sizeLimit: 50Gi
+    name: var-run
+  - emptyDir:
+      sizeLimit: 50Gi
+    name: docker-storage
+  - emptyDir:
+      sizeLimit: 10Gi
+    name: docker-run-storage
+  - emptyDir:
+      sizeLimit: 5Gi
+    name: containerd-run-storage
 webhookPort: 9443
+app: actions-runner-controller

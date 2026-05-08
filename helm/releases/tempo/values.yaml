@@ -1,7 +1,7 @@
 fullnameOverride: tempo
 persistence:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   enabled: true
   size: 10Gi
   storageClassName: local-path
@@ -21,3 +21,4 @@ tempo:
       cpu: 100m
       memory: 512Mi
   retention: 168h
+app: tempo

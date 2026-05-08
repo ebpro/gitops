@@ -7,10 +7,10 @@ ingress:
     api:
       enabled: true
       hosts:
-      - host: garage.ebruno.fr
-        paths:
-        - path: /
-          pathType: Prefix
+        - host: garage.ebruno.fr
+          paths:
+            - path: /
+              pathType: Prefix
       tls: []
   web:
     enabled: false
@@ -24,3 +24,4 @@ resources:
   requests: {}
 service:
   type: ClusterIP
+app: garage

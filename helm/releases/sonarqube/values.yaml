@@ -1,25 +1,23 @@
 community:
   enabled: true
 extraInitContainers:
-- args:
-  - wget -O /tmp/sonarqube-webapp.zip https://github.com/mc1arke/sonarqube-community-branch-plugin/releases/download/26.1.0/sonarqube-webapp.zip
-    && unzip -o /tmp/sonarqube-webapp.zip -d /web && chmod -R 755 /web && chown -R
-    1000:0 /web && rm -f /tmp/sonarqube-webapp.zip
-  command:
-  - sh
-  - -c
-  image: busybox:1.37
-  name: download-webapp
-  volumeMounts:
-  - mountPath: /web
-    name: webapp
+  - args:
+      - wget -O /tmp/sonarqube-webapp.zip https://github.com/mc1arke/sonarqube-community-branch-plugin/releases/download/26.1.0/sonarqube-webapp.zip && unzip -o /tmp/sonarqube-webapp.zip -d /web && chmod -R 755 /web && chown -R 1000:0 /web && rm -f /tmp/sonarqube-webapp.zip
+    command:
+      - sh
+      - -c
+    image: busybox:1.37
+    name: download-webapp
+    volumeMounts:
+      - mountPath: /web
+        name: webapp
 extraVolumeMounts:
-- mountPath: /opt/sonarqube/web
-  name: webapp
+  - mountPath: /opt/sonarqube/web
+    name: webapp
 extraVolumes:
-- emptyDir:
-    sizeLimit: 50Mi
-  name: webapp
+  - emptyDir:
+      sizeLimit: 50Mi
+    name: webapp
 jdbcOverwrite:
   enabled: true
   jdbcSecretName: sonarqube-postgresql
@@ -31,7 +29,7 @@ jvmOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch
 monitoringPasscode: ntBb7WvApMBjX8PAgmWh
 plugins:
   install:
-  - https://github.com/mc1arke/sonarqube-community-branch-plugin/releases/download/26.1.0/sonarqube-community-branch-plugin-26.1.0.jar
+    - https://github.com/mc1arke/sonarqube-community-branch-plugin/releases/download/26.1.0/sonarqube-community-branch-plugin-26.1.0.jar
 resources:
   limits:
     cpu: 800m
@@ -45,3 +43,4 @@ sonarProperties:
 startupProbe:
   failureThreshold: 60
   periodSeconds: 10
+app: sonarqube

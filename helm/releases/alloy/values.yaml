@@ -76,3 +76,4 @@ alloy:
       memory: 256Mi
 controller:
   type: daemonset
+app: alloy

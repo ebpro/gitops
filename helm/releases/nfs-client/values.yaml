@@ -1,18 +1,19 @@
 nfs:
   mountOptions:
-  - lookupcache=none
-  - noac
-  - hard
-  - timeo=600
-  - retrans=2
+    - lookupcache=none
+    - noac
+    - hard
+    - timeo=600
+    - retrans=2
   path: /mnt/nfs_share
   server: 10.2.248.31
 storageClass:
   defaultClass: false
   mountOptions:
-  - lookupcache=none
-  - noac
-  - hard
-  - timeo=600
-  - retrans=2
+    - lookupcache=none
+    - noac
+    - hard
+    - timeo=600
+    - retrans=2
   name: nfs-rwx
+app: nfs-client

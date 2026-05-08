@@ -1,50 +1,50 @@
 additionalArguments:
-- --certificatesresolvers.letsencrypt-ovh.acme.dnschallenge=true
-- --certificatesresolvers.letsencrypt-ovh.acme.dnschallenge.provider=ovh
-- --certificatesresolvers.letsencrypt-ovh.acme.dnschallenge.delayBeforeCheck=10
-- --certificatesresolvers.letsencrypt-ovh.acme.storage=/data/acme.json
-- --certificatesresolvers.letsencrypt-ovh.acme.email=acme@ebruno.fr
+  - --certificatesresolvers.letsencrypt-ovh.acme.dnschallenge=true
+  - --certificatesresolvers.letsencrypt-ovh.acme.dnschallenge.provider=ovh
+  - --certificatesresolvers.letsencrypt-ovh.acme.dnschallenge.delayBeforeCheck=10
+  - --certificatesresolvers.letsencrypt-ovh.acme.storage=/data/acme.json
+  - --certificatesresolvers.letsencrypt-ovh.acme.email=acme@ebruno.fr
 deployment:
   initContainers:
-  - command:
-    - sh
-    - -c
-    - touch /data/acme.json; chmod 600 /data/acme.json
-    image: busybox:latest
-    name: volume-permissions
-    securityContext:
-      allowPrivilegeEscalation: false
-      capabilities:
-        drop:
-        - ALL
-      runAsNonRoot: true
-      runAsUser: 65532
-      seccompProfile:
-        type: RuntimeDefault
-    volumeMounts:
-    - mountPath: /data
-      name: data
+    - command:
+        - sh
+        - -c
+        - touch /data/acme.json; chmod 600 /data/acme.json
+      image: busybox:latest
+      name: volume-permissions
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        runAsNonRoot: true
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      volumeMounts:
+        - mountPath: /data
+          name: data
   podAnnotations:
     prometheus.io/port: "8082"
     prometheus.io/scrape: "true"
 env:
-- name: OVH_ENDPOINT
-  value: ovh-eu
-- name: OVH_APPLICATION_KEY
-  valueFrom:
-    secretKeyRef:
-      key: applicationKey
-      name: ovh-credentials
-- name: OVH_APPLICATION_SECRET
-  valueFrom:
-    secretKeyRef:
-      key: applicationSecret
-      name: ovh-credentials
-- name: OVH_CONSUMER_KEY
-  valueFrom:
-    secretKeyRef:
-      key: consumerKey
-      name: ovh-credentials
+  - name: OVH_ENDPOINT
+    value: ovh-eu
+  - name: OVH_APPLICATION_KEY
+    valueFrom:
+      secretKeyRef:
+        key: applicationKey
+        name: ovh-credentials
+  - name: OVH_APPLICATION_SECRET
+    valueFrom:
+      secretKeyRef:
+        key: applicationSecret
+        name: ovh-credentials
+  - name: OVH_CONSUMER_KEY
+    valueFrom:
+      secretKeyRef:
+        key: consumerKey
+        name: ovh-credentials
 global:
   systemDefaultRegistry: ""
 image:
@@ -65,15 +65,16 @@ securityContext:
   allowPrivilegeEscalation: false
   capabilities:
     drop:
-    - ALL
+      - ALL
 service:
   ipFamilyPolicy: PreferDualStack
 tolerations:
-- key: CriticalAddonsOnly
-  operator: Exists
-- effect: NoSchedule
-  key: node-role.kubernetes.io/control-plane
-  operator: Exists
-- effect: NoSchedule
-  key: node-role.kubernetes.io/master
-  operator: Exists
+  - key: CriticalAddonsOnly
+    operator: Exists
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/control-plane
+    operator: Exists
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+    operator: Exists
+app: traefik

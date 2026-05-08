@@ -28,3 +28,4 @@ server:
       memory: 512Mi
   ui:
     enabled: true
+app: vault

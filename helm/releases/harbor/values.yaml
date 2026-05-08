@@ -6,9 +6,9 @@ expose:
     hosts:
       core: harbor.local
     tls:
-    - hosts:
-      - harbor.local
-      secretName: harbor-tls
+      - hosts:
+          - harbor.local
+        secretName: harbor-tls
   tls:
     enabled: true
   type: ingress
@@ -57,3 +57,4 @@ resources:
       memory: 128Mi
 service:
   type: ClusterIP
+app: harbor

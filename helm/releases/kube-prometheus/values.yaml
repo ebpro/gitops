@@ -4,7 +4,7 @@ alertmanager:
       volumeClaimTemplate:
         spec:
           accessModes:
-          - ReadWriteOnce
+            - ReadWriteOnce
           resources:
             requests:
               storage: 5Gi
@@ -14,12 +14,12 @@ coreDns:
   enabled: true
 grafana:
   additionalDataSources:
-  - access: proxy
-    editable: true
-    isDefault: false
-    name: Loki
-    type: loki
-    url: http://loki:3100
+    - access: proxy
+      editable: true
+      isDefault: false
+      name: Loki
+      type: loki
+      url: http://loki:3100
   adminPassword: admin
   enabled: true
   ingress:
@@ -27,12 +27,12 @@ grafana:
       cert-manager.io/cluster-issuer: local-ca
     enabled: true
     hosts:
-    - grafana.local
+      - grafana.local
     ingressClassName: traefik
     tls:
-    - hosts:
-      - grafana.local
-      secretName: grafana-tls
+      - hosts:
+          - grafana.local
+        secretName: grafana-tls
   persistence:
     enabled: true
     size: 10Gi
@@ -64,8 +64,9 @@ prometheus:
       volumeClaimTemplate:
         spec:
           accessModes:
-          - ReadWriteOnce
+            - ReadWriteOnce
           resources:
             requests:
               storage: 50Gi
           storageClassName: local-path
+app: kube-prometheus
