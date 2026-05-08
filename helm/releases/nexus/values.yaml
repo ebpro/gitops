@@ -53,4 +53,3 @@ securityContext:
 service:
   port: 8081
   type: ClusterIP
-app: nexus

@@ -43,4 +43,3 @@ sonarProperties:
 startupProbe:
   failureThreshold: 60
   periodSeconds: 10
-app: sonarqube

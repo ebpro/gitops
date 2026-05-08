@@ -39,4 +39,3 @@ test:
   enabled: false
 write:
   replicas: 0
-app: loki

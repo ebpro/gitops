@@ -16,4 +16,3 @@ storageClass:
     - timeo=600
     - retrans=2
   name: nfs-rwx
-app: nfs-client

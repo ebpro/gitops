@@ -6,33 +6,32 @@ metadata:
 
 spec:
   generators:
-  - git:
-      repoURL: https://github.com/ebpro/gitops
-      revision: main
-      directories:
-      - path: helm/releases/*
+    - git:
+        repoURL: https://github.com/ebpro/gitops
+        revision: main
+        files:
+          - path: helm/apps/*.yaml
 
   template:
     metadata:
       name: '{{path.basename}}'
+
     spec:
       project: platform
 
       source:
-        repoURL: '{{values.repoURL}}'
+        repoURL: '{{repoURL}}'
         chart: '{{path.basename}}'
-        targetRevision: '{{values.version}}'
+        targetRevision: '{{version}}'
         helm:
           valueFiles:
-            - values.yaml
+            - ../../helm/releases/{{path.basename}}/values.yaml
 
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{values.namespace}}'
+        namespace: '{{namespace}}'
 
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
-        syncOptions:
-          - CreateNamespace=true

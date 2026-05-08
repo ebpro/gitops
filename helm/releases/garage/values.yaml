@@ -24,4 +24,3 @@ resources:
   requests: {}
 service:
   type: ClusterIP
-app: garage

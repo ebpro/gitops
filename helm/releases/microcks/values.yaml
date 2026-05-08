@@ -27,4 +27,3 @@ microcks:
   ingressClassName: traefik
   ingressSecretRef: microcks-tls
   url: microcks.local
-app: microcks

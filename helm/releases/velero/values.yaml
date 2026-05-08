@@ -43,4 +43,3 @@ schedules:
         - actions-runner-system
         - monitoring
       ttl: 168h
-app: velero

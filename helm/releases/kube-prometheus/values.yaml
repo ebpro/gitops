@@ -69,4 +69,3 @@ prometheus:
             requests:
               storage: 50Gi
           storageClassName: local-path
-app: kube-prometheus

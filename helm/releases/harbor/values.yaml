@@ -57,4 +57,3 @@ resources:
       memory: 128Mi
 service:
   type: ClusterIP
-app: harbor

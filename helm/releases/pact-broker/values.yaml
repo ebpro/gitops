@@ -25,4 +25,3 @@ ingress:
   enabled: false
 service:
   type: ClusterIP
-app: pact-broker
