@@ -1,0 +1,4 @@
+repoURL: https://microcks.io/helm
+chart: microcks
+targetRevision: 1.13.2
+namespace: microcks

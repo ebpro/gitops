@@ -1,15 +1,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
+
 metadata:
-  name: platform-apps
+  name: helm-apps
   namespace: argocd
+
 spec:
   generators:
-  - git:
-      repoURL: https://github.com/ebpro/gitops
-      revision: main
-      directories:
-      - path: apps/*
+    - git:
+        repoURL: https://github.com/ebpro/gitops
+        revision: main
+
+        directories:
+          - path: helm/releases/*
 
   template:
     metadata:
@@ -23,17 +26,11 @@ spec:
         targetRevision: main
         path: '{{path}}'
 
-        helm:
-          valueFiles:
-            - values.yaml
-
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{path.basename}}'
+        namespace: argocd
 
       syncPolicy:
         automated:
+          prune: true
           selfHeal: true
-          prune: false
-        syncOptions:
-          - CreateNamespace=true

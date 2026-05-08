@@ -1,0 +1,4 @@
+repoURL: https://traefik.github.io/charts
+chart: traefik
+targetRevision: 37.1.1
+namespace: kube-system

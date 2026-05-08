@@ -1,0 +1,4 @@
+repoURL: https://stevehipwell.github.io/helm-charts
+chart: nexus3
+targetRevision: 5.20.0
+namespace: nexus

@@ -1,0 +1,4 @@
+repoURL: https://actions-runner-controller.github.io/actions-runner-controller
+chart: actions-runner-controller
+targetRevision: 0.23.7
+namespace: actions-runner-system

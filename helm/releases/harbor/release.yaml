@@ -1,0 +1,4 @@
+repoURL: https://helm.goharbor.io
+chart: harbor
+targetRevision: 1.18.3
+namespace: harbor

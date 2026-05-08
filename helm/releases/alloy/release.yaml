@@ -1,0 +1,4 @@
+repoURL: https://grafana.github.io/helm-charts
+chart: alloy
+targetRevision: 1.6.2
+namespace: logging

@@ -1,0 +1,4 @@
+repoURL: https://pact-foundation.github.io/pact-broker-chart
+chart: pact-broker
+targetRevision: 6.1.0
+namespace: pact-broker
