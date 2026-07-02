@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: external-secrets-webhook
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-ovh
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: external-secrets.ebruno.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: external-secrets-webhook
+                port:
+                  number: 10250
+  tls:
+    - hosts:
+        - external-secrets.ebruno.fr
+      secretName: external-secrets-tls
