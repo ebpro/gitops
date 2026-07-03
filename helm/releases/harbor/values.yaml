@@ -4,12 +4,17 @@ expose:
   tls:
     enabled: false
   type: clusterIP
-externalDatabase:
-  enabled: true
-  host: harbor-postgresql.harbor.svc.cluster.local
-  password: X3CnjFxUbTPrL3tNsypZTslX
-  port: 5432
-  username: harbor
+internalTLS:
+  enabled: false
+database:
+  type: external
+  external:
+    host: harbor-postgresql.harbor.svc.cluster.local
+    port: "5432"
+    username: harbor
+    coreDatabase: registry
+    existingSecret: harbor-postgresql-auth
+    sslmode: disable
 externalURL: http://harbor.harbor.svc.cluster.local
 persistence:
   enabled: true

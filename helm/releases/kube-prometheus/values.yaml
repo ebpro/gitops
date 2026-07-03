@@ -20,7 +20,9 @@ grafana:
       name: Loki
       type: loki
       url: http://loki:3100
-  adminPassword: admin
+  adminPassword: ""
+  existingSecret: grafana-admin-password
+  existingSecretKey: admin-password
   enabled: true
   ingress:
     enabled: false

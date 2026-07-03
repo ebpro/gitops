@@ -11,6 +11,7 @@ spec:
         directories:
           - path: kubernetes/cert-issuers
           - path: kubernetes/ingress
+          - path: kubernetes/postgresql
   template:
     metadata:
       name: '{{path.basename}}'

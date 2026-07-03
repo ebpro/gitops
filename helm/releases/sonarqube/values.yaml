@@ -26,7 +26,8 @@ jdbcOverwrite:
   jdbcUsername: sonarUser
 jvmCeOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=ce
 jvmOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=web
-monitoringPasscode: ntBb7WvApMBjX8PAgmWh
+monitoringPasscodeSecretName: sonarqube-monitoring-password
+monitoringPasscodeSecretKey: monitoring-passcode
 plugins:
   install:
     - https://github.com/mc1arke/sonarqube-community-branch-plugin/releases/download/26.1.0/sonarqube-community-branch-plugin-26.1.0.jar

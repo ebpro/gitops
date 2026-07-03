@@ -10,7 +10,7 @@ env:
     valueFrom:
       secretKeyRef:
         key: password
-        name: nexus-postgres-auth
+        name: nexus-postgresql-auth
 image:
   pullPolicy: IfNotPresent
   repository: docker.io/sonatype/nexus3

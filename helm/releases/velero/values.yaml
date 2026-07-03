@@ -14,11 +14,6 @@ configuration:
       provider: aws
 credentials:
   name: velero-credentials
-  secretContents:
-    cloud: |
-      [default]
-      aws_access_key_id = velero
-      aws_secret_access_key = velero123456
   useSecret: true
 deployNodeAgent: true
 initContainers:
