@@ -1,3 +1,43 @@
-persistence:
+image:
+  pullPolicy: IfNotPresent
+
+adminUsername: admin
+adminEmail: admin@ebruno.fr
+rootURL: https://gitea.ebruno.fr
+runMode: prod
+exposeSSH: false
+
+ingress:
   enabled: false
-  # Add persistent volume claims when NFS/Ceph is ready
+
+service:
+  type: ClusterIP
+  ports:
+    http: 80
+    ssh: 22
+
+postgresql:
+  enabled: false
+
+externalDatabase:
+  host: gitea-postgresql.gitea.svc.cluster.local
+  port: 5432
+  database: gitea
+  user: gitea
+  existingSecret: gitea-postgresql-auth
+  existingSecretPasswordKey: password
+
+persistence:
+  enabled: true
+  size: 20Gi
+  storageClass: local-path
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+networkPolicy:
+  enabled: true

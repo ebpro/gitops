@@ -9,70 +9,122 @@ spec:
         elements:
           - app: actions-runner-controller
             repoURL: https://actions-runner-controller.github.io/actions-runner-controller
+            releaseName: actions-runner-controller
+            chart: actions-runner-controller
             version: 0.23.7
             namespace: actions-runner-controller
           - app: alloy
             repoURL: https://grafana.github.io/helm-charts
+            releaseName: alloy
+            chart: alloy
             version: 1.6.2
             namespace: monitoring
+          - app: apicurio
+            repoURL: https://helm-charts.touk.pl/public/
+            releaseName: apicurio
+            chart: apicurio-registry
+            version: 0.1.5
+            namespace: apicurio
           - app: cert-manager
             repoURL: https://charts.jetstack.io
+            releaseName: cert-manager
+            chart: cert-manager
             version: v1.19.2
             namespace: cert-manager
           - app: external-secrets
             repoURL: https://charts.external-secrets.io
+            releaseName: external-secrets
+            chart: external-secrets
             version: 2.4.1
             namespace: external-secrets
           - app: garage
             repoURL: https://garagehq.deuxfleurs.fr/_releases
+            releaseName: garage
+            chart: garage
             version: 0.9.2
             namespace: garage
+          - app: gitea
+            repoURL: https://charts.bitnami.com/bitnami
+            releaseName: gitea
+            chart: gitea
+            version: 3.2.22
+            namespace: gitea
           - app: harbor
             repoURL: https://helm.goharbor.io
+            releaseName: harbor
+            chart: harbor
             version: 1.18.3
             namespace: harbor
           - app: kube-prometheus
             repoURL: https://prometheus-community.github.io/helm-charts
+            releaseName: kube-prometheus
+            chart: kube-prometheus
             version: 80.6.0
             namespace: monitoring
           - app: loki
             repoURL: https://grafana.github.io/helm-charts
+            releaseName: loki
+            chart: loki
             version: 6.55.0
             namespace: monitoring
           - app: microcks
             repoURL: https://microcks.io/helm
+            releaseName: microcks
+            chart: microcks
             version: 1.13.2
             namespace: microcks
           - app: nexus
             repoURL: https://stevehipwell.github.io/helm-charts
+            releaseName: nexus
+            chart: nexus
             version: 5.20.0
             namespace: nexus
           - app: nfs-client
             repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+            releaseName: nfs-client
+            chart: nfs-subdir-external-provisioner
             version: 4.0.18
             namespace: nfs-client
           - app: pact-broker
             repoURL: https://pact-foundation.github.io/pact-broker-chart
+            releaseName: pact-broker
+            chart: pact-broker
             version: 6.1.0
             namespace: pact-broker
+          - app: plane
+            repoURL: https://helm.plane.so
+            releaseName: plane
+            chart: plane-ce
+            version: 1.6.0
+            namespace: plane
           - app: sonarqube
-            repoURL: https://SonarSource.github.io/helm-chart-sonarqube
+            repoURL: https://SonSource.github.io/helm-chart-sonarqube
+            releaseName: sonarqube
+            chart: sonarqube
             version: 2026.1.0
             namespace: sonarqube
           - app: tempo
             repoURL: https://grafana.github.io/helm-charts
+            releaseName: tempo
+            chart: tempo
             version: 1.24.4
             namespace: tempo
           - app: traefik
             repoURL: https://traefik.github.io/charts
+            releaseName: traefik
+            chart: traefik
             version: 37.1.1
             namespace: kube-system
           - app: vault
             repoURL: https://helm.releases.hashicorp.com
+            releaseName: vault
+            chart: vault
             version: 0.32.0
             namespace: vault
           - app: velero
             repoURL: https://vmware-tanzu.github.io/helm-charts
+            releaseName: velero
+            chart: velero
             version: 6.0.0
             namespace: velero
   template:
@@ -82,7 +134,8 @@ spec:
       project: platform
       source:
         repoURL: '{{repoURL}}'
-        chart: '{{app}}'
+        chart: '{{chart}}'
+        releaseName: '{{releaseName}}'
         targetRevision: '{{version}}'
         helm:
           valueFiles:
