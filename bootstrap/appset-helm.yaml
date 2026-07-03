@@ -3,34 +3,93 @@ kind: ApplicationSet
 metadata:
   name: helm-apps
   namespace: argocd
-
 spec:
   generators:
-    - git:
-        repoURL: https://github.com/ebpro/gitops
-        revision: main
-        files:
-          - path: helm/apps/*.yaml
-
+    - list:
+        elements:
+          - app: actions-runner-controller
+            repoURL: https://actions-runner-controller.github.io/actions-runner-controller
+            version: 0.23.7
+            namespace: actions-runner-controller
+          - app: alloy
+            repoURL: https://grafana.github.io/helm-charts
+            version: 1.6.2
+            namespace: monitoring
+          - app: cert-manager
+            repoURL: https://charts.jetstack.io
+            version: v1.19.2
+            namespace: cert-manager
+          - app: external-secrets
+            repoURL: https://charts.external-secrets.io
+            version: 2.4.1
+            namespace: external-secrets
+          - app: garage
+            repoURL: https://garagehq.deuxfleurs.fr/_releases
+            version: 0.9.2
+            namespace: garage
+          - app: harbor
+            repoURL: https://helm.goharbor.io
+            version: 1.18.3
+            namespace: harbor
+          - app: kube-prometheus
+            repoURL: https://prometheus-community.github.io/helm-charts
+            version: 80.6.0
+            namespace: monitoring
+          - app: loki
+            repoURL: https://grafana.github.io/helm-charts
+            version: 6.55.0
+            namespace: monitoring
+          - app: microcks
+            repoURL: https://microcks.io/helm
+            version: 1.13.2
+            namespace: microcks
+          - app: nexus
+            repoURL: https://stevehipwell.github.io/helm-charts
+            version: 5.20.0
+            namespace: nexus
+          - app: nfs-client
+            repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+            version: 4.0.18
+            namespace: nfs-client
+          - app: pact-broker
+            repoURL: https://pact-foundation.github.io/pact-broker-chart
+            version: 6.1.0
+            namespace: pact-broker
+          - app: sonarqube
+            repoURL: https://SonarSource.github.io/helm-chart-sonarqube
+            version: 2026.1.0
+            namespace: sonarqube
+          - app: tempo
+            repoURL: https://grafana.github.io/helm-charts
+            version: 1.24.4
+            namespace: tempo
+          - app: traefik
+            repoURL: https://traefik.github.io/charts
+            version: 37.1.1
+            namespace: kube-system
+          - app: vault
+            repoURL: https://helm.releases.hashicorp.com
+            version: 0.32.0
+            namespace: vault
+          - app: velero
+            repoURL: https://vmware-tanzu.github.io/helm-charts
+            version: 6.0.0
+            namespace: velero
   template:
     metadata:
-      name: '{{path.basename}}'
-
+      name: '{{app}}'
     spec:
       project: platform
-
       source:
         repoURL: '{{repoURL}}'
-        chart: '{{path.basename}}'
+        chart: '{{app}}'
         targetRevision: '{{version}}'
         helm:
           valueFiles:
-            - ../../helm/releases/{{path.basename}}/values.yaml
-
+            - ../../helm/releases/{{app}}/values.yaml
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
-
       syncPolicy:
         automated:
           prune: true

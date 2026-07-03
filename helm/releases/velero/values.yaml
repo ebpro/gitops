@@ -35,6 +35,6 @@ schedules:
         - harbor
         - nexus
         - sonarqube
-        - actions-runner-system
+        - actions-runner-controller
         - monitoring
       ttl: 168h
