@@ -1,0 +1,126 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: apicurio
+  labels:
+    app.kubernetes.io/name: apicurio
+    app.kubernetes.io/part-of: apicurio
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apicurio
+  namespace: apicurio
+  labels:
+    app.kubernetes.io/name: apicurio
+    app.kubernetes.io/part-of: apicurio
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: apicurio
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apicurio
+  namespace: apicurio
+  labels:
+    app.kubernetes.io/name: apicurio
+    app.kubernetes.io/part-of: apicurio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: apicurio
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: apicurio
+    spec:
+      containers:
+        - name: apicurio
+          image: apicurio/apicurio-registry-sql:2.2.5.Final
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+          env:
+            - name: RUN_MIGRATIONS
+              value: "true"
+            - name: QUARKUS_DATASOURCE_JDBC_URL
+              value: jdbc:postgresql://apicurio-postgresql.apicurio.svc.cluster.local:5432/apicurio
+            - name: QUARKUS_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: apicurio-postgresql-auth
+                  key: username
+            - name: QUARKUS_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: apicurio-postgresql-auth
+                  key: password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - name: uploads
+              mountPath: /tmp/registry/uploads
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: apicurio-uploads
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: apicurio-uploads
+  namespace: apicurio
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: apicurio
+  namespace: apicurio
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - apicurio.ebruno.fr
+      secretName: apicurio-tls
+  rules:
+    - host: apicurio.ebruno.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: apicurio
+                port:
+                  number: 80

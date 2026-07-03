@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: plane
+  namespace: plane
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.maxRequestBodyBytes: "20971520"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - plane.ebruno.fr
+      secretName: plane-tls
+  rules:
+    - host: plane.ebruno.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: plane
+                port:
+                  number: 80

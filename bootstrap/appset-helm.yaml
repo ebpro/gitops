@@ -19,12 +19,6 @@ spec:
             chart: alloy
             version: 1.6.2
             namespace: monitoring
-          - app: apicurio
-            repoURL: https://helm-charts.touk.pl/public/
-            releaseName: apicurio
-            chart: apicurio-registry
-            version: 0.1.5
-            namespace: apicurio
           - app: cert-manager
             repoURL: https://charts.jetstack.io
             releaseName: cert-manager
