@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: arc-webhook
+  namespace: actions-runner-controller
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-ovh
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: actions-runner-controller.ebruno.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: actions-runner-controller-webhook
+                port:
+                  number: 9443
+  tls:
+    - hosts:
+        - actions-runner-controller.ebruno.fr
+      secretName: arc-tls

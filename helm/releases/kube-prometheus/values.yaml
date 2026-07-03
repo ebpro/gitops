@@ -23,16 +23,7 @@ grafana:
   adminPassword: admin
   enabled: true
   ingress:
-    annotations:
-      cert-manager.io/cluster-issuer: local-ca
-    enabled: true
-    hosts:
-      - grafana.local
-    ingressClassName: traefik
-    tls:
-      - hosts:
-          - grafana.local
-        secretName: grafana-tls
+    enabled: false
   persistence:
     enabled: true
     size: 10Gi

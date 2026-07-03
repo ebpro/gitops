@@ -1,24 +1,25 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: loki-ingress
+  name: kube-prometheus-ingress
+  namespace: monitoring
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-ovh
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   ingressClassName: traefik
   rules:
-    - host: loki.ebruno.fr
+    - host: prometheus.ebruno.fr
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: loki
+                name: kube-prometheus-stack-prometheus
                 port:
-                  number: 3100
+                  number: 9090
   tls:
     - hosts:
-        - loki.ebruno.fr
-      secretName: loki-tls
+        - prometheus.ebruno.fr
+      secretName: prometheus-tls

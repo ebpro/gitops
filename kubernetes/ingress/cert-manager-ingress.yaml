@@ -1,24 +1,25 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: tempo-ingress
+  name: cert-manager-webhook
+  namespace: cert-manager
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-ovh
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   ingressClassName: traefik
   rules:
-    - host: tempo.ebruno.fr
+    - host: cert-manager.ebruno.fr
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: tempo
+                name: cert-manager-webhook
                 port:
-                  number: 3100
+                  number: 443
   tls:
     - hosts:
-        - tempo.ebruno.fr
-      secretName: tempo-tls
+        - cert-manager.ebruno.fr
+      secretName: cert-manager-tls

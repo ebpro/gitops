@@ -7,8 +7,7 @@ keycloak:
   enabled: true
   generateCert: false
   ingressAnnotations:
-    cert-manager.io/cluster-issuer: local-ca
-    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-ovh
   ingressClassName: traefik
   ingressSecretRef: microcks-keycloak-tls
   install: true
@@ -18,12 +17,9 @@ keycloak:
       memory: 1Gi
     requests:
       memory: 768Mi
-  url: keycloak-microcks.local
+  url: keycloak-microcks.ebruno.fr
 microcks:
   generateCert: false
-  ingressAnnotations:
-    cert-manager.io/cluster-issuer: local-ca
-    kubernetes.io/ingress.class: traefik
-  ingressClassName: traefik
-  ingressSecretRef: microcks-tls
-  url: microcks.local
+  ingressAnnotations: {}
+  ingressClassName: ""
+  url: microcks.ebruno.fr

@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nfs-client-ingress
+  namespace: nfs-client
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-ovh
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: nfs-client.ebruno.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nfs-client-provisioner
+                port:
+                  number: 2049
+  tls:
+    - hosts:
+        - nfs-client.ebruno.fr
+      secretName: nfs-client-tls

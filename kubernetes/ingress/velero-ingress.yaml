@@ -1,24 +1,25 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: alloy-ingress
+  name: velero-ingress
+  namespace: velero
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-ovh
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   ingressClassName: traefik
   rules:
-    - host: alloy.ebruno.fr
+    - host: velero.ebruno.fr
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: alloy
+                name: velero
                 port:
-                  number: 8080
+                  number: 8085
   tls:
     - hosts:
-        - alloy.ebruno.fr
-      secretName: alloy-tls
+        - velero.ebruno.fr
+      secretName: velero-tls

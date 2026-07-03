@@ -1,24 +1,25 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: cert-manager-webhook
+  name: alloy-ingress
+  namespace: monitoring
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-ovh
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   ingressClassName: traefik
   rules:
-    - host: cert-manager.ebruno.fr
+    - host: alloy.ebruno.fr
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: cert-manager-webhook
+                name: alloy
                 port:
-                  number: 443
+                  number: 8080
   tls:
     - hosts:
-        - cert-manager.ebruno.fr
-      secretName: cert-manager-tls
+        - alloy.ebruno.fr
+      secretName: alloy-tls

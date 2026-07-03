@@ -1,24 +1,25 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nfs-client-ingress
+  name: microcks-keycloak-ingress
+  namespace: microcks
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-ovh
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   ingressClassName: traefik
   rules:
-    - host: nfs-client.ebruno.fr
+    - host: keycloak-microcks.ebruno.fr
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: nfs-client-provisioner
+                name: microcks-keycloak
                 port:
-                  number: 2049
+                  number: 8080
   tls:
     - hosts:
-        - nfs-client.ebruno.fr
-      secretName: nfs-client-tls
+        - keycloak-microcks.ebruno.fr
+      secretName: microcks-keycloak-tls
