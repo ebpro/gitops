@@ -1,0 +1,2 @@
+# Minimal apicurio-registry chart overrides
+# Storage can be switched to PostgreSQL when external DB is ready

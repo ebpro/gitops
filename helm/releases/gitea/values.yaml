@@ -1,0 +1,3 @@
+persistence:
+  enabled: false
+  # Add persistent volume claims when NFS/Ceph is ready
