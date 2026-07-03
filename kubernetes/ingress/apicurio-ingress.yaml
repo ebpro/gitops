@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: apicurio
+  namespace: apicurio
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - apicurio.ebruno.fr
+      secretName: apicurio-tls
+  rules:
+    - host: apicurio.ebruno.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: apicurio
+                port:
+                  number: 80
