@@ -1,0 +1,27 @@
+broker:
+  config:
+    baseUrl: https://pactbroker.ebruno.fr
+    databaseSslmode: disable
+    hidePactflowMessages: true
+    logLevel: info
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 512Mi
+database:
+  adapter: postgres
+  auth:
+    existingSecret: pact-broker-db
+    existingSecretPasswordKey: user-password
+    username: pactbroker
+  databaseName: pact_broker
+  host: pact-broker-db-postgresql.pact-broker.svc.cluster.local
+  port: "5432"
+ingress:
+  enabled: false
+service:
+  type: ClusterIP

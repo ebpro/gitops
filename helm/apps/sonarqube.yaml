@@ -1,4 +1,0 @@
-app: sonarqube
-repoURL: https://SonarSource.github.io/helm-chart-sonarqube
-version: 2026.1.0
-namespace: sonarqube

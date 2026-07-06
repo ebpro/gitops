@@ -1,0 +1,23 @@
+fullnameOverride: tempo
+persistence:
+  accessModes:
+    - ReadWriteOnce
+  enabled: true
+  size: 10Gi
+  storageClassName: local-path
+replicas: 1
+service:
+  type: ClusterIP
+serviceMonitor:
+  enabled: true
+tempo:
+  memBallastSizeMbs: 0
+  reportingEnabled: false
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 512Mi
+  retention: 168h

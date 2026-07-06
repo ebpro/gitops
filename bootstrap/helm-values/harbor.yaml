@@ -34,7 +34,7 @@ persistence:
     redis:
       accessMode: ReadWriteOnce
       size: 10Gi
-      storageClass: local-path
+      storageClass: standard
     registry:
       accessMode: ReadWriteOnce
       size: 50Gi

@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  description: >
+    Platform infrastructure, developer toolchain and CI/CD.
+  
+  sourceRepos:
+    - '*'
+  
+  destinations:
+    - namespace: 'argocd'
+      server: 'https://kubernetes.default.svc'
+    - namespace: 'kube-system'
+      server: 'https://kubernetes.default.svc'
+    - namespace: '*'
+      server: 'https://kubernetes.default.svc'
+
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+
+  # Restrict external secrets to only known Vault backend
+  roles:
+    - name: platform-admin
+      description: Full access to platform resources
+      policies:
+        - p, proj:platform:platform-admin, applications, *, platform/*, allow
+        - p, proj:platform:platform-admin, applications/*, *, platform/*, allow

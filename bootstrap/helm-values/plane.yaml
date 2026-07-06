@@ -1,0 +1,39 @@
+planeVersion: v1.2.0
+
+dockerRegistry:
+  enabled: false
+
+ingress:
+  enabled: false
+
+redis:
+  local_setup: false
+
+postgres:
+  local_setup: false
+
+rabbitmq:
+  local_setup: false
+
+env:
+  remote_redis_url: redis://plane-redis.plane.svc.cluster.local:6379/0
+  pgdb_remote_url: postgresql://plane:PLACEHOLDER@plane-postgresql.plane.svc.cluster.local:5432/plane
+  PLANE_URL: https://plane.ebruno.fr
+
+external_secrets:
+  pgdb_existingSecret: plane-postgresql-auth
+
+ssl:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    memory: 2Gi
+
+replicas: 2
+
+autoscaling:
+  enabled: false

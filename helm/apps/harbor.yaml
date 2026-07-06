@@ -1,4 +1,0 @@
-app: harbor
-repoURL: https://helm.goharbor.io
-version: 1.18.3
-namespace: harbor

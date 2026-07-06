@@ -1,4 +1,0 @@
-app: microcks
-repoURL: https://microcks.io/helm
-version: 1.13.2
-namespace: microcks

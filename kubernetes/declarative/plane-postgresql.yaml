@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
         - name: postgresql
-          image: docker.io/bitnami/postgresql:17
+          image: docker.io/bitnami/postgresql:17.5.0-debian-12-r0
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -64,9 +64,15 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /bitnami/postgresql
-      volumes:
-        - name: data
-          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 10Gi
 ---
 apiVersion: v1
 kind: Service
@@ -109,7 +115,7 @@ spec:
     spec:
       containers:
         - name: redis
-          image: docker.io/bitnami/redis:7.2.4
+          image: docker.io/bitnami/redis:8.2.1-debian-12-r3
           env:
             - name: ALLOW_EMPTY_PASSWORD
               value: "true"
@@ -126,6 +132,12 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /bitnami/redis/data
-      volumes:
-        - name: data
-          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 5Gi

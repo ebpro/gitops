@@ -1,4 +1,0 @@
-app: nexus
-repoURL: https://stevehipwell.github.io/helm-charts
-version: 5.20.0
-namespace: nexus

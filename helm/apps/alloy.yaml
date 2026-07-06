@@ -1,4 +1,0 @@
-app: alloy
-repoURL: https://grafana.github.io/helm-charts
-version: 1.6.2
-namespace: monitoring

@@ -1,4 +1,0 @@
-app: tempo
-repoURL: https://grafana.github.io/helm-charts
-version: 1.24.4
-namespace: tempo

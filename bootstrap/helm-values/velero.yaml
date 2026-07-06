@@ -2,14 +2,14 @@ configuration:
   backupStorageLocation:
     - bucket: velero-backups
       config:
-        region: default
+        region: minio
         s3ForcePathStyle: "true"
-        s3Url: http://svc.garage.hrsrv.local:8252
+        s3Url: http://minio.velero.svc:9000
       name: default
       provider: aws
   volumeSnapshotLocation:
     - config:
-        region: default
+        region: minio
       name: default
       provider: aws
 credentials:
@@ -28,7 +28,7 @@ nodeAgent:
 schedules:
   daily:
     disabled: false
-    schedule: "0 2 * * *"
+    schedule: 0 2 * * *
     template:
       includedNamespaces:
         - argocd
@@ -37,9 +37,4 @@ schedules:
         - sonarqube
         - actions-runner-controller
         - monitoring
-        - gitea
-        - plane
-        - apicurio
-        - vault
-        - external-secrets
       ttl: 168h
