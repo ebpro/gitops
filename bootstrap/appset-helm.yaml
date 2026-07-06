@@ -17,14 +17,6 @@ spec:
             version: "1.6.2"
             syncWave: "20"
             valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/alloy.yaml
-          - app: cert-manager
-            chart: cert-manager
-            namespace: cert-manager
-            releaseName: cert-manager
-            repoURL: https://charts.jetstack.io
-            version: "v1.19.2"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/cert-manager.yaml
           - app: external-secrets
             chart: external-secrets
             namespace: external-secrets
