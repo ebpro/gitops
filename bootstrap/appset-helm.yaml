@@ -9,15 +9,6 @@ spec:
   generators:
     - list:
         elements:
-          - app: actions-runner-controller
-            chart: actions-runner-controller
-            namespace: actions-runner-controller
-            releaseName: actions-runner-controller
-            repoURL: https://actions-runner-controller.github.io/actions-runner-controller
-            version: "0.23.7"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/actions-runner-controller.yaml
-            helmSkipCrds: "true"
           - app: alloy
             chart: alloy
             namespace: alloy
@@ -176,7 +167,6 @@ spec:
         helm:
           releaseName: '{{releaseName}}'
           valueFiles: ['{{valueFiles}}']
-          skipCrds: '{{- if helmSkipCrds }}true{{- end}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
@@ -186,3 +176,4 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
+
