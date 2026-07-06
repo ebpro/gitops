@@ -1,79 +1,72 @@
-additionalArguments:
-  - --certificatesresolvers.letsencrypt-ovh.acme.dnschallenge=true
-  - --certificatesresolvers.letsencrypt-ovh.acme.dnschallenge.provider=ovh
-  - --certificatesresolvers.letsencrypt-ovh.acme.dnschallenge.delayBeforeCheck=10
-  - --certificatesresolvers.letsencrypt-ovh.acme.storage=/data/acme.json
-  - --certificatesresolvers.letsencrypt-ovh.acme.email=acme@ebruno.fr
-deployment:
-  initContainers:
-    - command:
-        - sh
-        - -c
-        - touch /data/acme.json; chmod 600 /data/acme.json
-      image: busybox:latest
-      name: volume-permissions
-      securityContext:
-        allowPrivilegeEscalation: false
-        capabilities:
-          drop:
-            - ALL
-        runAsNonRoot: true
-        runAsUser: 65532
-        seccompProfile:
-          type: RuntimeDefault
-      volumeMounts:
-        - mountPath: /data
-          name: data
-  podAnnotations:
-    prometheus.io/port: "8082"
-    prometheus.io/scrape: "true"
+ports:
+  web:
+    redirectTo:
+      port: websecure
+  websecure:
+    http:
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: ebruno.fr
+
+certificatesResolvers:
+  letsencrypt:
+    email: acme@ebruno.fr
+    caServer: https://acme-v02.api.letsencrypt.org/directory
+    staging: false
+    dnsChallenge:
+      provider: ovh
+      delayBeforeCheck: 10
+      resolvers:
+        - "1.1.1.1:53"
+        - "8.8.8.8:53"
+
+providers:
+  kubernetesCRD:
+    enabled: true
+  kubernetesIngress:
+    enabled: true
+    ingressClass: traefik
+    allowEmptyServices: true
+
+ingressClass:
+  enabled: true
+  isDefaultClass: false
+
 env:
   - name: OVH_ENDPOINT
     value: ovh-eu
   - name: OVH_APPLICATION_KEY
     valueFrom:
       secretKeyRef:
-        key: applicationKey
         name: ovh-credentials
+        key: applicationKey
   - name: OVH_APPLICATION_SECRET
     valueFrom:
       secretKeyRef:
-        key: applicationSecret
         name: ovh-credentials
+        key: applicationSecret
   - name: OVH_CONSUMER_KEY
     valueFrom:
       secretKeyRef:
-        key: consumerKey
         name: ovh-credentials
-global:
-  systemDefaultRegistry: ""
-image:
-  repository: rancher/mirrored-library-traefik
-  tag: 3.5.1
+        key: consumerKey
+
+service:
+  spec:
+    loadBalancerIP: 10.2.248.31
+
+rbac:
+  enabled: true
+
 persistence:
   enabled: true
-  size: 128Mi
-podSecurityContext:
-  seccompProfile:
-    type: RuntimeDefault
-priorityClassName: system-cluster-critical
-providers:
-  kubernetesIngress:
-    publishedService:
-      enabled: true
-securityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-service:
-  ipFamilyPolicy: PreferDualStack
-tolerations:
-  - key: CriticalAddonsOnly
-    operator: Exists
-  - effect: NoSchedule
-    key: node-role.kubernetes.io/control-plane
-    operator: Exists
-  - effect: NoSchedule
-    key: node-role.kubernetes.io/master
-    operator: Exists
+  name: traefik
+  size: 1Gi
+
+logs:
+  general:
+    level: INFO
+metrics:
+  prometheus:
+    enabled: true
