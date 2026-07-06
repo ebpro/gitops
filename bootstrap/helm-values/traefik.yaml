@@ -16,7 +16,8 @@ certificatesResolvers:
     staging: false
     dnsChallenge:
       provider: ovh
-      delayBeforeCheck: 10
+      propagationTimeout: 120s
+      pollingInterval: 5s
       resolvers:
         - "1.1.1.1:53"
         - "8.8.8.8:53"
