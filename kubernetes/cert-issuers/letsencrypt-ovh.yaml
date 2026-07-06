@@ -1,17 +1,11 @@
+# OVH provider not available in cert-manager v1.19
+# Switching to self-signed for internal access.
+# To use Let's Encrypt, either:
+# 1. Install cert-manager-ovh-provider separately
+# 2. Configure DNS to point to LB Traefik IP (10.2.248.1) and use HTTP-01
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-ovh
 spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: acme@ebruno.fr
-    privateKeySecretRef:
-      name: letsencrypt-ovh
-    solvers:
-      - dns01:
-          dnsProviders:
-            - provider: ovh
-              apiKeySecretRef:
-                name: ovh-credentials
-                key: applicationKey
+  selfSigned: {}
