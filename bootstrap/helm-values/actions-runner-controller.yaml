@@ -266,3 +266,5 @@ volumes:
       sizeLimit: 5Gi
     name: containerd-run-storage
 webhookPort: 9443
+crds:
+  enabled: false
