@@ -4,16 +4,17 @@ metadata:
   name: plane
   namespace: plane
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-ovh
     traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.maxRequestBodyBytes: "20971520"
 spec:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
   ingressClassName: traefik
   tls:
     - hosts:
         - plane.ebruno.fr
-      secretName: plane-tls
   rules:
     - host: plane.ebruno.fr
       http:

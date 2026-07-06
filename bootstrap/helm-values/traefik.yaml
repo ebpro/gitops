@@ -5,12 +5,12 @@ ports:
   websecure:
     http:
       tls:
-        certResolver: letsencrypt
+        certResolver: letsencrypt-ovh
         domains:
           - main: ebruno.fr
 
 certificatesResolvers:
-  letsencrypt:
+  letsencrypt-ovh:
     email: acme@ebruno.fr
     caServer: https://acme-v02.api.letsencrypt.org/directory
     staging: false
@@ -51,13 +51,6 @@ env:
       secretKeyRef:
         name: ovh-credentials
         key: consumerKey
-
-service:
-  spec:
-    loadBalancerIP: 10.2.248.31
-
-rbac:
-  enabled: true
 
 persistence:
   enabled: true
