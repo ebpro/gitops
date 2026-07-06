@@ -17,7 +17,7 @@ spec:
             version: "0.23.7"
             syncWave: "20"
             valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/actions-runner-controller.yaml
-            helmSkipCRDs: "true"
+            helmSkipCrds: "true"
           - app: alloy
             chart: alloy
             namespace: alloy
@@ -176,8 +176,8 @@ spec:
         helm:
           releaseName: '{{releaseName}}'
           valueFiles: ['{{valueFiles}}']
-          {{- if helmSkipCRDs }}
-          skipCrds: {{ helmSkipCRDs }}
+          {{- if helmSkipCrds }}
+          skipCrds: {{ helmSkipCrds }}
           {{- end }}
       destination:
         server: https://kubernetes.default.svc
