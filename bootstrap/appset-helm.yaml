@@ -16,7 +16,7 @@ spec:
             repoURL: https://actions-runner-controller.github.io/actions-runner-controller
             version: "0.23.7"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/actions-runner-controller.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/actions-runner-controller.yaml
           - app: alloy
             chart: alloy
             namespace: alloy
@@ -24,7 +24,7 @@ spec:
             repoURL: https://grafana.github.io/helm-charts
             version: "1.6.2"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/alloy.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/alloy.yaml
           - app: cert-manager
             chart: cert-manager
             namespace: cert-manager
@@ -32,7 +32,7 @@ spec:
             repoURL: https://charts.jetstack.io
             version: "v1.19.2"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/cert-manager.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/cert-manager.yaml
           - app: external-secrets
             chart: external-secrets
             namespace: external-secrets
@@ -40,7 +40,7 @@ spec:
             repoURL: https://charts.external-secrets.io
             version: "2.4.1"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/external-secrets.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/external-secrets.yaml
           - app: garage
             chart: garage
             namespace: garage
@@ -48,7 +48,7 @@ spec:
             repoURL: https://garagehq.deuxfleurs.fr/_releases
             version: "0.9.2"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/garage.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/garage.yaml
           - app: gitea
             chart: gitea
             namespace: gitea
@@ -56,7 +56,7 @@ spec:
             repoURL: https://charts.bitnami.com/bitnami
             version: "3.2.22"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/gitea.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/gitea.yaml
           - app: harbor
             chart: harbor
             namespace: harbor
@@ -64,7 +64,7 @@ spec:
             repoURL: https://helm.goharbor.io
             version: "1.18.3"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/harbor.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/harbor.yaml
           - app: kube-prometheus
             chart: kube-prometheus-stack
             namespace: kube-prometheus
@@ -72,7 +72,7 @@ spec:
             repoURL: https://prometheus-community.github.io/helm-charts
             version: "80.6.0"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/kube-prometheus.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/kube-prometheus.yaml
           - app: loki
             chart: loki
             namespace: loki
@@ -80,7 +80,7 @@ spec:
             repoURL: https://grafana.github.io/helm-charts
             version: "6.55.0"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/loki.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/loki.yaml
           - app: microcks
             chart: microcks
             namespace: microcks
@@ -88,7 +88,7 @@ spec:
             repoURL: https://microcks.io/helm
             version: "1.13.2"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/microcks.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/microcks.yaml
           - app: nexus
             chart: nexus-repository-manager
             namespace: nexus
@@ -96,7 +96,7 @@ spec:
             repoURL: https://stevehipwell.github.io/helm-charts
             version: "5.20.0"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/nexus.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/nexus.yaml
           - app: nfs-client
             chart: nfs-subdir-external-provisioner
             namespace: nfs-client
@@ -104,7 +104,7 @@ spec:
             repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
             version: "4.0.18"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/nfs-client.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/nfs-client.yaml
           - app: pact-broker
             chart: pact-broker
             namespace: pact-broker
@@ -112,7 +112,7 @@ spec:
             repoURL: https://pact-foundation.github.io/pact-broker-chart
             version: "6.1.0"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/pact-broker.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/pact-broker.yaml
           - app: plane
             chart: plane
             namespace: plane
@@ -120,7 +120,7 @@ spec:
             repoURL: https://helm.plane.so
             version: "1.6.0"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/plane.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/plane.yaml
           - app: sonarqube
             chart: sonarqube
             namespace: sonarqube
@@ -128,7 +128,7 @@ spec:
             repoURL: https://SonSource.github.io/helm-chart-sonarqube
             version: "2026.1.0"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/sonarqube.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/sonarqube.yaml
           - app: tempo
             chart: tempo
             namespace: tempo
@@ -136,7 +136,7 @@ spec:
             repoURL: https://grafana.github.io/helm-charts
             version: "1.24.4"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/tempo.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/tempo.yaml
           - app: traefik
             chart: traefik
             namespace: kube-system
@@ -144,7 +144,7 @@ spec:
             repoURL: https://traefik.github.io/charts
             version: "37.1.1"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/traefik.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/traefik.yaml
           - app: vault
             chart: vault
             namespace: vault
@@ -152,7 +152,7 @@ spec:
             repoURL: https://helm.releases.hashicorp.com
             version: "0.32.0"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/vault.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/vault.yaml
           - app: velero
             chart: velero
             namespace: velero
@@ -160,7 +160,7 @@ spec:
             repoURL: https://vmware-tanzu.github.io/helm-charts
             version: "6.0.0"
             syncWave: "20"
-            valueFiles: bootstrap/helm-values/velero.yaml
+            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/velero.yaml
   template:
     metadata:
       name: '{{app}}'
