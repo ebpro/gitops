@@ -4,8 +4,10 @@ metadata:
   name: argocd-ingress
   namespace: argocd
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-ovh
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
 spec:
   ingressClassName: traefik
   rules:
@@ -22,4 +24,3 @@ spec:
   tls:
     - hosts:
         - argocd.ebruno.fr
-      secretName: argocd-tls
