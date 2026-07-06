@@ -176,9 +176,7 @@ spec:
         helm:
           releaseName: '{{releaseName}}'
           valueFiles: ['{{valueFiles}}']
-          {{- if helmSkipCrds }}
-          skipCrds: {{ helmSkipCrds }}
-          {{- end }}
+          skipCrds: '{{helmSkipCrds}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
