@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: actions-runner-controller
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+spec:
+  destination:
+    namespace: actions-runner-controller
+    server: https://kubernetes.default.svc
+  project: platform
+  source:
+    chart: actions-runner-controller
+    repoURL: https://actions-runner-controller.github.io/actions-runner-controller
+    targetRevision: "0.23.7"
+    helm:
+      releaseName: actions-runner-controller
+      skipCrds: true
+      valueFiles:
+        - https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/actions-runner-controller.yaml
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
