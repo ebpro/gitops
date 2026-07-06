@@ -3,6 +3,8 @@ kind: ApplicationSet
 metadata:
   name: kubernetes-manifests
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "11"
 spec:
   generators:
     - git:
@@ -30,3 +32,4 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
+          - ServerSideApply=true
