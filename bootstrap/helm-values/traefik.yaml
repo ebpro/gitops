@@ -20,8 +20,6 @@ certificatesResolvers:
       caServer: https://acme-v02.api.letsencrypt.org/directory
       dnsChallenge:
         provider: ovh
-        propagationTimeout: 120s
-        pollingInterval: 5s
         resolvers:
           - "1.1.1.1:53"
           - "8.8.8.8:53"
