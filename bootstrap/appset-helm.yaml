@@ -250,13 +250,16 @@ spec:
           prune: true
           selfHeal: true
         syncOptions:
-{{- if syncOptions }}
-{{ syncOptions | indent 10 }}
-{{- else }}
           - CreateNamespace=true
+{{- if syncOptions }}
+          {{- range $opt := .syncOptions }}
+          - {{ $opt }}
+{{- end }}
 {{- end }}
 {{- if ignoreDifferences }}
         ignoreDifferences:
-{{ ignoreDifferences | indent 10 }}
+{{- range $diff := .ignoreDifferences }}
+{{ $diff }}
+{{- end }}
 {{- end }}
 
