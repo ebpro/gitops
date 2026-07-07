@@ -74,11 +74,11 @@ spec:
             syncWave: "20"
             valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/microcks.yaml
           - app: nexus
-            chart: nexus-repository-manager
+            chart: nexus3
             namespace: nexus
             releaseName: nexus
             repoURL: https://stevehipwell.github.io/helm-charts
-            version: "5.20.0"
+            version: "5.23.1"
             syncWave: "20"
             valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/nexus.yaml
           - app: nfs-client
