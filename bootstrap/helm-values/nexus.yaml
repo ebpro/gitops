@@ -5,7 +5,7 @@ env:
     valueFrom:
       secretKeyRef:
         key: username
-        name: nexus-postgres-auth
+        name: nexus-postgresql-auth
   - name: NEXUS_DATASTORE_NEXUS_PASSWORD
     valueFrom:
       secretKeyRef:
