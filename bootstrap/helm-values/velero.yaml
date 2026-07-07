@@ -38,3 +38,4 @@ schedules:
         - actions-runner-controller
         - monitoring
       ttl: 168h
+upgradeCRDs: false
