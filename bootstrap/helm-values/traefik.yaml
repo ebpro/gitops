@@ -61,7 +61,7 @@ env:
 persistence:
   enabled: true
   name: traefik
-  size: 1Gi
+  size: 128Mi
 
 logs:
   general:
