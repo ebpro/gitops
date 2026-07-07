@@ -249,15 +249,14 @@ spec:
         automated:
           prune: true
           selfHeal: true
+        syncOptions:
 {{- if syncOptions }}
-        syncOptions:
-{{ syncOptions }}
+{{ syncOptions | indent 10 }}
 {{- else }}
-        syncOptions:
           - CreateNamespace=true
 {{- end }}
 {{- if ignoreDifferences }}
         ignoreDifferences:
-{{ ignoreDifferences }}
+{{ ignoreDifferences | indent 10 }}
 {{- end }}
 
