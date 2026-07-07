@@ -22,7 +22,7 @@ spec:
             namespace: external-secrets
             releaseName: external-secrets
             repoURL: https://charts.external-secrets.io
-            version: "2.4.1"
+            version: "0.14.4"
             syncWave: "20"
             valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/external-secrets.yaml
           - app: garage
