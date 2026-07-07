@@ -2,11 +2,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: alloy-ingress
-  namespace: monitoring
+  namespace: alloy
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+    traefik.ingress.kubernetes.io/service.namespace: alloy
 spec:
   ingressClassName: traefik
   rules:
@@ -19,4 +20,4 @@ spec:
               service:
                 name: alloy
                 port:
-                  number: 8080
+                  number: 12345
