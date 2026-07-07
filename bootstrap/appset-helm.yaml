@@ -98,7 +98,7 @@ spec:
             syncWave: "20"
             valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/pact-broker.yaml
           - app: plane
-            chart: plane
+            chart: plane-ce
             namespace: plane
             releaseName: plane
             repoURL: https://helm.plane.so
