@@ -143,6 +143,57 @@ spec:
             version: "0.32.0"
             syncWave: "20"
             valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/vault.yaml
+            ignoreDifferences: |
+              - group: ""
+                kind: Secret
+                jsonPointers:
+                  - /data
+                  - /metadata.annotations
+                  - /metadata.labels
+              - group: ""
+                kind: ConfigMap
+                jsonPointers:
+                  - /data
+                  - /metadata.annotations
+              - group: apps
+                kind: StatefulSet
+                jsonPointers:
+                  - /spec.template.metadata.annotations
+                  - /spec.template.spec.containers[0].env
+                  - /metadata.annotations
+              - group: apps
+                kind: Deployment
+                jsonPointers:
+                  - /spec.template.metadata.annotations
+                  - /spec.template.spec.containers[0].env
+                  - /metadata.annotations
+              - group: rbac.authorization.k8s.io
+                kind: "*"
+                jsonPointers:
+                  - /roleRef
+                  - /subjects
+                  - /rules
+              - group: ""
+                kind: ServiceAccount
+                jsonPointers:
+                  - /secrets
+              - group: admissionregistration.k8s.io
+                kind: MutatingWebhookConfiguration
+                jsonPointers:
+                  - /webhooks
+              - group: ""
+                kind: Service
+                jsonPointers:
+                  - /spec.clusterIP
+                  - /spec.ports
+              - group: policy
+                kind: PodDisruptionBudget
+                jsonPointers:
+                  - /spec
+                  - /status
+            syncOptions: |
+              - CreateNamespace=true
+              - Replace=true
           - app: velero
             chart: velero
             namespace: velero
@@ -172,6 +223,15 @@ spec:
         automated:
           prune: true
           selfHeal: true
+{{- if syncOptions }}
+        syncOptions:
+{{ syncOptions }}
+{{- else }}
         syncOptions:
           - CreateNamespace=true
+{{- end }}
+{{- if ignoreDifferences }}
+        ignoreDifferences:
+{{ ignoreDifferences }}
+{{- end }}
 
