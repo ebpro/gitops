@@ -93,7 +93,7 @@ spec:
     app.kubernetes.io/instance: plane
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: plane-redis
   namespace: plane
@@ -102,6 +102,7 @@ metadata:
     app.kubernetes.io/instance: plane
     app.kubernetes.io/part-of: plane
 spec:
+  serviceName: plane-redis
   replicas: 1
   selector:
     matchLabels:
