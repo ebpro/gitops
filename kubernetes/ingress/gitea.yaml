@@ -4,16 +4,11 @@ metadata:
   name: gitea
   namespace: gitea
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-spec:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+spec:
   ingressClassName: traefik
-  tls:
-    - hosts:
-        - gitea.ebruno.fr
   rules:
     - host: gitea.ebruno.fr
       http:
