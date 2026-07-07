@@ -4,11 +4,10 @@ metadata:
   name: sonarqube-ingress
   namespace: sonarqube
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-spec:
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+spec:
   ingressClassName: traefik
   rules:
     - host: sonarqube.ebruno.fr
@@ -21,6 +20,3 @@ spec:
                 name: sonarqube
                 port:
                   number: 9000
-  tls:
-    - hosts:
-        - sonarqube.ebruno.fr

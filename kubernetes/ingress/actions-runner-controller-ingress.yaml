@@ -4,11 +4,10 @@ metadata:
   name: arc-webhook
   namespace: actions-runner-controller
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-spec:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+spec:
   ingressClassName: traefik
   rules:
     - host: actions-runner-controller.ebruno.fr
@@ -21,6 +20,3 @@ spec:
                 name: actions-runner-controller-webhook
                 port:
                   number: 9443
-  tls:
-    - hosts:
-        - actions-runner-controller.ebruno.fr

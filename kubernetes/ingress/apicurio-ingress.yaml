@@ -4,16 +4,11 @@ metadata:
   name: apicurio
   namespace: apicurio
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-spec:
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+spec:
   ingressClassName: traefik
-  tls:
-    - hosts:
-        - apicurio.ebruno.fr
   rules:
     - host: apicurio.ebruno.fr
       http:

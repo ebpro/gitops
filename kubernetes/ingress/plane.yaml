@@ -4,17 +4,12 @@ metadata:
   name: plane
   namespace: plane
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.maxRequestBodyBytes: "20971520"
-spec:
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+    traefik.ingress.kubernetes.io/router.maxRequestBodyBytes: "20971520"
+spec:
   ingressClassName: traefik
-  tls:
-    - hosts:
-        - plane.ebruno.fr
   rules:
     - host: plane.ebruno.fr
       http:
