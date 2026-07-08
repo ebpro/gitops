@@ -4,234 +4,147 @@ metadata:
   name: helm-apps
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-wave: '10'
 spec:
   generators:
-    - list:
-        elements:
-          - app: alloy
-            chart: alloy
-            namespace: alloy
-            releaseName: alloy
-            repoURL: https://grafana.github.io/helm-charts
-            version: "1.6.2"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/alloy.yaml
-          - app: external-secrets
-            chart: external-secrets
-            namespace: external-secrets
-            releaseName: external-secrets
-            repoURL: https://charts.external-secrets.io
-            version: "2.7.0"
-            syncWave: "20"
-            ignoreDifferences: |
-              - group: apiextensions.k8s.io
-                kind: CustomResourceDefinition
-                jsonPointers:
-                - /metadata/annotations
-                - /status
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/external-secrets.yaml
-          - app: garage
-            chart: garage
-            namespace: garage
-            releaseName: garage
-            repoURL: https://garagehq.deuxfleurs.fr/_releases
-            version: "0.9.2"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/garage.yaml
-          - app: gitea
-            chart: gitea
-            namespace: gitea
-            releaseName: gitea
-            repoURL: https://charts.bitnami.com/bitnami
-            version: "3.2.22"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/gitea.yaml?v=2
-          - app: harbor
-            chart: harbor
-            namespace: harbor
-            releaseName: harbor
-            repoURL: https://helm.goharbor.io
-            version: "1.18.3"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/harbor.yaml
-          - app: kube-prometheus
-            chart: kube-prometheus-stack
-            namespace: kube-prometheus
-            releaseName: kube-prometheus
-            repoURL: https://prometheus-community.github.io/helm-charts
-            version: "80.6.0"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/kube-prometheus.yaml
-            ignoreDifferences: |
-              - group: apiextensions.k8s.io
-                kind: CustomResourceDefinition
-                jsonPointers:
-                  - /metadata/annotations
-                  - /status
-            syncOptions:
-              - CreateNamespace=true
-              - Replace=true
-          - app: loki
-            chart: loki
-            namespace: loki
-            releaseName: loki
-            repoURL: https://grafana.github.io/helm-charts
-            version: "6.55.0"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/loki.yaml
-          - app: microcks
-            chart: microcks
-            namespace: microcks
-            releaseName: microcks
-            repoURL: https://microcks.io/helm
-            version: "1.13.2"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/microcks.yaml
-          - app: nexus
-            chart: nexus3
-            namespace: nexus
-            releaseName: nexus
-            repoURL: https://stevehipwell.github.io/helm-charts
-            version: "5.23.1"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/nexus.yaml
-          - app: nfs-client
-            chart: nfs-subdir-external-provisioner
-            namespace: nfs-client
-            releaseName: nfs-client
-            repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
-            version: "4.0.18"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/nfs-client.yaml
-          - app: pact-broker
-            chart: pact-broker
-            namespace: pact-broker
-            releaseName: pact-broker
-            repoURL: https://pact-foundation.github.io/pact-broker-chart
-            version: "6.1.0"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/pact-broker.yaml
-          - app: plane
-            chart: plane-ce
-            namespace: plane
-            releaseName: plane
-            repoURL: https://helm.plane.so
-            version: "1.6.0"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/plane.yaml
-            ignoreDifferences: |
-              - group: apps
-                kind: "*"
-                jsonPointers:
-                  - /metadata/annotations
-                  - /status
-              - group: batch
-                kind: "*"
-                jsonPointers:
-                  - /metadata/annotations
-                  - /status
-                jqComparators:
-                  - del(..["metadata"]["creationTimestamp"])
-                  - del(..["metadata"]["resourceVersion"])
-                  - del(..["metadata"]["uid"])
-                  - del(..["status"])
-            syncOptions:
-            - CreateNamespace=true
-            - Replace=true
-            - RespectIgnoreDifferences=true
-            - SkipDryRunOnMissingResource=true
-          - app: sonarqube
-            chart: sonarqube
-            namespace: sonarqube
-            releaseName: sonarqube
-            repoURL: https://SonSource.github.io/helm-chart-sonarqube
-            version: "2026.1.0"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/sonarqube.yaml
-          - app: tempo
-            chart: tempo
-            namespace: tempo
-            releaseName: tempo
-            repoURL: https://grafana.github.io/helm-charts
-            version: "1.24.4"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/tempo.yaml
-          - app: traefik
-            chart: traefik
-            namespace: kube-system
-            releaseName: traefik
-            repoURL: https://traefik.github.io/charts
-            version: "37.1.1"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/traefik.yaml
-          - app: vault
-            chart: vault
-            namespace: vault
-            releaseName: vault
-            repoURL: https://helm.releases.hashicorp.com
-            version: "0.32.0"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/vault.yaml
-            ignoreDifferences: |
-              - group: ""
-                kind: Secret
-                jsonPointers:
-                  - /data
-                  - /metadata.annotations
-                  - /metadata.labels
-              - group: ""
-                kind: ConfigMap
-                jsonPointers:
-                  - /data
-                  - /metadata.annotations
-              - group: apps
-                kind: StatefulSet
-                jsonPointers:
-                  - /spec.template.metadata.annotations
-                  - /spec.template.spec.containers[0].env
-                  - /metadata.annotations
-              - group: apps
-                kind: Deployment
-                jsonPointers:
-                  - /spec.template.metadata.annotations
-                  - /spec.template.spec.containers[0].env
-                  - /metadata.annotations
-              - group: rbac.authorization.k8s.io
-                kind: "*"
-                jsonPointers:
-                  - /roleRef
-                  - /subjects
-                  - /rules
-              - group: ""
-                kind: ServiceAccount
-                jsonPointers:
-                  - /secrets
-              - group: admissionregistration.k8s.io
-                kind: MutatingWebhookConfiguration
-                jsonPointers:
-                  - /webhooks
-              - group: ""
-                kind: Service
-                jsonPointers:
-                  - /spec.clusterIP
-                  - /spec.ports
-              - group: policy
-                kind: PodDisruptionBudget
-                jsonPointers:
-                 - /spec
-                 - /status
-            syncOptions:
-              - CreateNamespace=true
-              - Replace=true
-          - app: velero
-            chart: velero
-            namespace: velero
-            releaseName: velero
-            repoURL: https://vmware-tanzu.github.io/helm-charts
-            version: "7.2.2"
-            syncWave: "20"
-            valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/velero.yaml
+  - list:
+      elements:
+      - app: alloy
+        chart: alloy
+        namespace: alloy
+        releaseName: alloy
+        repoURL: https://grafana.github.io/helm-charts
+        version: 1.6.2
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/alloy.yaml
+      - app: external-secrets
+        chart: external-secrets
+        namespace: external-secrets
+        releaseName: external-secrets
+        repoURL: https://charts.external-secrets.io
+        version: 2.7.0
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/external-secrets.yaml
+      - app: garage
+        chart: garage
+        namespace: garage
+        releaseName: garage
+        repoURL: https://garagehq.deuxfleurs.fr/_releases
+        version: 0.9.2
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/garage.yaml
+      - app: gitea
+        chart: gitea
+        namespace: gitea
+        releaseName: gitea
+        repoURL: https://charts.bitnami.com/bitnami
+        version: 3.2.22
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/gitea.yaml
+      - app: harbor
+        chart: harbor
+        namespace: harbor
+        releaseName: harbor
+        repoURL: https://helm.goharbor.io
+        version: 1.18.3
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/harbor.yaml
+      - app: kube-prometheus
+        chart: kube-prometheus-stack
+        namespace: kube-prometheus
+        releaseName: kube-prometheus
+        repoURL: https://prometheus-community.github.io/helm-charts
+        version: 80.6.0
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/kube-prometheus.yaml
+      - app: loki
+        chart: loki
+        namespace: loki
+        releaseName: loki
+        repoURL: https://grafana.github.io/helm-charts
+        version: 6.55.0
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/loki.yaml
+      - app: microcks
+        chart: microcks
+        namespace: microcks
+        releaseName: microcks
+        repoURL: https://microcks.io/helm
+        version: 1.13.2
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/microcks.yaml
+      - app: nexus
+        chart: nexus3
+        namespace: nexus
+        releaseName: nexus
+        repoURL: https://stevehipwell.github.io/helm-charts
+        version: 5.23.1
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/nexus.yaml
+      - app: nfs-client
+        chart: nfs-subdir-external-provisioner
+        namespace: nfs-client
+        releaseName: nfs-client
+        repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+        version: 4.0.18
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/nfs-client.yaml
+      - app: pact-broker
+        chart: pact-broker
+        namespace: pact-broker
+        releaseName: pact-broker
+        repoURL: https://pact-foundation.github.io/pact-broker-chart
+        version: 6.1.0
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/pact-broker.yaml
+      - app: plane
+        chart: plane-ce
+        namespace: plane
+        releaseName: plane
+        repoURL: https://helm.plane.so
+        version: 1.6.0
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/plane.yaml
+      - app: sonarqube
+        chart: sonarqube
+        namespace: sonarqube
+        releaseName: sonarqube
+        repoURL: https://SonSource.github.io/helm-chart-sonarqube
+        version: 2026.1.0
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/sonarqube.yaml
+      - app: tempo
+        chart: tempo
+        namespace: tempo
+        releaseName: tempo
+        repoURL: https://grafana.github.io/helm-charts
+        version: 1.24.4
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/tempo.yaml
+      - app: traefik
+        chart: traefik
+        namespace: kube-system
+        releaseName: traefik
+        repoURL: https://traefik.github.io/charts
+        version: 37.1.1
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/traefik.yaml
+      - app: vault
+        chart: vault
+        namespace: vault
+        releaseName: vault
+        repoURL: https://helm.releases.hashicorp.com
+        version: 0.32.0
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/vault.yaml
+      - app: velero
+        chart: velero
+        namespace: velero
+        releaseName: velero
+        repoURL: https://vmware-tanzu.github.io/helm-charts
+        version: 7.2.2
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/velero.yaml
   template:
     metadata:
       name: '{{app}}'
@@ -245,7 +158,8 @@ spec:
         targetRevision: '{{version}}'
         helm:
           releaseName: '{{releaseName}}'
-          valueFiles: ['{{valueFiles}}']
+          valueFiles:
+          - '{{valueFiles}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
@@ -254,5 +168,4 @@ spec:
           prune: true
           selfHeal: true
         syncOptions:
-          - CreateNamespace=true
-
+        - CreateNamespace=true
