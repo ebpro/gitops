@@ -1,0 +1,79 @@
+image:
+  registry: docker.io
+  repository: gitea/gitea
+  tag: 1.24.5
+  pullPolicy: IfNotPresent
+  rootless: true
+
+serviceAccount:
+  create: true
+
+gitea:
+  additionalConfig:
+    service: |
+      DISABLE_REGISTRATION = false
+      REQUIRE_SIGNIN_VIEW = false
+    repository: |
+      DEFAULT_PRIVATE = private
+
+  additionalEnv:
+    - name: GITEA_SERVER_ROOT_URL
+      value: https://gitea.ebruno.fr
+    - name: GITEA_SERVER_DOMAIN
+      value: gitea.ebruno.fr
+    - name: GITEA_SERVER_HTTP_PORT
+      value: "3000"
+    - name: GITEA_SERVER_SSH_LISTENER_PORT
+      value: "22"
+    - name: GITEA_SERVER_OFFLINE_MODE
+      value: "true"
+    - name: GITEA_SERVER_START_SSH_SERVER
+      value: "true"
+    - name: GITEA_DATABASE_TYPE
+      value: postgres
+    - name: GITEA_DATABASE_HOST
+      value: gitea-postgresql.gitea.svc.cluster.local:5432
+    - name: GITEA_DATABASE_NAME
+      value: gitea
+    - name: GITEA_DATABASE_USER
+      value: gitea
+    - name: GITEA_DATABASE_PASSWD
+      valueFrom:
+        secretKeyRef:
+          name: gitea-postgresql-auth
+          key: password
+    - name: GITEA_ADMIN_USERNAME
+      value: admin
+    - name: GITEA_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: gitea-admin-secret
+          key: password
+    - name: GITEA_DEFAULT_ACTIONS_URL
+      value: https://runner.ebruno.fr
+    - name: GITEA_DEFAULT_ACTIONS_ARTIFACT_URL
+      value: https://runner.ebruno.fr
+
+postgresql:
+  enabled: false
+
+postgresql-ha:
+  enabled: false
+
+ingress:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 3000
+
+persistence:
+  enabled: true
+  size: 20Gi
+  storageClassName: local-path
+
+securityContext:
+  enabled: true
+  runAsUser: git
+  runAsGroup: git
+  fsGroup: git
