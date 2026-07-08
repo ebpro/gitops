@@ -1,3 +1,5 @@
+# Nexus3 custom values for PostgreSQL-backed datastore
+
 env:
   - name: NEXUS_DATASTORE_NEXUS_JDBCURL
     value: jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus
@@ -13,6 +15,7 @@ env:
       secretKeyRef:
         key: password
         name: nexus-postgresql-auth
+
 extraInitContainers:
   - name: db-setup
     image: docker.io/cgr.dev/chainguard/postgres:latest
@@ -29,25 +32,76 @@ extraInitContainers:
           secretKeyRef:
             key: password
             name: nexus-postgresql-auth
-    volumeMounts: []
+
 image:
-  pullPolicy: IfNotPresent
   repository: docker.io/sonatype/nexus3
   tag: 3.90.2
+  pullPolicy: IfNotPresent
+
+bashImage:
+  repository: cgr.dev/chainguard/bash
+  tag: latest
+  pullPolicy: IfNotPresent
+
+jdkImage:
+  repository: docker.io/eclipse-temurin
+  tag: 21-jdk
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8081
+
 ingress:
   enabled: false
+
 install4jAddVmParams: "-Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs -Xms4096m -Xmx4096m -XX:MaxDirectMemorySize=8192m"
+
 persistence:
-  accessMode: ReadWriteOnce
   enabled: true
-  existingClaim: ""
-  retainDeleted: true
-  retainScaled: true
+  accessMode: ReadWriteOnce
   size: 50Gi
   storageClass: local-path
-podSecurityContext:
-  fsGroup: 200
+  retainDeleted: true
+  retainScaled: true
+
 replicas: 1
+
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 200
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 200
+  runAsGroup: 200
+
+initNonRootSecurityContext:
+  privileged: false
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  capabilities:
+    drop:
+      - ALL
+
+initRootSecurityContext:
+  privileged: false
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 0
+  runAsGroup: 0
+  capabilities:
+    drop:
+      - ALL
+
+initResources: {}
+
 resources:
   limits:
     cpu: 4
@@ -55,10 +109,60 @@ resources:
   requests:
     cpu: 3400m
     memory: 4Gi
-securityContext:
-  runAsGroup: 200
-  runAsNonRoot: true
-  runAsUser: 200
-service:
-  port: 8081
-  type: ClusterIP
+
+license:
+  enabled: false
+
+caCerts:
+  enabled: false
+
+config:
+  enabled: false
+
+plugins: []
+
+chownDataDir: true
+
+logback:
+  maxHistory: 30
+
+tailLogs:
+  resources: {}
+
+rootPassword:
+  secret:
+  key: password
+
+commonLabels: {}
+
+imagePullSecrets: []
+
+nameOverride:
+fullnameOverride:
+serviceAccount:
+  create: true
+  automountToken: false
+
+automountServiceAccountToken:
+updateStrategy: {}
+ordinals: {}
+podManagementPolicy:
+minReadySeconds:
+podLabels: {}
+podAnnotations: {}
+podDisruptionBudget:
+  enabled: false
+nodeSelector: {}
+tolerations: []
+affinity: {}
+topologySpreadConstraints: []
+priorityClassName:
+terminationGracePeriodSeconds:
+metrics:
+  enabled: false
+
+manualMaintenanceMode:
+  enabled: false
+
+httpRoute:
+  enabled: false
