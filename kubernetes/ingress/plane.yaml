@@ -21,3 +21,6 @@ spec:
                 name: plane
                 port:
                   number: 80
+  tls:
+    - hosts:
+      - plane.ebruno.fr

@@ -20,7 +20,7 @@ keycloak:
       memory: 768Mi
   url: keycloak-microcks.ebruno.fr
 microcks:
-  generateCert: true
+  generateCert: false
   ingressAnnotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"

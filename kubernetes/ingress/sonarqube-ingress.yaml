@@ -20,3 +20,6 @@ spec:
                 name: sonarqube
                 port:
                   number: 9000
+  tls:
+    - hosts:
+      - sonarqube.ebruno.fr

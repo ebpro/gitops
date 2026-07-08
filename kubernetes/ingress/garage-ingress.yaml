@@ -20,3 +20,6 @@ spec:
                 name: garage
                 port:
                   number: 9090
+  tls:
+    - hosts:
+      - garage.ebruno.fr
