@@ -3,8 +3,8 @@ global:
     allowInsecureImages: true
 
 image:
-  repository: gitea/gitea
-  tag: 1.24.5
+  registry: docker.io
+  repository: bitnami/gitea
   pullPolicy: IfNotPresent
 
 adminUsername: admin
