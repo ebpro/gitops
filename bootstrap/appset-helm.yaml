@@ -67,9 +67,9 @@ spec:
               - group: apiextensions.k8s.io
                 kind: CustomResourceDefinition
                 jsonPointers:
-                  - /metadata/annotations
+                 - /metadata/annotations
                   - /status
-            syncOptions: |
+              syncOptions:
               - CreateNamespace=true
               - Replace=true
           - app: loki
@@ -133,10 +133,10 @@ spec:
                   - del(..["metadata"]["resourceVersion"])
                   - del(..["metadata"]["uid"])
                   - del(..["status"])
-            syncOptions: |
-              - CreateNamespace=true
-              - Replace=true
-              - SkipDryRunOnMissingResource=true
+            syncOptions:
+            - CreateNamespace=true
+            - Replace=true
+            - SkipDryRunOnMissingResource=true
           - app: sonarqube
             chart: sonarqube
             namespace: sonarqube
@@ -215,9 +215,9 @@ spec:
               - group: policy
                 kind: PodDisruptionBudget
                 jsonPointers:
-                  - /spec
-                  - /status
-            syncOptions: |
+                - /spec
+                - /status
+              syncOptions:
               - CreateNamespace=true
               - Replace=true
           - app: velero
@@ -252,7 +252,7 @@ spec:
         syncOptions:
           - CreateNamespace=true
 {{- if syncOptions }}
-{{- range $opt := fromYaml .syncOptions }}
+{{- range $opt := .syncOptions }}
           - {{ $opt }}
 {{- end }}
 {{- end }}
