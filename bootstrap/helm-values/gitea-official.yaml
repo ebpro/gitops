@@ -10,35 +10,11 @@ serviceAccount:
 
 deployment:
   env:
-    - name: GITEA_SERVER_ROOT_URL
-      value: https://gitea.ebruno.fr
-    - name: GITEA_SERVER_DOMAIN
-      value: gitea.ebruno.fr
-    - name: GITEA_SERVER_HTTP_PORT
-      value: "3000"
-    - name: GITEA_SERVER_SSH_LISTENER_PORT
-      value: "22"
-    - name: GITEA_SERVER_OFFLINE_MODE
-      value: "true"
-    - name: GITEA_SERVER_START_SSH_SERVER
-      value: "true"
-    - name: GITEA_DATABASE_TYPE
-      value: postgres
-    - name: GITEA_DATABASE_HOST
-      value: gitea-postgresql.gitea.svc.cluster.local:5432
-    - name: GITEA_DATABASE_NAME
-      value: gitea
-    - name: GITEA_DATABASE_USER
-      value: gitea
-    - name: GITEA_DATABASE_PASSWD
+    - name: GITEA__DATABASE__PASSWD
       valueFrom:
         secretKeyRef:
           name: gitea-postgresql-auth
           key: password
-    - name: GITEA_DEFAULT_ACTIONS_URL
-      value: https://runner.ebruno.fr
-    - name: GITEA_DEFAULT_ACTIONS_ARTIFACT_URL
-      value: https://runner.ebruno.fr
 
 gitea:
   admin:
@@ -48,6 +24,20 @@ gitea:
     passwordMode: keepUpdated
 
   config:
+    _generals_:
+      APP_NAME: Gitea
+    database:
+      DB_TYPE: postgres
+      HOST: gitea-postgresql.gitea.svc.cluster.local:5432
+      NAME: gitea
+      USER: gitea
+    server:
+      ROOT_URL: https://gitea.ebruno.fr
+      DOMAIN: gitea.ebruno.fr
+      HTTP_PORT: 3000
+      SSH_LISTEN_PORT: 22
+      OFFLINE_MODE: true
+      START_SSH_SERVER: true
     service:
       DISABLE_REGISTRATION: true
       REQUIRE_SIGNIN_VIEW: false
