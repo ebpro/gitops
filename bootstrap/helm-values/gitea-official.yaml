@@ -42,7 +42,10 @@ deployment:
 
 gitea:
   admin:
-    existingSecret: gitea-admin-secret
+    username: admin
+    email: admin@eb
+    password: gitea-admin-pwd
+    passwordMode: keepUpdated
 
   config:
     service:
