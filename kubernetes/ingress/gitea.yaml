@@ -17,9 +17,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: gitea
+                name: gitea-http
                 port:
-                  number: 80
+                  number: 3000
   tls:
     - hosts:
       - gitea.ebruno.fr
