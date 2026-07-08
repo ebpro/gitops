@@ -16,24 +16,6 @@ env:
         key: password
         name: nexus-postgresql-auth
 
-extraInitContainers:
-  - name: db-setup
-    image: docker.io/library/postgres:16-alpine
-    command:
-      - /bin/sh
-      - -c
-      - |
-        until pg_isready -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus; do echo waiting for postgres; sleep 2; done
-        psql -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus -d nexus -c "CREATE SCHEMA IF NOT EXISTS nexus;"
-        psql -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus -d nexus -c "GRANT ALL ON SCHEMA nexus TO nexus;"
-        psql -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus -d nexus -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA nexus TO nexus;"
-    securityContext:
-      runAsNonRoot: false
-      runAsUser: 0
-      capabilities:
-        drop:
-          - ALL
-
 image:
   repository: docker.io/sonatype/nexus3
   tag: 3.90.2
@@ -122,7 +104,7 @@ config:
 
 plugins: []
 
-chownDataDir: true
+chownDataDir: false
 
 logback:
   maxHistory: 30
