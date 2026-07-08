@@ -252,14 +252,14 @@ spec:
         syncOptions:
           - CreateNamespace=true
 {{- if syncOptions }}
-          {{- range $opt := .syncOptions }}
+{{- range $opt := fromYaml .syncOptions }}
           - {{ $opt }}
 {{- end }}
 {{- end }}
 {{- if ignoreDifferences }}
         ignoreDifferences:
-{{- range $diff := .ignoreDifferences }}
-{{ $diff }}
+{{- range $diff := fromYaml .ignoreDifferences }}
+{{ $diff | toYaml | trim | indent 10 }}
 {{- end }}
 {{- end }}
 
