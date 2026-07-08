@@ -4,8 +4,12 @@ global:
 
 image:
   registry: docker.io
-  repository: bitnami/gitea
+  repository: gitea/gitea
+  tag: 1.24.5
   pullPolicy: IfNotPresent
+
+volumePermissions:
+  enabled: false
 
 adminUsername: admin
 adminEmail: admin@ebruno.fr
