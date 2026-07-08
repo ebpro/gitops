@@ -8,15 +8,8 @@ image:
 serviceAccount:
   create: true
 
-gitea:
-  additionalConfig:
-    service: |
-      DISABLE_REGISTRATION = false
-      REQUIRE_SIGNIN_VIEW = false
-    repository: |
-      DEFAULT_PRIVATE = private
-
-  additionalEnv:
+deployment:
+  env:
     - name: GITEA_SERVER_ROOT_URL
       value: https://gitea.ebruno.fr
     - name: GITEA_SERVER_DOMAIN
@@ -42,17 +35,21 @@ gitea:
         secretKeyRef:
           name: gitea-postgresql-auth
           key: password
-    - name: GITEA_ADMIN_USERNAME
-      value: admin
-    - name: GITEA_ADMIN_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: gitea-admin-secret
-          key: password
     - name: GITEA_DEFAULT_ACTIONS_URL
       value: https://runner.ebruno.fr
     - name: GITEA_DEFAULT_ACTIONS_ARTIFACT_URL
       value: https://runner.ebruno.fr
+
+gitea:
+  admin:
+    existingSecret: gitea-admin-secret
+
+  config:
+    service:
+      DISABLE_REGISTRATION: true
+      REQUIRE_SIGNIN_VIEW: false
+    repository:
+      DEFAULT_PRIVATE: private
 
 postgresql:
   enabled: false
