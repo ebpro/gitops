@@ -13,17 +13,6 @@ env:
       secretKeyRef:
         key: password
         name: nexus-postgresql-auth
-extraVolumes:
-  - name: nexus-logback-fix
-    configMap:
-      name: nexus-logback-fix
-extraVolumeMounts:
-  - name: nexus-logback-fix
-    mountPath: /nexus-data/etc/logback/logback.xml
-    subPath: logback.xml
-  - name: nexus-logback-fix
-    mountPath: /opt/sonatype/nexus/etc/logback/logback.xml
-    subPath: logback.xml
 image:
   pullPolicy: IfNotPresent
   repository: docker.io/sonatype/nexus3

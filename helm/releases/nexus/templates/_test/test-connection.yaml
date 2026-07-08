@@ -1,0 +1,30 @@
+{{- if .Values.testResources -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "nexus3.fullname" . }}-test-connection"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nexus3.labels" . | nindent 4 }}
+    test-resource: "true"
+  annotations:
+    "helm.sh/hook": "test"
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded,hook-failed"
+spec:
+  containers:
+    - name: test
+      image: {{ include "nexus3.image" .Values.bashImage }}
+      imagePullPolicy: {{ .Values.bashImage.pullPolicy }}
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        capabilities:
+          drop:
+            - ALL
+      args: ["sleep 30; curl -sS {{ printf "http://%s.%s.svc.cluster.local:%s" (include "nexus3.serviceName" .) .Release.Namespace (toString .Values.service.port) }}"]
+  restartPolicy: Never
+{{- end }}
