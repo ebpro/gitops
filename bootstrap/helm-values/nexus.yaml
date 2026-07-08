@@ -1,6 +1,8 @@
 env:
   - name: NEXUS_DATASTORE_NEXUS_JDBCURL
-    value: jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus
+    value: jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus
+  - name: NEXUS_DATASTORE_NEXUS_SEARCHPATH
+    value: nexus
   - name: NEXUS_DATASTORE_NEXUS_USERNAME
     valueFrom:
       secretKeyRef:
@@ -17,7 +19,7 @@ image:
   tag: 3.90.2
 ingress:
   enabled: false
-install4jAddVmParams: "-Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs -Xms4096m -Xmx4096m -XX:MaxDirectMemorySize=8192m -Dlogback.configurationFile=/opt/sonatype/nexus/extras/logback.xml"
+install4jAddVmParams: "-Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs -Xms4096m -Xmx4096m -XX:MaxDirectMemorySize=8192m"
 persistence:
   accessMode: ReadWriteOnce
   enabled: true
