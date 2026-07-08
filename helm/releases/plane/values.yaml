@@ -4,7 +4,9 @@ dockerRegistry:
   enabled: false
 
 ingress:
-  enabled: false
+  enabled: true
+  ingressClass: traefik
+  appHost: plane.ebruno.fr
 
 redis:
   local_setup: false
@@ -19,12 +21,14 @@ env:
   remote_redis_url: redis://plane-redis.plane.svc.cluster.local:6379/0
   pgdb_remote_url: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
   PLANE_URL: https://plane.ebruno.fr
+  docstore_bucket: uploads
 
 external_secrets:
   pgdb_existingSecret: plane-postgresql-auth
 
 ssl:
-  enabled: false
+  enabled: true
+  tls_secret_name: plane-tls
 
 resources:
   requests:
