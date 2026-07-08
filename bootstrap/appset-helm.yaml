@@ -76,7 +76,6 @@ spec:
       - app: nexus
         path: helm/releases/nexus
         namespace: nexus
-        releaseName: nexus
         repoURL: https://github.com/ebpro/gitops.git
         targetRevision: main
         syncWave: '20'

@@ -40,7 +40,7 @@ install4jAddVmParams: "-Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs -Xms40
 persistence:
   accessMode: ReadWriteOnce
   enabled: true
-  existingClaim: nexus-nexus-repository-manager-data
+  existingClaim: ""
   retainDeleted: true
   retainScaled: true
   size: 50Gi
