@@ -139,6 +139,7 @@ spec:
             syncOptions:
             - CreateNamespace=true
             - Replace=true
+            - RespectIgnoreDifferences=true
             - SkipDryRunOnMissingResource=true
           - app: sonarqube
             chart: sonarqube
