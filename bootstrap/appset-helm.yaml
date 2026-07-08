@@ -73,14 +73,6 @@ spec:
         version: 1.13.2
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/microcks.yaml
-      - app: nexus
-        chart: nexus3
-        namespace: nexus
-        path: helm/releases/nexus
-        releaseName: nexus
-        repoURL: https://github.com/ebpro/gitops.git
-        targetRevision: main
-        syncWave: '20'
       - app: nfs-client
         chart: nfs-subdir-external-provisioner
         namespace: nfs-client
@@ -155,17 +147,11 @@ spec:
       source:
         repoURL: '{{repoURL}}'
         targetRevision: '{{targetRevision}}'
-        {{- if path}}
-        path: '{{path}}'
-        {{- else}}
         chart: '{{chart}}'
-        {{- end}}
-        {{- if not path}}
         helm:
           releaseName: '{{releaseName}}'
           valueFiles:
           - '{{valueFiles}}'
-        {{- end}}
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
