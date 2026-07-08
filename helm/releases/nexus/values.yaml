@@ -18,7 +18,7 @@ env:
 
 extraInitContainers:
   - name: db-setup
-    image: docker.io/cgr.dev/chainguard/postgres:latest
+    image: docker.io/library/postgres:16-alpine
     command:
       - /bin/sh
       - -c
@@ -39,7 +39,7 @@ image:
   pullPolicy: IfNotPresent
 
 bashImage:
-  repository: cgr.dev/chainguard/bash
+  repository: docker.io/library/bash
   tag: latest
   pullPolicy: IfNotPresent
 
