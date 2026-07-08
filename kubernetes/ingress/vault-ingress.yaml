@@ -20,3 +20,6 @@ spec:
                 name: vault
                 port:
                   number: 8200
+  tls:
+    - hosts:
+      - vault.ebruno.fr

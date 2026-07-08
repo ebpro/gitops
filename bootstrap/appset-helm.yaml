@@ -67,9 +67,9 @@ spec:
               - group: apiextensions.k8s.io
                 kind: CustomResourceDefinition
                 jsonPointers:
-                 - /metadata/annotations
+                  - /metadata/annotations
                   - /status
-              syncOptions:
+            syncOptions:
               - CreateNamespace=true
               - Replace=true
           - app: loki
@@ -121,13 +121,16 @@ spec:
             syncWave: "20"
             valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/plane.yaml
             ignoreDifferences: |
-              - group: "", "apps", "batch"
+              - group: apps
                 kind: "*"
                 jsonPointers:
                   - /metadata/annotations
                   - /status
               - group: batch
-                kind: Job
+                kind: "*"
+                jsonPointers:
+                  - /metadata/annotations
+                  - /status
                 jqComparators:
                   - del(..["metadata"]["creationTimestamp"])
                   - del(..["metadata"]["resourceVersion"])
@@ -215,9 +218,9 @@ spec:
               - group: policy
                 kind: PodDisruptionBudget
                 jsonPointers:
-                - /spec
-                - /status
-              syncOptions:
+                 - /spec
+                 - /status
+            syncOptions:
               - CreateNamespace=true
               - Replace=true
           - app: velero

@@ -20,3 +20,6 @@ spec:
                 name: loki
                 port:
                   number: 3100
+  tls:
+    - hosts:
+      - loki.ebruno.fr

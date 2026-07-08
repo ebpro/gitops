@@ -4,7 +4,7 @@ metadata:
   name: alloy-ingress
   namespace: alloy
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
     traefik.ingress.kubernetes.io/service.namespace: alloy
@@ -21,3 +21,6 @@ spec:
                 name: alloy
                 port:
                   number: 12345
+  tls:
+    - hosts:
+      - alloy.ebruno.fr

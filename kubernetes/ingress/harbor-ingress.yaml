@@ -4,7 +4,7 @@ metadata:
   name: harbor-ingress
   namespace: harbor
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
 spec:
@@ -20,3 +20,6 @@ spec:
                 name: harbor-core
                 port:
                   number: 80
+  tls:
+    - hosts:
+      - harbor.ebruno.fr

@@ -4,7 +4,7 @@ metadata:
   name: pact-broker-ingress
   namespace: pact-broker
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
 spec:
@@ -20,3 +20,6 @@ spec:
                 name: pact-broker
                 port:
                   number: 80
+  tls:
+    - hosts:
+      - pactbroker.ebruno.fr

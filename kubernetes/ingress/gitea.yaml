@@ -20,3 +20,6 @@ spec:
                 name: gitea
                 port:
                   number: 80
+  tls:
+    - hosts:
+      - gitea.ebruno.fr

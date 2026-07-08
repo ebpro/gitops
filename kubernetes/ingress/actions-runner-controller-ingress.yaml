@@ -20,3 +20,6 @@ spec:
                 name: actions-runner-controller-webhook
                 port:
                   number: 9443
+  tls:
+    - hosts:
+      - actions-runner-controller.ebruno.fr

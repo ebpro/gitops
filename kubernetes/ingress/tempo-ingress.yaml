@@ -20,3 +20,6 @@ spec:
                 name: tempo
                 port:
                   number: 3200
+  tls:
+    - hosts:
+      - tempo.ebruno.fr

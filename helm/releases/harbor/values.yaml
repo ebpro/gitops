@@ -15,7 +15,7 @@ database:
     coreDatabase: registry
     existingSecret: harbor-postgresql-auth
     sslmode: disable
-externalURL: http://harbor.harbor.svc.cluster.local
+externalURL: https://harbor.ebruno.fr
 persistence:
   enabled: true
   persistentVolumeClaim:
