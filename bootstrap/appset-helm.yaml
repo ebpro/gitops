@@ -255,15 +255,4 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
-{{- if syncOptions }}
-{{- range $opt := .syncOptions }}
-          - {{ $opt }}
-{{- end }}
-{{- end }}
-{{- if ignoreDifferences }}
-        ignoreDifferences:
-{{- range $diff := fromYaml .ignoreDifferences }}
-{{ $diff | toYaml | trim | indent 10 }}
-{{- end }}
-{{- end }}
 
