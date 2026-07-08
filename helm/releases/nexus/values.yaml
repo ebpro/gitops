@@ -13,6 +13,23 @@ env:
       secretKeyRef:
         key: password
         name: nexus-postgresql-auth
+extraInitContainers:
+  - name: db-setup
+    image: docker.io/cgr.dev/chainguard/postgres:latest
+    command:
+      - /bin/sh
+      - -c
+      - |
+        until pg_isready -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus;
+        do echo waiting for postgres; sleep 2; done;
+        PGPASSWORD="${NEXUS_PGW}" psql -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus -d nexus -c CREATE SCHEMA IF NOT EXISTS nexus; -c GRANT ALL ON SCHEMA nexus TO nexus; -c GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA nexus TO nexus;
+    env:
+      - name: NEXUS_PGW
+        valueFrom:
+          secretKeyRef:
+            key: password
+            name: nexus-postgresql-auth
+    volumeMounts: []
 image:
   pullPolicy: IfNotPresent
   repository: docker.io/sonatype/nexus3
