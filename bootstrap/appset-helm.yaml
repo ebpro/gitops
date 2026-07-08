@@ -153,13 +153,18 @@ spec:
       project: platform
       source:
         repoURL: '{{repoURL}}'
-        targetRevision: '{{targetRevision | default version}}'
-        {{#if path}}path: '{{path}}'
-        {{else}}chart: '{{chart}}'{{/if}}
-        {{^if path}}helm:
+        targetRevision: '{{targetRevision}}'
+        {{- if path}}
+        path: '{{path}}'
+        {{- else}}
+        chart: '{{chart}}'
+        {{- end}}
+        {{- if not path}}
+        helm:
           releaseName: '{{releaseName}}'
           valueFiles:
-          - '{{valueFiles}}'{{/if}}
+          - '{{valueFiles}}'
+        {{- end}}
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
