@@ -74,8 +74,10 @@ spec:
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/microcks.yaml
       - app: nexus
-        path: helm/releases/nexus
+        chart: nexus3
         namespace: nexus
+        path: helm/releases/nexus
+        releaseName: nexus
         repoURL: https://github.com/ebpro/gitops.git
         targetRevision: main
         syncWave: '20'
