@@ -78,8 +78,5 @@ persistence:
   size: 20Gi
   storageClassName: local-path
 
-securityContext:
-  enabled: true
-  runAsUser: 1000
-  runAsGroup: 1000
+podSecurityContext:
   fsGroup: 1000
