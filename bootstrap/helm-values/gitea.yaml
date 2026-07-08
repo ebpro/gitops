@@ -1,3 +1,7 @@
+global:
+  security:
+    allowInsecureImages: true
+
 image:
   repository: gitea/gitea
   tag: 1.24.5
