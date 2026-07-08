@@ -32,6 +32,12 @@ extraInitContainers:
           secretKeyRef:
             key: password
             name: nexus-postgresql-auth
+    securityContext:
+      runAsNonRoot: false
+      runAsUser: 0
+      capabilities:
+        drop:
+          - ALL
 
 image:
   repository: docker.io/sonatype/nexus3
