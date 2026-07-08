@@ -60,6 +60,12 @@ postgresql:
 postgresql-ha:
   enabled: false
 
+valkey:
+  enabled: false
+
+valkey-cluster:
+  enabled: false
+
 ingress:
   enabled: false
 
