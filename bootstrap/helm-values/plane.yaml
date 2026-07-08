@@ -17,7 +17,7 @@ rabbitmq:
 
 env:
   remote_redis_url: redis://plane-redis.plane.svc.cluster.local:6379/0
-  pgdb_remote_url: postgresql://plane:l81leY5m8399BH/NSFV2o2DirG3tEO15iAtWsJjwYvc=@plane-postgresql.plane.svc.cluster.local:5432/plane
+  pgdb_remote_url: postgresql://plane:l81leY5m8399BH%2FNSFV2o2DirG3tEO15iAtWsJjwYvc%3D@plane-postgresql.plane.svc.cluster.local:5432/plane
   PLANE_URL: https://plane.ebruno.fr
 
 external_secrets:
