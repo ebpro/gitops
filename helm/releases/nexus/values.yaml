@@ -2,9 +2,7 @@
 
 env:
   - name: NEXUS_DATASTORE_NEXUS_JDBCURL
-    value: jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus
-  - name: NEXUS_DATASTORE_NEXUS_SEARCHPATH
-    value: nexus
+    value: jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus
   - name: NEXUS_DATASTORE_NEXUS_USERNAME
     valueFrom:
       secretKeyRef:
