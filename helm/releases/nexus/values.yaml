@@ -23,18 +23,10 @@ extraInitContainers:
       - /bin/sh
       - -c
       - |
-        until pg_isready -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus;
-        do echo waiting for postgres; sleep 2; done;
-        export PGPASSWORD=$NEXUS_PGW;
-        psql -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus -d nexus -c "CREATE SCHEMA IF NOT EXISTS nexus;";
-        psql -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus -d nexus -c "GRANT ALL ON SCHEMA nexus TO nexus;";
-        psql -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus -d nexus -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA nexus TO nexus;";
-    env:
-      - name: NEXUS_PGW
-        valueFrom:
-          secretKeyRef:
-            key: password
-            name: nexus-postgresql-auth
+        until pg_isready -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus; do echo waiting for postgres; sleep 2; done
+        psql -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus -d nexus -c "CREATE SCHEMA IF NOT EXISTS nexus;"
+        psql -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus -d nexus -c "GRANT ALL ON SCHEMA nexus TO nexus;"
+        psql -h nexus-postgresql.nexus.svc.cluster.local -p 5432 -U nexus -d nexus -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA nexus TO nexus;"
     securityContext:
       runAsNonRoot: false
       runAsUser: 0
