@@ -80,6 +80,6 @@ persistence:
 
 securityContext:
   enabled: true
-  runAsUser: git
-  runAsGroup: git
-  fsGroup: git
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
