@@ -40,7 +40,7 @@ spec:
         repoURL: https://charts.bitnami.com/bitnami
         version: 3.2.22
         syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/gitea.yaml
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/gitea.yaml?v=3
       - app: harbor
         chart: harbor
         namespace: harbor
