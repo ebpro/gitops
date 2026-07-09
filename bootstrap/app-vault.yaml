@@ -25,6 +25,7 @@ spec:
     syncOptions:
     - CreateNamespace=true
     - ServerSideApply=true
+    - Replace=true
     resourceIgnoreDifferences:
     - group: admissionregistration.k8s.io
       kind: MutatingWebhookConfiguration
