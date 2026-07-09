@@ -25,14 +25,6 @@ spec:
         version: 2.7.0
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/external-secrets.yaml
-      - app: garage
-        chart: garage
-        namespace: garage
-        releaseName: garage
-        repoURL: https://garagehq.deuxfleurs.fr/_releases
-        version: 0.9.2
-        syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/garage.yaml
       - app: gitea
         chart: gitea
         namespace: gitea
@@ -121,22 +113,7 @@ spec:
         version: 37.1.1
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/traefik.yaml
-      - app: vault
-        chart: vault
-        namespace: vault
-        releaseName: vault
-        repoURL: https://helm.releases.hashicorp.com
-        version: 0.32.0
-        syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/vault.yaml
-      - app: velero
-        chart: velero
-        namespace: velero
-        releaseName: velero
-        repoURL: https://vmware-tanzu.github.io/helm-charts
-        version: 7.2.2
-        syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/velero.yaml
+
   template:
     metadata:
       name: '{{app}}'
