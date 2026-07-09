@@ -17,6 +17,14 @@ spec:
         version: 1.6.2
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/alloy.yaml
+      - app: cloudnative-pg
+        chart: cloudnative-pg
+        namespace: cnpg-system
+        releaseName: cloudnative-pg
+        repoURL: https://cloudnative-pg.github.io/charts
+        version: 0.29.0
+        syncWave: '10'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/cloudnative-pg.yaml
       - app: external-secrets
         chart: external-secrets
         namespace: external-secrets
