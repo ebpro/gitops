@@ -1,0 +1,15 @@
+recommendation:
+  provideSeparateRestarts: true
+  historyLimit: 0
+  ignoreMinValues: true
+
+updater:
+  enabled: false  # We only want recommendations, NOT enforcement in recommendation mode!
+
+  ignoreMinValues: true
+  scalerModifier:
+    # Do NOT set podUpdateBudget!
+    # Use "podUpdateBudget" in policy.yaml instead of "podUpdateBudget" above
+    # podUpdateBudget:
+    min: 1
+    # max: 2

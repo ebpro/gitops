@@ -1,0 +1,7 @@
+manager:
+  features:
+    operator:
+      instrumentation: true
+      sampling: true
+      propagation: true
+      exporter: true
