@@ -1,0 +1,12 @@
+cleanUp:
+  enabled: true
+crds:
+  cleanup: false
+config:
+  resourceFilters:
+    exclude:
+      - kube-system/*/*
+      - argocd/*/*
+csv:
+  backgroundScan:
+    enabled: true

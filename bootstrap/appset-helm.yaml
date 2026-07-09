@@ -49,6 +49,14 @@ spec:
         version: 1.18.3
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/harbor.yaml
+      - app: kyverno
+        chart: kyverno
+        namespace: kyverno
+        releaseName: kyverno
+        repoURL: https://kyverno.github.io/kyverno
+        version: 3.3.5
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/kyverno.yaml
       - app: loki
         chart: loki
         namespace: loki
@@ -105,6 +113,14 @@ spec:
         version: 1.24.4
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/tempo.yaml
+      - app: trivyoperator
+        chart: trivy-operator
+        namespace: trivy-system
+        releaseName: trivy-operator
+        repoURL: https://aquasecurity.github.io/helm-charts
+        version: 0.21.0
+        syncWave: '20'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/trivyoperator.yaml
       - app: traefik
         chart: traefik
         namespace: kube-system
