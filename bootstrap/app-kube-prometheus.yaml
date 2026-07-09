@@ -28,26 +28,32 @@ spec:
     - group: apiextensions.k8s.io
       kind: CustomResourceDefinition
       jsonPointers:
+      - /metadata
       - /spec/conversion
       - /spec.versions
+      - /spec/group
+      - /spec.names
+      - /spec.scope
       - /spec.preserveUnknownFields
+      - /spec.validation
+      - /spec.additionalPrinterColumns
       - /status
-      - /metadata/annotations
-      - /metadata/managedFields
-      - /metadata/resourceVersion
-      - /metadata/creationTimestamp
     - group: monitoring.coreos.com
       kind: Alertmanager
       jsonPointers:
       - /status
       - /metadata/managedFields
       - /metadata/annotations
+      - /metadata/labels
+      - /metadata/resourceVersion
     - group: monitoring.coreos.com
       kind: Prometheus
       jsonPointers:
       - /status
       - /metadata/managedFields
       - /metadata/annotations
+      - /metadata/labels
+      - /metadata/resourceVersion
     - group: monitoring.coreos.com
       kind: ServiceMonitor
       jsonPointers:
