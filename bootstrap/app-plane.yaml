@@ -29,16 +29,10 @@ spec:
     resourceIgnoreDifferences:
     - group: batch
       kind: Job
-      jqPathExpressions:
-      - del(.spec.template)
-      - del(.status)
       jsonPointers:
-      - /spec/template
+      - /spec
       - /status
-      - /metadata/managedFields
-      - /metadata/annotations
-      - /metadata/resourceVersion
-      - /metadata/creationTimestamp
+      - /metadata
     - group: apps
       kind: Deployment
       jsonPointers:
