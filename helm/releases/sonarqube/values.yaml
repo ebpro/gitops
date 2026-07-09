@@ -23,7 +23,7 @@ jdbcOverwrite:
   jdbcSecretName: sonarqube-postgresql
   jdbcSecretPasswordKey: postgresql-password
   jdbcUrl: jdbc:postgresql://sonarqube-postgresql.sonarqube.svc.cluster.local:5432/sonarDB
-  jdbcUsername: sonarUser
+  jdbcUsername: app
 jvmCeOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=ce
 jvmOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=web
 monitoringPasscodeSecretName: sonarqube-monitoring-password
