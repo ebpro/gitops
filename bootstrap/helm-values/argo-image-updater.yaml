@@ -1,23 +1,27 @@
-argoCD:
-  server: https://argo-cd-argocd-server.argocd.svc.cluster.local
-
-argocdImageUpdater:
-  extraEnv:
-    - name: ARGOCD_GRPC_WEB
-      value: "true"
-    - name: GIT_AUTHOR_NAME
-      value: "ArgoCD Image Updater"
-    - name: GIT_AUTHOR_EMAIL
-      value: "image-updater@argocd"
-
-git:
-  commitMessageTemplate: |
+config:
+  kube.events: false
+  log.level: "info"
+  git.user: "ArgoCD Image Updater"
+  git.email: "image-updater@argocd"
+  git.commit-message-template: |
     Update {{.Image.Name}}: {{.Image.TagVersion}} -> {{.NewImage.TagVersion}}
 
-imageUpdate:
-  debug: false
-  logLevel: info
-  interval: 2m10s
+  registries:
+    - name: Docker Hub
+      api_url: https://registry-1.docker.io
+      ping: yes
+      defaultns: library
+    - name: Harbor
+      api_url: https://harbor.ebruno.fr
+      ping: no
+      insecure: yes
+      prefix: harbor.ebruno.fr
+
+extraArgs: []
+
+extraEnv: []
+
+createClusterRoles: true
 
 rbac:
   enabled: true
