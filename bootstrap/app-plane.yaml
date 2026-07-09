@@ -29,7 +29,6 @@ spec:
     resourceIgnoreDifferences:
     - group: batch
       kind: Job
-      name: '.*'
       jsonPointers:
       - /spec/backoffLimit
       - /spec/completionMode
