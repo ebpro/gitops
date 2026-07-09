@@ -1,0 +1,23 @@
+argoCD:
+  server: https://argo-cd-argocd-server.argocd.svc.cluster.local
+
+argocdImageUpdater:
+  extraEnv:
+    - name: ARGOCD_GRPC_WEB
+      value: "true"
+    - name: GIT_AUTHOR_NAME
+      value: "ArgoCD Image Updater"
+    - name: GIT_AUTHOR_EMAIL
+      value: "image-updater@argocd"
+
+git:
+  commitMessageTemplate: |
+    Update {{.Image.Name}}: {{.Image.TagVersion}} -> {{.NewImage.TagVersion}}
+
+imageUpdate:
+  debug: false
+  logLevel: info
+  interval: 2m10s
+
+rbac:
+  enabled: true

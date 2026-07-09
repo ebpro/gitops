@@ -17,6 +17,14 @@ spec:
         version: 1.6.2
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/alloy.yaml
+      - app: argo-image-updater
+        chart: argo-cd-image-updater
+        namespace: argocd
+        releaseName: argo-image-updater
+        repoURL: https://argoproj.github.io/argo-helm
+        version: 0.19.0
+        syncWave: '25'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/argo-image-updater.yaml
       - app: cloudnative-pg
         chart: cloudnative-pg
         namespace: cnpg-system
