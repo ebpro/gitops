@@ -29,6 +29,9 @@ spec:
     resourceIgnoreDifferences:
     - group: batch
       kind: Job
+      jqPathExpressions:
+      - del(.spec.template)
+      - del(.status)
       jsonPointers:
       - /spec/template
       - /status
