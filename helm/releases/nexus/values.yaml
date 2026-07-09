@@ -13,13 +13,6 @@ env:
       secretKeyRef:
         key: password
         name: nexus-postgresql-auth
-  - name: NEXUS_DATASTORE_NEXUS_TYPE
-    value: "postgresql"
-
-properties:
-  - "nexus.datastore.nexus.type=postgresql"
-  - "nexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus"
-  - "nexus.datastore.nexus.user=nexus"
 
 image:
   repository: docker.io/sonatype/nexus3
@@ -93,10 +86,10 @@ initResources: {}
 resources:
   limits:
     cpu: 4
-    memory: 4Gi
+    memory: 8Gi
   requests:
     cpu: 2000m
-    memory: 2Gi
+    memory: 4Gi
 
 license:
   enabled: false
