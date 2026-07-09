@@ -32,5 +32,7 @@ spec:
       - .webhooks[].clientConfig.caBundle
       jsonPointers:
       - /metadata/annotations
+      - /metadata/creationTimestamp
+      - /metadata/managedFields
       - /metadata/resourceVersion
       - /metadata/uid

@@ -41,14 +41,6 @@ spec:
         version: 1.18.3
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/harbor.yaml
-      - app: kube-prometheus
-        chart: kube-prometheus-stack
-        namespace: kube-prometheus
-        releaseName: kube-prometheus
-        repoURL: https://prometheus-community.github.io/helm-charts
-        version: 80.6.0
-        syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/kube-prometheus.yaml
       - app: loki
         chart: loki
         namespace: loki
