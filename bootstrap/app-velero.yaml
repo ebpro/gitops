@@ -24,3 +24,14 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
+    resourceIgnoreDifferences:
+    - group: ''
+      kind: Secret
+      name: velero-credentials
+      jsonPointers:
+      - /data
+      - /metadata/annotations
+      - /metadata/labels
+      - /metadata/ownerReferences
+      - /metadata/resourceVersion
+      - /metadata/uid

@@ -24,3 +24,13 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
+    resourceIgnoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      name: vault-agent-injector-cfg
+      jqPathExpressions:
+      - .webhooks[].clientConfig.caBundle
+      jsonPointers:
+      - /metadata/annotations
+      - /metadata/resourceVersion
+      - /metadata/uid
