@@ -4,8 +4,7 @@ metadata:
   name: harbor-postgresql
   namespace: harbor
   labels:
-    app.kubernetes.io/name: postgresql
-    app.kubernetes.io/instance: harbor
+    app: harbor-postgresql
 spec:
   type: ClusterIP
   ports:
@@ -13,5 +12,4 @@ spec:
       targetPort: postgresql
       name: postgresql
   selector:
-    app.kubernetes.io/name: postgresql
-    app.kubernetes.io/instance: harbor
+    app: harbor-postgresql
