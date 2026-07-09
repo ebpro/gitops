@@ -13,6 +13,9 @@ spec:
     chart: kube-prometheus-stack
     helm:
       releaseName: kube-prometheus
+      values: |
+        crds:
+          enabled: false
       valueFiles:
       - https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/kube-prometheus.yaml
   destination:
