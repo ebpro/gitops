@@ -15,3 +15,7 @@ spec:
       name: postgresql
   selector:
     app: harbor-postgresql
+    app.kubernetes.io/instance: harbor
+    app.kubernetes.io/name: postgresql
+    cnpg.io/cluster: harbor-db
+    role: primary

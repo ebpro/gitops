@@ -14,3 +14,5 @@ spec:
       name: postgresql
   selector:
     app: sonarqube-postgresql
+    cnpg.io/cluster: sonarqube-db
+    role: primary

@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: harbor-postgresql
+  namespace: harbor
+  labels:
+    app: harbor-postgresql
+    app.kubernetes.io/instance: harbor
+    app.kubernetes.io/name: postgresql
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgresql
+  selector:
+    postgresql.cnpg.io/cluster: harbor-db
+    role: primary
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: harbor-db-ro
+  namespace: harbor
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgresql
+  selector:
+    postgresql.cnpg.io/cluster: harbor-db
+    role: replica

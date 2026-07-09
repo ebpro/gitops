@@ -1,0 +1,21 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: harbor-db
+  namespace: harbor
+spec:
+  instances: 1
+  storage:
+    size: 20Gi
+    storageClass: local-path
+  postgresql:
+    parameters:
+      max_connections: "300"
+  enableSuperuserAccess: true
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi

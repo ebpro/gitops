@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nexus-postgresql
+  namespace: nexus
+  labels:
+    app.kubernetes.io/instance: nexus
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/part-of: nexus
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgresql
+  selector:
+    postgresql.cnpg.io/cluster: nexus-db
+    role: primary
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nexus-db-ro
+  namespace: nexus
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgresql
+  selector:
+    postgresql.cnpg.io/cluster: nexus-db
+    role: replica

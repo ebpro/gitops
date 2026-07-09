@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarqube-postgresql
+  namespace: sonarqube
+  labels:
+    app: sonarqube-postgresql
+    app.kubernetes.io/instance: sonarqube
+    app.kubernetes.io/name: postgresql
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgresql
+  selector:
+    postgresql.cnpg.io/cluster: sonarqube-db
+    role: primary
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarqube-db-ro
+  namespace: sonarqube
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgresql
+  selector:
+    postgresql.cnpg.io/cluster: sonarqube-db
+    role: replica
