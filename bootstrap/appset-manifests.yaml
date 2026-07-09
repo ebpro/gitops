@@ -14,6 +14,7 @@ spec:
           - path: kubernetes/ingress
           - path: kubernetes/postgresql
           - path: kubernetes/declarative
+          - path: kubernetes/csi-snapshot-controller
   template:
     metadata:
       name: '{{path.basename}}'
