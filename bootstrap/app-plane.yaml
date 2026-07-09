@@ -29,11 +29,21 @@ spec:
     resourceIgnoreDifferences:
     - group: batch
       kind: Job
-      name: plane-api-migrate-1
-      jqPathExpressions:
-      - del(.spec)
-      - del(.status)
-      - del(.metadata)
+      name: '.*'
+      jsonPointers:
+      - /spec/template
+      - /spec/activeDeadlineSeconds
+      - /spec/completionMode
+      - /spec/completions
+      - /spec/parallelism
+      - /spec/suspend
+      - /status
+      - /metadata/managedFields
+      - /metadata/annotations
+      - /metadata/resourceVersion
+      - /metadata/creationTimestamp
+      - /metadata/uid
+      - /metadata/ownerReferences
     - group: apps
       kind: Deployment
       jsonPointers:
