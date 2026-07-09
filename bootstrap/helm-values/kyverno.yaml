@@ -2,7 +2,3 @@ cleanUp:
   enabled: true
 crds:
   cleanup: false
-config:
-  resourceFilters:
-    - '*/*,argocd,*'
-    - '*/*,kube-system,*'
