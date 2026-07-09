@@ -31,12 +31,17 @@ spec:
       kind: Job
       name: '.*'
       jsonPointers:
-      - /spec/template
-      - /spec/activeDeadlineSeconds
+      - /spec/backoffLimit
       - /spec/completionMode
       - /spec/completions
+      - /spec/manualSelector
       - /spec/parallelism
+      - /spec/podReplacementPolicy
+      - /spec/selector
       - /spec/suspend
+      - /spec/template
+      - /spec/activeDeadlineSeconds
+      - /spec/ttlSecondsAfterFinished
       - /status
       - /metadata/managedFields
       - /metadata/annotations
