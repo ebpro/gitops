@@ -1,9 +1,17 @@
+# RBAC file for the snapshot controller.
+#
+# The snapshot controller implements the control loop for CSI snapshot functionality.
+# It should be installed as part of the base Kubernetes distribution in an appropriate
+# namespace for components implementing base system functionality. For installing with
+# Vanilla Kubernetes, kube-system makes sense for the namespace.
+
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: snapshot-controller
   namespace: kube-system
+
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
@@ -34,6 +42,7 @@ rules:
   - apiGroups: ["snapshot.storage.k8s.io"]
     resources: ["volumesnapshots/status"]
     verbs: ["update", "patch"]
+
   - apiGroups: ["groupsnapshot.storage.k8s.io"]
     resources: ["volumegroupsnapshotclasses"]
     verbs: ["get", "list", "watch"]
@@ -49,6 +58,11 @@ rules:
   - apiGroups: ["groupsnapshot.storage.k8s.io"]
     resources: ["volumegroupsnapshots/status"]
     verbs: ["update", "patch"]
+
+  # Enable this RBAC rule only when using distributed snapshotting, i.e. when the enable-distributed-snapshotting flag is set to true
+  # - apiGroups: [""]
+  #   resources: ["nodes"]
+  #   verbs: ["get", "list", "watch"]
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -62,6 +76,7 @@ roleRef:
   kind: ClusterRole
   name: snapshot-controller-runner
   apiGroup: rbac.authorization.k8s.io
+
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
@@ -72,6 +87,7 @@ rules:
 - apiGroups: ["coordination.k8s.io"]
   resources: ["leases"]
   verbs: ["get", "watch", "list", "delete", "update", "create"]
+
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
