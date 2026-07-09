@@ -101,7 +101,7 @@ spec:
         chart: sonarqube
         namespace: sonarqube
         releaseName: sonarqube
-        repoURL: https://SonSource.github.io/helm-chart-sonarqube
+        repoURL: https://SonarSource.github.io/helm-chart-sonarqube
         version: 2026.1.0
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/sonarqube.yaml
@@ -146,7 +146,7 @@ spec:
       project: platform
       source:
         repoURL: '{{repoURL}}'
-        targetRevision: '{{targetRevision}}'
+        targetRevision: '{{version}}'
         chart: '{{chart}}'
         helm:
           releaseName: '{{releaseName}}'
