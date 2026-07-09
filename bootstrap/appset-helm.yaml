@@ -73,14 +73,6 @@ spec:
         version: 6.1.0
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/pact-broker.yaml
-      - app: plane
-        chart: plane-ce
-        namespace: plane
-        releaseName: plane
-        repoURL: https://helm.plane.so
-        version: 1.6.0
-        syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/plane.yaml
       - app: sonarqube
         chart: sonarqube
         namespace: sonarqube

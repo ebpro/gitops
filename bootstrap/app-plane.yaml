@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: plane
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '20'
+spec:
+  project: platform
+  source:
+    repoURL: https://helm.plane.so
+    targetRevision: 1.6.0
+    chart: plane-ce
+    helm:
+      releaseName: plane
+      valueFiles:
+      - https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/plane.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: plane
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - ServerSideApply=true
+    resourceIgnoreDifferences:
+    - group: batch
+      kind: Job
+      jsonPointers:
+      - /spec/template
+      - /status
+      - /metadata/managedFields
+      - /metadata/annotations
+      - /metadata/resourceVersion
+      - /metadata/creationTimestamp
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+      - /status
+      - /metadata/managedFields
+      - /metadata/annotations
+      - /metadata/resourceVersion
+      - /metadata/creationTimestamp
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+      - /status
+      - /metadata/managedFields
+      - /metadata/annotations
+      - /metadata/resourceVersion
+      - /metadata/creationTimestamp
+    - group: monitoring.coreos.com
+      kind: ServiceMonitor
+      jsonPointers:
+      - /metadata/managedFields
+      - /metadata/annotations
+      - /metadata/resourceVersion
+    - group: monitoring.coreos.com
+      kind: PodMonitor
+      jsonPointers:
+      - /metadata/managedFields
+      - /metadata/annotations
+      - /metadata/resourceVersion

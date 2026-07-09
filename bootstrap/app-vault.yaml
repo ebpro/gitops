@@ -24,15 +24,22 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
+    - ServerSideApply=true
     resourceIgnoreDifferences:
     - group: admissionregistration.k8s.io
       kind: MutatingWebhookConfiguration
       name: vault-agent-injector-cfg
       jqPathExpressions:
-      - .webhooks[].clientConfig.caBundle
+      - del(.webhooks[].clientConfig.caBundle)
+      - del(.metadata.annotations)
+      - del(.metadata.labels)
+      - del(.webhooks[].namespaceSelector)
+      - del(.webhooks[].objectSelector)
+      - del(.webhooks[].reinvocationPolicy)
+      - del(.webhooks[].sideEffects)
       jsonPointers:
-      - /metadata/annotations
       - /metadata/creationTimestamp
       - /metadata/managedFields
       - /metadata/resourceVersion
       - /metadata/uid
+      - /metadata/ownerReferences
