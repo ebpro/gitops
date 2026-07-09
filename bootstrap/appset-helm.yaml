@@ -130,11 +130,11 @@ spec:
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/traefik.yaml
       - app: vpa
-        chart: vpa
+        chart: vertical-pod-autoscaler
         namespace: vpa
         releaseName: vpa
-        repoURL: https://charts.kubewatchers.com/kubernetes-autoscaler
-        version: 4.5.1
+        repoURL: https://kubernetes.github.io/autoscaler
+        version: 0.10.0
         syncWave: '15'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/vpa.yaml
 

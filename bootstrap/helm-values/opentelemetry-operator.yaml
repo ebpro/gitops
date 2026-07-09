@@ -1,7 +1,8 @@
 manager:
-  features:
-    operator:
-      instrumentation: true
-      sampling: true
-      propagation: true
-      exporter: true
+  featureGates: ""
+  collectorImage:
+    repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-collector
+    tag: "0.109.0"
+  targetAllocatorImage:
+    repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
+    tag: "0.109.0"
