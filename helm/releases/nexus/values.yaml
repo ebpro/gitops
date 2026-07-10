@@ -5,7 +5,7 @@
 
 image:
   repository: docker.io/sonatype/nexus3
-  tag: 3.94.0-ubi
+  tag: 3.93.2
   pullPolicy: IfNotPresent
 
 bashImage:
@@ -142,7 +142,7 @@ httpRoute:
 # javax.sql.DataSource = External database
 
 # Configure Nexus 3.94.0 embedded H2 datastore reader
-install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m -Dnexus.datastore.enabled=true -Dnexus.datastore.nexus.type=h2-embedded -Dnexus.datastore.nexus.jdbcUrl=jdbc:h2:file:/nexus-data/db/nexus -Dnexus.datastore.nexus.user=SA -Dnexus.datastore.nexus.password=SA -Dnexus.datastore.nexus.properties.database=g12-opt"
+install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m"
 
 # Configure Nexus 3.94.0 embedded H2 datastore/resolv-and-read-vm-only-bearing
 extraInitContainers:
