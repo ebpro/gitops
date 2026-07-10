@@ -1,27 +1,7 @@
 # Nexus3 custom values for PostgreSQL-backed datastore
 # Clean reinstall - PostgreSQL JDBC driver downloaded via init container
 
-# Use environment variables for datastore config instead of storeProperties
-# because subPath mount conflicts with PVC in K3s local-path provisioner
-env:
-  - name: NEXUS_DATASTORE_NEXUS_TYPE
-    value: jdbc
-  - name: NEXUS_DATASTORE_NEXUS_JDBCURL
-    value: jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus
-  - name: NEXUS_DATASTORE_NEXUS_USERNAME
-    valueFrom:
-      secretKeyRef:
-        key: username
-        name: nexus-postgresql-auth
-  - name: NEXUS_DATASTORE_NEXUS_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        key: password
-        name: nexus-postgresql-auth
-  - name: NEXUS_DATASTORE_NEXUS_SEARCHPATH
-    value: nexus
-  - name: NEXUS_DATASTORE_NEXUS_JDBCDRIVER
-    value: org.postgresql.Driver
+# Nothing here - JDBC configured via init container writing nexus-store.properties
 
 image:
   repository: docker.io/sonatype/nexus3
@@ -157,19 +137,33 @@ manualMaintenanceMode:
 httpRoute:
   enabled: false
 
-# Download PostgreSQL JDBC driver into /nexus-data/ext/ so Nexus can load it
+# Download PostgreSQL JDBC driver into /nexus-data/ext/ and write nexus-store.properties
 extraInitContainers:
-  - name: download-jdbc-driver
+  - name: setup-nexus-ext
     image: docker.io/library/bash:latest
     imagePullPolicy: IfNotPresent
     command:
       - /bin/sh
       - -c
       - |
-        mkdir -p /nexus-data/ext
-        wget -O /nexus-data/ext/postgresql-jdbc.jar \
+        mkdir -p /nexus-data/ext /nexus-data/etc/fabric /nexus-data/etc/logback /nexus-data/log/tasks /nexus-data/log/audit
+        wget -q -O /nexus-data/ext/postgresql-jdbc.jar \
           https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar
-        chmod -R 755 /nexus-data/ext
+        touch /nexus-data/log/tasks/allTasks.log
+        touch /nexus-data/log/audit/audit.log
+        touch /nexus-data/log/request.log
+        cat > /nexus-data/etc/fabric/nexus-store.properties << 'STOREEOF'
+nexus.datastore.nexus.type=jdbc
+nexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus
+nexus.datastore.nexus.user=nexus
+nexus.datastore.nexus.password=nexusdb2024
+nexus.datastore.nexus.jdbcDriver=org.postgresql.Driver
+STOREEOF
+        cat > /nexus-data/etc/nexus.properties << 'PROPEOF'
+nexus.datastore.enabled=true
+nexus.loadAsOSS=true
+PROPEOF
+        chown -R 200:200 /nexus-data
     volumeMounts:
       - name: data
         mountPath: /nexus-data
