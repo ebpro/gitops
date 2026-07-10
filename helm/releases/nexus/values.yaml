@@ -1,18 +1,11 @@
 # Nexus3 custom values for PostgreSQL-backed datastore
 
-env:
-  - name: NEXUS_DATASTORE_NEXUS_JDBCURL
-    value: jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus
-  - name: NEXUS_DATASTORE_NEXUS_USER
-    valueFrom:
-      secretKeyRef:
-        key: username
-        name: nexus-postgresql-auth
-  - name: NEXUS_DATASTORE_NEXUS_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        key: password
-        name: nexus-postgresql-auth
+storeProperties:
+  - nexus.datastore.nexus.type=jdbc
+  - nexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus
+  - nexus.datastore.nexus.user=nexus
+  - nexus.datastore.nexus.password=nexusdb2024
+  - nexus.datastore.nexus.jdbcDriver=org.postgresql.Driver
 
 image:
   repository: docker.io/sonatype/nexus3
