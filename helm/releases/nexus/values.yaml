@@ -153,16 +153,19 @@ extraInitContainers:
         touch /nexus-data/log/audit/audit.log
         touch /nexus-data/log/request.log
         printf '%s\n' \
-          'nexus.datastore.nexus.type=jdbc' \
+          'nexus.datastore.nexus.type=javax.sql.DataSource' \
           'nexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus' \
           'nexus.datastore.nexus.user=nexus' \
           'nexus.datastore.nexus.password=nexusdb2024' \
-          'nexus.datastore.nexus.jdbcDriver=org.postgresql.Driver' \
+          'nexus.datastore.nexus.properties.driver=org.postgresql.Driver' \
           > /nexus-data/etc/fabric/nexus-store.properties
         printf '%s\n' \
           'nexus.datastore.enabled=true' \
           'nexus.loadAsOSS=true' \
           > /nexus-data/etc/nexus.properties
+        # Make files immutable so Nexus entrypoint cannot overwrite them
+        chmod 000 /nexus-data/etc/fabric/nexus-store.properties
+        chmod 000 /nexus-data/etc/nexus.properties
         chown -R 200:200 /nexus-data
     volumeMounts:
       - name: data
