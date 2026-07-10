@@ -25,7 +25,7 @@ service:
 ingress:
   enabled: false
 
-install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m -Dnexus.datastore.enabled=true -Dnexus.datastore.nexus.type=nexus -Dnexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus -Dnexus.datastore.nexus.user=nexus -Dnexus.datastore.nexus.password=nexusdb2024 -Dnexus.datastore.nexus.properties.driver=org.postgresql.Driver"
+install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m -Dnexus.loadAsOSS=true -Dnexus.datastore.enabled=true -Dnexus.datastore.nexus.type=javax.sql.DataSource -Dnexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus -Dnexus.datastore.nexus.user=nexus -Dnexus.datastore.nexus.password=nexusdb2024 -Dnexus.datastore.nexus.properties.driver=org.postgresql.Driver"
 
 persistence:
   enabled: true
