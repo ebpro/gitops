@@ -146,12 +146,12 @@ extraInitContainers:
       - /bin/sh
       - -c
       - |
-        mkdir -p /nexus-data/ext /nexus-data/etc /nexus-data/etc/fabric /nexus-data/etc/logback /nexus-data/log/tasks /nexus-data/log/audit
+        mkdir -p /nexus-data/ext /nexus-data/etc/fabric /nexus-data/etc/logback /nexus-data/log/tasks /nexus-data/log/audit
         # Download PostgreSQL JDBC driver
         wget -q -O /nexus-data/ext/postgresql-jdbc.jar \
           https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar
-        # Create Nexus 3.70+ datastore config
-        printf '[datastore nexus]\n  type=javax.sql.DataSource\n  user=nexus\n  password=nexusdb2024\n  properties.driver=org.postgresql.Driver\n  properties.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus\n' > /nexus-data/etc/nexus.properties
+        # Create Nexus store.properties with datastore config
+        printf 'nexus.datastore.nexus.type=javax.sql.DataSource\nnexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus\nnexus.datastore.nexus.user=nexus\nnexus.datastore.nexus.password=nexusdb2024\nnexus.datastore.nexus.properties.driver=org.postgresql.Driver\n' > /nexus-data/nexus.properties
         touch /nexus-data/log/tasks/allTasks.log
         touch /nexus-data/log/audit/audit.log
         touch /nexus-data/log/request.log
