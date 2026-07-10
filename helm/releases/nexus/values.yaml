@@ -5,7 +5,7 @@
 
 image:
   repository: docker.io/sonatype/nexus3
-  tag: 3.94.0
+  tag: 3.94.0-ubi
   pullPolicy: IfNotPresent
 
 bashImage:
