@@ -25,7 +25,7 @@ service:
 ingress:
   enabled: false
 
-install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m"
+install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m -Dnexus.datastore.enabled=true -Dnexus.datastore.nexus.type=nexus -Dnexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus -Dnexus.datastore.nexus.user=nexus -Dnexus.datastore.nexus.password=nexusdb2024 -Dnexus.datastore.nexus.properties.driver=org.postgresql.Driver"
 
 persistence:
   enabled: true
@@ -150,8 +150,6 @@ extraInitContainers:
         # Download PostgreSQL JDBC driver
         wget -q -O /nexus-data/ext/postgresql-jdbc.jar \
           https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar
-        # Create Nexus store.properties with datastore config
-        printf 'nexus.datastore.nexus.type=javax.sql.DataSource\nnexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus\nnexus.datastore.nexus.user=nexus\nnexus.datastore.nexus.password=nexusdb2024\nnexus.datastore.nexus.properties.driver=org.postgresql.Driver\n' > /nexus-data/nexus.properties
         touch /nexus-data/log/tasks/allTasks.log
         touch /nexus-data/log/audit/audit.log
         touch /nexus-data/log/request.log
