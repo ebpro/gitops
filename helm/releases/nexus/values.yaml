@@ -137,5 +137,34 @@ manualMaintenanceMode:
 httpRoute:
   enabled: false
 
-# Strip extraInitContainers — Nexus will use default embedded H2
-# extraInitContainers:
+# NOTE: Data store descriptor types for Nexus 3.94.0:
+# h2-embedded = Embedded H2 database (default)
+
+# Configure Nexus 3.94.0 embedded H2 datastore
+extraInitContainers:
+  - name: configure-h2-db
+    image: docker.io/library/bash:latest
+    imagePullPolicy: IfNotPresent
+    command:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /nexus-data/etc/fabric /nexus-data/etc/logback /nexus-data/log/tasks /nexus-data/log/audit
+        # Create Nexus 3.94.0 datastore descriptor
+        cat > /nexus-data/nexus.properties << 'EOF'
+        [datastore nexus]
+          type=h2-embedded
+          user=SA
+          password=SA
+          properties.algorithm=MD5
+          properties.password=SA
+          properties.jdbcUrl=jdbc:h2:file:/nexus-data/db/nexus
+        EOF
+        mkdir -p /nexus-data/db
+        touch /nexus-data/log/tasks/allTasks.log
+        touch /nexus-data/log/audit/audit.log
+        touch /nexus-data/log/request.log
+        chown -R 200:200 /nexus-data
+    volumeMounts:
+      - name: data
+        mountPath: /nexus-data
