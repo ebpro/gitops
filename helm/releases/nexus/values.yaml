@@ -5,7 +5,7 @@
 
 image:
   repository: docker.io/sonatype/nexus3
-  tag: 3.70.1-02
+  tag: 3.94.0
   pullPolicy: IfNotPresent
 
 bashImage:
@@ -25,7 +25,7 @@ service:
 ingress:
   enabled: false
 
-install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m -Dnexus.datastore.enabled=true -Dnexus.datastore.nexus.type=javax.sql.DataSource -Dnexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus -Dnexus.datastore.nexus.user=nexus -Dnexus.datastore.nexus.password=nexusdb2024 -Dnexus.datastore.nexus.properties.driver=org.postgresql.Driver"
+install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m"
 
 persistence:
   enabled: true
@@ -137,7 +137,7 @@ manualMaintenanceMode:
 httpRoute:
   enabled: false
 
-# Download PostgreSQL JDBC driver into /nexus-data/ext/ and write nexus-store.properties
+# Download PostgreSQL JDBC driver and write nexus.properties datastore config
 extraInitContainers:
   - name: setup-nexus-ext
     image: docker.io/library/bash:latest
@@ -146,13 +146,15 @@ extraInitContainers:
       - /bin/sh
       - -c
       - |
-        mkdir -p /nexus-data/ext /nexus-data/etc/fabric /nexus-data/etc/logback /nexus-data/log/tasks /nexus-data/log/audit
+        mkdir -p /nexus-data/ext /nexus-data/etc /nexus-data/etc/fabric /nexus-data/etc/logback /nexus-data/log/tasks /nexus-data/log/audit
+        # Download PostgreSQL JDBC driver
         wget -q -O /nexus-data/ext/postgresql-jdbc.jar \
           https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar
+        # Create Nexus 3.70+ datastore config
+        printf '[datastore nexus]\n  type=javax.sql.DataSource\n  user=nexus\n  password=nexusdb2024\n  properties.driver=org.postgresql.Driver\n  properties.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus\n' > /nexus-data/etc/nexus.properties
         touch /nexus-data/log/tasks/allTasks.log
         touch /nexus-data/log/audit/audit.log
         touch /nexus-data/log/request.log
-        # Create required directory structure for Nexus
         chown -R 200:200 /nexus-data
     volumeMounts:
       - name: data
