@@ -1,4 +1,5 @@
 # Nexus3 custom values for PostgreSQL-backed datastore
+# Clean reinstall - PostgreSQL JDBC driver downloaded via init container
 
 storeProperties:
   - nexus.datastore.nexus.type=jdbc
@@ -9,7 +10,7 @@ storeProperties:
 
 image:
   repository: docker.io/sonatype/nexus3
-  tag: 3.90.2
+  tag: 3.93.2
   pullPolicy: IfNotPresent
 
 bashImage:
@@ -29,7 +30,7 @@ service:
 ingress:
   enabled: false
 
-install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=2048m"
+install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m"
 
 persistence:
   enabled: true
@@ -67,7 +68,7 @@ initRootSecurityContext:
   privileged: false
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
-  runAsNonRoot: true
+  runAsNonRoot: false
   runAsUser: 0
   runAsGroup: 0
   capabilities:
@@ -79,9 +80,9 @@ initResources: {}
 resources:
   limits:
     cpu: 4
-    memory: 8Gi
+    memory: 6Gi
   requests:
-    cpu: 2000m
+    cpu: 1500m
     memory: 4Gi
 
 license:
@@ -104,7 +105,7 @@ tailLogs:
   resources: {}
 
 rootPassword:
-  secret:
+  secret: nexus-root-password
   key: password
 
 commonLabels: {}
@@ -140,3 +141,20 @@ manualMaintenanceMode:
 
 httpRoute:
   enabled: false
+
+# Download PostgreSQL JDBC driver into /nexus-data/ext/ so Nexus can load it
+extraInitContainers:
+  - name: download-jdbc-driver
+    image: docker.io/library/bash:latest
+    imagePullPolicy: IfNotPresent
+    command:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /nexus-data/ext
+        curl -fSL -o /nexus-data/ext/postgresql-jdbc.jar \
+          https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar
+        chmod -R 755 /nexus-data/ext
+    volumeMounts:
+      - name: data
+        mountPath: /nexus-data
