@@ -25,7 +25,7 @@ service:
 ingress:
   enabled: false
 
-install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m"
+install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m -Dnexus.datastore.enabled=true -Dnexus.loadAsOSS=true -Dnexus.datastore.nexus.type=javax.sql.DataSource -Dnexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus -Dnexus.datastore.nexus.user=nexus -Dnexus.datastore.nexus.password=nexusdb2024 -Dnexus.datastore.nexus.properties.driver=org.postgresql.Driver"
 
 persistence:
   enabled: true
@@ -152,24 +152,8 @@ extraInitContainers:
         touch /nexus-data/log/tasks/allTasks.log
         touch /nexus-data/log/audit/audit.log
         touch /nexus-data/log/request.log
-        printf '%s\n' \
-          'nexus.datastore.nexus.type=javax.sql.DataSource' \
-          'nexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus' \
-          'nexus.datastore.nexus.user=nexus' \
-          'nexus.datastore.nexus.password=nexusdb2024' \
-          'nexus.datastore.nexus.properties.driver=org.postgresql.Driver' \
-          > /nexus-data/etc/fabric/nexus-store.properties
-        printf '%s\n' \
-          'nexus.datastore.enabled=true' \
-          'nexus.loadAsOSS=true' \
-          > /nexus-data/etc/nexus.properties
-        # Protect entrypoint from overwriting - only owner:group can read
-        chmod 550 /nexus-data/etc/fabric/nexus-store.properties
-        chmod 550 /nexus-data/etc/nexus.properties
+        # Create required directory structure for Nexus
         chown -R 200:200 /nexus-data
-        # Prevent entrypoint from modifying by chattr (may not work on all filesystems)
-        chattr +i /nexus-data/etc/fabric/nexus-store.properties 2>/dev/null || true
-        chattr +i /nexus-data/etc/nexus.properties 2>/dev/null || true
     volumeMounts:
       - name: data
         mountPath: /nexus-data
