@@ -152,7 +152,7 @@ extraInitContainers:
       - -c
       - |
         mkdir -p /nexus-data/ext
-        curl -fSL -o /nexus-data/ext/postgresql-jdbc.jar \
+        wget -O /nexus-data/ext/postgresql-jdbc.jar \
           https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar
         chmod -R 755 /nexus-data/ext
     volumeMounts:
