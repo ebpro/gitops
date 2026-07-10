@@ -25,7 +25,7 @@ service:
 ingress:
   enabled: false
 
-install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m -Dnexus.loadAsOSS=true -Dnexus.datastore.enabled=true -Dnexus.datastore.nexus.type=javax.sql.DataSource -Dnexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus -Dnexus.datastore.nexus.user=nexus -Dnexus.datastore.nexus.password=nexusdb2024 -Dnexus.datastore.nexus.properties.driver=org.postgresql.Driver"
+install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m"
 
 persistence:
   enabled: true
@@ -137,23 +137,5 @@ manualMaintenanceMode:
 httpRoute:
   enabled: false
 
-# Download PostgreSQL JDBC driver and write nexus.properties datastore config
-extraInitContainers:
-  - name: setup-nexus-ext
-    image: docker.io/library/bash:latest
-    imagePullPolicy: IfNotPresent
-    command:
-      - /bin/sh
-      - -c
-      - |
-        mkdir -p /nexus-data/ext /nexus-data/etc/fabric /nexus-data/etc/logback /nexus-data/log/tasks /nexus-data/log/audit
-        # Download PostgreSQL JDBC driver
-        wget -q -O /nexus-data/ext/postgresql-jdbc.jar \
-          https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar
-        touch /nexus-data/log/tasks/allTasks.log
-        touch /nexus-data/log/audit/audit.log
-        touch /nexus-data/log/request.log
-        chown -R 200:200 /nexus-data
-    volumeMounts:
-      - name: data
-        mountPath: /nexus-data
+# Strip extraInitContainers — Nexus will use default embedded H2
+# extraInitContainers:
