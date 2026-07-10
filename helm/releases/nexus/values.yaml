@@ -152,17 +152,17 @@ extraInitContainers:
         touch /nexus-data/log/tasks/allTasks.log
         touch /nexus-data/log/audit/audit.log
         touch /nexus-data/log/request.log
-        cat > /nexus-data/etc/fabric/nexus-store.properties << 'STOREEOF'
-nexus.datastore.nexus.type=jdbc
-nexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus
-nexus.datastore.nexus.user=nexus
-nexus.datastore.nexus.password=nexusdb2024
-nexus.datastore.nexus.jdbcDriver=org.postgresql.Driver
-STOREEOF
-        cat > /nexus-data/etc/nexus.properties << 'PROPEOF'
-nexus.datastore.enabled=true
-nexus.loadAsOSS=true
-PROPEOF
+        printf '%s\n' \
+          'nexus.datastore.nexus.type=jdbc' \
+          'nexus.datastore.nexus.jdbcUrl=jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/nexus?currentSchema=nexus' \
+          'nexus.datastore.nexus.user=nexus' \
+          'nexus.datastore.nexus.password=nexusdb2024' \
+          'nexus.datastore.nexus.jdbcDriver=org.postgresql.Driver' \
+          > /nexus-data/etc/fabric/nexus-store.properties
+        printf '%s\n' \
+          'nexus.datastore.enabled=true' \
+          'nexus.loadAsOSS=true' \
+          > /nexus-data/etc/nexus.properties
         chown -R 200:200 /nexus-data
     volumeMounts:
       - name: data
