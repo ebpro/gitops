@@ -186,22 +186,22 @@ extraDeploy:
                 default:
                   dangerouslyAllowOutsideDevelopment: true
 
-        sonarqube:
-          baseUrl: https://sonarqube.ebruno.fr
+         sonarqube:
+            baseUrl: https://sonarqube.ebruno.fr
 
-        argocd:
-          ui:
-            baseUrl: https://argocd.ebruno.fr
-          backend:
-            baseUrl: https://argocd.ebruno.fr/api/v1
+         argocd:
+            ui:
+              baseUrl: https://argocd.ebruno.fr
+            backend:
+              baseUrl: https://argocd.ebruno.fr/api/v1
 
-        kubernetes:
-           serviceLocatorMethod:
-             type: multiTenant
-           clusterLocatorMethods:
-             - type: config
-               clusters: []
-           skipConfigValidate: false
+         kubernetes:
+            serviceLocatorMethod:
+              type: multiTenant
+            clusterLocatorMethods:
+              - type: config
+                clusters: []
+            skipConfigValidate: false
 
         techdocs:
           builder: local
