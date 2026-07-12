@@ -52,5 +52,29 @@ resources:
     requests:
       cpu: 50m
       memory: 128Mi
+auth:
+  mode: oidc
+  oidc:
+    loginUrl: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth
+    issuer: https://keycloak.ebruno.fr/realms/platform
+    redirectURL: https://harbor.ebruno.fr/oidc/callback
+    name: Keycloak
+    clientID: harbor
+    clientSecret: ""
+    verify: true
+    scope: openid profile email groups
+    groupsClaim: groups
+    adminMetadata:
+      adminGroup: platform-admins
+    xsrf: ""
+
+core:
+  extraEnvVars:
+    - name: HARBOR_OIDC_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: harbor-oidc-secret
+          key: Harboroidcclientsecret
+
 service:
   type: ClusterIP
