@@ -101,7 +101,7 @@ extraDeploy:
           database:
             client: pg
             connection:
-              host: backstage-db-primary.backstage.svc.cluster.local
+              host: backstage-db-rw.backstage.svc.cluster.local
               port: 5432
               database: backstage
               user: ${APP_CONFIG_backend_database_connection_user}
