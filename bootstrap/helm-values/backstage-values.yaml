@@ -147,16 +147,16 @@ extraDeploy:
                   wait: { seconds: 5 }
                   frequency: { seconds: 300 }
                   timeout: { seconds: 60 }
-          rules:
-            allow:
-              - kind: Component
-              - kind: API
-              - kind: Resource
-              - kind: System
-              - kind: Domain
-              - kind: Group
-              - kind: Template
-              - kind: User
+           rules:
+             - allow:
+                 - kind: Component
+                 - kind: API
+                 - kind: Resource
+                 - kind: System
+                 - kind: Domain
+                 - kind: Group
+                 - kind: Template
+                 - kind: User
           locations:
             - type: gitea
               target: gitea.ebruno.fr/ebruno/backstage-entities
@@ -208,8 +208,6 @@ extraDeploy:
         kubernetes:
           serviceLocatorMethod:
             type: multiTenant
-          clusterLocatorMethods:
-            - type: inCluster
           skipConfigValidate: false
 
         techdocs:
