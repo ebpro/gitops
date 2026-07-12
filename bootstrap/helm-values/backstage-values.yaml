@@ -70,6 +70,18 @@ backstage:
           name: backstage-secrets
           key: GITEA_TOKEN
 
+    - name: BACKSTAGE_GITEA_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: backstage-secrets
+          key: BACKSTAGE_GITEA_CLIENT_ID
+
+    - name: BACKSTAGE_GITEA_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: backstage-secrets
+          key: BACKSTAGE_GITEA_CLIENT_SECRET
+
   extraEnvVarsSecrets:
     - backstage-secrets
 
