@@ -97,7 +97,7 @@ extraDeploy:
             options:
               debug: false
             keys:
-              - ${BACKSTAGE_JWT}
+              - secret: ${BACKSTAGE_JWT}
           database:
             client: pg
             connection:
