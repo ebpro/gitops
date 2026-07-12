@@ -181,8 +181,6 @@ extraDeploy:
 
          auth:
           dangerouslyAllowExternalLoginByDefault: true
-          providers:
-            guest: {}
 
         sonarqube:
           baseUrl: https://sonarqube.ebruno.fr
