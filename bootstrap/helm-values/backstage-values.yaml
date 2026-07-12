@@ -134,9 +134,9 @@ extraDeploy:
           baseUrl: https://backstage.ebruno.fr
 
         catalog:
-          import:
-            entityFilename: backstage.yaml
-            pullRequestBranchName: backstage-integration
+           import:
+             entityFilename: backstage.yaml
+             pullRequestBranchName: backstage-integration
            providers:
              giteaOrg:
                default:
@@ -158,17 +158,17 @@ extraDeploy:
                  - kind: Template
                  - kind: User
            locations:
-            - type: gitea
-              target: gitea.ebruno.fr/ebruno/backstage-entities
-              rules:
-                - allow:
-                    - kinds:
-                        - Component
-                        - API
-                        - Resource
-                        - System
-                        - Domain
-                        - Template
+             - type: gitea
+               target: gitea.ebruno.fr/ebruno/backstage-entities
+               rules:
+                 - allow:
+                     - kinds:
+                         - Component
+                         - API
+                         - Resource
+                         - System
+                         - Domain
+                         - Template
 
         scaffolder:
           backend:
