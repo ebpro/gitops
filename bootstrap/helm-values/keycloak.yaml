@@ -45,9 +45,9 @@ extraEnv: |
       secretKeyRef:
         name: keycloak-db-credentials
         key: password
-  - name: KEYCLOAK_USER
+  - name: KEYCLOAK_ADMIN
     value: admin
-  - name: KEYCLOAK_PASSWORD
+  - name: KEYCLOAK_ADMIN_PASSWORD
     valueFrom:
       secretKeyRef:
         name: keycloak-secrets
@@ -100,11 +100,32 @@ podLabels: {}
 
 podAnnotations: {}
 
-livenessProbe: false
+livenessProbe: |
+  httpGet:
+    path: /q/health/live
+    port: http
+  initialDelaySeconds: 120
+  timeoutSeconds: 5
+  periodSeconds: 30
+  failureThreshold: 3
 
-readinessProbe: false
+readinessProbe: |
+  httpGet:
+    path: /q/health/ready
+    port: http
+  initialDelaySeconds: 60
+  timeoutSeconds: 1
+  periodSeconds: 10
+  failureThreshold: 3
 
-startupProbe: false
+startupProbe: |
+  httpGet:
+    path: /q/health/started
+    port: http
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 180
+  periodSeconds: 10
 
 resources:
   requests:
