@@ -1,0 +1,19 @@
+apiVersion: v1
+data:
+  oidc.config: |
+    issuer: https://keycloak.ebruno.fr/realms/platform
+    clientID: argocd
+    clientSecret: $ARGOCD_SERVER_OIDC_CLIENT_SECRET
+    rootCA:
+    requestedIDTokenClaims:
+      groups:
+        essential: true
+    requestedScopes:
+      - openid
+      - profile
+      - email
+      - groups
+kind: ConfigMap
+metadata:
+  name: argocd-cmd-params-cm
+  namespace: argocd
