@@ -137,16 +137,16 @@ extraDeploy:
           import:
             entityFilename: backstage.yaml
             pullRequestBranchName: backstage-integration
-          providers:
-            giteaOrg:
-              default:
-                host: gitea.ebruno.fr
-                organization: /
-                token: ${GITEA_TOKEN}
-                schedule:
-                  wait: { seconds: 5 }
-                  frequency: { seconds: 300 }
-                  timeout: { seconds: 60 }
+           providers:
+             giteaOrg:
+               default:
+                 host: gitea.ebruno.fr
+                 organization: /
+                 token: ${GITEA_TOKEN}
+                 schedule:
+                   wait: { seconds: 5 }
+                   frequency: { seconds: 300 }
+                   timeout: { seconds: 60 }
            rules:
              - allow:
                  - kind: Component
@@ -157,7 +157,7 @@ extraDeploy:
                  - kind: Group
                  - kind: Template
                  - kind: User
-          locations:
+           locations:
             - type: gitea
               target: gitea.ebruno.fr/ebruno/backstage-entities
               rules:
