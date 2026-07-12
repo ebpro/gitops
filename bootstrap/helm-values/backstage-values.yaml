@@ -179,25 +179,10 @@ extraDeploy:
               type: pg
             defaultRemote: origin
 
-        auth:
+         auth:
           dangerouslyAllowExternalLoginByDefault: true
           providers:
-            gitea:
-              default:
-                provider: gitea
-                production:
-                  instance: gitea.ebruno.fr
-                  scope: repo user:email notification
-                  clientId: ${BACKSTAGE_GITEA_CLIENT_ID}
-                  clientSecret: ${BACKSTAGE_GITEA_CLIENT_SECRET}
-            keycloak:
-              default:
-                production:
-                  clientId: backstage-prod
-                  issuerBaseUrl: https://keycloak.ebruno.fr/realms/backstage
-                  baseURL: https://backstage.ebruno.fr/auth/keycloak
-                  meta:
-                    name: keycloak
+            guest: {}
 
         sonarqube:
           baseUrl: https://sonarqube.ebruno.fr
