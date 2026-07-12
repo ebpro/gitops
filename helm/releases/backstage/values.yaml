@@ -1,0 +1,190 @@
+---
+image:
+  registry: ghcr.io
+  repository: backstage/backstage
+  tag: latest
+
+serviceAccount:
+  create: true
+  automountServiceAccountToken: true
+
+backstage:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1
+      memory: 2Gi
+
+  strategy:
+    type: Recreate
+
+  extraEnvVars:
+    - name: APP_CONFIG_backend_database_connection_user
+      valueFrom:
+        secretKeyRef:
+          name: backstage-db-superuser
+          key: username
+    - name: APP_CONFIG_backend_database_connection_password
+      valueFrom:
+        secretKeyRef:
+          name: backstage-db-superuser
+          key: password
+    - name: APP_CONFIG_backend_authentication_keys__0
+      valueFrom:
+        secretKeyRef:
+          name: backstage-secrets
+          key: BACKSTAGE_JWT
+    - name: GITEA_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: backstage-secrets
+          key: GITEA_TOKEN
+
+  extraEnvVarsSecrets:
+    - backstage-secrets
+
+  extraAppConfig:
+    - filename: app-config.production.yaml
+      configMapRef: backstage-custom-config
+
+extraDeploy:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: backstage-custom-config
+      namespace: backstage
+    data:
+      app-config.production.yaml: |
+        app:
+          title: Platform Developer Portal
+          baseUrl: https://backstage.ebruno.fr
+
+        backend:
+          baseUrl: https://backstage.ebruno.fr
+          listen:
+            port: 7007
+          auth:
+            options:
+              debug: false
+          database:
+            client: pg
+            connection:
+              host: backstage-db-primary.backstage.svc.cluster.local
+              port: 5432
+              database: backstage
+              user: ${APP_CONFIG_backend_database_connection_user}
+              password: ${APP_CONFIG_backend_database_connection_password}
+              ssl:
+                rejectUnauthorized: false
+          cors:
+            origin: https://backstage.ebruno.fr
+            methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+            credentials: true
+          csp:
+            connect-src: ["'self'", 'http:', 'https:']
+            frame-ancestors: ["'self'"]
+            img-src: ["'self'", 'data:']
+            script-src: ["'self'"]
+            style-src: ["'self'"]
+          logger:
+            logLevel: info
+
+        integrations:
+          gitea:
+            - host: gitea.ebruno.fr
+              baseUrl: https://gitea.ebruno.fr
+              token: ${GITEA_TOKEN}
+          sonarqube:
+            - host: sonarqube.ebruno.fr
+              baseUrl: https://sonarqube.ebruno.fr
+
+        frontend:
+          baseUrl: https://backstage.ebruno.fr
+
+        catalog:
+          import:
+            entityFilename: backstage.yaml
+            pullRequestBranchName: backstage-integration
+          providers:
+            giteaOrg:
+              default:
+                host: gitea.ebruno.fr
+                organization: /
+                token: ${GITEA_TOKEN}
+                schedule:
+                  wait: { seconds: 5 }
+                  frequency: { seconds: 300 }
+                  timeout: { seconds: 60 }
+          rules:
+            allow:
+              - kind: Component
+              - kind: API
+              - kind: Resource
+              - kind: System
+              - kind: Domain
+              - kind: Group
+              - kind: Template
+              - kind: User
+          locations:
+            - type: gitea
+              target: gitea.ebruno.fr/ebruno/backstage-entities
+              rules:
+                - allow:
+                  - kinds:
+                    - Component
+                    - API
+                    - Resource
+                    - System
+                    - Domain
+                    - Template
+
+        scaffolder:
+          backend:
+            database:
+              type: pg
+            defaultRemote: origin
+
+        auth:
+          dangerouslyAllowExternalLoginByDefault: true
+          providers:
+            gitea:
+              default:
+                provider: gitea
+                production:
+                  instance: gitea.ebruno.fr
+                  scope: repo user:email notification
+                  clientId: ${BACKSTAGE_GITEA_CLIENT_ID}
+                  clientSecret: ${BACKSTAGE_GITEA_CLIENT_SECRET}
+            keycloak:
+              default:
+                production:
+                  clientId: backstage-prod
+                  issuerBaseUrl: https://keycloak.ebruno.fr/realms/backstage
+                  baseURL: https://backstage.ebruno.fr/auth/keycloak
+                  meta:
+                    name: keycloak
+
+        sonarqube:
+          baseUrl: https://sonarqube.ebruno.fr
+
+        argocd:
+          ui:
+            baseUrl: https://argocd.ebruno.fr
+          backend:
+            baseUrl: https://argocd.ebruno.fr/api/v1
+
+        kubernetes:
+          serviceLocatorMethod:
+            type: multiTenant
+          clusterLocatorMethods:
+            - type: inCluster
+          skipConfigValidate: false
+
+        techdocs:
+          builder: local
+          generator:
+            runIn: local
+          publisher:
+            type: local

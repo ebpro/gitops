@@ -2,19 +2,83 @@
 
 All database credentials and sensitive configuration are managed via External Secrets backed by HashiCorp Vault.
 
-## Secret paths in Vault
+## Vault Secret Paths
 
-| Secret Path | Key | Used By |
+| Vault Path | Key | Used By |
 |---|---|---|
 | `secret/data/postgresql/harbor` | `password` | Harbor, harbor-postgresql |
 | `secret/data/postgresql/nexus` | `password` | Nexus, nexus-postgresql |
+| `secret/data/postgresql/keycloak` | `password` | Keycloak, keycloak-db |
+| `secret/data/postgresql/backstage` | `password` | Backstage, backstage-db |
 | `secret/data/velero/s3` | `accessKeyId` + `secretAccessKey` | Velero |
 | `secret/data/grafana` | `adminPassword` | Kube-Prometheus-Stack |
 | `secret/data/sonarqube/monitoring` | `passcode` | SonarQube |
+| `secret/data/backstage` | `jwtSecret` + `giteaToken` | Backstage |
+| `secret/data/keycloak` | `adminPassword` + `realmSecret` | Keycloak admin |
 
-## PostgreSQL databases
+## CloudNativePG Clusters
 
-PostgreSQL instances are deployed as standalone StatefulSets, not via Helm subcharts. Each database has:
-1. An ExternalSecret that creates the PostgreSQL password Secret
-2. The `pgbouncer-exporter` service for monitoring
-3. Persistent volumes with 10-20Gi using `local-path` storage class
+PostgreSQL instances are deployed via **CloudNativePG (CNPG)** operator as `Cluster` resources. DNS resolution: `<cluster-name>-primary.<namespace>.svc.cluster.local:5432`
+
+### Cluster Specifications
+
+**sonarqube-db** (`sonarqube` namespace)
+- 20Gi PVC with `local-path` storage
+- 400 max connections
+- CPU: 250m/500m (req/limit), Memory: 512Mi/1Gi
+- Service: `sonarqube-db-primary`
+
+**nexus-db** (`nexus` namespace)
+- 20Gi PVC with `local-path` storage
+- 300 max connections
+- CPU: 250m/500m (req/limit), Memory: 512Mi/1Gi
+- Service: `nexus-db-primary`
+
+**backstage-db** (`backstage` namespace)
+- 10Gi PVC with `local-path` storage
+- 200 max connections
+- CPU: 250m/500m (req/limit), Memory: 512Mi/1Gi
+- Service: `backstage-db-primary`
+
+**keycloak-db** (`keycloak` namespace)
+- 20Gi PVC with `local-path` storage
+- 500 max connections
+- CPU: 500m/1000m (req/limit), Memory: 1Gi/2Gi
+- Service: `keycloak-db-primary`
+
+### CNPG Management
+- Managed via raw K8s manifests in `kubernetes/postgresql/`, synced by ArgoCD
+- ExternalSecrets for app-user credentials, Vault-backed
+- Debug via: `kubectl exec -it <cluster>-1 -n <ns> -- psql -U postgres -d <dbname>`. `enableSuperuserAccess` is **true** on all clusters.
+
+## Storage Classes
+- **local-path** — Primary storage for most stateful workloads (CNPG, Nexus, etc.)
+- **nfs-client** — For shared/file-based workloads that need cross-node access
+- **garage** (future) — S3-compatible remote storage for Velero backups and CNPG Barman
+
+## Operator Stack
+| Operator          | Status      | Namespace                      | Purpose                        |
+|-------------------|-------------|--------------------------------|--------------------------------|
+| CloudNativePG     | ✅ Deployed | cnpg-system                    | PostgreSQL lifecycle           |
+| External Secrets  | ✅ Deployed | external-secrets               | Vault → K8s Secrets            |
+| Kyverno           | ✅ Deployed | kyverno                        | Policy enforcement             |
+| OpenTelemetry     | 🚧 Deployed | opentelemetry-operator-system  | Observability instrumentation  |
+| VPA               | 🚧 Deployed | vpa                            | Resource recommendations       |
+| Velero            | ❌ Planned  | velero                         | Backup & restore               |
+| KEDA              | ❌ Planned  | keda-system                    | Event-driven autoscaling       |
+| Descheduler       | ❌ Planned  | kubesphere                     | Pod placement optimization     |
+| Keycloak          | 🚧 Deployed  | keycloak                       | Central SSO / Identity Provider |
+
+## SSO & Identity
+Central authentication via Keycloak (CodeCentric Operator) → GitOps-managed.
+
+### Identity Groups
+| Keycloak Group | ArgoCD Role | Grafana Role |
+|---|---|---|
+| `platform-admins` | `admin` | `Admin` |
+| `platform-engineers` | `role:platform-engineers` | `Editor` |
+| `developers` | `role:developers` | `Editor` |
+| `readonly` | `role:readonly` | `Viewer` |
+
+### Authentication Fallback
+Apps without native SSO (SonarQube CE, Nexus OSS) use **Traefik ForwardAuth** middleware backed by **oauth2-proxy** → Keycloak OIDC. Headers: `X-Forwarded-User`, `X-Forwarded-Groups`.

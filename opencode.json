@@ -1,0 +1,30 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "infrastructure/README.md"
+  ],
+  "permission": {
+    "bash": {
+      "kubectl apply -f *": "deny",
+      "kubectl patch *": "deny",
+      "kubectl edit *": "deny",
+      "kubectl exec *": "ask",
+      "kubectl delete *": "ask",
+      "git push": "ask",
+      "*": "allow"
+    },
+    "edit": "allow",
+    "webfetch": "allow",
+    "skill": {
+      "internal-*": "allow",
+      "add-operator": "allow",
+      "cnpg-cluster": "allow",
+      "observability-integration": "allow",
+      "backup-restore": "allow",
+      "keycloak-realm": "allow",
+      "app-oidc-integration": "allow",
+      "proxy-auth-middleware": "allow",
+      "*": "allow"
+    }
+  }
+}
