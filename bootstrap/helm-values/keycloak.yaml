@@ -181,7 +181,7 @@ ingress:
   tls: []
 
 networkPolicy:
-  enabled: true
+  enabled: false
 
 pgchecker:
   image:
