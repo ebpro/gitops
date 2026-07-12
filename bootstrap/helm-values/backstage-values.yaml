@@ -180,8 +180,11 @@ extraDeploy:
              defaultRemote: origin
 
          auth:
-           dangerouslyAllowExternalLoginByDefault: true
-           allowUnauthenticatedAccess: true
+            dangerouslyAllowExternalLoginByDefault: true
+            providers:
+              guest:
+                default:
+                  dangerouslyAllowOutsideDevelopment: true
 
         sonarqube:
           baseUrl: https://sonarqube.ebruno.fr
