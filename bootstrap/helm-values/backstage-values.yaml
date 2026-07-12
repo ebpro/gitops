@@ -64,12 +64,6 @@ backstage:
           name: backstage-db-superuser
           key: password
 
-    - name: APP_CONFIG_backend_authentication_keys__0
-      valueFrom:
-        secretKeyRef:
-          name: backstage-secrets
-          key: BACKSTAGE_JWT
-
     - name: GITEA_TOKEN
       valueFrom:
         secretKeyRef:
@@ -102,6 +96,8 @@ extraDeploy:
           auth:
             options:
               debug: false
+            keys:
+              - ${BACKSTAGE_JWT}
           database:
             client: pg
             connection:
