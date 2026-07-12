@@ -173,14 +173,15 @@ extraDeploy:
              - type: gitea
                target: gitea.ebruno.fr/ebruno/backstage-entities
 
-        scaffolder:
-          backend:
-            database:
-              type: pg
-            defaultRemote: origin
+         scaffolder:
+           backend:
+             database:
+               type: pg
+             defaultRemote: origin
 
          auth:
-          dangerouslyAllowExternalLoginByDefault: true
+           dangerouslyAllowExternalLoginByDefault: true
+           allowUnauthenticatedAccess: true
 
         sonarqube:
           baseUrl: https://sonarqube.ebruno.fr
