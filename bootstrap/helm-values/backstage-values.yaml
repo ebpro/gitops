@@ -160,15 +160,6 @@ extraDeploy:
            locations:
              - type: gitea
                target: gitea.ebruno.fr/ebruno/backstage-entities
-               rules:
-                 - allow:
-                     - kinds:
-                         - Component
-                         - API
-                         - Resource
-                         - System
-                         - Domain
-                         - Template
 
         scaffolder:
           backend:
@@ -206,9 +197,12 @@ extraDeploy:
             baseUrl: https://argocd.ebruno.fr/api/v1
 
         kubernetes:
-          serviceLocatorMethod:
-            type: multiTenant
-          skipConfigValidate: false
+           serviceLocatorMethod:
+             type: multiTenant
+           clusterLocatorMethods:
+             - type: config
+               clusters: []
+           skipConfigValidate: false
 
         techdocs:
           builder: local
