@@ -23,7 +23,9 @@ env:
   PLANE_URL: https://plane.ebruno.fr
   docstore_bucket: uploads
 
-external_secrets: {}
+external_secrets:
+  pgdb_existingSecret: plane-postgresql-auth
+  app_env_existingSecret: plane-oidc-secret
 
 ssl:
   enabled: true

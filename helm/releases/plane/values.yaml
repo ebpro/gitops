@@ -25,6 +25,7 @@ env:
 
 external_secrets:
   pgdb_existingSecret: plane-postgresql-auth
+  app_env_existingSecret: plane-oidc-secret
 
 ssl:
   enabled: true
