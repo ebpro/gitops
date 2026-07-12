@@ -15,7 +15,7 @@ backstage:
       cpu: 500m
       memory: 1Gi
     limits:
-      cpu: 1
+      cpu: "1"
       memory: 2Gi
 
   strategy:
@@ -146,62 +146,62 @@ extraDeploy:
           baseUrl: https://backstage.ebruno.fr
 
         catalog:
-           import:
-             entityFilename: backstage.yaml
-             pullRequestBranchName: backstage-integration
-           providers:
-             giteaOrg:
-               default:
-                 host: gitea.ebruno.fr
-                 organization: /
-                 token: ${GITEA_TOKEN}
-                 schedule:
-                   wait: { seconds: 5 }
-                   frequency: { seconds: 300 }
-                   timeout: { seconds: 60 }
-           rules:
-             - allow:
-                 - kind: Component
-                 - kind: API
-                 - kind: Resource
-                 - kind: System
-                 - kind: Domain
-                 - kind: Group
-                 - kind: Template
-                 - kind: User
-           locations:
-             - type: gitea
-               target: gitea.ebruno.fr/ebruno/backstage-entities
+          import:
+            entityFilename: backstage.yaml
+            pullRequestBranchName: backstage-integration
+          providers:
+            giteaOrg:
+              default:
+                host: gitea.ebruno.fr
+                organization: /
+                token: ${GITEA_TOKEN}
+                schedule:
+                  wait: { seconds: 5 }
+                  frequency: { seconds: 300 }
+                  timeout: { seconds: 60 }
+          rules:
+            - allow:
+                - kind: Component
+                - kind: API
+                - kind: Resource
+                - kind: System
+                - kind: Domain
+                - kind: Group
+                - kind: Template
+                - kind: User
+          locations:
+            - type: gitea
+              target: gitea.ebruno.fr/ebruno/backstage-entities
 
-         scaffolder:
-           backend:
-             database:
-               type: pg
-             defaultRemote: origin
+        scaffolder:
+          backend:
+            database:
+              type: pg
+            defaultRemote: origin
 
-         auth:
-            dangerouslyAllowExternalLoginByDefault: true
-            providers:
-              guest:
-                default:
-                  dangerouslyAllowOutsideDevelopment: true
+        auth:
+          dangerouslyAllowExternalLoginByDefault: true
+          providers:
+            guest:
+              default:
+                dangerouslyAllowOutsideDevelopment: true
 
-         sonarqube:
-            baseUrl: https://sonarqube.ebruno.fr
+        sonarqube:
+          baseUrl: https://sonarqube.ebruno.fr
 
-         argocd:
-            ui:
-              baseUrl: https://argocd.ebruno.fr
-            backend:
-              baseUrl: https://argocd.ebruno.fr/api/v1
+        argocd:
+          ui:
+            baseUrl: https://argocd.ebruno.fr
+          backend:
+            baseUrl: https://argocd.ebruno.fr/api/v1
 
-         kubernetes:
-            serviceLocatorMethod:
-              type: multiTenant
-            clusterLocatorMethods:
-              - type: config
-                clusters: []
-            skipConfigValidate: false
+        kubernetes:
+          serviceLocatorMethod:
+            type: multiTenant
+          clusterLocatorMethods:
+            - type: config
+              clusters: []
+          skipConfigValidate: false
 
         techdocs:
           builder: local
