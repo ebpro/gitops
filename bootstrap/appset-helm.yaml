@@ -158,7 +158,7 @@ spec:
         namespace: backstage
         releaseName: backstage
         repoURL: https://backstage.github.io/charts
-        version: 2.9.1
+        version: 2.8.2
         syncWave: '25'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/backstage-values.yaml
 
