@@ -1,8 +1,12 @@
 ---
 image:
-  registry: ghcr.io
-  repository: backstage/backstage
+  registry: harbor.ebruno.fr
+  repository: library/backstage-keycloak
   tag: latest
+  pullPolicy: Always
+
+pullSecrets:
+  - name: harbor-registry-secret
 
 serviceAccount:
   create: true
@@ -41,6 +45,18 @@ backstage:
         secretKeyRef:
           name: backstage-secrets
           key: GITEA_TOKEN
+
+    - name: BACKSTAGE_KEYCLOAK_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: backstage-secrets
+          key: BACKSTAGE_KEYCLOAK_CLIENT_ID
+
+    - name: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: backstage-secrets
+          key: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
 
   extraEnvVarsSecrets:
     - backstage-secrets
@@ -160,9 +176,11 @@ extraDeploy:
             keycloak:
               default:
                 production:
-                  clientId: backstage-prod
-                  issuerBaseUrl: https://keycloak.ebruno.fr/realms/backstage
+                  clientId: ${BACKSTAGE_KEYCLOAK_CLIENT_ID}
+                  clientSecret: ${BACKSTAGE_KEYCLOAK_CLIENT_SECRET}
+                  issuerBaseUrl: https://keycloak.ebruno.fr/realms/platform
                   baseURL: https://backstage.ebruno.fr/auth/keycloak
+                  healthCheck: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
                   meta:
                     name: keycloak
 
