@@ -69,9 +69,11 @@ terminationGracePeriodSeconds: 60
 
 clusterDomain: cluster.local
 
-command: ["/opt/keycloak/bin/kc.sh"]
+command:
+  - /opt/keycloak/bin/kc.sh
 
-args: ["start-dev"]
+args:
+  - start-dev
 
 priorityClassName: ""
 
