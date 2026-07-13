@@ -3,7 +3,6 @@ kind: Job
 metadata:
   name: build-backstage-keycloak
   namespace: backstage
-  annotations:
 spec:
   template:
     spec:
