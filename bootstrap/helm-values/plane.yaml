@@ -31,12 +31,23 @@ ssl:
   enabled: true
   tls_secret_name: plane-tls
 
-resources:
-  requests:
-    cpu: 250m
-    memory: 512Mi
-  limits:
-    memory: 4Gi
+worker:
+  memoryLimit: 2048Mi
+  cpuLimit: 1000m
+  cpuRequest: 250m
+  memoryRequest: 512Mi
+
+api:
+  memoryLimit: 2048Mi
+  cpuLimit: 1000m
+  cpuRequest: 250m
+  memoryRequest: 512Mi
+
+beatworker:
+  memoryLimit: 2048Mi
+  cpuLimit: 1000m
+  cpuRequest: 250m
+  memoryRequest: 512Mi
 
 replicas: 2
 
