@@ -23,13 +23,15 @@
 - Kustomize apps that were deprecated are removed from operands (now fully Helm-based).
 
 ### In Progress
-- Plane app OutOfSync issue: Helm chart version 1.6.0 Job templates have immutable label constraints that conflict with AutoHeal. Helm app is stuck progressing.
-- Clean up outdated plane values as needed.
-- Validate Keycloak SSO flows end-to-end.
+- Fixed Duplicate `backstage-secrets` ExternalSecret (caused postgresql app Degraded)
+- Plane app OutOfSync resolved: Deleted broken Jobs, reset operationState, ArGoCD re-synced successfully
+- ArGoCD postgresql app stuck Degraded: 2 resources OutOfSync (`backstage-secrets` missing Vault KV path `postgresql/backstage`)
+- All 12 Keycloak OIDC secrets restored in `secret/keycloak` and verified by ExternalSecrets
+- Cluster/Operator secrets (backstage, postgresql) not yet recovered from Vault rebuild
 
 ### Blocked
-- **Plane app**: `Job` `plane-api-migrate-1` and 7 other Jobs are OutOfSync due to immutable selector/label conflicts. ArGoCD can't replace them. Needs manual Job deletion then ArGoCD re-sync.
-- **Keycloak SSO validation**:_oidc_secret keys may have been regenerated; need to update ArgoCD, Gitea, Harbor, and Plane helm values with new secrets.
+- **postgresql app**💀 ArGoCD self-heal deadlock — Degraded app won't autosync, app is Degraded because ArGoCD can't self-heal. Needs manual resolution.
+- **Vault KV recovery**: `postgresql/backstage`, `postgresql/harbor`, `postgresql/nexus`, `postgresql/gitea`, `backstage` paths all missing (PVC was deleted during rebuild)
 
 ## Key Decisions
 - Vault KV v2 base path is `secret` → ExternalSecret `key` only needs `keycloak` (not `secret/data/keycloak`).
@@ -38,11 +40,11 @@
 - `vault-init` secret stores both `root_token` (28-char init token) and `admin_token` (95-char full admin) to support Helm init container and manual admin.
 
 ## Next Steps
-1. **Resolve Plane app**: Delete 8 broken Jobs on cluster. ArGoCD will auto-recreate them fresh.
-2. **Validate Enterprise SSO**: Verify ArgoCD, Gitea, Harbor, Plane, Microcks OIDC all authenticate against Keycloak.
-3. **Vault auto-unseal**: Configure raft/wal autoUnseal for resilience (backwards compatible with Shamir fallback).
-4. **Postgres cluster cleanup**: Remove deprecated manifest-synced postgres resources (now CNPG managed).
-5. **External .md generation**: Update AGENTS.md with corrected ArgoCD app statuses.
+1. **Rebuild all Vault KV data** — postgresql/backstage, postgresql/harbor, postgresql/nexus, postgresql/gitea, postgresql/plane, postgresql/sonarqube, postgresql/keycloak, backstage
+2. **Validate SSO OIDC**: Verify ArgoCD, Gitea, Harbor, Plane, Microcks OIDC all authenticate against Keycloak
+3. **Vault autoUnseal**: Configure raft/wal for resilience (backwards compatible with Shamir fallback)
+4. **Postgres cluster cleanup**: Remove deprecated manifest-synced postgres resources (now CNPG managed)
+5. **Update AGENTS.md**: Corrected ArGoCD app statuses
 
 ## Critical Context
 - **Vault Token Access**: `vault-init` secret in `vault` namespace stores `admin_token` (95-char `hvs.CAES...` full admin) and `root_token` (28 char) — this is key used by Helm init container and for all Vault CLI operations.
