@@ -60,7 +60,7 @@ auth:
     redirectURL: https://harbor.ebruno.fr/oidc/callback
     name: Keycloak
     clientID: harbor
-    clientSecret: ""
+    clientSecret: "${HARBOR_OIDC_CLIENT_SECRET}"
     verify: true
     scope: openid profile email groups
     groupsClaim: groups
