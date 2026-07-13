@@ -16,6 +16,7 @@ spec:
           - path: kubernetes/postgresql
           - path: kubernetes/declarative
           - path: kubernetes/csi-snapshot-controller
+          - path: kubernetes/backstage
   template:
     metadata:
       name: '{{path.basename}}'
