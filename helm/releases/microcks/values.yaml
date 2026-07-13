@@ -17,19 +17,3 @@ microcks:
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
   ingressClassName: traefik
   url: microcks.ebruno.fr
-  env:
-    - name: MICROCKS_KEYCLOAK_SERVER_URL
-      value: "https://keycloak.ebruno.fr/realms/platform"
-    - name: MICROCKS_KEYCLOAK_CLIENT_ID
-      value: "microcks"
-    - name: MICROCKS_KEYCLOAK_CLIENT_SECRET
-      valueFrom:
-        secretKeyRef:
-          name: microcks-oidc-secret
-          key: CLIENT_SECRET
-    - name: MICROCKS_KEYCLOAK_SERVER_PATH
-      value: "/protocol/openid-connect"
-    - name: MICROCKS_KEYCLOAK_AUTH_REALM
-      value: "platform"
-    - name: MICROCKS_KEYCLOAK_REQUIRED_ROLES
-      value: "platform-admins,platform-engineers"
