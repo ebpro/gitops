@@ -193,3 +193,4 @@ status:
     nodesUsed: 1
     successfullyExtracted: true
   writeService: keycloak-db-rw
+# Final sync fix
