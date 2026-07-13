@@ -197,7 +197,7 @@ extraDeploy:
         auth:
           dangerouslyAllowExternalLoginByDefault: true
           providers:
-            keycloak:
+            oidc:
               default:
                 clientId: ${BACKSTAGE_KEYCLOAK_CLIENT_ID}
                 clientSecret: ${BACKSTAGE_KEYCLOAK_CLIENT_SECRET}

@@ -10,8 +10,8 @@ data:
     USER root
 
         RUN cd /app && \
-            yarn add @backstage/plugin-auth-backend-module-keycloak-provider --mode=skip-build && \
-            sed -i "/plugin-auth-backend-module-guest-provider/a backend.add(import('@backstage\/plugin-auth-backend-module-keycloak-provider'));" /app/packages/backend/dist/index.cjs.js && \
+            yarn add @backstage/plugin-auth-backend-module-oidc-provider --mode=skip-build && \
+            sed -i "/plugin-auth-backend-module-guest-provider/a backend.add(import('@backstage\/plugin-auth-backend-module-oidc-provider'));" /app/packages/backend/dist/index.cjs.js && \
             chown -R 1001:1001 /app
 
     USER 1001
