@@ -34,10 +34,10 @@ spec:
             - name: docker-config
               mountPath: /kaniko/.docker
       restartPolicy: Never
-      backoffLimit: 3
-  volumes:
-    - name: dockerfile
-      configMap:
-        name: backstage-keycloak-dockerfile
-    - name: docker-config
-      emptyDir: {}
+      volumes:
+        - name: dockerfile
+          configMap:
+            name: backstage-keycloak-dockerfile
+        - name: docker-config
+          emptyDir: {}
+  backoffLimit: 3
