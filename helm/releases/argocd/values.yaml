@@ -1,5 +1,6 @@
 server:
   extraArgs:
+    sso: true
     oidc.config: |
       issuer: https://keycloak.ebruno.fr/realms/platform
       clientID: argocd
