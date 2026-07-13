@@ -40,3 +40,10 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
+          - ApplyOutOfSyncOnly=true
+        ignoreDifferences:
+          - group: postgresql.cnpg.io
+            kind: Cluster
+            jsonPointers:
+              - /metadata/managedFields
+              - /spec/postgresql
