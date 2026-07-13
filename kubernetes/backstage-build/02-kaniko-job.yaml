@@ -13,11 +13,10 @@ spec:
             - sh
             - -c
             - |
-              mkdir -p /kaniko/.docker
-              printf '{"auths":{"harbor.ebruno.fr":{"username":"admin","password":"Harbor12345","auth":"YWRtaW46SGFyYm9yMTIzNDU="}}}' > /kaniko/.docker/config.json
+                  printf '{"auths":{"harbor.ebruno.fr":{"username":"admin","password":"Harbor12345","auth":"YWRtaW46SGFyYm9yMTIzNDU="}}}' > /kaniko/.docker/config.json
           volumeMounts:
             - name: docker-config
-              mountPath: /kaniko
+              mountPath: /kaniko/.docker
       containers:
         - name: kaniko
           image: gcr.io/kaniko-project/executor:v1.23.2
