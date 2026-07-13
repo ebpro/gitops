@@ -19,7 +19,7 @@ server:
       enabled: true
       setNodeId: true
       storageDir: /vault/data
-    replicas: 3
+    replicas: 1
   resources:
     limits:
       cpu: 1000m
@@ -63,7 +63,7 @@ server:
           valueFrom:
             secretKeyRef:
               name: vault-init
-              key: root_token
+              key: admin_token
         - name: OIDC_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
