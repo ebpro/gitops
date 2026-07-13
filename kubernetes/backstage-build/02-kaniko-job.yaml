@@ -4,8 +4,6 @@ metadata:
   name: build-backstage-keycloak
   namespace: backstage
   annotations:
-    argocd.argoproj.io/hook: PostSync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   template:
     spec:
