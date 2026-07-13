@@ -120,6 +120,15 @@ spec:
 ```
 Behind the scenes, operators provision: CNPG Cluster, ExternalSecret + Vault, Traefik IngressRoute, KEDA scaler, OTel instrumentation, Prometheus monitoring, Loki logs, Tempo traces, Velero backups, Kyverno policies.
 
+## ArgoCD Team Platform Status (2026-08-08)
+```
+healthy: 20/31 apps (65%)
+  ArgoCD: vault, external-secrets, cloudnative-pg, kyverno, traefik, etc.
+```
+**Degraded (6)**: backstage-build, gitops-platform, kube-prometheus, mysql-proxy, oauth2-proxy, postgresql
+**Unknown (2)**: kite-prometheus, nexus
+**OutofSync (2)**: postgresql, plane
+**Progressing (3)**: microcks, plane, vault
 ## SSO & Identity Architecture
 Platform is migrating to **Keycloak as single source of identity**. Central authentication via Keycloak Helm Chart (Quarkus), GitOps-managed realms.
 
@@ -152,6 +161,17 @@ Groups: `platform-admins`, `platform-engineers`, `developers`, `security-team`, 
 
 ### Emergency Access
 Break-glass accounts maintained locally for: Keycloak admin, Vault, ArgoCD, SonarQube, Nexus.
+
+## Vault & ExternalSecrets Configuration
+**Vault**: Rebuilt from scratch. Single Pod, Shamir unseal (1 key). Integration with Keycloak OIDC pending.
+- Admin token stored in `vault-init` K8s secret
+- Keycloak OIDC secrets stored at `secret/data/keycloak`
+- AutoUnseal (raft/wal) being configured
+
+**ExternalSecrets**: Configured with Vault AppRole auth (`vault-approle` role bound to `external-secrets` policy).
+- ClusterSecretStore `vault` manages all cluster-scoped ExternalSecret references
+- AppRole secrets stored in `vault` namespace for rotation readiness
+- Pending: validate token, OIDC redirect URLs
 
 ## External File References (lazy-load when needed)
 - @infrastructure/README.md — CNPG clusters, vault secret paths, storage classes, operator stack
