@@ -45,6 +45,10 @@ grafana:
       token_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
   ingress:
     enabled: false
+  securityContext:
+    fsGroup: 472
+    runAsNonRoot: false
+    runAsUser: 472
   persistence:
     enabled: true
     size: 10Gi
