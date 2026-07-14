@@ -30,17 +30,16 @@ securityContext:
   runAsNonRoot: true
 
 extraEnv: |
-  - name: DB_VENDOR
+  - name: KC_DB
     value: postgres
-  - name: DB_ADDR
-    value: keycloak-db-rw.keycloak.svc.cluster.local
-  - name: DB_PORT
-    value: "5432"
-  - name: DB_DATABASE
-    value: keycloak
-  - name: DB_USER
-    value: keycloak
-  - name: DB_PASSWORD
+  - name: QUARKUS_DATASOURCE_JDBC_URL
+    value: jdbc:postgresql://keycloak-db-rw.keycloak.svc.cluster.local:5432/keycloak
+  - name: QUARKUS_DATASOURCE_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-db-credentials
+        key: username
+  - name: QUARKUS_DATASOURCE_PASSWORD
     valueFrom:
       secretKeyRef:
         name: keycloak-db-credentials
