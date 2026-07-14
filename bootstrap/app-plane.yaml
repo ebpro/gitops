@@ -29,15 +29,15 @@ spec:
     - group: batch
       kind: Job
       jsonPointers:
-      - /spec/backoffLimit
-      - /spec/completionMode
+      - /spec/template
       - /spec/completions
-      - /spec/manualSelector
+      - /spec/completionMode
       - /spec/parallelism
       - /spec/podReplacementPolicy
       - /spec/selector
+      - /spec/backoffLimit
       - /spec/suspend
-      - /spec/template
+      - /spec/manualSelector
       - /spec/activeDeadlineSeconds
       - /spec/ttlSecondsAfterFinished
       - /status
@@ -50,12 +50,12 @@ spec:
     - group: apps
       kind: Deployment
       jsonPointers:
-      - /spec/template/spec/containers
-      - /spec/template/spec/initContainers
-      - /spec/template/spec/volumes
-      - /spec/template/spec/hostname
-      - /spec/replicas
+      - /spec/template
       - /spec/strategy
+      - /spec/revisionHistoryLimit
+      - /spec/progressDeadlineSeconds
+      - /spec/minReadySeconds
+      - /spec/replicas
       - /status
       - /metadata/managedFields
       - /metadata/annotations
@@ -64,12 +64,12 @@ spec:
     - group: apps
       kind: StatefulSet
       jsonPointers:
-      - /spec/template/spec/containers
-      - /spec/template/spec/initContainers
-      - /spec/template/spec/volumes
-      - /spec/template/spec/hostname
-      - /spec/replicas
+      - /spec/template
       - /spec/strategy
+      - /spec/minReadySeconds
+      - /spec/replicas
+      - /spec/revisionHistoryLimit
+      - /spec/progressDeadlineSeconds
       - /status
       - /metadata/managedFields
       - /metadata/annotations
