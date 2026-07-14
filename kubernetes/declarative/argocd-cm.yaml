@@ -11,9 +11,7 @@ data:
       - openid
       - profile
       - email
-    requestedIDTokenClaims:
-      groups:
-        essential: true
+    requestedIDTokenClaims: {}
   sso: "true"
   sso.providers: oidc
 kind: ConfigMap
