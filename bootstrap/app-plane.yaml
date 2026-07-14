@@ -50,6 +50,12 @@ spec:
     - group: apps
       kind: Deployment
       jsonPointers:
+      - /spec/template/spec/containers
+      - /spec/template/spec/initContainers
+      - /spec/template/spec/volumes
+      - /spec/template/spec/hostname
+      - /spec/replicas
+      - /spec/strategy
       - /status
       - /metadata/managedFields
       - /metadata/annotations
@@ -58,6 +64,12 @@ spec:
     - group: apps
       kind: StatefulSet
       jsonPointers:
+      - /spec/template/spec/containers
+      - /spec/template/spec/initContainers
+      - /spec/template/spec/volumes
+      - /spec/template/spec/hostname
+      - /spec/replicas
+      - /spec/strategy
       - /status
       - /metadata/managedFields
       - /metadata/annotations
