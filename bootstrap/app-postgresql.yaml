@@ -29,10 +29,9 @@ spec:
   ignoreDifferences:
   - group: postgresql.cnpg.io
     kind: Cluster
-    jqPaths:
-    - '.status'
-    - '.metadata.managedFields'
-    - '.metadata.annotations'
-    - '.metadata.resourceVersion'
-    - '.metadata.creationTimestamp'
-    - '.metadata.uid'
+    jsonPointers:
+    - /metadata/managedFields
+    - /metadata/annotations
+    - /metadata/resourceVersion
+    - /metadata/creationTimestamp
+    - /status
