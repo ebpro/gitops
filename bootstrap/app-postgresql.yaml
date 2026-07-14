@@ -25,7 +25,6 @@ spec:
         maxDuration: 1m
     syncOptions:
     - CreateNamespace=true
-    - ServerSideApply=true
     - ApplyOutOfSyncOnly=true
   ignoreDifferences:
   - group: postgresql.cnpg.io
