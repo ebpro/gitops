@@ -3,11 +3,11 @@ kind: Cluster
 metadata:
   annotations:
     argocd.argoproj.io/tracking-id: postgresql:postgresql.cnpg.io/Cluster:keycloak/keycloak-db
-  creationTimestamp: "2026-07-12T07:15:48Z"
+  creationTimestamp: '2026-07-12T07:15:48Z'
   generation: 1
   name: keycloak-db
   namespace: keycloak
-  resourceVersion: "3513877"
+  resourceVersion: '3513877'
   uid: 5e35664d-6884-4b21-b51d-3a467d52d648
 spec:
   affinity:
@@ -37,28 +37,28 @@ spec:
   postgresUID: 26
   postgresql:
     parameters:
-      archive_mode: "on"
+      archive_mode: 'on'
       archive_timeout: 5min
       dynamic_shared_memory_type: posix
-      full_page_writes: "on"
+      full_page_writes: 'on'
       log_destination: csvlog
       log_directory: /controller/log
       log_filename: postgres
-      log_rotation_age: "0"
-      log_rotation_size: "0"
-      log_truncate_on_rotation: "false"
-      logging_collector: "on"
-      max_connections: "500"
-      max_parallel_workers: "32"
-      max_replication_slots: "32"
-      max_worker_processes: "32"
+      log_rotation_age: '0'
+      log_rotation_size: '0'
+      log_truncate_on_rotation: 'false'
+      logging_collector: 'on'
+      max_connections: '500'
+      max_parallel_workers: '32'
+      max_replication_slots: '32'
+      max_worker_processes: '32'
       shared_memory_type: mmap
-      shared_preload_libraries: ""
+      shared_preload_libraries: ''
       ssl_max_protocol_version: TLSv1.3
       ssl_min_protocol_version: TLSv1.3
       wal_keep_size: 512MB
       wal_level: logical
-      wal_log_hints: "on"
+      wal_log_hints: 'on'
       wal_receiver_timeout: 5s
       wal_sender_timeout: 5s
     syncReplicaElectionConstraint:
@@ -80,7 +80,7 @@ spec:
     updateInterval: 30
   resources:
     limits:
-      cpu: "1"
+      cpu: '1'
       memory: 2Gi
     requests:
       cpu: 500m
@@ -93,104 +93,3 @@ spec:
     size: 20Gi
     storageClass: local-path
   switchoverDelay: 3600
-status:
-  availableArchitectures:
-  - goArch: amd64
-    hash: 582a4e35fb052c39d3402794de5f6602a56cdc8cc4b92ce7abbe41a51a0bbc13
-  - goArch: arm64
-    hash: e61cf87bb9c89f1bca69d41367fd9a5c5c02e3eb7491922560984d03f85ecff0
-  certificates:
-    clientCASecret: keycloak-db-ca
-    expirations:
-      keycloak-db-ca: 2026-10-10 07:10:48 +0000 UTC
-      keycloak-db-replication: 2026-10-10 07:10:48 +0000 UTC
-      keycloak-db-server: 2026-10-10 07:10:48 +0000 UTC
-    replicationTLSSecret: keycloak-db-replication
-    serverAltDNSNames:
-    - keycloak-db-rw
-    - keycloak-db-rw.keycloak
-    - keycloak-db-rw.keycloak.svc
-    - keycloak-db-rw.keycloak.svc.cluster.local
-    - keycloak-db-r
-    - keycloak-db-r.keycloak
-    - keycloak-db-r.keycloak.svc
-    - keycloak-db-r.keycloak.svc.cluster.local
-    - keycloak-db-ro
-    - keycloak-db-ro.keycloak
-    - keycloak-db-ro.keycloak.svc
-    - keycloak-db-ro.keycloak.svc.cluster.local
-    serverCASecret: keycloak-db-ca
-    serverTLSSecret: keycloak-db-server
-  cloudNativePGCommitHash: 4b5e244a7
-  cloudNativePGOperatorHash: 582a4e35fb052c39d3402794de5f6602a56cdc8cc4b92ce7abbe41a51a0bbc13
-  conditions:
-  - lastTransitionTime: "2026-07-12T07:15:49Z"
-    message: Cluster has been bootstrapped
-    reason: BootstrapCompleted
-    status: "True"
-    type: Initialized
-  - lastTransitionTime: "2026-07-12T07:16:09Z"
-    message: A single, unique system ID was found across reporting instances.
-    reason: Unique
-    status: "True"
-    type: ConsistentSystemID
-  - lastTransitionTime: "2026-07-12T07:16:15Z"
-    message: Cluster is Ready
-    reason: ClusterIsReady
-    status: "True"
-    type: Ready
-  - lastTransitionTime: "2026-07-12T07:16:08Z"
-    message: Continuous archiving is working
-    reason: ContinuousArchivingSuccess
-    status: "True"
-    type: ContinuousArchiving
-  configMapResourceVersion:
-    metrics:
-      cnpg-default-monitoring: "3512991"
-  currentPrimary: keycloak-db-1
-  currentPrimaryTimestamp: "2026-07-12T07:16:08.009630Z"
-  healthyPVC:
-  - keycloak-db-1
-  image: ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie
-  instanceNames:
-  - keycloak-db-1
-  instances: 1
-  instancesReportedState:
-    keycloak-db-1:
-      ip: 10.42.0.70
-      isPrimary: true
-      timeLineID: 1
-  instancesStatus:
-    healthy:
-    - keycloak-db-1
-  managedRolesStatus: {}
-  operatorCertificateFingerprint: cd1d49112bc50d8d3b6af2c716b811681cd9739437cbe857cb24eb0da827c58e
-  pgDataImageInfo:
-    image: ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie
-    majorVersion: 18
-  phase: Cluster in healthy state
-  poolerIntegrations:
-    pgBouncerIntegration: {}
-  pvcCount: 1
-  readService: keycloak-db-r
-  readyInstances: 1
-  secretsResourceVersion:
-    applicationSecretVersion: "3512917"
-    clientCaSecretVersion: "3512911"
-    replicationSecretVersion: "3512913"
-    serverCaSecretVersion: "3512911"
-    serverSecretVersion: "3512912"
-    superuserSecretVersion: "3512915"
-  selector: cnpg.io/cluster=keycloak-db,cnpg.io/podRole=instance
-  switchReplicaClusterStatus: {}
-  systemID: "7661536854504767508"
-  targetPrimary: keycloak-db-1
-  targetPrimaryTimestamp: "2026-07-12T07:15:49.134772Z"
-  timelineID: 1
-  topology:
-    instances:
-      keycloak-db-1: {}
-    nodesUsed: 1
-    successfullyExtracted: true
-  writeService: keycloak-db-rw
-# Final sync fix
