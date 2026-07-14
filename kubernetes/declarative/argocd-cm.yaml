@@ -6,7 +6,7 @@ data:
   oidc.config: |
     issuer: https://keycloak.ebruno.fr/realms/platform
     clientID: argocd
-    clientSecret: $ARGOCD_SERVER_OIDC_CLIENT_SECRET
+    clientSecret: $CLIENT_SECRET_ARGOCD
     requestedScopes:
       - openid
       - profile
