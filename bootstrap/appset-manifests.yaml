@@ -13,7 +13,6 @@ spec:
         directories:
           - path: kubernetes/oauth2-proxy
           - path: kubernetes/ingress
-          - path: kubernetes/postgresql
           - path: kubernetes/declarative
           - path: kubernetes/csi-snapshot-controller
   template:
@@ -41,9 +40,3 @@ spec:
           - CreateNamespace=true
           - ServerSideApply=true
           - ApplyOutOfSyncOnly=true
-        ignoreDifferences:
-          - group: postgresql.cnpg.io
-            kind: Cluster
-            jsonPointers:
-              - /metadata/managedFields
-              - /spec/postgresql
