@@ -33,7 +33,7 @@ extraEnv: |
   - name: DB_VENDOR
     value: postgres
   - name: DB_ADDR
-    value: keycloak-db-primary.keycloak.svc.cluster.local
+    value: keycloak-db-rw.keycloak.svc.cluster.local
   - name: DB_PORT
     value: "5432"
   - name: DB_DATABASE
