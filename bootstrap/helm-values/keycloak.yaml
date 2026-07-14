@@ -32,14 +32,14 @@ securityContext:
 extraEnv: |
   - name: KC_DB
     value: postgres
-  - name: QUARKUS_DATASOURCE_JDBC_URL
-    value: jdbc:postgresql://keycloak-db-rw.keycloak.svc.cluster.local:5432/keycloak
-  - name: QUARKUS_DATASOURCE_USERNAME
+  - name: KC_DB_URL
+    value: postgresql://keycloak-db-rw.keycloak.svc.cluster.local:5432/keycloak
+  - name: KC_DB_USERNAME
     valueFrom:
       secretKeyRef:
         name: keycloak-db-credentials
         key: username
-  - name: QUARKUS_DATASOURCE_PASSWORD
+  - name: KC_DB_PASSWORD
     valueFrom:
       secretKeyRef:
         name: keycloak-db-credentials
