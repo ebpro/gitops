@@ -31,4 +31,5 @@ spec:
     kind: Cluster
     jsonPointers:
     - /metadata/managedFields
+    - /metadata/annotations
     - /spec/postgresql
