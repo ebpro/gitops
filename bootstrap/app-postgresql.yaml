@@ -33,3 +33,4 @@ spec:
     - /metadata/managedFields
     - /metadata/annotations
     - /spec/postgresql
+    - /status
