@@ -2,9 +2,14 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   annotations:
+    argocd.argoproj.io/tracking-id: postgresql-manifests:postgresql.cnpg.io/Cluster:keycloak/keycloak-db
     argocd.argoproj.io/compare-options: IgnoreExtrinsics
+  creationTimestamp: '2026-07-12T07:15:48Z'
+  generation: 1
   name: keycloak-db
   namespace: keycloak
+  resourceVersion: '3513877'
+  uid: 5e35664d-6884-4b21-b51d-3a467d52d648
 spec:
   affinity:
     podAntiAffinityType: preferred
