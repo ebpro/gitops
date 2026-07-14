@@ -42,8 +42,6 @@ extraEnv: |
       secretKeyRef:
         name: keycloak-db-credentials
         key: password
-  - name: KC_DB
-    value: dev-file
   - name: KEYCLOAK_ADMIN
     value: admin
   - name: KEYCLOAK_ADMIN_PASSWORD
