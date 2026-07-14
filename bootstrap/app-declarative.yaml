@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: declarative
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '5'
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/ebpro/gitops
+    targetRevision: main
+    path: kubernetes/declarative
+  destination:
+    server: https://kubernetes.default.svc
+  ignoreDifferences:
+  - group: apps
+    kind: StatefulSet
+    jsonPointers:
+    - /spec/template
+    - /spec/replicas
+    - /spec/strategy
+    - /status
+    - /metadata/managedFields
+    - /metadata/annotations
+    - /metadata/resourceVersion
+    - /metadata/creationTimestamp
+  - group: external-secrets.io
+    kind: ExternalSecret
+    jsonPointers:
+    - /spec/dataFrom
+    - /status
+    - /metadata/managedFields
+    - /metadata/annotations
+    - /metadata/resourceVersion
+    - /metadata/creationTimestamp
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - ServerSideApply=true

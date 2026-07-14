@@ -13,7 +13,6 @@ spec:
         directories:
           - path: kubernetes/oauth2-proxy
           - path: kubernetes/ingress
-          - path: kubernetes/declarative
           - path: kubernetes/csi-snapshot-controller
   template:
     metadata:
