@@ -6,6 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: '5'
     app.kubernetes.io/managed-by: gitops
+    app.kubernetes.io/version: v2
 spec:
   project: platform
   source:
@@ -21,6 +22,7 @@ spec:
     - /spec/template
     - /spec/replicas
     - /spec/strategy
+    - /spec/volumeClaimTemplates
     - /status
     - /metadata/managedFields
     - /metadata/annotations
