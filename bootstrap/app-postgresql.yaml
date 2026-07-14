@@ -29,8 +29,5 @@ spec:
   ignoreDifferences:
   - group: postgresql.cnpg.io
     kind: Cluster
-    jsonPointers:
-    - /metadata/managedFields
-    - /metadata/annotations
-    - /spec/postgresql
-    - /status
+    managedFieldsEntries:
+    - manager: status
