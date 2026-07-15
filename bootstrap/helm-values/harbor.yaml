@@ -13,6 +13,7 @@ database:
     port: "5432"
     username: postgres
     coreDatabase: registry
+    password: nMT0FeoJjFpd3ifdGAGgSRSLvbE8DFPzeWLwcm0fXeC5G3j6XYXjHSYPXAxO7g11
     existingSecret: harbor-db-superuser
     sslmode: disable
 externalURL: https://harbor.ebruno.fr
