@@ -49,10 +49,10 @@ extraEnv: |
       secretKeyRef:
         name: keycloak-secrets
         key: adminPassword
-  - name: PROXY_ADDRESS_FORWARDING
-    value: "true"
-  - name: X_FORWARDED_PREFIX
-    value: ""
+  - name: KC_PROXY
+    value: "edge"
+  - name: KC_HOSTNAME
+    value: "keycloak.ebruno.fr"
 
 extraEnvFrom: ""
 
@@ -70,7 +70,10 @@ command:
   - /opt/keycloak/bin/kc.sh
 
 args:
-  - start-dev
+  - start
+  - --proxy=edge
+  - --hostname=keycloak.ebruno.fr
+  - --hostname-strict-backchannel=true
 
 priorityClassName: ""
 
