@@ -9,11 +9,12 @@ internalTLS:
 database:
   type: external
   external:
-    host: harbor-postgresql.harbor.svc.cluster.local
+    host: harbor-db-rw.harbor.svc.cluster.local
     port: "5432"
-    username: harbor
+    username: postgres
     coreDatabase: registry
-    existingSecret: harbor-postgresql-auth
+    secretName: harbor-db-superuser
+    passwordKey: password
     sslmode: disable
 externalURL: https://harbor.ebruno.fr
 persistence:
