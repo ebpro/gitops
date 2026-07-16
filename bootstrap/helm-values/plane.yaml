@@ -32,22 +32,22 @@ ssl:
   tls_secret_name: plane-tls
 
 worker:
-  memoryLimit: 2048Mi
+  memoryLimit: 4096Mi
   cpuLimit: 1000m
   cpuRequest: 250m
-  memoryRequest: 512Mi
+  memoryRequest: 1024Mi
 
 api:
-  memoryLimit: 2048Mi
+  memoryLimit: 4096Mi
   cpuLimit: 1000m
   cpuRequest: 250m
-  memoryRequest: 512Mi
+  memoryRequest: 1024Mi
 
 beatworker:
-  memoryLimit: 2048Mi
+  memoryLimit: 4096Mi
   cpuLimit: 1000m
   cpuRequest: 250m
-  memoryRequest: 512Mi
+  memoryRequest: 1024Mi
 
 replicas: 2
 
