@@ -42,7 +42,8 @@ spec:
             - --pass-access-token
             - --set-xauthrequest
             - --whitelist-domain=*
-            - --skip-auth-route=/oauth2/healthz
+            - --skip-auth-route=/ready
+            - --skip-auth-route=/healthz
           env:
             - name: OAUTH2_PROXY_CLIENT_ID
               value: proxy
@@ -62,13 +63,13 @@ spec:
               protocol: TCP
           readinessProbe:
             httpGet:
-              path: /oauth2/healthz
+              path: /ready
               port: 4180
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /oauth2/healthz
+              path: /healthz
               port: 4180
             initialDelaySeconds: 5
             periodSeconds: 30
