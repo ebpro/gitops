@@ -160,4 +160,4 @@ extraInitContainers:
         chown -R 200:200 /nexus-data
     volumeMounts:
       - name: data
-        mountPath: /nexus-data:
+        mountPath: /nexus-data
