@@ -143,8 +143,8 @@ extraDeploy:
             connect-src: ["'self'", 'http:', 'https:']
             frame-ancestors: ["'self'"]
             img-src: ["'self'", 'data:']
-            script-src: ["'self'"]
-            style-src: ["'self'"]
+            script-src: ["'self'", "'unsafe-inline'"]
+            style-src: ["'self'", "'unsafe-inline'"]
           logger:
             logLevel: info
 
