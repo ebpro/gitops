@@ -1,18 +1,17 @@
 ---
-image:
-  registry: harbor.ebruno.fr
-  repository: library/backstage-keycloak
-  tag: latest
-  pullPolicy: Always
-
-pullSecrets:
-  - name: harbor-registry-secret
-
 serviceAccount:
   create: true
   automountServiceAccountToken: true
 
 backstage:
+  image:
+    registry: harbor.ebruno.fr
+    repository: library/backstage-keycloak
+    tag: latest
+    pullPolicy: Always
+    pullSecrets:
+      - harbor-registry-secret
+
   resources:
     requests:
       cpu: 500m
@@ -54,6 +53,12 @@ backstage:
   extraEnvVars:
     - name: LOG_LEVEL
       value: info
+
+    - name: BACKSTAGE_JWT
+      valueFrom:
+        secretKeyRef:
+          name: backstage-secrets
+          key: BACKSTAGE_JWT
 
     - name: APP_CONFIG_backend_database_connection_user
       valueFrom:
@@ -217,8 +222,7 @@ extraDeploy:
           serviceLocatorMethod:
             type: multiTenant
           clusterLocatorMethods:
-            - type: config
-              clusters: []
+            - type: inCluster
           skipConfigValidate: false
 
         techdocs:

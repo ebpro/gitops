@@ -1,18 +1,17 @@
 ---
-image:
-  registry: harbor.ebruno.fr
-  repository: library/backstage-keycloak
-  tag: latest
-  pullPolicy: Always
-
-pullSecrets:
-  - name: harbor-registry-secret
-
 serviceAccount:
   create: true
   automountServiceAccountToken: true
 
 backstage:
+  image:
+    registry: harbor.ebruno.fr
+    repository: library/backstage-keycloak
+    tag: latest
+    pullPolicy: Always
+    pullSecrets:
+      - harbor-registry-secret
+
   resources:
     requests:
       cpu: 500m
@@ -87,7 +86,7 @@ extraDeploy:
           database:
             client: pg
             connection:
-              host: backstage-db-primary.backstage.svc.cluster.local
+              host: backstage-db-rw.backstage.svc.cluster.local
               port: 5432
               database: backstage
               user: ${APP_CONFIG_backend_database_connection_user}
