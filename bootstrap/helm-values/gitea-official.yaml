@@ -46,7 +46,7 @@ postExtraInitContainers:
             name: gitea-oidc-secret
             key: CLIENT_SECRET_GITEA
     volumeMounts:
-      - name: data
+      - name: gitea-shared-storage
         mountPath: /data/gitea
 
 gitea:
