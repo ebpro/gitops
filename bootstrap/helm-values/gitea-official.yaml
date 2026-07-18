@@ -15,38 +15,39 @@ deployment:
         secretKeyRef:
           name: gitea-postgresql-auth
           key: password
-  extraInitContainers:
-    - name: setup-oidc
-      image: docker.io/gitea/gitea:1.24.5
-      command:
-        - /bin/sh
-        - -c
-        - |
-          mkdir -p /data/gitea
-          printf '[
-            {
-              "type": "oidc",
-              "name": "Keycloak",
-              "icon": "keycloak",
-              "auto_discover": true,
-              "internal_conf": {
-                "issuer_url": "https://keycloak.ebruno.fr/realms/platform",
-                "client_id": "gitea",
-                "client_secret": "'${OIDC_CLIENT_SECRET}'",
-                "scopes": "openid email profile groups",
-                "auto_register": true
-              }
+
+postExtraInitContainers:
+  - name: setup-oidc
+    image: docker.io/gitea/gitea:1.24.5
+    command:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /data/gitea/custom
+        printf '[
+          {
+            "type": "oidc",
+            "name": "Keycloak",
+            "icon": "keycloak",
+            "auto_discover": true,
+            "internal_conf": {
+              "issuer_url": "https://keycloak.ebruno.fr/realms/platform",
+              "client_id": "gitea",
+              "client_secret": "'${OIDC_CLIENT_SECRET}'",
+              "scopes": "openid email profile groups",
+              "auto_register": true
             }
-          ]' > /data/gitea/conf/custom/login_sources.json
-      env:
-        - name: OIDC_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: gitea-oidc-secret
-              key: CLIENT_SECRET_GITEA
-      volumeMounts:
-        - name: gitea-data
-          mountPath: /data/gitea
+          }
+        ]' > /data/gitea/custom/login_sources.json
+    env:
+      - name: OIDC_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: gitea-oidc-secret
+            key: CLIENT_SECRET_GITEA
+    volumeMounts:
+      - name: gitea-shared-storage
+        mountPath: /data/gitea
 
 gitea:
   admin:
