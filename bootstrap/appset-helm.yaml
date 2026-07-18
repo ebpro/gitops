@@ -46,7 +46,7 @@ spec:
         namespace: gitea
         releaseName: gitea
         repoURL: https://dl.gitea.com/charts/
-        version: 12.6.0
+        version: 12.5.0
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/gitea-official.yaml
       - app: harbor
