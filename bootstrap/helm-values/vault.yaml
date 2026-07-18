@@ -28,3 +28,44 @@ server:
       memory: 512Mi
   ui:
     enabled: true
+
+  extraInitContainers:
+    - name: vault-unseal
+      image: hashicorp/vault:1.21.2
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi
+      command:
+        - /bin/sh
+        - -c
+        - |
+          for i in $(seq 1 90); do
+            VAULT_STATUS=$(vault status -format=json 2>/dev/null || echo '{}')
+            SEALED=$(echo "$VAULT_STATUS" | python3 -c "import sys,json;print(json.load(sys.stdin).get('sealed','unknown'))" 2>/dev/null || echo "unknown")
+            if [ "$SEALED" = "false" ]; then
+              echo "Vault already unsealed"
+              exit 0
+            fi
+            echo "Waiting for Vault to be ready (attempt $i/90)..."
+            sleep 2
+          done
+          echo "Unsealing Vault..."
+          sleep 3
+          for i in $(seq 1 5); do
+            vault operator unseal "$VAULT_UNSEAL_TOKEN" && break
+            sleep 2
+          done
+          echo "Vault unsealed successfully"
+      env:
+        - name: VAULT_ADDR
+          value: http://127.0.0.1:8200
+        - name: VAULT_UNSEAL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: vault-init
+              key: unseal_key
