@@ -30,7 +30,7 @@ plugins:
 resources:
   limits:
     cpu: 800m
-    memory: 6Gi
+    memory: 3Gi
   requests:
     cpu: 500m
     memory: 2Gi

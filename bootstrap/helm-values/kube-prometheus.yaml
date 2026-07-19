@@ -72,11 +72,11 @@ prometheus:
     resources:
       limits:
         cpu: 2
-        memory: 4Gi
+        memory: 2Gi
       requests:
         cpu: 500m
-        memory: 2Gi
-    retention: 30d
+        memory: 1Gi
+    retention: 15d
     serviceMonitorSelectorNilUsesHelmValues: false
     storageSpec:
       volumeClaimTemplate:

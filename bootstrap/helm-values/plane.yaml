@@ -49,7 +49,7 @@ beatworker:
   cpuRequest: 250m
   memoryRequest: 1024Mi
 
-replicas: 2
+ replicas: 1
 
 autoscaling:
   enabled: false
