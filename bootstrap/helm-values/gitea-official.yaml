@@ -23,19 +23,26 @@ postExtraInitContainers:
       - /bin/sh
       - -c
       - |
-        mkdir -p /data/gitea/conf/custom
-        f=/data/gitea/conf/custom/oidc.conf
-        echo "[oauth2_keycloak]" > "$f"
-        echo "NAME = Keycloak" >> "$f"
-        echo "TYPE = oidc" >> "$f"
-        echo "ICON = keycloak" >> "$f"
-        echo "AUTO_DISCOVER_URL = https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration" >> "$f"
-        echo "INSECURE_SKIP_VERIFY_SSL = false" >> "$f"
-        echo "ENABLE_AUTO_REGISTER = true" >> "$f"
-        echo "SHOW_ON_SIGNIN_PAGE = true" >> "$f"
-        echo "CLIENT_ID = gitea" >> "$f"
-        echo "CLIENT_SECRET = ${OIDC_CLIENT_SECRET}" >> "$f"
-        echo "--- oidc.conf:"; cat "$f"
+        mkdir -p /data/gitea/gitea/custom
+        cat > /data/gitea/gitea/custom/login_sources.json << 'EOCONF'
+[
+  {
+    "type": "oidc",
+    "name": "Keycloak",
+    "icon": "keycloak",
+    "auto_discover": true,
+    "internal_conf": {
+      "issuer_url": "https://keycloak.ebruno.fr/realms/platform",
+      "client_id": "gitea",
+      "client_secret": "PLACEHOLDER_SECRET",
+      "scopes": "openid email profile groups",
+      "auto_register": true
+    }
+  }
+]
+EOCONF
+        sed -i "s|PLACEHOLDER_SECRET|${OIDC_CLIENT_SECRET}|" /data/gitea/custom/login_sources.json
+        echo "OIDC login_sources.json:"; cat /data/gitea/custom/login_sources.json
     env:
       - name: OIDC_CLIENT_SECRET
         valueFrom:
@@ -44,7 +51,7 @@ postExtraInitContainers:
             key: CLIENT_SECRET_GITEA
     volumeMounts:
       - name: data
-        mountPath: /data/gitea/conf
+        mountPath: /data
 
 gitea:
   admin:
