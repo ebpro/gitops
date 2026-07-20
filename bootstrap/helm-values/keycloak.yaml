@@ -109,26 +109,26 @@ podAnnotations: {}
 
 livenessProbe: |
   httpGet:
-    path: /q/health/live
-    port: http
-  initialDelaySeconds: 120
+    path: /health/live
+    port: 9000
+  initialDelaySeconds: 180
   timeoutSeconds: 5
   periodSeconds: 10
   failureThreshold: 3
 
 readinessProbe: |
   httpGet:
-    path: /q/health/ready
-    port: http
-  initialDelaySeconds: 120
+    path: /health/ready
+    port: 9000
+  initialDelaySeconds: 180
   timeoutSeconds: 1
   periodSeconds: 10
   failureThreshold: 3
 
 startupProbe: |
   httpGet:
-    path: /q/health/started
-    port: http
+    path: /health/started
+    port: 9000
   initialDelaySeconds: 60
   timeoutSeconds: 10
   failureThreshold: 300
