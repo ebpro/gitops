@@ -53,8 +53,6 @@ extraEnv: |
         key: password
   - name: KC_PROXY_HEADERS
     value: "forwarded"
-  - name: KC_HOSTNAME
-    value: "keycloak.ebruno.fr"
 
 extraEnvFrom: ""
 
@@ -73,6 +71,7 @@ command:
 
 args:
   - start
+  - --hostname=keycloak.ebruno.fr
 
 priorityClassName: ""
 
