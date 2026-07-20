@@ -22,6 +22,24 @@ database:
   host: pact-broker-db-postgresql.pact-broker.svc.cluster.local
   port: "5432"
 ingress:
-  enabled: false
+  enabled: true
+  className: traefik
+  host: pactbroker.ebruno.fr
+  tls:
+    enabled: true
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+    traefik.ingress.kubernetes.io/router.middlewares: oauth2-proxy/fwd-auth@kubernetescrd
 service:
   type: ClusterIP
+
+broker:
+  config:
+    baseUrl: https://pactbroker.ebruno.fr
+    basicAuth:
+      enabled: true
+      allowPublicRead: false
+      publicHeartbeat: true
+      enablePublicBadgeAccess: true
