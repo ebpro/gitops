@@ -48,8 +48,7 @@ beatworker:
   cpuLimit: 1000m
   cpuRequest: 250m
   memoryRequest: 1024Mi
-
- replicas: 1
+  replicas: 1
 
 autoscaling:
   enabled: false
