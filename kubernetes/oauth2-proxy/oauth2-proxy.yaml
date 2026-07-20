@@ -32,6 +32,7 @@ spec:
             - --provider=oidc
             - --skip-oidc-discovery
             - --oidc-issuer-url=https://keycloak.ebruno.fr/realms/platform
+            - --oidc-jwks-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/certs
             - --login-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth
             - --redeem-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
             - --profile-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/userinfo
