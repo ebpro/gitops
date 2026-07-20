@@ -73,7 +73,6 @@ command:
 
 args:
   - start
-  - --proxy-headers=forwarded
   - --hostname=keycloak.ebruno.fr
   - --hostname-strict-backchannel=true
 
