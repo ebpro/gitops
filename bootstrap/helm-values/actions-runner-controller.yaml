@@ -193,7 +193,7 @@ runners:
     metadata:
       name: ebpro-build-runners
     spec:
-      replicas: 3
+      replicas: 1
       template:
         spec:
           dockerVolumeMounts:
@@ -254,16 +254,16 @@ volumes:
     persistentVolumeClaim:
       claimName: runner-tool-cache-pvc
   - emptyDir:
-      sizeLimit: 50Gi
+      sizeLimit: 10Gi
     name: var-run
   - emptyDir:
-      sizeLimit: 50Gi
+      sizeLimit: 20Gi
     name: docker-storage
   - emptyDir:
-      sizeLimit: 10Gi
+      sizeLimit: 5Gi
     name: docker-run-storage
   - emptyDir:
-      sizeLimit: 5Gi
+      sizeLimit: 2Gi
     name: containerd-run-storage
 webhookPort: 9443
 crds:
