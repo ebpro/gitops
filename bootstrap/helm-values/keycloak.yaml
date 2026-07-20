@@ -74,16 +74,13 @@ terminationGracePeriodSeconds: 60
 
 clusterDomain: cluster.local
 
-# Wrapper: kc.sh build -> sed to remove buggy --hostname-strict-backchannel -> kc.sh start
+# Keycloak 26.7.0: kc.sh entrypoint handles build automatically on first start
 command:
-  - /bin/sh
-  - -c
+  - /opt/keycloak/bin/kc.sh
 
 args:
-  - >-
-    /opt/keycloak/bin/kc.sh build &&
-    sed -i '/hostname-strict-backchannel/d' /opt/keycloak/conf/cli.properties &&
-    /opt/keycloak/bin/kc.sh start --hostname=keycloak.ebruno.fr
+  - start
+  - "--hostname=keycloak.ebruno.fr"
 
 priorityClassName: ""
 
