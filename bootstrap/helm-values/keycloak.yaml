@@ -51,8 +51,8 @@ extraEnv: |
       secretKeyRef:
         name: keycloak-db-credentials
         key: password
-  - name: KC_PROXY
-    value: "edge"
+  - name: KC_PROXY_HEADERS
+    value: "forwarded"
   - name: KC_HOSTNAME
     value: "keycloak.ebruno.fr"
 
@@ -73,7 +73,7 @@ command:
 
 args:
   - start
-  - --proxy-headers=edge
+  - --proxy-headers=forwarded
   - --hostname=keycloak.ebruno.fr
   - --hostname-strict-backchannel=true
 
@@ -137,9 +137,7 @@ resources:
     cpu: 1
     memory: 2Gi
 
-startupScripts:
-  keycloak.cli: |
-    {{- .Files.Get "scripts/keycloak.cli" }}
+startupScripts: {}
 
 extraVolumes: ""
 
@@ -185,23 +183,6 @@ ingress:
 networkPolicy:
   enabled: false
 
-pgchecker:
-  image:
-    repository: docker.io/busybox
-    tag: 1.32
-    pullPolicy: IfNotPresent
-  securityContext:
-    allowPrivilegeEscalation: false
-    runAsUser: 1000
-    runAsGroup: 1000
-    runAsNonRoot: true
-  resources:
-    requests:
-      cpu: "20m"
-      memory: "32Mi"
-    limits:
-      cpu: "20m"
-      memory: "32Mi"
 
 postgresql:
   enabled: false
