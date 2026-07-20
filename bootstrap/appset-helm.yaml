@@ -145,8 +145,14 @@ spec:
         version: 0.10.0
         syncWave: '15'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/vpa.yaml
-      # DISABLED: Keycloak crash looping — fixing cluster-side then re-enabling
-      # - app: keycloak
+      - app: keycloak
+        chart: keycloak
+        namespace: keycloak
+        releaseName: keycloak
+        repoURL: https://codecentric.github.io/helm-charts
+        version: 18.0.0
+        syncWave: '25'
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/keycloak.yaml
       - app: backstage
         chart: backstage
         namespace: backstage

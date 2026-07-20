@@ -2,8 +2,8 @@ replicas: 1
 
 image:
   repository: quay.io/keycloak/keycloak
-  tag: "26.0"
-  pullPolicy: IfNotPresent
+  tag: "26.7.0"
+  pullPolicy: Always
 
 serviceAccount:
   create: true
@@ -51,8 +51,16 @@ extraEnv: |
       secretKeyRef:
         name: keycloak-db-app
         key: password
+  - name: KC_HTTP_ENABLED
+    value: "true"
   - name: KC_PROXY_HEADERS
-    value: "forwarded"
+    value: forwarded
+  - name: KC_HOSTNAME
+    value: "keycloak.ebruno.fr"
+  - name: KC_HEALTH_ENABLED
+    value: "true"
+  - name: KC_METRICS_ENABLED
+    value: "true"
 
 extraEnvFrom: ""
 
@@ -66,12 +74,16 @@ terminationGracePeriodSeconds: 60
 
 clusterDomain: cluster.local
 
+# Wrapper: kc.sh build -> sed to remove buggy --hostname-strict-backchannel -> kc.sh start
 command:
-  - /opt/keycloak/bin/kc.sh
+  - /bin/sh
+  - -c
 
 args:
-  - start
-  - --hostname=keycloak.ebruno.fr
+  - >-
+    /opt/keycloak/bin/kc.sh build &&
+    sed -i '/hostname-strict-backchannel/d' /opt/keycloak/conf/cli.properties &&
+    /opt/keycloak/bin/kc.sh start --hostname=keycloak.ebruno.fr
 
 priorityClassName: ""
 
@@ -104,14 +116,14 @@ livenessProbe: |
     port: http
   initialDelaySeconds: 120
   timeoutSeconds: 5
-  periodSeconds: 30
+  periodSeconds: 10
   failureThreshold: 3
 
 readinessProbe: |
   httpGet:
     path: /q/health/ready
     port: http
-  initialDelaySeconds: 60
+  initialDelaySeconds: 120
   timeoutSeconds: 1
   periodSeconds: 10
   failureThreshold: 3
@@ -204,3 +216,8 @@ autoscaling:
 
 test:
   enabled: false
+
+persistence:
+  enabled: true
+  storageClass: "local-path"
+  size: 10Gi

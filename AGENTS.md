@@ -1,7 +1,9 @@
 # GitOps Platform - Agent Rules
 
 ## Golden Rules
-- **Git-push only** — Never run `kubectl patch`, `kubectl apply`, or `kubectl edit` on managed resources. Fix things by editing files in this repo and committing.
+- **Git-push only — NO exceptions** — Never run `kubectl patch`, `kubectl apply`, `kubectl edit`, `kubectl set image`, or `kubectl delete` on any ArgoCD-managed resource. Fix things by editing files in this repo and committing/pushing. ArgoCD will reconcile automatically.
+- **NEVER delete or bypass ArgoCD Applications** — Never `kubectl delete application`, never annotate `suspend`, never comment out AppSet entries to skip reconciliation. If an app is stuck, fix its source files (helm-values, manifests, ingress) and let ArgoCD re-render.
+- **NEVER manage StatefulSets/Deployments/Services/ConfigMaps directly** — These are owned by ArgoCD. Cluster-side patches WILL be reverted by selfHeal. The only valid way to change them is through git.
 - **ArgoCD auto-sync** — All apps use `automated: { prune: true, selfHeal: true }`. Changes propagate automatically.
 - **Secrets in Vault** — All credentials live in HashiCorp Vault. Use ExternalSecrets to reference them. Never commit plaintext passwords.
 - **Cilium CNI** — Tunnel mode, pod CIDR `10.42.0.0/24`, service CIDR `10.42.0.0/16`.
