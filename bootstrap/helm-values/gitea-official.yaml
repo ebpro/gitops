@@ -23,22 +23,22 @@ postExtraInitContainers:
       - /bin/sh
       - -c
       - |
-        mkdir -p /data/gitea/custom
-        printf '[
-          {
-            "type": "oidc",
-            "name": "Keycloak",
-            "icon": "keycloak",
-            "auto_discover": true,
-            "internal_conf": {
-              "issuer_url": "https://keycloak.ebruno.fr/realms/platform",
-              "client_id": "gitea",
-              "client_secret": "'${OIDC_CLIENT_SECRET}'",
-              "scopes": "openid email profile groups",
-              "auto_register": true
-            }
-          }
-        ]' > /data/gitea/custom/login_sources.json
+        mkdir -p /data/gitea/conf/custom
+        cat > /data/gitea/conf/custom/oidc.conf << 'EOCONF'
+[oauth2_keycloak]
+NAME = Keycloak
+TYPE = oidc
+ICON = keycloak
+AUTO_DISCOVER_URL = https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
+INSECURE_SKIP_VERIFY_SSL = false
+ENABLE_AUTO_REGISTER = true
+SHOW_ON_SIGNIN_PAGE = true
+EOCONF
+        # Now inject client credentials via env var REPLACE script
+        sed -i "s|ISSUER|https://keycloak.ebruno.fr/realms/platform|" /data/gitea/conf/custom/oidc.conf
+        printf 'CLIENT_ID = gitea\nCLIENT_SECRET = %s\n' "${OIDC_CLIENT_SECRET}" >> /data/gitea/conf/custom/oidc.conf
+        echo "OIDC config written to /data/gitea/conf/custom/oidc.conf"
+        cat /data/gitea/conf/custom/oidc.conf
     env:
       - name: OIDC_CLIENT_SECRET
         valueFrom:
@@ -48,6 +48,7 @@ postExtraInitContainers:
     volumeMounts:
       - name: data
         mountPath: /data/gitea
+        subPath: gitea
 
 gitea:
   admin:
