@@ -8,6 +8,12 @@ image:
 serviceAccount:
   create: true
 
+strategy:
+  type: "RollingUpdate"
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 1
+
 deployment:
   env:
     - name: GITEA__DATABASE__PASSWD
