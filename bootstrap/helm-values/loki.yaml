@@ -20,22 +20,36 @@ loki:
         store: tsdb
   storage:
     type: filesystem
-monitoring:
+ monitoring:
   lokiCanary:
     enabled: false
   selfMonitoring:
     enabled: false
-read:
+ read:
   replicas: 0
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1
+      memory: 2Gi
 resultsCache:
   enabled: false
-singleBinary:
+ singleBinary:
   persistence:
     enabled: true
     size: 50Gi
     storageClass: local-path
   replicas: 1
-test:
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1
+      memory: 2Gi
+ test:
   enabled: false
-write:
+ write:
   replicas: 0
