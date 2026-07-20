@@ -207,6 +207,7 @@ extraDeploy:
                 clientId: ${BACKSTAGE_KEYCLOAK_CLIENT_ID}
                 clientSecret: ${BACKSTAGE_KEYCLOAK_CLIENT_SECRET}
                 issuerBaseUrl: https://keycloak.ebruno.fr/realms/platform
+                metadataUrl: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
                 healthCheck: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
 
         sonarqube:
@@ -222,8 +223,13 @@ extraDeploy:
           serviceLocatorMethod:
             type: multiTenant
           clusterLocatorMethods:
-            - type: inCluster
-          skipConfigValidate: false
+            - type: config
+              clusters:
+                - url: https://kubernetes.default.svc
+                  name: local-cluster
+                  authProvider: serviceAccount
+                  skipTLSVerify: true
+          skipConfigValidate: true
 
         techdocs:
           builder: local
