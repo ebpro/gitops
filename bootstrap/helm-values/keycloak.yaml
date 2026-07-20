@@ -2,7 +2,7 @@ replicas: 1
 
 image:
   repository: quay.io/keycloak/keycloak
-  tag: 17.0.1
+  tag: "26.0"
   pullPolicy: IfNotPresent
 
 serviceAccount:
@@ -30,18 +30,6 @@ securityContext:
   runAsNonRoot: true
 
 extraEnv: |
-  - name: QUARKUS_DATASOURCE_JDBC_URL
-    value: jdbc:postgresql://keycloak-db-rw.keycloak.svc.cluster.local:5432/keycloak
-  - name: QUARKUS_DATASOURCE_JDBC_USER
-    valueFrom:
-      secretKeyRef:
-        name: keycloak-db-credentials
-        key: username
-  - name: QUARKUS_DATASOURCE_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: keycloak-db-credentials
-        key: password
   - name: KEYCLOAK_ADMIN
     value: admin
   - name: KEYCLOAK_ADMIN_PASSWORD
@@ -136,9 +124,9 @@ startupProbe: |
   httpGet:
     path: /q/health/started
     port: http
-  initialDelaySeconds: 30
-  timeoutSeconds: 5
-  failureThreshold: 180
+  initialDelaySeconds: 60
+  timeoutSeconds: 10
+  failureThreshold: 300
   periodSeconds: 10
 
 resources:
