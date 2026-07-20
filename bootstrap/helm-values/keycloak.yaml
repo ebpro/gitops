@@ -73,8 +73,9 @@ command:
 
 args:
   - start
-  - --proxy=edge
+  - --proxy-headers=edge
   - --hostname=keycloak.ebruno.fr
+  - --hostname-strict=http-rewrite
   - --hostname-strict-backchannel=true
 
 priorityClassName: ""
