@@ -44,12 +44,12 @@ extraEnv: |
   - name: KC_DB_USERNAME
     valueFrom:
       secretKeyRef:
-        name: keycloak-db-credentials
+        name: keycloak-db-app
         key: username
   - name: KC_DB_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: keycloak-db-credentials
+        name: keycloak-db-app
         key: password
   - name: KC_PROXY_HEADERS
     value: "forwarded"
