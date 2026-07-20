@@ -38,8 +38,3 @@ service:
 broker:
   config:
     baseUrl: https://pactbroker.ebruno.fr
-    basicAuth:
-      enabled: true
-      allowPublicRead: false
-      publicHeartbeat: true
-      enablePublicBadgeAccess: true
