@@ -21,43 +21,11 @@ deployment:
         secretKeyRef:
           name: gitea-postgresql-auth
           key: password
-
-postExtraInitContainers:
-  - name: setup-oidc
-    image: docker.io/gitea/gitea:1.26.4-rootless
-    command:
-      - /bin/sh
-      - -c
-      - |
-        mkdir -p /data/gitea/gitea/custom
-        cat > /data/gitea/gitea/custom/login_sources.json << 'EOCONF'
-        [
-          {
-            "type": "oidc",
-            "name": "Keycloak",
-            "icon": "keycloak",
-            "auto_discover": true,
-            "internal_conf": {
-              "issuer_url": "https://keycloak.ebruno.fr/realms/platform",
-              "client_id": "gitea",
-              "client_secret": "PLACEHOLDER_SECRET",
-              "scopes": "openid email profile groups",
-              "auto_register": true
-            }
-          }
-        ]
-        EOCONF
-        sed -i "s|PLACEHOLDER_SECRET|${OIDC_CLIENT_SECRET}|" /data/gitea/gitea/custom/login_sources.json
-        echo "OIDC login_sources.json:"; cat /data/gitea/gitea/custom/login_sources.json
-    env:
-      - name: OIDC_CLIENT_SECRET
-        valueFrom:
-          secretKeyRef:
-            name: gitea-oidc-secret
-            key: CLIENT_SECRET_GITEA
-    volumeMounts:
-      - name: data
-        mountPath: /data
+    - name: GITEA_OAUTH_SECRET_0
+      valueFrom:
+        secretKeyRef:
+          name: gitea-oidc-secret
+          key: CLIENT_SECRET_GITEA
 
 gitea:
   admin:
@@ -65,6 +33,15 @@ gitea:
     email: admin@eb
     password: gitea-admin-pwd
     passwordMode: keepUpdated
+
+  oauth:
+    - name: Keycloak
+      provider: openidConnect
+      key: gitea
+      autoDiscover: true
+      autoDiscoverUrl: https://keycloak.ebruno.fr/realms/platform
+      scopes: openid email profile groups
+      customIconURL: https://keycloak.ebruno.fr/favicon.ico
 
   config:
     _generals_:
@@ -79,7 +56,7 @@ gitea:
       DOMAIN: gitea.ebruno.fr
       HTTP_PORT: 3000
       SSH_LISTEN_PORT: 22
-      OFFLINE_MODE: true
+      OFFLINE_MODE: false
       START_SSH_SERVER: true
     service:
       DISABLE_REGISTRATION: true
