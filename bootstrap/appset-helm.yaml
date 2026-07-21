@@ -152,7 +152,7 @@ spec:
         repoURL: https://codecentric.github.io/helm-charts
         version: 18.0.0
         syncWave: '25'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/keycloak.yaml?v=5
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/keycloak.yaml?v=6
       - app: backstage
         chart: backstage
         namespace: backstage

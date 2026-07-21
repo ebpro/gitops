@@ -83,7 +83,6 @@ command:
 args:
   - start
   - "--hostname=keycloak.ebruno.fr"
-  - "--hostname-strict-https"
 
 priorityClassName: ""
 
