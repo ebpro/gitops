@@ -54,7 +54,7 @@ extraEnv: |
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_PROXY_HEADERS
-    value: forwarded
+    value: xforwarded
   - name: KC_HOSTNAME
     value: "keycloak.ebruno.fr"
   - name: KC_HOSTNAME_STRICT_HTTPS
@@ -82,7 +82,6 @@ command:
 
 args:
   - start
-  - "--hostname=keycloak.ebruno.fr"
 
 priorityClassName: ""
 
