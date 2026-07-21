@@ -59,8 +59,6 @@ extraEnv: |
     value: "keycloak.ebruno.fr"
   - name: KC_HOSTNAME_STRICT_HTTPS
     value: "true"
-  - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
-    value: "true"
   - name: KC_HEALTH_ENABLED
     value: "true"
   - name: KC_METRICS_ENABLED
@@ -85,6 +83,7 @@ command:
 args:
   - start
   - "--hostname=keycloak.ebruno.fr"
+  - "--hostname-strict-https"
 
 priorityClassName: ""
 
