@@ -38,10 +38,8 @@ gitea:
     - name: Keycloak
       provider: openidConnect
       key: gitea
-      autoDiscover: true
       autoDiscoverUrl: https://keycloak.ebruno.fr/realms/platform
       scopes: openid email profile groups
-      customIconURL: https://keycloak.ebruno.fr/favicon.ico
 
   config:
     _generals_:
