@@ -26,7 +26,7 @@ data:
     database:
       name: psycopg2
       args:
-        host: matrix-db-primary.synapse.svc.cluster.local
+        host: matrix-db-rw.synapse.svc.cluster.local
         port: 5432
         user: postgres
         password: $SYNAPSE_POSTGRES_PASSWORD

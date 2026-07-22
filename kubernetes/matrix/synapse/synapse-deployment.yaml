@@ -83,7 +83,7 @@ spec:
             - sh
             - -c
             - |
-              until nc -z matrix-db-primary.synapse.svc.cluster.local 5432; do
+              until nc -z matrix-db-rw.synapse.svc.cluster.local 5432; do
                 echo "Waiting for PostgreSQL..."
                 sleep 2
               done

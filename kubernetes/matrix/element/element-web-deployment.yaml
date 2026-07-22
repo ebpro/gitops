@@ -26,7 +26,11 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
+              name: http
               protocol: TCP
+          env:
+            - name: WEBAPP_BASE_URL
+              value: https://element.ebruno.fr
           volumeMounts:
             - name: element-web-config
               mountPath: /app/config.json
