@@ -60,6 +60,6 @@ data:
         }
 
         location /_matrix {
-            proxy_pass https://matrix.ebruno.fr;
+            proxy_pass http://synapse.synapse.svc.cluster.local:8008;
         }
     }
