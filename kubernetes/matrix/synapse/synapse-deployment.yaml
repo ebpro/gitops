@@ -91,6 +91,21 @@ spec:
                 sleep 1
               done
               echo "PostgreSQL DNS ready"
+        - name: create-db
+          image: postgres:17-alpine
+          command:
+            - sh
+            - -c
+            - |
+              PGPASSWORD=$POSTGRES_PASSWORD psql -h matrix-db-rw.synapse.svc.cluster.local \
+                -U postgres -c "CREATE DATABASE synapse;" 2>/dev/null || true
+              echo "Synapse database ready"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: matrix-db-superuser
+                  key: password
         - name: copy-config
           image: busybox:1.37
           command:
