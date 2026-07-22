@@ -30,8 +30,7 @@ data:
         host: matrix-db-rw.synapse.svc.cluster.local
         port: 5432
         user: postgres
-        password:
-          $secrets: SYNAPSE_POSTGRES_PASSWORD
+        password: SYNAPSE_DB_PASSWORD_PLACEHOLDER
         database: synapse
         cp_min: 5
         cp_max: 10
@@ -51,7 +50,7 @@ data:
     oidc_authorization_url: "https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth"
     oidc_token_url: "https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token"
     oidc_client_id: "synapse"
-    oidc_client_secret: $SYNAPSE_OIDC_CLIENT_SECRET
+    oidc_client_secret: SYNAPSE_OIDC_SECRET_PLACEHOLDER
     oidc_allow_existing_users: true
     oidc_auto_redirect: true
     oidc_skip_verification: false

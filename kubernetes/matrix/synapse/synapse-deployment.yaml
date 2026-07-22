@@ -118,13 +118,18 @@ spec:
             - sh
             - -c
             - |
-              # Always overwrite from ConfigMap (not preserved across restarts)
-              rm -f /data/homeserver.yaml
-              cp /config/homeserver.yaml /data/homeserver.yaml
+              # Copy homeserver.yaml and inject DB password from secret
+              PW=$(cat /secrets/db-password/password)
+              sed "s|SYNAPSE_DB_PASSWORD_PLACEHOLDER|${PW}|g" /config/homeserver.yaml > /data/homeserver.yaml
+              chmod 600 /data/homeserver.yaml
               chown 991:991 /data/homeserver.yaml 2>/dev/null || true
           volumeMounts:
             - name: synapse-config
               mountPath: /config
+              readOnly: true
+            - name: synapse-db-secret
+              mountPath: /secrets/db-password
+              readOnly: true
             - name: synapse-data
               mountPath: /data
   volumeClaimTemplates:
