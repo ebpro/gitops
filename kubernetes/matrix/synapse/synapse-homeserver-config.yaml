@@ -77,8 +77,7 @@ data:
     max_upload_size: "50M"
     max_avatar_size: "10M"
 
-    # Logging
-    log_config: /data/homeserver.log.config
+    # Logging (stdout only in container)
 
     # Metrics
     enable_metrics: true
