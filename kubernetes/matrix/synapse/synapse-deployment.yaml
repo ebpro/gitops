@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: synapse
+  namespace: synapse
+  labels:
+    app: synapse
+spec:
+  serviceName: synapse
+  replicas: 1
+  selector:
+    matchLabels:
+      app: synapse
+  template:
+    metadata:
+      labels:
+        app: synapse
+    spec:
+      volumes:
+        - name: synapse-config
+          configMap:
+            name: synapse-homeserver
+      containers:
+        - name: synapse
+          image: ghcr.io/element-hq/synapse:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8008
+              protocol: TCP
+              name: http
+            - containerPort: 9090
+              protocol: TCP
+              name: metrics
+          env:
+            - name: SYNAPSE_CONFIG_PATH
+              value: /data/homeserver.yaml
+            - name: SYNAPSE_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: matrix-db-superuser
+                  key: password
+            - name: SYNAPSE_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: synapse-oidc-secret
+                  key: SYNAPSE_OIDC_CLIENT_SECRET
+          volumeMounts:
+            - name: synapse-data
+              mountPath: /data
+            - name: synapse-config
+              mountPath: /etc/synapse/homeserver.yaml
+              subPath: homeserver.yaml
+              readOnly: true
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8008
+            failureThreshold: 60
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8008
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8008
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      initContainers:
+        - name: wait-for-db
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z matrix-db-primary.synapse.svc.cluster.local 5432; do
+                echo "Waiting for PostgreSQL..."
+                sleep 2
+              done
+              echo "PostgreSQL is ready"
+        - name: copy-config
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              cp /config/homeserver.yaml /data/homeserver.yaml
+              chown 991:991 /data/homeserver.yaml 2>/dev/null || true
+          volumeMounts:
+            - name: synapse-config
+              mountPath: /config
+            - name: synapse-data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: synapse-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 10Gi

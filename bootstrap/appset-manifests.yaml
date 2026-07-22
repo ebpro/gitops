@@ -15,6 +15,8 @@ spec:
           - path: kubernetes/ingress
           - path: kubernetes/csi-snapshot-controller
           - path: kubernetes/keycloak-realm
+          - path: kubernetes/matrix/element
+          - path: kubernetes/matrix/synapse
   template:
     metadata:
       name: '{{path.basename}}'

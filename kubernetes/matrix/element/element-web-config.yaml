@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: element-web-config
+  namespace: element
+data:
+  config.json: |
+    {
+      "default_country_code": "FR",
+      "show_labs_settings": false,
+      "features": {},
+      "default_hs_url": "https://matrix.ebruno.fr",
+      "brand": "Element",
+      "integrations_ui_url": "",
+      "integrations_rest_url": "",
+      "integrations_widgets_urls": [],
+      "bug_report_endpoint_url": "",
+      "update_base_url": "",
+      "enable_cross_proxying_tokens": false,
+      "setting_defaults": {
+        "Rageshake": {
+          "enabled": false
+        }
+      },
+      "screensharing": {
+        "chrome_media_source_debug": false
+      },
+      "jitsi": {
+        "preferredDomain": "meet.element.io"
+      },
+      "voip": {
+        "obey_validation_highlight": true,
+        "use_mcu": true
+      },
+      "map_style_url": "",
+      "posthog": {
+        "projectAPIKey": "",
+        "apiHost": ""
+      },
+      "roomDirectory": {
+        "servers": []
+      }
+    }

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: synapse
+  namespace: synapse
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8008
+      targetPort: 8008
+      protocol: TCP
+      name: http
+    - port: 9090
+      targetPort: 9090
+      protocol: TCP
+      name: metrics
+  selector:
+    app: synapse

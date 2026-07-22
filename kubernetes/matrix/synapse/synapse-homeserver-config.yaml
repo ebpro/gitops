@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: synapse-homeserver
+  namespace: synapse
+data:
+  homeserver.yaml: |
+    # Server Identification
+    server_name: "matrix.ebruno.fr"
+    pid_file: /data/homeserver.pid
+    listeners:
+      - port: 8008
+        tls: false
+        type: http
+        x_forwarded: true
+        resources:
+          - names: [client, federation]
+            compress: false
+
+    # Signing Keys
+    signing_key_path: /data/signing.key.matrix.ebruno.fr
+    trusted_key_servers:
+      - server_name: "matrix.org"
+
+    # Database (PostgreSQL via CNPG)
+    database:
+      name: psycopg2
+      args:
+        host: matrix-db-primary.synapse.svc.cluster.local
+        port: 5432
+        user: postgres
+        password: $SYNAPSE_POSTGRES_PASSWORD
+        database: synapse
+        cp_min: 5
+        cp_max: 10
+
+    # Media Storage
+    media_store_path: /data/media
+
+    # Enable registration for initial admin user (disable after setup)
+    enable_registration: false
+    enable_registration_cas: false
+    enable_3pid_lookup: false
+
+    # Throttling
+    rc_messages:
+      per_second: 10
+      burst_count: 60
+    rc_joins_local:
+      per_second: 1
+      burst_count: 10
+    rc_joins_remote:
+      per_second: 1
+      burst_count: 10
+    rc_invites:
+      per_second: 1
+      burst_count: 10
+    rc_3pid_invites:
+      per_second: 1
+      burst_count: 10
+    rc_messages_per_room:
+      per_second: 5
+      burst_count: 20
+    rc_federation:
+      per_second: 5
+      burst_count: 20
+
+    # OIDC / SSO Authentication
+    oidc_discovery_endpoint: "https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration"
+    oidc_authorization_url: "https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth"
+    oidc_token_url: "https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token"
+    oidc_client_id: "synapse"
+    oidc_client_secret: $SYNAPSE_OIDC_CLIENT_SECRET
+    oidc_allow_existing_users: true
+    oidc_auto_redirect: true
+    oidc_skip_verification: false
+
+    # User Attribute Mapping
+    oidc_email_attribute: "email"
+    oidc_displayname_attribute: "displayname"
+    oidc_username_from_auth_server: false
+    oidc_username_template: OIDC-\${sub}
+    oidc_permit_registration_with_basic_auth: false
+    oidc_permit_explicit_sign_up: true
+    oidc_allow_registrations_with_basic_auth: false
+
+    # Login (disable password login, enforce OIDC)
+    oauth_enabled: false
+    experimental_enable_password_auth: false
+
+    # Well-known discovery
+    public_baseurl: "https://matrix.ebruno.fr"
+    server_base_url: "https://matrix.ebruno.fr"
+
+    # Limits
+    max_request_body_size: "50M"
+    max_upload_size: "50M"
+    max_avatar_size: "10M"
+
+    # Logging
+    log_config: /data/homeserver.log.config
+
+    # Metrics
+    enable_metrics: true
+    metrics_port: 9090
+
+    # DNS/Reputation (single node, no reputation needed)
+    macaroon_retry_convert_seconds: 0
