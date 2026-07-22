@@ -43,28 +43,7 @@ data:
     enable_registration_cas: false
     enable_3pid_lookup: false
 
-    # Throttling
-    rc_messages:
-      per_second: 10
-      burst_count: 60
-    rc_joins_local:
-      per_second: 1
-      burst_count: 10
-    rc_joins_remote:
-      per_second: 1
-      burst_count: 10
-    rc_invites:
-      per_second: 1
-      burst_count: 10
-    rc_3pid_invites:
-      per_second: 1
-      burst_count: 10
-    rc_messages_per_room:
-      per_second: 5
-      burst_count: 20
-    rc_federation:
-      per_second: 5
-      burst_count: 20
+    # Throttling (using Synapse defaults - deprecated rc_* format removed for v1.12+)
 
     # OIDC / SSO Authentication
     oidc_discovery_endpoint: "https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration"
