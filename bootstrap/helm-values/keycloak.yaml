@@ -51,6 +51,8 @@ extraEnv: |
       secretKeyRef:
         name: keycloak-db-app
         key: password
+  - name: KC_DB
+    value: "UPGRADE"
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_PROXY_HEADERS
@@ -63,8 +65,6 @@ extraEnv: |
     value: "true"
   - name: KC_METRICS_ENABLED
     value: "true"
-  - name: KEYCLOAK_IMPORT
-    value: "/opt/keycloak/import"
 
 extraEnvFrom: ""
 
