@@ -30,7 +30,7 @@ data:
         host: matrix-db-rw.synapse.svc.cluster.local
         port: 5432
         user: postgres
-        password: SYNAPSE_DB_PASSWORD_PLACEHOLDER
+          password: SYNAPSE_DB_PASSWORD_PLACEHOLDER
         database: synapse
         cp_min: 5
         cp_max: 10
