@@ -14,6 +14,7 @@ spec:
           - path: kubernetes/oauth2-proxy
           - path: kubernetes/ingress
           - path: kubernetes/csi-snapshot-controller
+          - path: kubernetes/keycloak
   template:
     metadata:
       name: '{{path.basename}}'

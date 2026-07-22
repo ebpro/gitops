@@ -63,6 +63,8 @@ extraEnv: |
     value: "true"
   - name: KC_METRICS_ENABLED
     value: "true"
+  - name: KEYCLOAK_IMPORT
+    value: "/opt/keycloak/import"
 
 extraEnvFrom: ""
 
@@ -145,9 +147,15 @@ resources:
 
 startupScripts: {}
 
-extraVolumes: ""
+extraVolumes: |
+  - name: realm-import
+    configMap:
+      name: platform-realm
 
-extraVolumeMounts: ""
+extraVolumeMounts: |
+  - name: realm-import
+    mountPath: /opt/keycloak/import/platform.json
+    subPath: platform.json
 
 extraPorts: []
 

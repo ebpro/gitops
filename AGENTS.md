@@ -4,10 +4,12 @@
 - **Git-push only — NO exceptions** — Never run `kubectl patch`, `kubectl apply`, `kubectl edit`, `kubectl set image`, or `kubectl delete` on any ArgoCD-managed resource. Fix things by editing files in this repo and committing/pushing. ArgoCD will reconcile automatically.
 - **NEVER delete or bypass ArgoCD Applications** — Never `kubectl delete application`, never annotate `suspend`, never comment out AppSet entries to skip reconciliation. If an app is stuck, fix its source files (helm-values, manifests, ingress) and let ArgoCD re-render.
 - **NEVER manage StatefulSets/Deployments/Services/ConfigMaps directly** — These are owned by ArgoCD. Cluster-side patches WILL be reverted by selfHeal. The only valid way to change them is through git.
+- **NEVER use `kubectl patch`, `kubectl annotate`, `kubectl scale`, `kubectl apply`, `kubectl delete` or `kubectl exec` to 'fix' ArgoCD apps** — Even `kubectl scale statefulset --replicas=0/1` is forbidden. Edit the Helm values or manifests in git and push. ArgoCD reconciliation chain: `gitops-platform` app → `helm-apps` / `kubernetes-manifests` AppSets → individual Applications → live resources. If ArgoCD isn't picking up changes, verify the chain by checking `gitops-platform` sync status. **Never bypass it.**
 - **ArgoCD auto-sync** — All apps use `automated: { prune: true, selfHeal: true }`. Changes propagate automatically.
 - **Secrets in Vault** — All credentials live in HashiCorp Vault. Use ExternalSecrets to reference them. Never commit plaintext passwords.
 - **Cilium CNI** — Tunnel mode, pod CIDR `10.42.0.0/24`, service CIDR `10.42.0.0/16`.
 - **Single namespace per app** — Each app except orchestrator is deployed to its own namespace.
+- **Immutable cluster state** — The cluster must NEVER be touched directly. All changes flow through git. Violating this rule causes split-brain: ArgoCD will detect drift and rollback within 180s. If an AppSet hasn't re-rendered, refresh `gitops-platform` app first, then wait for the chain to propagate.
 
 ## Architecture
 - **K3s v1.31.5** — Single-node cluster (`compute-lsis-2`), kernel `6.8.0-124-generic`
@@ -75,6 +77,7 @@ DNS pattern: `<cluster-name>-primary.<namespace>.svc.cluster.local:5432`
 ## Troubleshooting Patterns
 - **App stuck in Progressing**: Check pod logs, then check resource status
 - **App OutOfSync**: `kubectl argocd app <app> diff` to see drift, fix in git
+- **ArgoCD not picking up changes**: Verify the full reconciliation chain: `gitops-platform` (sync status) → `helm-apps`/`kubernetes-manifests` AppSets → individual Application → live resource. If AppSet wasn't updated, refresh `gitops-platform`: `kubectl annotate application gitops-platform -n argocd argocd.argoproj.io/refresh=hard --overwrite`. If Application wasn't updated, annotate it similarly. **Never patch the live resource** — fix the source files, commit, push, and refresh the chain.
 - **Pod CrashLoopBackOff**: Check ALL container logs (sidecars may be the problem)
 - **Maintenance mode (SonarQube)**: Database migration failed — check migration logs, verify DB schema and PKs match migration expectations
 - **Data store not found (Nexus)**: JDBC driver missing, or storeProperties not correctly formatted
