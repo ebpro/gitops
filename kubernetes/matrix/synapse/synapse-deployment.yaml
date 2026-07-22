@@ -83,11 +83,14 @@ spec:
             - sh
             - -c
             - |
-              until nc -z matrix-db-rw.synapse.svc.cluster.local 5432; do
-                echo "Waiting for PostgreSQL..."
-                sleep 2
+              COUNT=0
+              until nslookup matrix-db-rw.synapse.svc.cluster.local >/dev/null 2>&1; do
+                COUNT=$((COUNT + 1))
+                [ $COUNT -ge 120 ] && { echo "DNS timeout"; exit 1; }
+                echo "Waiting for DNS... ($COUNT/120)"
+                sleep 1
               done
-              echo "PostgreSQL is ready"
+              echo "PostgreSQL DNS ready"
         - name: copy-config
           image: busybox:1.37
           command:

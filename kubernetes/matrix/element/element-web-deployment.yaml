@@ -31,6 +31,10 @@ spec:
           env:
             - name: WEBAPP_BASE_URL
               value: https://element.ebruno.fr
+            - name: NGINX_UPSTREAM_SERVER_URL
+              value: synapse.synapse.svc.cluster.local
+            - name: NGINX_UPSTREAM_SERVER_PORT
+              value: "8008"
           volumeMounts:
             - name: element-web-config
               mountPath: /app/config.json
