@@ -112,6 +112,8 @@ spec:
             - sh
             - -c
             - |
+              # Always overwrite from ConfigMap (not preserved across restarts)
+              rm -f /data/homeserver.yaml
               cp /config/homeserver.yaml /data/homeserver.yaml
               chown 991:991 /data/homeserver.yaml 2>/dev/null || true
           volumeMounts:
