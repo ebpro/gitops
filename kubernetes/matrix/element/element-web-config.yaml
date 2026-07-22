@@ -41,3 +41,25 @@ data:
         "servers": []
       }
     }
+  default.conf: |
+    server {
+        listen 80;
+        server_name _;
+
+        root /app;
+        index index.html;
+
+        client_max_body_size 50M;
+
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        location /config.json {
+            alias /config/config.json;
+        }
+
+        location /_matrix {
+            proxy_pass https://matrix.ebruno.fr;
+        }
+    }

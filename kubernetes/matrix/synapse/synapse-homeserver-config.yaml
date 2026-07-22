@@ -8,6 +8,7 @@ data:
     # Server Identification
     server_name: "matrix.ebruno.fr"
     pid_file: /data/homeserver.pid
+    report_stats: false
     listeners:
       - port: 8008
         tls: false
