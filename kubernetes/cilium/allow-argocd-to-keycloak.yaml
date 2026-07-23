@@ -8,6 +8,5 @@ spec:
   endpointSelector:
     matchLabels: {}
   egress:
-  - toEndpoints:
-    - matchLabels:
-        app.kubernetes.io/name: keycloak
+  - toEntities:
+    - cluster

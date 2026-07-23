@@ -1,0 +1,73 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: plane-admin-custom-nginx
+spec:
+  rules:
+  - name: inject-nginx-fix
+    match:
+      any:
+      - resources:
+          kinds:
+          - Deployment
+          names:
+          - plane-admin-wl
+          namespaces:
+          - plane
+    mutate:
+      patchStrategicMerge:
+        spec:
+          template:
+            spec:
+              initContainers:
+              - name: nginx-fix
+                image: busybox:1.36
+                command:
+                - sh
+                - -c
+                - |
+                  cat > /nginx/nginx.conf << 'CONFEOF'
+                  worker_processes 4;
+                  events { worker_connections 1024; }
+                  http {
+                    include mime.types;
+                    default_type application/octet-stream;
+                    set_real_ip_from 0.0.0.0/0;
+                    real_ip_recursive on;
+                    real_ip_header X-Forward-For;
+                    access_log /dev/stdout;
+                    error_log /dev/stderr;
+                    port_in_redirect off;
+                    server {
+                      listen 3000;
+                      server_name plane.ebruno.fr localhost;
+                      location / {
+                        root /usr/share/nginx/html;
+                        index index.html index.htm;
+                        error_page 301 =301 @fixredirect;
+                        try_files $uri $uri/ /god-mode/index.html;
+                      }
+                      location @fixredirect {
+                        if ($http_x_forwarded_proto = https) {
+                          set $target https://$host$uri/;
+                        }
+                        if ($http_x_forwarded_proto != https) {
+                          set $target http://$host$uri/;
+                        }
+                        return 301 $target;
+                      }
+                    }
+                  }
+                  CONFEOF
+                volumeMounts:
+                - name: nginx-conf
+                  mountPath: /nginx
+              volumes:
+              - name: nginx-conf
+                emptyDir: {}
+              containers:
+              - name: plane-admin
+                volumeMounts:
+                - name: nginx-conf
+                  mountPath: /etc/nginx/nginx.conf
+                  subPath: nginx.conf
