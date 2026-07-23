@@ -11,3 +11,10 @@ spec:
       - X-Forwarded-User
       - X-Forwarded-Email
       - X-Forwarded-Access-Token
+    authRequestHeaders:
+      - X-Forwarded-User
+      - X-Forwarded-Email
+      - X-Forwarded-Access-Token
+      - Host
+      - X-Forwarded-Host
+      - X-Forwarded-Proto

@@ -10,3 +10,9 @@ spec:
     authResponseHeaders:
       - X-Forwarded-User
       - X-Forwarded-Email
+    authRequestHeaders:
+      - X-Forwarded-User
+      - X-Forwarded-Email
+      - Host
+      - X-Forwarded-Host
+      - X-Forwarded-Proto
