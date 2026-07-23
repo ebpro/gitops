@@ -41,11 +41,12 @@ spec:
                     server {
                       listen 3000;
                       server_name plane.ebruno.fr localhost;
+                      location = / {
+                        return 302 /god-mode/;
+                      }
                       location / {
-                        root /usr/share/nginx/html;
-                        index index.html index.htm;
-                        error_page 301 =301 @fixredirect;
-                        try_files $uri $uri/ /god-mode/index.html;
+                        root /usr/share/nginx/html/god-mode;
+                        try_files $uri $uri/ /index.html;
                       }
                       location @fixredirect {
                         if ($http_x_forwarded_proto = https) {
