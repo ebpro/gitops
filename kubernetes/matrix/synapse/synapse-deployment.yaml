@@ -8,6 +8,9 @@ metadata:
 spec:
   updateStrategy:
     type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  revisionHistoryLimit: 10
   serviceName: synapse
   podManagementPolicy: OrderedReady
   persistentVolumeClaimRetentionPolicy:
