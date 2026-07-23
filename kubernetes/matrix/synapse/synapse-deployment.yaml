@@ -27,6 +27,12 @@ spec:
       labels:
         app: synapse
     spec:
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      terminationMessagePath: /dev/termination-log
       volumes:
         - name: synapse-config
           configMap:
@@ -42,6 +48,8 @@ spec:
         - name: synapse
           image: ghcr.io/element-hq/synapse:latest
           imagePullPolicy: IfNotPresent
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
           ports:
             - containerPort: 8008
               protocol: TCP
@@ -82,23 +90,38 @@ spec:
             httpGet:
               path: /health
               port: 8008
+              scheme: HTTP
             failureThreshold: 60
             periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
           livenessProbe:
             httpGet:
               path: /health
               port: 8008
+              scheme: HTTP
             initialDelaySeconds: 30
             periodSeconds: 30
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 1
           readinessProbe:
             httpGet:
               path: /health
               port: 8008
+              scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 1
       initContainers:
         - name: wait-for-db
           image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          resources: {}
           command:
             - sh
             - -c
@@ -113,6 +136,10 @@ spec:
               echo "PostgreSQL DNS ready"
         - name: create-db
           image: postgres:17-alpine
+          imagePullPolicy: IfNotPresent
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          resources: {}
           command:
             - sh
             - -c
@@ -128,6 +155,10 @@ spec:
                   key: password
         - name: copy-config
           image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          resources: {}
           command:
             - sh
             - -c
