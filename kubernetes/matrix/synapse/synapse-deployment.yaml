@@ -6,6 +6,8 @@ metadata:
   labels:
     app: synapse
 spec:
+  updateStrategy:
+    type: RollingUpdate
   serviceName: synapse
   replicas: 1
   selector:
@@ -13,6 +15,8 @@ spec:
       app: synapse
   template:
     metadata:
+      annotations:
+        synapse-image-hash: "87ab3"
       labels:
         app: synapse
     spec:
