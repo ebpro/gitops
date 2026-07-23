@@ -83,7 +83,6 @@ data:
 
     # Metrics
     enable_metrics: true
-    metrics_port: 9090
 
     # DNS/Reputation (single node, no reputation needed)
     macaroon_retry_convert_seconds: 0
