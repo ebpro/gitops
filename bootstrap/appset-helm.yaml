@@ -16,7 +16,7 @@ spec:
         repoURL: https://grafana.github.io/helm-charts
         version: 1.6.2
         syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/alloy.yaml?v=1755120000
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/alloy.yaml?v=5
       - app: argo-image-updater
         chart: argocd-image-updater
         namespace: argocd
@@ -80,7 +80,7 @@ spec:
         repoURL: https://grafana.github.io/helm-charts
         version: 6.55.0
         syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/loki.yaml?v=1755120000
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/loki.yaml?v=2
       - app: microcks
         chart: microcks
         namespace: microcks
