@@ -1,11 +1,20 @@
 manager:
-  featureGates: ""
+  featureGates: "--feature-gates=+AutoInstrumentation,+TargetAllocator+Observability"
   collectorImage:
     repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-collector
     tag: "0.109.0"
   targetAllocatorImage:
     repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
     tag: "0.109.0"
+  metrics:
+    enableMetrics: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
 
 admissionWebhooks:
   certManager:

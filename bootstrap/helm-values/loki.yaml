@@ -1,17 +1,10 @@
-backend:
-  replicas: 0
-chunksCache:
-  enabled: false
-deploymentMode: SingleBinary
-gateway:
-  enabled: false
 loki:
   auth_enabled: false
   commonConfig:
     replication_factor: 1
   schemaConfig:
     configs:
-      - from: "2024-01-01"
+      - from: "2025-01-01"
         index:
           period: 24h
           prefix: index_
@@ -20,28 +13,19 @@ loki:
         store: tsdb
   storage:
     type: filesystem
- monitoring:
-  lokiCanary:
-    enabled: false
-  selfMonitoring:
-    enabled: false
- read:
-  replicas: 0
-  resources:
-    requests:
-      cpu: 200m
-      memory: 512Mi
-    limits:
-      cpu: 1
-      memory: 2Gi
-resultsCache:
-  enabled: false
- singleBinary:
+  querier:
+    max_concurrent: 4
+  analytics:
+    reporting_enabled: false
+
+deploymentMode: SingleBinary
+
+singleBinary:
+  replicas: 1
   persistence:
     enabled: true
     size: 50Gi
     storageClass: local-path
-  replicas: 1
   resources:
     requests:
       cpu: 200m
@@ -49,7 +33,38 @@ resultsCache:
     limits:
       cpu: 1
       memory: 2Gi
- test:
-  enabled: false
- write:
+  extraArgs:
+    - -config.expand-env=true
+
+backend:
   replicas: 0
+write:
+  replicas: 0
+read:
+  replicas: 0
+
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+gateway:
+  enabled: false
+
+monitoring:
+  selfMonitoring:
+    enabled: false
+  lokiCanary:
+    enabled: false
+
+test:
+  enabled: false
+
+limits_config:
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+  retention_period: 336h
+  retention_stream_disabled: false
+  max_query_length: 0
+  max_query_series: 50000
+  split_queries_by_interval: 0
+  volume_enabled: true

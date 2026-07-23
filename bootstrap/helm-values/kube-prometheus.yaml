@@ -9,28 +9,85 @@ alertmanager:
             requests:
               storage: 5Gi
           storageClassName: local-path
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+    volumeMounts:
+      - name: alertmanager-config
+        mountPath: /etc/alertmanager/config
+        readOnly: true
+    volumes:
+      - name: alertmanager-config
+        configMap:
+          name: alertmanager-config
   enabled: true
+
 coreDns:
   enabled: true
+kubeScheduler:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeApiServer:
+  enabled: false
+
+kubeStateMetrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true
+  releaseLabel: true
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    retention: 30d
+    retentionSize: 45GB
+    enableCompression: true
+    walCompression: true
+    tsdb:
+      outOfOrderTimeWindow: 0
+    resources:
+      limits:
+        cpu: 2
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Gi
+          storageClassName: local-path
+    podAnnotations:
+      prometheus.io/scrape: "false"
+  tsdb:
+    outOfOrderTimeWindow: 0
+
 grafana:
-  additionalDataSources:
-    - access: proxy
-      editable: true
-      isDefault: false
-      name: Loki
-      type: loki
-      url: http://loki:3100
+  enabled: true
   adminPassword: ""
   existingSecret: grafana-admin-password
   existingSecretKey: admin-password
-  enabled: true
+  initChownData:
+    enabled: false
   extraSecretMounts:
     - name: grafana-oidc-secrets
       mountPath: /etc/grafana/secrets
       secretName: grafana-oidc-secrets
       readOnly: true
-  initChownData:
-    enabled: false
   grafana.ini:
     auth.generic_oauth:
       allow_sign_up: true
@@ -45,45 +102,123 @@ grafana:
       role_attribute_path: contains(groups,"platform-admins") && "Admin" || contains(groups,"readonly") && "Viewer" || "Editor"
       scopes: openid profile email groups
       token_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
+    security:
+      cookie_secure: true
+      cookie_samesite: lob
+    log:
+      mode: console
+      level: warn
+    analytics:
+      check_for_updates: false
+      reporting_enabled: false
   ingress:
     enabled: false
-  securityContext:
-    fsGroup: 472
-    runAsNonRoot: false
-    runAsUser: 472
   persistence:
     enabled: true
     size: 10Gi
     storageClassName: local-path
-kubeControllerManager:
-  enabled: false
-kubeEtcd:
-  enabled: false
-kubeScheduler:
-  enabled: false
-kubeStateMetrics:
-  enabled: true
-nodeExporter:
-  enabled: true
-prometheus:
-  enabled: true
-  prometheusSpec:
-    podMonitorSelectorNilUsesHelmValues: false
-    resources:
-      limits:
-        cpu: 2
-        memory: 2Gi
-      requests:
-        cpu: 500m
-        memory: 1Gi
-    retention: 15d
-    serviceMonitorSelectorNilUsesHelmValues: false
-    storageSpec:
-      volumeClaimTemplate:
-        spec:
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 50Gi
-          storageClassName: local-path
+  additionalDataSources:
+    - access: proxy
+      name: Loki
+      type: loki
+      url: http://loki.loki.svc.cluster.local:3100
+      editable: true
+      isDefault: false
+    - access: proxy
+      name: Tempo
+      type: tempo
+      url: http://tempo.tempo.svc.cluster.local:3200
+      editable: true
+      isDefault: false
+      jsonData:
+        tracesToLogs:
+          datasourceUid: loki
+          filterByTraceID: true
+          spanStartTimeShift: "-1h"
+          spanEndTimeShift: "+1h"
+          mapTag:
+            enabled: true
+            tagName: app
+          tags: [app, namespace, pod, container, cluster]
+        tracesToMetrics:
+          datasourceUid: prometheus
+        lokiSearch:
+          datasourceUid: loki
+    - access: proxy
+      name: Alloy
+      type: prometheus
+      url: http://alloy.alloy.svc.cluster.local:12345
+      editable: true
+      isDefault: false
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: default
+          orgId: 1
+          folder: ""
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+        - name: observability
+          orgId: 1
+          folder: "Observability"
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/observability
+  dashboards:
+    kubernetes:
+      k8s-cluster:
+        gnetId: 15756
+        revision: 30
+        datasource:
+          __expr: "Prometheus"
+      k8s-pods:
+        gnetId: 6407
+        revision: 3
+        datasource:
+          __expr: "Prometheus"
+      k8s-nodes:
+        gnetId: 16273
+        revision: 30
+        datasource:
+          __expr: "Prometheus"
+      k8s-workloads:
+        gnetId: 15761
+        revision: 33
+        datasource:
+          __expr: "Prometheus"
+    alloy:
+      alloy:
+        gnetId: 20320
+        revision: 1
+        datasource:
+          __expr: "Prometheus"
+        # folder: Observability
+    node-exporter:
+      full:
+        gnetId: 1860
+        revision: 34
+        datasource:
+          __expr: "Prometheus"
+        # folder: Observability
+    cilium:
+      cilium:
+        gnetId: 12235
+        revision: 19
+        datasource:
+          __expr: "Prometheus"
+        # folder: Observability
+  downloadDashboards:
+    "1860/prometheus":
+      datasource: Prometheus
+    "15756/kubernetes":
+      datasource: Prometheus
+  securityContext:
+    fsGroup: 472
+    runAsUser: 472
+    runAsNonRoot: true

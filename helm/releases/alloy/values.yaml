@@ -10,8 +10,27 @@ alloy:
         role = "pod"
       }
 
-      discovery.relabel "pods" {
+      discovery.relabel "log-pods" {
         targets = discovery.kubernetes.pods.targets
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_controller_kind"]
+          regex         = "Job|CronJob"
+          action        = "drop"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_ciu"]
+          regex         = "(true)"
+          action        = "drop"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+          separator     = "/"
+          replacement   = "/var/lib/rancher/k3s/data/logs/pods/*$1/*.log"
+          target_label  = "__path__"
+        }
 
         rule {
           source_labels = ["__meta_kubernetes_namespace"]
@@ -34,25 +53,73 @@ alloy:
           replacement   = "$1$2"
           target_label  = "app"
         }
+      }
+
+      discovery.relabel "metrics-pods" {
+        targets = discovery.kubernetes.pods.targets
 
         rule {
-          source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
-          separator     = "/"
-          replacement   = "/var/log/pods/*$1/*.log"
-          target_label  = "__path__"
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+          regex         = "true"
+          action        = "keep"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_ip"]
+          target_label  = "__address__"
+          replacement   = "${1}:${2}"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+          target_label  = "__metrics_path__"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_job"]
+          target_label  = "job"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label  = "namespace"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label  = "pod"
         }
       }
 
       loki.source.file "pods" {
-        targets    = discovery.relabel.pods.output
+        targets    = discovery.relabel.log-pods.output
         forward_to = [loki.process.pods.receiver]
+        charset    = "utf-8"
       }
 
       loki.process "pods" {
-        stage.static_labels {
+        stage.json {
+          expressions = {
+            ts      = ".ts",
+            level   = ".level",
+            caller  = ".caller",
+            msg     = ".msg",
+          }
+        }
+
+        stage.labels {
           values = {
             cluster = "compute-lsis-2",
           }
+        }
+
+        stage.regex {
+          expression = "(?P<level>(info|warn|error|debug))"
+        }
+
+        stage.timestamp {
+          source = "ts"
+          formats = ["RFC3339Nano", "%Y-%m-%dT%H:%M:%S.%LZ"]
         }
 
         forward_to = [loki.write.default.receiver]
@@ -60,19 +127,105 @@ alloy:
 
       loki.write "default" {
         endpoint {
-          url = "http://loki.logging.svc.cluster.local:3100/loki/api/v1/push"
+          url = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/push"
+        }
+
+        external_labels = {
+          cluster = "compute-lsis-2",
+        }
+      }
+
+      prometheus.scrape "alloy" {
+        targets    = discovery.relabel.metrics-pods.output
+        forward_to = [prometheus.remote_write.prometheus.receiver]
+      }
+
+      prometheus.remote_write "prometheus" {
+        endpoint {
+          url = "http://kube-prometheus-kube-prome-prometheus.kube-prometheus.svc.cluster.local:9090/api/v1/write"
+        }
+      }
+
+      otelcol.receiver.otlp "default" {
+        output {
+          traces  = [otelcol.processor.batch.traces.input]
+          metrics = [otelcol.exporter.prometheus.alloy_metrics.input]
+        }
+
+        tls {
+          enabled = false
+        }
+
+        http {
+          endpoint = "0.0.0.0:4318"
+        }
+
+        grpc {
+          endpoint = "0.0.0.0:4317"
+        }
+      }
+
+      otelcol.processor.batch "traces" {
+        output {
+          traces = [otelcol.exporter.otlp.tempo.input]
+        }
+        send_batch_size     = 512
+        send_batch_max_size = 1024
+        timeout             = 5s
+      }
+
+      otelcol.exporter.otlp "tempo" {
+        client {
+          endpoint = "tempo.tempo.svc.cluster.local:4317"
+          tls {
+            insecure = true
+          }
+        }
+      }
+
+      otelcol.exporter.prometheus "alloy_metrics" {
+        resource_to_telemetry_conversion {
+          enabled = true
         }
       }
     create: true
   mounts:
     dockercontainers: true
     varlog: true
+    k3slogs:
+      hostPath: /var/lib/rancher/k3s/data/logs
+      mountPath: /var/lib/rancher/k3s/data/logs
+      readOnly: true
+  ports:
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+    - name: prometheus
+      port: 12345
+      targetPort: 12345
+      protocol: TCP
   resources:
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 1
+      memory: 1Gi
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 200m
+      memory: 512Mi
 controller:
   type: daemonset
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule

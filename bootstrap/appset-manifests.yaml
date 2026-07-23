@@ -17,6 +17,7 @@ spec:
           - path: kubernetes/keycloak-realm
           - path: kubernetes/matrix/element
           - path: kubernetes/matrix/synapse
+          - path: kubernetes/observability
   template:
     metadata:
       name: '{{path.basename}}'

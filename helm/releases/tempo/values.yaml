@@ -1,23 +1,92 @@
 fullnameOverride: tempo
+replicas: 1
+
 persistence:
+  enabled: true
   accessModes:
     - ReadWriteOnce
-  enabled: true
-  size: 10Gi
+  size: 20Gi
   storageClassName: local-path
-replicas: 1
+
 service:
   type: ClusterIP
+
 serviceMonitor:
   enabled: true
+
 tempo:
   memBallastSizeMbs: 0
   reportingEnabled: false
+  usageReport:
+    enabled: false
+  dedup:
+    TODO: true
+
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: http://kube-prometheus-kube-prome-prometheus.kube-prometheus.svc.cluster.local:9090/api/v1/write
+    server:
+      httpListenPort: 8081
+    processor:
+      spanMetricsFlushPeriod: 15s
+      metricsFlushPeriod: 15s
+
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+      warehouse:
+        bucket: traces
+        objectStoreType: file
+
+  overrides:
+    defaults:
+      ingestion_rate_strategy: local
+      ingestion_rate_strategy_enabled: true
+      ingestion_rate_limit_bytes: 20_000_000
+      max_bytes_per_trace: 5_000_000
+      max_traces_per_user: 100000
+    per_tenant_overrides_enabled: true
+
+  auth:
+    enabled: false
+
+  search:
+    attributes:
+      - app
+      - namespace
+      - pod
+      - container
+      - component
+      - cluster
+
+  receive_remote:
+    endpoint: ":55680"
+
+  ingester:
+    tracing:
+      has_own JaegerEmbedded: true
+
+  server:
+    http_listen_port: 3200
+    http_server_read_timeout: 60s
+    http_server_write_timeout: 60s
+
+  distributor:
+    ring:
+      kvstore:
+        store: memberlist
+
+  compactor:
+    block:
+      retrieval_duration: 30m
+      working_dir: /var/tempo/traces/block
+
   resources:
-    limits:
-      cpu: 500m
-      memory: 1Gi
     requests:
       cpu: 100m
       memory: 512Mi
-  retention: 168h
+    limits:
+      cpu: 500m
+      memory: 1Gi

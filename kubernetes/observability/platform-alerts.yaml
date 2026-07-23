@@ -1,0 +1,195 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: monitoring.coreos.com/v1
+  kind: PrometheusRule
+  metadata:
+    name: platform-critical
+    namespace: kube-prometheus
+    labels:
+      prometheus: kube-prometheus
+      role: alert-rules
+  spec:
+    groups:
+      - name: platform/node
+        rules:
+          - alert: NodeHighCPU
+            expr: avg(instance:node_cpu_utilisation:rate5m) by (instance) > 0.85
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High CPU on {{ $labels.instance }}"
+              description: "Node {{ $labels.instance }} CPU utilization is above 85% for 10 minutes (current: {{ $value | humanizePercentage }})"
+
+          - alert: NodeHighMemory
+            expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.9
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High memory on {{ $labels.instance }}"
+              description: "Node {{ $labels.instance }} memory usage is above 90% (current: {{ $value | humanizePercentage }})"
+
+          - alert: NodeDiskFilling
+            expr: (1 - node_filesystem_avail_bytes{mountpoint!~"/var/lib/kubelet/pods.*"} / node_filesystem_size_bytes{mountpoint!~"/var/lib/kubelet/pods.*"}) > 0.85
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Disk filling on {{ $labels.instance }} {{ $labels.mountpoint }}"
+              description: "{{ $labels.mountpoint }} is {{ $value | humanizePercentage }} full on {{ $labels.instance }}"
+
+          - alert: NodeDiskCritical
+            expr: (1 - node_filesystem_avail_bytes{mountpoint!~"/var/lib/kubelet/pods.*"} / node_filesystem_size_bytes{mountpoint!~"/var/lib/kubelet/pods.*"}) > 0.95
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Disk critical on {{ $labels.instance }} {{ $labels.mountpoint }}"
+              description: "{{ $labels.mountpoint }} is {{ $value | humanizePercentage }} full on {{ $labels.instance }}"
+
+      - name: platform/pod
+        rules:
+          - alert: PodCrashLooping
+            expr: rate(kube_pod_container_status_restarts_total[15m]) > 0.1
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} crash looping"
+              description: "Container {{ $labels.container }} in pod {{ $labels.pod }} is crash looping"
+
+          - alert: PodNotReady
+            expr: kube_pod_status_phase{phase=~"Pending|Failed"} == 1
+            for: 30m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} not ready"
+              description: "Pod has been in {{ $labels.phase }} state for 30+ minutes"
+
+      - name: platform/argocd
+        rules:
+          - alert: ArgoCDAppOutOfSync
+            expr: argocd_app_sync_status{status="OutOfSync"} == 1
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "ArgoCD app {{ $labels.name }} is out of sync"
+              description: "{{ $labels.name }} has drifted from desired state"
+
+          - alert: ArgoCDAppDegraded
+            expr: argocd_app_health_status{status="Degraded"} == 1
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "ArgoCD app {{ $labels.name }} is degraded"
+              description: "{{ $labels.name }} health status is Degraded"
+
+          - alert: ArgoCDAppMissing
+            expr: argocd_app_info{health_status=""} == 1
+            for: 15m
+            labels:
+              severity: critical
+            annotations:
+              summary: "ArgoCD app {{ $labels.name }} is missing or unhealthy"
+              description: "App has no health status - targets may not exist"
+
+      - name: platform/ingress
+        rules:
+          - alert: HighIngressLatency
+            expr: histogram_quantile(0.99, sum(rate(tray_traefik_entrypoint_request_duration_seconds_bucket[5m])) by (le, router)) > 5
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High latency on ingress router {{ $labels.router }}"
+              description: "P99 latency is {{ $value }}s for {{ $labels.router }}"
+
+          - alert: HighIngressErrors
+            expr: sum(rate(tray_traefik_entrypoint_requests_total{code=~"5.."}[5m])) by (router) / sum(rate(tray_traefik_entrypoint_requests_total[5m])) by (router) > 0.05
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "5xx rate too high on ingress router {{ $labels.router }}"
+              description: "Error rate is {{ $value | humanizePercentage }} for {{ $labels.router }}"
+
+      - name: observability/loki
+        rules:
+          - alert: LokiStorageFilling
+            expr: (1 - loki_storage_chunk_store_chunks_removed_total / loki_storage_chunk_store_chunks_created_total) > 0.85
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Loki storage is filling up"
+              description: "Loki chunks are not being garbage collected fast enough"
+
+      - name: observability/tempo
+        rules:
+          - alert: TempoLagHigh
+            expr: tempo_ingester_lag_seconds > 30
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Tempo trace ingestion is lagging"
+              description: "Ingester lag is {{ $value }}s - traces are queuing"
+
+      - name: observability/alloy
+        rules:
+          - alert: AlloyPodDown
+            expr: count(up{job="alloy"}) == 0
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Alloy collector is down"
+              description: "No Alloy instances are reporting in"
+
+          - alert: AlloyWriteErrors
+            expr: rate(alloy_loki_writes_total{status="5xx"}[5m]) > 0
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Alloy is experiencing write errors"
+              description: "Alloy is failing to write to downstream"
+
+      - name: platform/postgres
+        rules:
+          - alert: CNPGClusterNotReady
+            expr: cnpg_cluster_status{status_class="ERROR"} > 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "CNPG cluster {{ $labels.cluster }} is in ERROR state"
+              description: "PostgreSQL cluster {{ $labels.cluster }} in namespace {{ $labels.namespace }} is reporting ERROR"
+
+          - alert: CNPGHighReplicationLag
+            expr: cnpg_pg_replication_lag > 30
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "CNPG cluster {{ $labels.cluster }} has high replication lag"
+              description: "Replication lag is {{ $value }}s for {{ $labels.cluster }}"
+
+      - name: platform/recording
+        rules:
+          - record: instance:node_cpu_utilisation:rate5m
+            expr: 1 - avg without(cpu, mode)(node_cpu_seconds_total{mode="idle"})
+
+          - record: instance:node_memory_utilisation:ratio
+            expr: 1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+
+          - record: instance:node_disk_utilisation:ratio
+            expr: 1 - (node_filesystem_avail_bytes{mountpoint!="/var/lib/kubelet/pods.*"} / node_filesystem_size_bytes{mountpoint!="/var/lib/kubelet/pods.*"})
+
+          - record: job:http_requests:rate5m
+            expr: sum without(status_code) (rate(tray_traefik_entrypoint_requests_total[5m]))
