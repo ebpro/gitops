@@ -19,7 +19,11 @@ extraVolumes:
       sizeLimit: 50Mi
     name: webapp
 jdbcOverwrite:
-  enabled: false
+  enabled: true
+  jdbcSecretName: sonarqube-postgresql
+  jdbcSecretPasswordKey: postgresql-password
+  jdbcUrl: jdbc:postgresql://sonarqube-postgresql.sonarqube.svc.cluster.local:5432/sonarDB
+  jdbcUsername: app
 jvmCeOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=ce
 jvmOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=web
 monitoringPasscodeSecretName: sonarqube-monitoring-password
@@ -30,13 +34,14 @@ plugins:
 resources:
   limits:
     cpu: 800m
-    memory: 3Gi
+    memory: 6Gi
   requests:
     cpu: 500m
     memory: 2Gi
 sonarProperties:
   sonar.ce.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=ce
   sonar.web.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=web
+sonarSecretProperties: sonarqube-oidc-secret
 startupProbe:
   failureThreshold: 60
   periodSeconds: 10

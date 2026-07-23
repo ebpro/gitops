@@ -41,6 +41,7 @@ resources:
 sonarProperties:
   sonar.ce.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=ce
   sonar.web.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=web
+sonarSecretProperties: sonarqube-oidc-secret
 startupProbe:
   failureThreshold: 60
   periodSeconds: 10
