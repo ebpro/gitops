@@ -11,6 +11,7 @@ spec:
         repoURL: https://github.com/ebpro/gitops
         revision: main
         directories:
+          - path: kubernetes/cilium
           - path: kubernetes/oauth2-proxy
           - path: kubernetes/ingress
           - path: kubernetes/csi-snapshot-controller

@@ -1,0 +1,18 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-argocd-to-keycloak
+  namespace: argocd
+spec:
+  description: Allow argocd pods to reach keycloak OIDC provider
+  endpointSelector:
+    matchLabels: {}
+  egress:
+  - toServices:
+    - serviceSelector:
+        namespace: keycloak
+        matchLabels:
+          app.kubernetes.io/name: keycloak
+  - toEndpoints:
+    - matchLabels:
+        app.kubernetes.io/name: keycloak
