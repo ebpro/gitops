@@ -1,4 +1,14 @@
 apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: oauth2-prefix-stripprefix
+  namespace: nexus
+spec:
+  stripPrefix:
+    prefixes:
+      - /oauth2
+---
+apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: nexus-ingress
@@ -24,3 +34,16 @@ spec:
           port: http
   tls:
     certResolver: letsencrypt-ovh
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: fwd-auth
+  namespace: nexus
+spec:
+  forwardAuth:
+    address: http://oauth2-proxy.oauth2-proxy.svc.cluster.local:4180/oauth2/start?rd=https://nexus.ebruno.fr/
+    trustForwardHeader: true
+    authResponseHeaders:
+      - X-Forwarded-User
+      - X-Forwarded-Email
