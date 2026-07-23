@@ -16,6 +16,7 @@ metadata:
   namespace: oauth2-proxy
 spec:
   replicas: 1
+  paused: false
   selector:
     matchLabels:
       app: oauth2-proxy
