@@ -120,7 +120,7 @@ data:
     ["web-origins", "acr", "roles", "profile", "basic", "email"], "optionalClientScopes":
     ["address", "phone", "offline_access", "organization", "microprofile-jwt"], "access":
     {"view": true, "configure": true, "manage": true}}, {"id": "80b419a7-a0fa-4739-87bc-0c8ab0d1fad2",
-    "clientId": "proxy", "surrogateAuthRequired": false, "enabled": true, "alwaysDisplayInConsole":
+    "clientId": "oauth2-proxy", "surrogateAuthRequired": false, "enabled": true, "alwaysDisplayInConsole":
     false, "clientAuthenticatorType": "client-secret", "secret": "8Rz9QL5ioO8KwWa01EZjOqIPMgrqpMF9",
     "redirectUris": ["https://nexus.ebruno.fr/*", "https://sonarqube.ebruno.fr/*"],
     "webOrigins": ["*"], "notBefore": 0, "bearerOnly": false, "consentRequired": false,

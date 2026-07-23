@@ -53,7 +53,7 @@ spec:
             - --skip-auth-route=/healthcheck
           env:
             - name: OAUTH2_PROXY_CLIENT_ID
-              value: proxy
+              value: oauth2-proxy
             - name: OAUTH2_PROXY_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
