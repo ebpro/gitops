@@ -16,7 +16,7 @@ spec:
           namespace: oauth2-proxy
           port: 4180
     - kind: Rule
-      match: Host(`nexus.ebruno.fr`)
+      match: Host(`nexus.ebruno.fr`) && PathPrefix(`/`)
       middlewares:
         - name: fwd-auth
       services:
@@ -24,13 +24,3 @@ spec:
           port: http
   tls:
     certResolver: letsencrypt-ovh
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: oauth2-prefix-stripprefix
-  namespace: nexus
-spec:
-  stripPrefix:
-    prefixes:
-      - /oauth2
