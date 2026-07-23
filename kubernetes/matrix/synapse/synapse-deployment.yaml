@@ -32,7 +32,6 @@ spec:
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 30
-      terminationMessagePath: /dev/termination-log
       volumes:
         - name: synapse-config
           configMap:
