@@ -129,7 +129,7 @@ data:
     "clientId": "oauth2-proxy", "surrogateAuthRequired": false, "enabled": true, "alwaysDisplayInConsole":
     false, "clientAuthenticatorType": "client-secret", "secret": "8Rz9QL5ioO8KwWa01EZjOqIPMgrqpMF9",
     "redirectUris": ["https://nexus.ebruno.fr/*", "https://sonarqube.ebruno.fr/*",
-    "https://pactbroker.ebruno.fr/*"], "webOrigins": ["*"], "notBefore": 0, "bearerOnly":
+    "https://pactbroker.ebruno.fr/*", "https://plane.ebruno.fr/*"], "webOrigins": ["*"], "notBefore": 0, "bearerOnly":
     false, "consentRequired": false, "standardFlowEnabled": true, "implicitFlowEnabled":
     false, "directAccessGrantsEnabled": true, "serviceAccountsEnabled": false, "publicClient":
     false, "frontchannelLogout": false, "protocol": "openid-connect", "attributes":
