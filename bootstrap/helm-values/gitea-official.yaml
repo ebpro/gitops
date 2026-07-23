@@ -60,6 +60,10 @@ gitea:
       DISABLE_REGISTRATION: true
       ENABLE_PASSWORD_SIGNIN_FORM: true
       REQUIRE_SIGNIN_VIEW: false
+    oauth2_client:
+      ENABLE_AUTO_REGISTRATION: true
+      USERNAME: preferred_username
+      OPENID_CONNECT_SCOPES: openid email profile groups
     repository:
       DEFAULT_PRIVATE: private
 
