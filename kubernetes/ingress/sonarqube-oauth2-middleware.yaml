@@ -1,0 +1,9 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: oauth2-prefix-stripprefix
+  namespace: sonarqube
+spec:
+  stripPrefix:
+    prefixes:
+      - /oauth2
