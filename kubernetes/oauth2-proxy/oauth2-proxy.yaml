@@ -48,11 +48,9 @@ spec:
             - --pass-access-token
             - --whitelist-domain=*
             - --set-xauthrequest
-            - --forward-auth-query=true
             - --reverse-proxy
             - --skip-auth-route=/ready
             - --skip-auth-route=/healthz
-            - --show-debug-on-error
           env:
             - name: OAUTH2_PROXY_CLIENT_ID
               value: proxy
