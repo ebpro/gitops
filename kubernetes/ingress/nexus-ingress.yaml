@@ -1,14 +1,4 @@
 apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: oauth2-prefix-stripprefix
-  namespace: nexus
-spec:
-  stripPrefix:
-    prefixes:
-      - /oauth2
----
-apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: nexus-ingress
@@ -21,8 +11,8 @@ spec:
       match: Host(`nexus.ebruno.fr`) && PathPrefix(`/oauth2/`)
       priority: 20
       services:
-        - name: oauth2-proxy-lb
-          port: 4180
+        - name: oauth2-proxy-public
+          port: http
     - kind: Rule
       match: Host(`nexus.ebruno.fr`) && !PathPrefix(`/oauth2/`)
       priority: 10
