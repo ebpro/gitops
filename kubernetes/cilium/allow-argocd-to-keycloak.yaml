@@ -8,11 +8,6 @@ spec:
   endpointSelector:
     matchLabels: {}
   egress:
-  - toServices:
-    - serviceSelector:
-        namespace: keycloak
-        matchLabels:
-          app.kubernetes.io/name: keycloak
   - toEndpoints:
     - matchLabels:
         app.kubernetes.io/name: keycloak
