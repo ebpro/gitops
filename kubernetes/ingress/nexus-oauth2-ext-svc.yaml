@@ -16,6 +16,6 @@ metadata:
   namespace: nexus
 subsets:
   - addresses:
-      - ip: 10.43.157.101
+      - ip: 10.42.0.34
     ports:
       - port: 4180

@@ -23,10 +23,6 @@ spec:
       services:
         - name: oauth2-proxy-lb
           port: 4180
-          healthCheck:
-            path: /oauth2/start
-            interval: 10s
-            timeout: 3s
     - kind: Rule
       match: Host(`nexus.ebruno.fr`) && !PathPrefix(`/oauth2/`)
       priority: 10
