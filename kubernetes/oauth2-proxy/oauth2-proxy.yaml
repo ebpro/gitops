@@ -28,29 +28,29 @@ spec:
       containers:
         - name: oauth2-proxy
           image: quay.io/oauth2-proxy/oauth2-proxy:v7.6.0
-  args:
-    - --provider=oidc
-    - --skip-oidc-discovery
-    - --oidc-issuer-url=https://keycloak.ebruno.fr/realms/platform
-    - --oidc-jwks-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/certs
-    - --login-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth
-    - --redeem-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
-    - --profile-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/userinfo
-    - --scope=openid email profile
-    - --email-domain=*
-    - --upstream=file:///dev/null
-    - --http-address=0.0.0.0:4180
-    - --skip-jwt-bearer-tokens
-    - --cookie-secure=true
-    - --cookie-samesite=none
-    - --cookie-domain=.ebruno.fr
-    - --set-authorization-header
-    - --pass-access-token
-    - --whitelist-domain=*
-    - --skip-auth-route=/ready
-    - --skip-auth-route=/healthz
-    - --set-xauthrequest
-    - --reverse-proxy-compat
+          args:
+            - --provider=oidc
+            - --skip-oidc-discovery
+            - --oidc-issuer-url=https://keycloak.ebruno.fr/realms/platform
+            - --oidc-jwks-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/certs
+            - --login-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth
+            - --redeem-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
+            - --profile-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/userinfo
+            - --scope=openid email profile
+            - --email-domain=*
+            - --upstream=file:///dev/null
+            - --http-address=0.0.0.0:4180
+            - --skip-jwt-bearer-tokens
+            - --cookie-secure=true
+            - --cookie-samesite=none
+            - --cookie-domain=.ebruno.fr
+            - --set-authorization-header
+            - --pass-access-token
+            - --whitelist-domain=*
+            - --set-xauthrequest
+            - --reverse-proxy-compat
+            - --skip-auth-route=/ready
+            - --skip-auth-route=/healthz
           env:
             - name: OAUTH2_PROXY_CLIENT_ID
               value: proxy
