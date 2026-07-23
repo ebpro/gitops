@@ -4,7 +4,7 @@ persistence:
   enabled: true
   accessModes:
     - ReadWriteOnce
-  size: 20Gi
+  size: 10Gi
   storageClassName: local-path
 service:
   type: ClusterIP
@@ -13,14 +13,8 @@ serviceMonitor:
 tempo:
   memBallastSizeMbs: 0
   reportingEnabled: false
-  metricsGenerator:
-    enabled: true
-    remoteWriteUrl: http://kube-prometheus-kube-prome-prometheus.kube-prometheus.svc.cluster.local:9090/api/v1/write
-    server:
-      httpListenPort: 8081
-    processor:
-      spanMetricsFlushPeriod: 15s
-      metricsFlushPeriod: 15s
+  auth:
+    enabled: false
   storage:
     trace:
       backend: local
@@ -35,10 +29,6 @@ tempo:
       ingestion_rate_strategy_enabled: true
       ingestion_rate_limit_bytes: 20_000_000
       max_bytes_per_trace: 5_000_000
-      max_traces_per_user: 100000
-    per_tenant_overrides_enabled: true
-  auth:
-    enabled: false
   search:
     attributes:
       - app
@@ -47,6 +37,16 @@ tempo:
       - container
       - component
       - cluster
+  ingester:
+    tracing:
+      has_own_jaeger_embedded: true
+  server:
+    http_listen_port: 3200
+    http_server_read_timeout: 60s
+    http_server_write_timeout: 60s
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: http://kube-prometheus-kube-prome-prometheus.kube-prometheus.svc.cluster.local:9090/api/v1/write
   compactor:
     block:
       retrieval_duration: 30m
