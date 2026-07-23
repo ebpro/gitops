@@ -46,7 +46,6 @@ spec:
             - --set-authorization-header
             - --pass-access-token
             - --whitelist-domain=*
-            - --reverse-proxy
             - --skip-auth-route=/ready
             - --skip-auth-route=/healthz
           env:
