@@ -4,7 +4,7 @@ data:
   url: https://argocd.ebruno.fr
   cluster.inClusterEnabled: "true"
   oidc.config: |
-    issuer: http://keycloak-http.keycloak.svc.cluster.local/realms/platform
+    issuer: https://keycloak.ebruno.fr/realms/platform
     clientID: argocd
     clientSecret: $CLIENT_SECRET_ARGOCD
     requestedScopes:
