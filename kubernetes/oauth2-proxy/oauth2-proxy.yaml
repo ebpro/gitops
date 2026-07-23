@@ -46,7 +46,7 @@ spec:
             - --set-authorization-header
             - --pass-access-token
             - --whitelist-domain=*
-            - --trust-forward-header=true
+             - --reverse-proxy
             - --redirect-url=https://nexus.ebruno.fr/oauth2/callback
             - --redirect-url=https://sonarqube.ebruno.fr/oauth2/callback
             - --redirect-url=https://plane.ebruno.fr/oauth2/callback
