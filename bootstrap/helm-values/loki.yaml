@@ -53,8 +53,9 @@ gateway:
 monitoring:
   selfMonitoring:
     enabled: false
-  lokiCanary:
-    enabled: false
+
+lokiCanary:
+  enabled: false
 
 test:
   enabled: false
