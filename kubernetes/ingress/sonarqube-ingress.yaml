@@ -11,8 +11,6 @@ spec:
     - kind: Rule
       match: Host(`sonarqube.ebruno.fr`) && PathPrefix(`/oauth2/`)
       priority: 20
-      middlewares:
-        - name: oauth2-prefix-stripprefix
       services:
         - name: oauth2-proxy
           namespace: oauth2-proxy
