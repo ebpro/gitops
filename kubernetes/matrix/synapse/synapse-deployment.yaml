@@ -9,6 +9,10 @@ spec:
   updateStrategy:
     type: RollingUpdate
   serviceName: synapse
+  podManagementPolicy: OrderedReady
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
   replicas: 1
   selector:
     matchLabels:
