@@ -63,8 +63,11 @@ auth:
     clientID: harbor
     clientSecret: "${HARBOR_OIDC_CLIENT_SECRET}"
     verify: true
+    autoRegister: true
     scope: openid profile email groups
     groupsClaim: groups
+    userIDClaim: sub
+    usernameClaim: preferred_username
     adminMetadata:
       adminGroup: platform-admins
     xsrf: ""
