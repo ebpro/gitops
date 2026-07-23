@@ -9,6 +9,7 @@ keycloak:
   privateUrl: http://keycloak-http.keycloak.svc.cluster.local:80
   url: keycloak.ebruno.fr
   realm: platform
+  clientSecret: b274d14a378f41347ee0f5a70e59665b290178920da37c2d
 microcks:
   generateCert: false
   ingressAnnotations:

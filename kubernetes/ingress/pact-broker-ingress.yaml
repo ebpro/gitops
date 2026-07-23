@@ -8,7 +8,14 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`pactbroker.ebruno.fr`)
+      match: Host(`pactbroker.ebruno.fr`) && PathPrefix(`/oauth2/`)
+      priority: 20
+      services:
+        - name: oauth2-proxy-public
+          port: http
+    - kind: Rule
+      match: Host(`pactbroker.ebruno.fr`) && !PathPrefix(`/oauth2/`)
+      priority: 10
       middlewares:
         - name: fwd-auth
       services:

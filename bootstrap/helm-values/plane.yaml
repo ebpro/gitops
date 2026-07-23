@@ -15,7 +15,7 @@ postgres:
   local_setup: false
 
 rabbitmq:
-  local_setup: true
+  local_setup: false
 
 env:
   remote_redis_url: redis://plane-redis.plane.svc.cluster.local:6379/0

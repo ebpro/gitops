@@ -8,7 +8,9 @@ data:
     {
       "default_country_code": "FR",
       "show_labs_settings": false,
-      "features": {},
+      "features": {
+        "feature.sso": true
+      },
       "default_hs_url": "https://matrix.ebruno.fr",
       "brand": "Element",
       "integrations_ui_url": "",
@@ -39,7 +41,8 @@ data:
       },
       "roomDirectory": {
         "servers": []
-      }
+      },
+      "enable_set_displayname": true
     }
   default.conf: |
     server {
@@ -61,5 +64,9 @@ data:
 
         location /_matrix {
             proxy_pass http://synapse.synapse.svc.cluster.local:8008;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
         }
     }

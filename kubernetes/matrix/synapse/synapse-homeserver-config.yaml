@@ -17,6 +17,13 @@ data:
         resources:
           - names: [client, federation]
             compress: false
+      - port: 9090
+        tls: false
+        type: http
+        x_forwarded: false
+        resources:
+          - names: [metrics]
+            compress: false
 
     # Signing Keys
     signing_key_path: /data/signing.key.matrix.ebruno.fr
@@ -37,32 +44,29 @@ data:
 
     # Media Storage
     media_store_path: /data/media
+    dynamic_thumbnails: false
 
-    # Enable registration for initial admin user (disable after setup)
+    # Registration disabled - SSO only
     enable_registration: false
     enable_registration_cas: false
     enable_3pid_lookup: false
 
-    # Throttling (using Synapse defaults - deprecated rc_* format removed for v1.12+)
-
-    # OIDC / SSO Authentication
+    # OIDC / SSO Authentication (Keycloak)
     oidc_discovery_endpoint: "https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration"
-    oidc_authorization_url: "https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth"
-    oidc_token_url: "https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token"
     oidc_client_id: "synapse"
     oidc_client_secret: SYNAPSE_OIDC_SECRET_PLACEHOLDER
     oidc_allow_existing_users: true
     oidc_auto_redirect: true
     oidc_skip_verification: false
+    oidc_provision_enabled: true
+    oidc_permit_explicit_sign_up: true
+    oidc_icon: "sso"
+    oidc_displayname_claims: ["displayname", "nickname", "name"]
 
     # User Attribute Mapping
-    oidc_email_attribute: "email"
-    oidc_displayname_attribute: "displayname"
     oidc_username_from_auth_server: false
-    oidc_username_template: OIDC-\${sub}
-    oidc_permit_registration_with_basic_auth: false
-    oidc_permit_explicit_sign_up: true
-    oidc_allow_registrations_with_basic_auth: false
+    oidc_username_template: "\${utf8email.local}"
+    oidc_email_required: true
 
     # Login (disable password login, enforce OIDC)
     oauth_enabled: false
@@ -72,12 +76,10 @@ data:
     public_baseurl: "https://matrix.ebruno.fr"
     server_base_url: "https://matrix.ebruno.fr"
 
-    # Limits
+    # Media & upload limits
     max_request_body_size: "50M"
     max_upload_size: "50M"
     max_avatar_size: "10M"
-
-    # Logging (stdout only in container)
 
     # Metrics
     enable_metrics: true

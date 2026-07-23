@@ -1,3 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: plane-admin-nginx
+  namespace: plane
+data:
+  nginx.conf: |
+    worker_processes 4;
+
+    events {
+      worker_connections 1024;
+    }
+
+    http {
+      include /etc/nginx/mime.types;
+
+      default_type application/octet-stream;
+
+      set_real_ip_from 0.0.0.0/0;
+      real_ip_recursive on;
+      real_ip_header X-Forwarded-For;
+      real_ip_header X-Forwarded-Host;
+
+      map $http_x_forwarded_proto $proxy_x_forwarded_proto {
+        default $http_x_forwarded_proto;
+        ""      $scheme;
+      }
+
+      server {
+        listen 3000;
+        server_name plane.ebruno.fr localhost;
+
+        location / {
+          root /usr/share/nginx/html;
+          index index.html index.htm;
+          try_files $uri $uri/ /god-mode/index.html;
+        }
+      }
+    }
+---
 apiVersion: traefik.io/v1alpha1
 kind: ServersTransport
 metadata:
@@ -5,51 +45,3 @@ metadata:
   namespace: plane
 spec:
   serverName: plane-backend
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: plane-fw-web
-  namespace: plane
-spec:
-  entryPoints:
-    - web
-  routes:
-    - match: Host(`plane.ebruno.fr`)
-      kind: Rule
-      services:
-        - name: plane-web
-          port: 3000
-          scheme: http
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: plane-redirect
-  namespace: plane
-spec:
-  entryPoints:
-    - web
-  routes:
-    - match: Host(`plane.ebruno.fr`) && Header(`X-Forwarded-Port`, "3000")
-      kind: Rule
-      services:
-        - name: plane-web
-          port: 3000
-    - match: Host(`plane.ebruno.fr`)
-      kind: Rule
-      middlewares:
-        - name: https-redirect
-      services:
-        - name: plane-web
-          port: 3000
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: https-redirect
-  namespace: plane
-spec:
-  redirectScheme:
-    scheme: https
-    permanent: true

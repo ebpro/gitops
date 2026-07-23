@@ -48,6 +48,8 @@ spec:
             - --whitelist-domain=*
             - --redirect-url=https://nexus.ebruno.fr/oauth2/callback
             - --redirect-url=https://sonarqube.ebruno.fr/oauth2/callback
+            - --redirect-url=https://plane.ebruno.fr/oauth2/callback
+            - --redirect-url=https://pactbroker.ebruno.fr/oauth2/callback
             - --skip-auth-route=/ready
             - --skip-auth-route=/healthz
             - --skip-auth-route=/healthcheck

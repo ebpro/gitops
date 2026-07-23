@@ -24,9 +24,12 @@ spec:
         - name: synapse-db-secret
           secret:
             secretName: matrix-db-superuser
+        - name: synapse-oidc-secret
+          secret:
+            secretName: synapse-oidc-secret
       containers:
         - name: synapse
-          image: ghcr.io/element-hq/synapse:latest
+          image: ghcr.io/element-hq/synapse:1.124.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8008
@@ -118,9 +121,11 @@ spec:
             - sh
             - -c
             - |
-              # Copy homeserver.yaml and inject DB password from secret
               PW=$(cat /secrets/db-password/password)
-              sed "s|SYNAPSE_DB_PASSWORD_PLACEHOLDER|${PW}|g" /config/homeserver.yaml > /data/homeserver.yaml
+              OIDC=$(cat /secrets/oidc/SYNAPSE_OIDC_CLIENT_SECRET)
+              sed -e "s|SYNAPSE_DB_PASSWORD_PLACEHOLDER|${PW}|g" \
+                  -e "s|SYNAPSE_OIDC_SECRET_PLACEHOLDER|${OIDC}|g" \
+                /config/homeserver.yaml > /data/homeserver.yaml
               chmod 600 /data/homeserver.yaml
               chown 991:991 /data/homeserver.yaml 2>/dev/null || true
           volumeMounts:
@@ -129,6 +134,9 @@ spec:
               readOnly: true
             - name: synapse-db-secret
               mountPath: /secrets/db-password
+              readOnly: true
+            - name: synapse-oidc-secret
+              mountPath: /secrets/oidc
               readOnly: true
             - name: synapse-data
               mountPath: /data
