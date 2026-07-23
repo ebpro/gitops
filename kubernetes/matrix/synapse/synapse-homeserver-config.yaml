@@ -65,7 +65,7 @@ data:
 
     # User Attribute Mapping
     oidc_username_from_auth_server: false
-    oidc_username_template: "\${utf8email.local}"
+    oidc_username_template: '${utf8email.local}'
     oidc_email_required: true
 
     # Login (disable password login, enforce OIDC)
