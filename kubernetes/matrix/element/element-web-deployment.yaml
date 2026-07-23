@@ -66,7 +66,7 @@ spec:
             periodSeconds: 10
       initContainers:
         - name: download-element
-          image: vectorim/element-web:11.8.3
+          image: vectorim/element-web:v1.12.24
           command:
             - sh
             - -c

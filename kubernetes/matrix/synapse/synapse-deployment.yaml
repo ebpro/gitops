@@ -29,7 +29,7 @@ spec:
             secretName: synapse-oidc-secret
       containers:
         - name: synapse
-          image: ghcr.io/element-hq/synapse:1.124.0
+          image: ghcr.io/element-hq/synapse:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8008
