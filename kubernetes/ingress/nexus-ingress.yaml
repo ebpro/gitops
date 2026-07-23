@@ -8,11 +8,29 @@ spec:
     - websecure
   routes:
     - kind: Rule
+      match: Host(`nexus.ebruno.fr`) && PathPrefix(`/oauth2/`)
+      middlewares:
+        - name: oauth2-prefix-stripprefix
+      services:
+        - name: oauth2-proxy
+          namespace: oauth2-proxy
+          port: 4180
+    - kind: Rule
       match: Host(`nexus.ebruno.fr`)
       middlewares:
-        - name: fwd-auth-chain
+        - name: fwd-auth
       services:
         - name: nexus-nexus3
           port: http
   tls:
     certResolver: letsencrypt-ovh
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: oauth2-prefix-stripprefix
+  namespace: nexus
+spec:
+  stripPrefix:
+    prefixes:
+      - /oauth2
