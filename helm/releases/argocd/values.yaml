@@ -2,7 +2,7 @@ server:
   extraArgs:
     sso: true
     oidc.config: |
-      issuer: http://keycloak-http.keycloak.svc.cluster.local/realms/platform
+      issuer: https://keycloak.ebruno.fr/realms/platform
       clientID: argocd
       clientSecret: $ARGOCD_SERVER_OIDC_CLIENT_SECRET
       rootCA:
