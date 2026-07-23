@@ -1,6 +1,17 @@
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
+  name: fwd-auth-redirect-url
+  namespace: nexus
+spec:
+  headers:
+    customRequestHeaders:
+      X-Auth-Request-Redirect: "https://nexus.ebruno.fr/"
+      X-Forwarded-Proto: "https"
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
   name: fwd-auth
   namespace: nexus
 spec:
@@ -11,3 +22,14 @@ spec:
       - X-Forwarded-User
       - X-Forwarded-Email
       - X-Forwarded-Access-Token
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: fwd-auth-chain
+  namespace: nexus
+spec:
+  chain:
+    middlewares:
+      - name: fwd-auth-redirect-url
+      - name: fwd-auth

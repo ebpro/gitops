@@ -10,7 +10,7 @@ spec:
     - kind: Rule
       match: Host(`nexus.ebruno.fr`)
       middlewares:
-        - name: fwd-auth
+        - name: fwd-auth-chain
       services:
         - name: nexus-nexus3
           port: http
