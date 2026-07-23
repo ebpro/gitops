@@ -48,6 +48,7 @@ spec:
             - --pass-access-token
             - --whitelist-domain=*
             - --set-xauthrequest
+            - --forward-auth-query=true
             - --reverse-proxy
             - --skip-auth-route=/ready
             - --skip-auth-route=/healthz
