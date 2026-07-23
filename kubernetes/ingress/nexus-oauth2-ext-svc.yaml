@@ -1,17 +1,21 @@
-apiVersion: traefik.io/v1alpha1
-kind: ServersTransport
-metadata:
-  name: oauth2-transport
-  namespace: nexus
-spec:
-  serverName: oauth2-proxy.oauth2-proxy.svc.cluster.local
----
-apiVersion: traefik.io/v1alpha1
-kind: TraefikService
+apiVersion: v1
+kind: Service
 metadata:
   name: oauth2-proxy-lb
   namespace: nexus
 spec:
-  loadBalancer:
-    servers:
-      - url: http://oauth2-proxy.oauth2-proxy.svc.cluster.local:4180
+  ports:
+    - port: 4180
+      name: http
+      targetPort: 4180
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: oauth2-proxy-lb
+  namespace: nexus
+subsets:
+  - addresses:
+      - ip: 10.43.157.101
+    ports:
+      - port: 4180
