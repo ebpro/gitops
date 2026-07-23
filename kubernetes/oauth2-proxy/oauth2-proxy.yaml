@@ -40,7 +40,6 @@ spec:
             - --email-domain=*
             - --upstream=file:///dev/null
             - --http-address=0.0.0.0:4180
-            - --skip-jwt-bearer-tokens
             - --cookie-secure=true
             - --cookie-samesite=none
             - --cookie-domain=.ebruno.fr
