@@ -12,8 +12,8 @@ spec:
       match: Host(`sonarqube.ebruno.fr`) && PathPrefix(`/oauth2/`)
       priority: 20
       services:
-        - name: oauth2-proxy-lb
-          port: 4180
+        - name: oauth2-proxy-public
+          port: http
     - kind: Rule
       match: Host(`sonarqube.ebruno.fr`)
       priority: 10
