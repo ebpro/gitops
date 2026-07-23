@@ -1,0 +1,109 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: plane-body-limit
+  namespace: plane
+spec:
+  buffering:
+    maxRequestBodyBytes: 20971520
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: plane-ingress
+  namespace: plane
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`plane.ebruno.fr`) && PathPrefix(`/oauth2/`)
+      priority: 20
+      services:
+        - name: oauth2-proxy-public
+          port: http
+    - kind: Rule
+      match: Host(`plane.ebruno.fr`) && PathPrefix(`/spaces`)
+      middlewares:
+        - name: plane-body-limit
+        - name: fwd-auth
+      services:
+        - name: plane-space
+          port: 3000
+    - kind: Rule
+      match: Host(`plane.ebruno.fr`) && PathPrefix(`/god-mode`)
+      middlewares:
+        - name: plane-body-limit
+        - name: fwd-auth
+      services:
+        - name: plane-admin
+          port: 3000
+    - kind: Rule
+      match: Host(`plane.ebruno.fr`) && PathPrefix(`/api`)
+      middlewares:
+        - name: plane-body-limit
+        - name: fwd-auth
+      services:
+        - name: plane-api
+          port: 8000
+    - kind: Rule
+      match: Host(`plane.ebruno.fr`) && PathPrefix(`/auth`)
+      middlewares:
+        - name: plane-body-limit
+        - name: fwd-auth
+      services:
+        - name: plane-api
+          port: 8000
+    - kind: Rule
+      match: Host(`plane.ebruno.fr`) && PathPrefix(`/live`)
+      middlewares:
+        - name: plane-body-limit
+        - name: fwd-auth
+      services:
+        - name: plane-live
+          port: 3000
+    - kind: Rule
+      match: Host(`plane.ebruno.fr`) && PathPrefix(`/uploads`)
+      middlewares:
+        - name: plane-body-limit
+        - name: fwd-auth
+      services:
+        - name: plane-minio
+          port: 9000
+    - kind: Rule
+      match: Host(`plane.ebruno.fr`) && PathPrefix(`/`)
+      middlewares:
+        - name: plane-body-limit
+        - name: fwd-auth
+      services:
+        - name: plane-web
+          port: 3000
+  tls:
+    secretName: plane-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: plane-redirect
+  namespace: plane
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`plane.ebruno.fr`)
+      middlewares:
+        - name: plane-https-redirect
+      services:
+        - name: plane-web
+          port: 3000
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: plane-https-redirect
+  namespace: plane
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true

@@ -4,9 +4,7 @@ metadata:
   name: tempo-ingress
   namespace: tempo
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+    traefik.ingress.kubernetes.io/service.serverscheme: "http"
 spec:
   ingressClassName: traefik
   rules:
@@ -19,7 +17,7 @@ spec:
               service:
                 name: tempo
                 port:
-                  number: 3200
+                  number: 3100
   tls:
     - hosts:
       - tempo.ebruno.fr

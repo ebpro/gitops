@@ -4,9 +4,7 @@ dockerRegistry:
   enabled: false
 
 ingress:
-  enabled: true
-  ingressClass: traefik
-  appHost: plane.ebruno.fr
+  enabled: false
 
 redis:
   local_setup: false

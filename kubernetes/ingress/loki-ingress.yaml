@@ -4,16 +4,38 @@ metadata:
   name: loki-ingress
   namespace: loki
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+    traefik.ingress.kubernetes.io/service.serverscheme: "http"
 spec:
   ingressClassName: traefik
   rules:
-    - host: loki.ebruno.fr
+    - host: tempo.ebruno.fr
       http:
         paths:
           - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tempo
+                port:
+                  number: 3200
+          - path: /loki/api/v1/push
+            pathType: Prefix
+            backend:
+              service:
+                name: loki
+                port:
+                  number: 3100
+    - host: loki.ebruno.fr
+      http:
+        paths:
+          - path: /api/v1/push
+            pathType: Prefix
+            backend:
+              service:
+                name: loki
+                port:
+                  number: 3100
+          - path: /loki/api/v1/push
             pathType: Prefix
             backend:
               service:
@@ -22,4 +44,5 @@ spec:
                   number: 3100
   tls:
     - hosts:
+      - tempo.ebruno.fr
       - loki.ebruno.fr
