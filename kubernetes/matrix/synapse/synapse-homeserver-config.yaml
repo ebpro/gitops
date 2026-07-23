@@ -29,6 +29,7 @@ data:
     signing_key_path: /data/signing.key.matrix.ebruno.fr
     trusted_key_servers:
       - server_name: "matrix.org"
+    suppress_key_server_warning: true
 
     # Database (PostgreSQL via CNPG)
     database:
@@ -51,25 +52,30 @@ data:
     enable_registration_cas: false
     enable_3pid_lookup: false
 
-    # OIDC / SSO Authentication (Keycloak)
-    oidc_discovery_endpoint: "https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration"
-    oidc_client_id: "synapse"
-    oidc_client_secret: SYNAPSE_OIDC_SECRET_PLACEHOLDER
-    oidc_allow_existing_users: true
-    oidc_auto_redirect: true
-    oidc_skip_verification: false
-    oidc_provision_enabled: true
-    oidc_permit_explicit_sign_up: true
-    oidc_icon: "sso"
-    oidc_displayname_claims: ["displayname", "nickname", "name"]
+    # OIDC / SSO Authentication (Keycloak) - new provider list format
+    oidc_providers:
+      - idp_id: keycloak
+        idp_name: "Keycloak SSO"
+        idp_icon: "sso"
+        issuer: "https://keycloak.ebruno.fr/realms/platform"
+        client_id: "synapse"
+        client_secret: SYNAPSE_OIDC_SECRET_PLACEHOLDER
+        client_auth_method: client_secret_post
+        discover: true
+        skip_verification: false
+        user_mapping_provider:
+          module: synapse.handlers.oidc.JinjaOidcMappingProvider
+          config:
+            localpart_template: '${utf8email.local}'
+            displayname_template: "{{ given_name }} {{ family_name }}"
+            emails:
+              - '{{ email }}'
 
-    # User Attribute Mapping
-    oidc_username_from_auth_server: false
-    oidc_username_template: '${utf8email.local}'
-    oidc_email_required: true
+    # SSO settings (applies to all providers)
+    sso:
+      enable_username_in_pickle: true
 
     # Login (disable password login, enforce OIDC)
-    oauth_enabled: false
     experimental_enable_password_auth: false
 
     # Well-known discovery
@@ -81,8 +87,5 @@ data:
     max_upload_size: "50M"
     max_avatar_size: "10M"
 
-    # Metrics
-    enable_metrics: true
-
-    # DNS/Reputation (single node, no reputation needed)
+    # Require registration via SSO
     macaroon_retry_convert_seconds: 0
