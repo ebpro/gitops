@@ -21,8 +21,8 @@ spec:
       match: Host(`nexus.ebruno.fr`) && PathPrefix(`/oauth2/`)
       priority: 20
       services:
-        - name: oauth2-proxy-external
-          port: 4180
+        - name: oauth2-proxy-lb
+          kind: TraefikService
     - kind: Rule
       match: Host(`nexus.ebruno.fr`) && !PathPrefix(`/oauth2/`)
       priority: 10
