@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: oauth2proxy-ingress
+  namespace: oauth2-proxy
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`oauth2proxy.ebruno.fr`)
+      services:
+        - name: oauth2-proxy
+          port: 4180
+  tls:
+    certResolver: letsencrypt-ovh
