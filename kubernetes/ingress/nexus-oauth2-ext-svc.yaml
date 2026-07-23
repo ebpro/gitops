@@ -4,6 +4,8 @@ metadata:
   name: oauth2-proxy-public
   namespace: nexus
 spec:
+  selector:
+    app: oauth2-proxy-forward
   ports:
     - port: 4180
       name: http
