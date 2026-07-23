@@ -46,19 +46,13 @@ spec:
             - --set-authorization-header
             - --pass-access-token
             - --whitelist-domain=*
-            - --reverse-proxy
-            - --ssl-upstream-insecure-skip-verify
-            - --cookie-refresh=1m
-            - --redirect-url=https://nexus.ebruno.fr/oauth2/callback
             - --redirect-url=https://sonarqube.ebruno.fr/oauth2/callback
-            - --redirect-url=https://plane.ebruno.fr/oauth2/callback
-            - --redirect-url=https://pactbroker.ebruno.fr/oauth2/callback
             - --skip-auth-route=/ready
             - --skip-auth-route=/healthz
             - --skip-auth-route=/healthcheck
           env:
             - name: OAUTH2_PROXY_CLIENT_ID
-              value: proxy
+              value: oauth2-proxy
             - name: OAUTH2_PROXY_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
