@@ -46,7 +46,6 @@ spec:
             - --cookie-domain=.ebruno.fr
             - --set-authorization-header
             - --pass-access-token
-            - --set-xauthrequest
             - --whitelist-domain=*
             - --skip-auth-route=/ready
             - --skip-auth-route=/healthz
