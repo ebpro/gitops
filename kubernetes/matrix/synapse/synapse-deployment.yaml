@@ -20,7 +20,7 @@ spec:
   template:
     metadata:
       annotations:
-        synapse-image-hash: "87ab3"
+        synapse-image-hash: "45d1347"
       labels:
         app: synapse
     spec:
