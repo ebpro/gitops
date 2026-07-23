@@ -47,7 +47,7 @@ spec:
             - --cookie-domain=.ebruno.fr
             - --set-authorization-header
             - --pass-access-token
-            - --whitelist-domain=*
+            - --whitelist-domain=.ebruno.fr
             - --ssl-upstream-insecure-skip-verify
             - --cookie-refresh=1m
             - --redirect-url=https://nexus.ebruno.fr/oauth2/callback
