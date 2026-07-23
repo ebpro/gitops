@@ -19,8 +19,6 @@ spec:
   routes:
     - kind: Rule
       match: Host(`nexus.ebruno.fr`) && PathPrefix(`/oauth2/`)
-      middlewares:
-        - name: oauth2-prefix-stripprefix
       services:
         - name: oauth2-proxy
           namespace: oauth2-proxy
