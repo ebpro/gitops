@@ -10,7 +10,7 @@ alloy:
         role = "pod"
       }
 
-      discovery.relabel "log-pods" {
+      discovery.relabel "logs_pods" {
         targets = discovery.kubernetes.pods.targets
 
         rule {
@@ -55,7 +55,7 @@ alloy:
         }
       }
 
-      discovery.relabel "metrics-pods" {
+      discovery.relabel "metrics_pods" {
         targets = discovery.kubernetes.pods.targets
 
         rule {
@@ -92,7 +92,7 @@ alloy:
       }
 
       loki.source.file "pods" {
-        targets    = discovery.relabel.log-pods.output
+        targets    = discovery.relabel.logs_pods.output
         forward_to = [loki.process.pods.receiver]
         charset    = "utf-8"
       }
@@ -136,7 +136,7 @@ alloy:
       }
 
       prometheus.scrape "alloy" {
-        targets    = discovery.relabel.metrics-pods.output
+        targets    = discovery.relabel.metrics_pods.output
         forward_to = [prometheus.remote_write.prometheus.receiver]
       }
 
@@ -171,7 +171,6 @@ alloy:
         }
         send_batch_size     = 512
         send_batch_max_size = 1024
-        timeout             = 5s
       }
 
       otelcol.exporter.otlp "tempo" {
