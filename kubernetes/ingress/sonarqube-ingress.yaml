@@ -12,11 +12,11 @@ spec:
       match: Host(`sonarqube.ebruno.fr`) && PathPrefix(`/oauth2/`)
       priority: 20
       services:
-        - name: oauth2-proxy
-          namespace: oauth2-proxy
+        - name: oauth2-proxy-lb
           port: 4180
     - kind: Rule
-      match: Host(`sonarqube.ebruno.fr`) && !PathPrefix(`/oauth2/`)
+      match: Host(`sonarqube.ebruno.fr`)
+      priority: 10
       middlewares:
         - name: fwd-auth
       services:
