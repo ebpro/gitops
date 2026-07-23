@@ -48,7 +48,7 @@ spec:
             - --pass-access-token
             - --whitelist-domain=*
             - --set-xauthrequest
-            - --reverse-proxy-compat
+            - --reverse-proxy
             - --skip-auth-route=/ready
             - --skip-auth-route=/healthz
           env:
