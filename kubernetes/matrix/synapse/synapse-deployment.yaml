@@ -40,9 +40,11 @@ spec:
         - name: synapse-db-secret
           secret:
             secretName: matrix-db-superuser
+            defaultMode: 420
         - name: synapse-oidc-secret
           secret:
             secretName: synapse-oidc-secret
+            defaultMode: 420
       containers:
         - name: synapse
           image: ghcr.io/element-hq/synapse:latest
@@ -182,7 +184,9 @@ spec:
             - name: synapse-data
               mountPath: /data
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: synapse-data
       spec:
         accessModes: ["ReadWriteOnce"]
