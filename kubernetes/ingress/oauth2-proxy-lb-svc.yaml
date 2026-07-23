@@ -4,9 +4,8 @@ metadata:
   name: oauth2-proxy-lb
   namespace: sonarqube
 spec:
+  type: ExternalName
+  externalName: oauth2-proxy.oauth2-proxy.svc.cluster.local
   ports:
     - name: http
       port: 4180
-      targetPort: 4180
-  selector:
-    app: oauth2-proxy
