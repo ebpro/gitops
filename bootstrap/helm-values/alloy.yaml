@@ -112,13 +112,9 @@ alloy:
           }
         }
 
-        stage.regex {
-          expression = "(?P<level>(info|warn|error|debug))"
-        }
-
         stage.timestamp {
           source  = "ts"
-          format  = "RFC3339Nano"
+          format  = "UNIX"
         }
 
         forward_to = [loki.write.default.receiver]
