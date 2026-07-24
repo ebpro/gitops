@@ -18,3 +18,4 @@ spec:
       - Host
       - X-Forwarded-Host
       - X-Forwarded-Proto
+      - Cookie
