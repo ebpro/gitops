@@ -58,7 +58,7 @@ extraEnv: |
   - name: KC_HOSTNAME
     value: "keycloak.ebruno.fr"
   - name: KC_HOSTNAME_STRICT_HTTPS
-    value: "true"
+    value: "false"
   - name: KC_HEALTH_ENABLED
     value: "true"
   - name: KC_METRICS_ENABLED
