@@ -10,4 +10,4 @@ spec:
       protocol: TCP
   selector:
     cnpg.io/cluster: link-shortener-db
-    cnpg.io/podRole: primary
+    cnpg.io/instanceRole: primary
