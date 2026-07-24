@@ -10,6 +10,7 @@ declare -A NS=(
   [external-secrets]=external-secrets
   [nfs-client]=nfs-client
   [vault]=vault
+  [woodpecker]=ci
 )
 
 # Default namespace fallback
@@ -33,6 +34,7 @@ charts=(
   external-secrets
   kube-prometheus
   loki
+  woodpecker
 )
 
 for app in "${charts[@]}"; do

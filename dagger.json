@@ -1,0 +1,6 @@
+{
+  "name": "platform-ci",
+  "engineVersion": "v0.14.3",
+  "sdk": "python",
+  "description": "Platform CI/CD pipeline definitions for Woodpecker CI"
+}

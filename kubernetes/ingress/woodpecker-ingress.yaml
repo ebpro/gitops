@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: woodpecker
+  namespace: ci
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: woodpecker.ebruno.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: woodpecker-server
+                port:
+                  number: 80
+  tls:
+    - hosts:
+      - woodpecker.ebruno.fr

@@ -1,0 +1,212 @@
+# Woodpecker CI - values for K3s K3s
+# Chart: https://github.com/woodpecker-ci/helm/tree/main/charts/woodpecker
+# Docs: https://woodpecker-ci.org/docs/
+
+nameOverride: "woodpecker"
+fullnameOverride: "woodpecker"
+
+# ─── Server ─────────────────────────────────────────────
+server:
+  enabled: true
+  image:
+    repository: ghcr.io/woodpecker-ci/woodpecker
+    tag: "2.8.0"
+    pullPolicy: IfNotPresent
+
+  serviceAccount:
+    create: true
+
+  resources:
+    limits:
+      memory: 1Gi
+      cpu: "1"
+    requests:
+      memory: 512Mi
+      cpu: 250m
+
+  configMap:
+    create: true
+    data:
+      WOODPECKER_ADMIN: "bruno,ci-runner"
+      WOODPECKER_HOST: "https://woodpecker.ebruno.fr"
+      # Database: external CNPG
+      WOODPECKER_DATABASE_DRIVER: "postgres"
+      WOODPECKER_DATABASE_HOST: "woodpecker-postgresql.ci.svc.cluster.local"
+      WOODPECKER_DATABASE_PORT: "5432"
+      WOODPECKER_DATABASE_NAME: "woodpecker"
+      WOODPECKER_DATABASE_SSLMODE: "disable"
+      # Logging
+      WOODPECKER_LOG_LEVEL: "debug"
+      WOODPECKER_LOG_FORMAT: "text"
+
+  # Signing key + agent token generated on first run
+  secret:
+    create: true
+
+  env:
+    - name: WOODPECKER_DATABASE_USER
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-db-superuser
+          key: username
+    - name: WOODPECKER_DATABASE_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-db-superuser
+          key: password
+    # OIDC (Keycloak)
+    - name: WOODPECKER_OPENID
+      value: "true"
+    - name: WOODPECKER_OPENID_CONFIG
+      value: "oidc"
+    - name: WOODPECKER_OPENID_ISSUER
+      value: "https://keycloak.ebruno.fr/realms/platform"
+    - name: WOODPECKER_OPENID_CLIENT
+      value: "woodpecker"
+    - name: WOODPECKER_OPENID_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-oidc-secret
+          key: WOODPECKER_OAUTH_CLIENT_SECRET
+    - name: WOODPECKER_OPENID_SCOPES
+      value: "openid profile email groups"
+
+  service:
+    main:
+      type: ClusterIP
+      port: 80
+
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 15
+
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 5
+    failureThreshold: 30
+
+# ─── Executor ─────────────────────────────────────────────
+executor:
+  enabled: true
+  image:
+    repository: ghcr.io/woodpecker-ci/woodpecker
+    tag: "2.8.0"
+    pullPolicy: IfNotPresent
+
+  serviceAccount:
+    create: true
+
+  configMap:
+    create: true
+    data:
+      # Gitea forge
+      WOODPECKER_FORGE_TYPE: "gitea"
+      WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
+      WOODPECKER_GITEA_SKIP_VERIFY: "false"
+      WOODPECKER_FORGE_HOST: "gitea.ebruno.fr"
+      # Git settings
+      WOODPECKER_DEFAULT_IMAGE: "alpine:3.21"
+      WOODPECKER_STEP_DEBUG: "false"
+      WOODPECKER_STEP_TRAFFIC_PROXY: "true"
+      WOODPECKER_STEP_DOCKER_HOST: "tcp://localhost:2375"
+      WOODPECKER_STEP_DOCKER_NETWORK: "bridge"
+      # OpenID
+      WOODPECKER_OPENID: "true"
+      WOODPECKER_OPENID_CONFIG: "oidc"
+      WOODPECKER_OPENID_ISSUER: "https://keycloak.ebruno.fr/realms/platform"
+      WOODPECKER_OPENID_CLIENT: "woodpecker"
+      WOODPECKER_OPENID_SCOPES: "openid profile email groups"
+
+  env:
+    - name: WOODPECKER_OPENID_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-oidc-secret
+          key: WOODPECKER_OAUTH_CLIENT_SECRET
+
+  resources:
+    limits:
+      memory: 2Gi
+      cpu: "2"
+    requests:
+      memory: 1Gi
+      cpu: 500m
+
+  podTemplates:
+    - name: default
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        allowPrivilegeEscalation: true
+      containerResources:
+        requests:
+          memory: "256Mi"
+          cpu: "200m"
+        limits:
+          memory: "1Gi"
+          cpu: "1"
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "200m"
+        limits:
+          memory: "1Gi"
+          cpu: "1"
+      envVars:
+        - DOCKER_HOST: "tcp://localhost:2375"
+        - DOCKER_TLS_CERTDIR: ""
+        - WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
+      sideCars:
+        - name: docker
+          image: "docker:dind-rootless"
+          imagePullPolicy: IfNotPresent
+          command: ["dockerd-entrypoint.sh"]
+          args: ["--storage-driver=vfs"]
+          securityContext:
+            privileged: true
+            runAsUser: 0
+            allowPrivilegeEscalation: true
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "200m"
+            limits:
+              memory: "2Gi"
+              cpu: "2"
+
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 5
+    failureThreshold: 30
+
+# ─── Global ────────────────────────────────────────────
+imagePullSecrets:
+  - name: harbor-registry-secret

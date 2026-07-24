@@ -42,4 +42,5 @@ schedules:
         - apicurio
         - vault
         - external-secrets
+        - ci
       ttl: 168h

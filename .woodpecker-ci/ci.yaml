@@ -1,0 +1,57 @@
+# Woodpecker CI pipeline for GitOps repository
+# Run when .woodpecker.yaml is committed to main or pushed to PR branch
+
+when:
+  branch: main
+
+# ─── YAML Lint + K8s Manifest Validation ────────────────
+steps:
+  lint-yaml:
+    image: docker.io/mumats/yamllint:latest
+    commands:
+      - yamllint -d relaxed bootstrap/ helm/releases/ kubernetes/
+    when:
+      event: [push, pull_request]
+
+  validate-k8s:
+    image: docker.io/instrumenta/kubeval:latest
+    commands:
+      - kubeval --strict --force-color $(find kubernetes/ -name '*.yaml')
+      - kubeval --strict --force-color bootstrap/appset-*.yaml
+    when:
+      event: [push, pull_request]
+
+  validate-helm-lint:
+    image: alpine/helm:latest
+    commands:
+      - for dir in helm/releases/*/; do helm lint "$dir"; done
+    when:
+      event: [push, pull_request]
+
+# ─── Image Security Scan (Trivy) ─────────────────────────
+  scan-helm-dependencies:
+    image: docker.io/aquasec/trivy:latest
+    commands:
+      - trivy config --severity HIGH,CRITICAL --exit-code 1 bootstrap/
+      - trivy config --severity HIGH,CRITICAL --exit-code 1 kubernetes/
+    when:
+      event: [push, pull_request]
+
+# ─── Keycloak Realm Validation ─────────────────────────────
+  validate-realm:
+    image: python:3.11-slim
+    commands:
+      - pip install pyyaml
+      - python3 -c "
+import yaml, json
+with open('kubernetes/keycloak-realm/platform-realm-configmap.yaml') as f:
+    cm = yaml.safe_load(f)
+realm = json.loads(cm['data']['platform.json'])
+print(f'Realm validated: {len(realm[\"clients\"])} clients, realm={realm[\"realm\"]}')
+for c in realm['clients']:
+    assert 'clientId' in c, f'Missing clientId in client {c}'
+    assert 'redirectUris' in c, f'Missing redirectUris for {c[\"clientId\"]}'
+print('All clients have required fields')
+"
+    when:
+      event: [push, pull_request]

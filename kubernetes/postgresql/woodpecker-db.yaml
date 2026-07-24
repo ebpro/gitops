@@ -1,0 +1,25 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: woodpecker-db
+  namespace: ci
+spec:
+  instances: 1
+  storage:
+    size: 10Gi
+    storageClass: local-path
+  bootstrap:
+    initdb:
+      database: woodpecker
+      owner: woodpecker
+  postgresql:
+    parameters:
+      max_connections: "200"
+  enableSuperuserAccess: true
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
