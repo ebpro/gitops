@@ -191,11 +191,15 @@ alloy:
   mounts:
     dockercontainers: true
     varlog: true
+  volumes:
     extra:
       - name: k3slogs
-        hostPath: /var/lib/rancher/k3s/data/logs
-        mountPath: /var/lib/rancher/k3s/data/logs
-        readOnly: true
+        hostPath:
+          path: /var/lib/rancher/k3s/data/logs
+  extraVolumeMounts:
+    - name: k3slogs
+      mountPath: /var/lib/rancher/k3s/data/logs
+      readOnly: true
   extraPorts:
     - name: otlp-http
       port: 4318
@@ -204,10 +208,6 @@ alloy:
     - name: otlp-grpc
       port: 4317
       targetPort: 4317
-      protocol: TCP
-    - name: prometheus
-      port: 12345
-      targetPort: 12345
       protocol: TCP
   resources:
     limits:
