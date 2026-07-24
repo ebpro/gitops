@@ -130,7 +130,7 @@ alloy:
       otelcol.receiver.otlp "default" {
         output {
           traces  = [otelcol.processor.batch.traces.input]
-          metrics = [otelcol.exporter.prometheus.alloy_metrics.input]
+          metrics = [otelcol.exporter.prometheusremotewrite.alloy_metrics.input]
         }
 
         http {
@@ -159,7 +159,14 @@ alloy:
         }
       }
 
-      otelcol.exporter.prometheus "alloy_metrics" {}
+      otelcol.exporter.prometheusremotewrite "alloy_metrics" {
+        endpoint {
+          url = "http://prometheus.kite-prometheus.svc.cluster.local:9090/api/v1/write"
+        }
+        resource_to_telemetry_conversion {
+          enabled = true
+        }
+      }
     create: true
   mounts:
     dockercontainers: true
