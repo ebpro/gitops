@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: build-backstage-grafana-trivy-argocd
+  name: build-backstage-plugins-v2
   namespace: backstage
 spec:
   template:
