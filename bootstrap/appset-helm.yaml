@@ -13,6 +13,7 @@ spec:
         chart: alloy
         namespace: alloy
         releaseName: alloy
+        repoURL: https://grafana.github.io/helm-charts
         version: 1.11.0
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/alloy.yaml?v=5
