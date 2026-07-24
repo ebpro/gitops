@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: link-shortener-db-primary
+  namespace: link-shortener
+spec:
+  ports:
+    - name: postgresql
+      port: 5432
+      protocol: TCP
+  selector:
+    cnpg.io/cluster: link-shortener-db
+    cnpg.io/podRole: primary
