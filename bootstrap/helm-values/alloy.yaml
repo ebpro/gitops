@@ -94,7 +94,6 @@ alloy:
       loki.source.file "pods" {
         targets    = discovery.relabel.logs_pods.output
         forward_to = [loki.process.pods.receiver]
-        charset    = "utf-8"
       }
 
       loki.process "pods" {
@@ -119,7 +118,6 @@ alloy:
 
         stage.timestamp {
           source = "ts"
-          formats = ["RFC3339Nano", "%Y-%m-%dT%H:%M:%S.%LZ"]
         }
 
         forward_to = [loki.write.default.receiver]
@@ -152,16 +150,18 @@ alloy:
           metrics = [otelcol.exporter.prometheus.alloy_metrics.input]
         }
 
-        tls {
-          enabled = false
-        }
-
         http {
           endpoint = "0.0.0.0:4318"
+          tls {
+            enabled = false
+          }
         }
 
         grpc {
           endpoint = "0.0.0.0:4317"
+          tls {
+            enabled = false
+          }
         }
       }
 
