@@ -117,7 +117,8 @@ alloy:
         }
 
         stage.timestamp {
-          source = "ts"
+          source  = "ts"
+          format  = "RFC3339Nano"
         }
 
         forward_to = [loki.write.default.receiver]
@@ -152,16 +153,10 @@ alloy:
 
         http {
           endpoint = "0.0.0.0:4318"
-          tls {
-            enabled = false
-          }
         }
 
         grpc {
           endpoint = "0.0.0.0:4317"
-          tls {
-            enabled = false
-          }
         }
       }
 
