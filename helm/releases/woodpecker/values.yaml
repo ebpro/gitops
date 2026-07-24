@@ -38,7 +38,7 @@ server:
 
   # Inject DB creds and OIDC secret from ExternalSecrets
   extraSecretNamesForEnvFrom:
-    - woodpecker-db-superuser
+    - woodpecker-db-app
     - woodpecker-oidc-secret
 
   serviceAccount:
