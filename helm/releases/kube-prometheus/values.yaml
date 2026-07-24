@@ -89,6 +89,9 @@ grafana:
       secretName: grafana-oidc-secrets
       readOnly: true
   grafana.ini:
+    server.domain: grafana.ebruno.fr
+    server.root_url: https://grafana.ebruno.fr
+    server.serve_from_sub_path: true
     auth.generic_oauth:
       allow_sign_up: true
       allowed_groups: platform-admins,platform-engineers,developers,security-team,qa-team,readonly
@@ -104,7 +107,7 @@ grafana:
       token_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
     security:
       cookie_secure: true
-      cookie_samesite: lob
+      cookie_samesite: lax
     log:
       mode: console
       level: warn
