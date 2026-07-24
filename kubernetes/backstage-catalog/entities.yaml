@@ -1,0 +1,196 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: keycloak
+  description: Keycloak SSO Provider - Central identity management
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/keycloak/keycloak
+    backstage.io/kubernetes-id: keycloak
+    backstage.io/techdocs-ref: dir:.
+    argocd/app-name: keycloak
+spec:
+  type: service
+  owner: platform-admins
+  lifecycle: production
+  system: platform-identity
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: vault
+  description: HashiCorp Vault - Secrets management
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/vault/vault
+    backstage.io/kubernetes-id: vault
+    argocd/app-name: vault
+spec:
+  type: service
+  owner: platform-admins
+  lifecycle: production
+  system: platform-secrets
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: argocd
+  description: ArgoCD - GitOps continuous delivery
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/argocd/argocd
+    backstage.io/kubernetes-id: argocd
+    argocd/app-name: gitops-platform
+spec:
+  type: service
+  owner: platform-admins
+  lifecycle: production
+  system: platform-gitops
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: sonarqube
+  description: SonarQube - Code quality and security analysis
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/sonarqube/sonarqube
+    backstage.io/kubernetes-id: sonarqube
+    sonarqube-project-key: sonarqube
+    argocd/app-name: sonarqube
+spec:
+  type: service
+  owner: developers
+  lifecycle: production
+  system: platform-devtools
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: nexus
+  description: Nexus Repository - Artifact management
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/nexus/nexus
+    backstage.io/kubernetes-id: nexus
+    argocd/app-name: nexus
+spec:
+  type: service
+  owner: platform-engineers
+  lifecycle: production
+  system: platform-artifacts
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: plane
+  description: Plane - Project management and tracking
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/plane/plane
+    backstage.io/kubernetes-id: plane
+    argocd/app-name: plane
+spec:
+  type: service
+  owner: developers
+  lifecycle: production
+  system: platform-devtools
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: harbor
+  description: Harbor - Container image registry
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/harbor/harbor
+    backstage.io/kubernetes-id: harbor
+    argocd/app-name: harbor
+spec:
+  type: service
+  owner: platform-engineers
+  lifecycle: production
+  system: platform-artifacts
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: gitea
+  description: Gitea - Git repository service
+  annotations:
+    backstage.io/kubernetes-id: gitea
+    argocd/app-name: gitea
+spec:
+  type: service
+  owner: platform-engineers
+  lifecycle: production
+  system: platform-devtools
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: prometheus
+  description: Prometheus - Metrics collection and alerting
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/prometheus/prometheus
+    backstage.io/kubernetes-id: kube-prometheus
+    argocd/app-name: kube-prometheus
+spec:
+  type: service
+  owner: platform-admins
+  lifecycle: production
+  system: platform-observability
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: loki
+  description: Loki - Log aggregation
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/loki/loki
+    backstage.io/kubernetes-id: loki
+    argocd/app-name: loki
+spec:
+  type: service
+  owner: platform-admins
+  lifecycle: production
+  system: platform-observability
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: tempo
+  description: Tempo - Distributed tracing
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/tempo/tempo
+    backstage.io/kubernetes-id: tempo
+    argocd/app-name: tempo
+spec:
+  type: service
+  owner: platform-admins
+  lifecycle: production
+  system: platform-observability
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: alloy
+  description: Alloy (Golang OpenTelemetry Collector) - Logs collection
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/alloy/alloy
+    backstage.io/kubernetes-id: alloy
+    argocd/app-name: alloy
+spec:
+  type: service
+  owner: platform-admins
+  lifecycle: production
+  system: platform-observability
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: postgresql
+  description: CloudNativePG - PostgreSQL database clusters
+  annotations:
+    grafana/dashboard: https://grafana.ebruno.fr/d/cnpg/cnpg-cluster
+    backstage.io/kubernetes-id: cnpg-system
+    argocd/app-name: cloudnative-pg
+spec:
+  type: database
+  owner: platform-engineers
+  lifecycle: production
+  system: platform-data

@@ -57,7 +57,7 @@ backstage:
            name: backstage-secrets
            key: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
 
-     - name: GRAFANA_API_KEY
+    - name: GRAFANA_API_KEY
        valueFrom:
          secretKeyRef:
            name: backstage-grafana-api-token
@@ -160,6 +160,15 @@ extraDeploy:
                     - System
                     - Domain
                     - Template
+            - type: url
+              target: https://raw.githubusercontent.com/ebpro/gitops/main/kubernetes/backstage-catalog/entities.yaml
+              rules:
+                - allow:
+                  - kinds:
+                    - Component
+                    - Resource
+                    - System
+                    - Domain
 
         scaffolder:
           backend:
@@ -195,6 +204,7 @@ extraDeploy:
         argocd:
           ui:
             baseUrl: https://argocd.ebruno.fr
+            ignorePlatformsMissing: true
           backend:
             baseUrl: https://argocd.ebruno.fr/api/v1
 
@@ -220,11 +230,3 @@ extraDeploy:
           baseUrl: https://trivy-operator.trivy-system.svc.cluster.local:8080
           ignorePendingWithoutScan: true
           useAppWrapping: false
-
-        argocd:
-          ui:
-            baseUrl: https://argocd.ebruno.fr
-            ignorePlatformsMissing: true
-          backend:
-            baseUrl: https://argocd.ebruno.fr/api/v1
-            token: ${ARGOCD_AUTH_TOKEN}
