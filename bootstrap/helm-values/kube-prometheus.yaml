@@ -102,9 +102,22 @@ grafana:
       role_attribute_path: contains(groups,"platform-admins") && "Admin" || contains(groups,"readonly") && "Viewer" || "Editor"
       scopes: openid profile email groups
       token_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
+    auth.basic:
+       disable_login_form: false
+    analytics:
+       check_for_updates: false
+       reporting_enabled: false
+    unifiedAlerting:
+       enabled: true
+    explore:
+       enabled: true
+    trace:
+       enabled: true
+    trace.legacy:
+       attributes.datasource: 'Prometheus'
     security:
-      cookie_secure: true
-      cookie_samesite: lax
+       cookie_secure: true
+       cookie_samesite: lax
     server:
       domain: grafana.ebruno.fr
       root_url: https://grafana.ebruno.fr
@@ -112,10 +125,7 @@ grafana:
     log:
       mode: console
       level: warn
-    analytics:
-      check_for_updates: false
-      reporting_enabled: false
-  ingress:
+   ingress:
     enabled: false
   persistence:
     enabled: true
@@ -217,11 +227,7 @@ grafana:
         datasource:
           __expr: "Prometheus"
         # folder: Observability
-  downloadDashboards:
-    "1860/prometheus":
-      datasource: Prometheus
-    "15756/kubernetes":
-      datasource: Prometheus
+  downloadDashboards: {}
   securityContext:
     fsGroup: 472
     runAsUser: 472
