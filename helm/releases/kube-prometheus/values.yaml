@@ -105,15 +105,23 @@ grafana:
       role_attribute_path: contains(groups,"platform-admins") && "Admin" || contains(groups,"readonly") && "Viewer" || "Editor"
       scopes: openid profile email groups
       token_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
-    security:
-      cookie_secure: true
-      cookie_samesite: lax
-    log:
-      mode: console
-      level: warn
-    analytics:
-      check_for_updates: false
-      reporting_enabled: false
+     security:
+       cookie_secure: true
+       cookie_samesite: lax
+     log:
+       mode: console
+       level: warn
+     analytics:
+       check_for_updates: false
+       reporting_enabled: false
+     unifiedAlerting:
+       enabled: true
+     explore:
+       enabled: true
+     trace:
+       enabled: true
+     trace.legacy:
+       attributes.datasource: 'Prometheus'
   ingress:
     enabled: false
   persistence:
@@ -215,12 +223,82 @@ grafana:
         revision: 19
         datasource:
           __expr: "Prometheus"
-        # folder: Observability
-  downloadDashboards:
-    "1860/prometheus":
-      datasource: Prometheus
-    "15756/kubernetes":
-      datasource: Prometheus
+    argocd:
+      argocd:
+        gnetId: 7507
+        revision: 4
+        datasource:
+          __expr: "Prometheus"
+    traefik:
+      traefik:
+        gnetId: 22567
+        revision: 1
+        datasource:
+          __expr: "Prometheus"
+    cnpg:
+      cnpg-cluster:
+        gnetId: 19869
+        revision: 1
+        datasource:
+          __expr: "Prometheus"
+    prometheus:
+      prometheus:
+        gnetId: 3662
+        revision: 34
+        datasource:
+          __expr: "Prometheus"
+      prometheus-advanced:
+        gnetId: 19109
+        revision: 7
+        datasource:
+          __expr: "Prometheus"
+    alertmanager:
+      alertmanager:
+        gnetId: 10220
+        revision: 5
+        datasource:
+          __expr: "Prometheus"
+    loki:
+      loki:
+        gnetId: 30251
+        revision: 1
+        datasource:
+          __expr: "Prometheus"
+    tempo:
+      tempo:
+        gnetId: 14284
+        revision: 3
+        datasource:
+          __expr: "Prometheus"
+    sonarqube:
+      sonarqube:
+        gnetId: 10145
+        revision: 1
+        datasource:
+          __expr: "Prometheus"
+   downloadDashboards:
+     "1860/prometheus":
+       datasource: Prometheus
+     "15756/kubernetes":
+       datasource: Prometheus
+     "7507/argocd":
+       datasource: Prometheus
+     "22567/traefik":
+       datasource: Prometheus
+     "19869/cnpg":
+       datasource: Prometheus
+     "3662/prometheus":
+       datasource: Prometheus
+     "19109/prometheus-advanced":
+       datasource: Prometheus
+     "10220/alertmanager":
+       datasource: Prometheus
+     "30251/loki":
+       datasource: Prometheus
+     "14284/tempo":
+       datasource: Prometheus
+     "10145/sonarqube":
+       datasource: Prometheus
   securityContext:
     fsGroup: 472
     runAsUser: 472

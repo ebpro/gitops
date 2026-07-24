@@ -11,6 +11,9 @@ data:
 
         RUN cd /app && \
             yarn add @backstage/plugin-auth-backend-module-oidc-provider --mode=skip-build && \
+            yarn add @backstage/plugin-grafana @backstage/plugin-grafana-backend @backstage/plugin-grafana-backend-module-datadog --mode=skip-build && \
+            yarn add @backstage/plugin-trivy @backstage/plugin-trivy-backend --mode=skip-build && \
+            yarn add @backstage/plugin-argocd @backstage/plugin-argocd-backend --mode=skip-build && \
             sed -i "/plugin-auth-backend-module-guest-provider/a backend.add(import('@backstage\/plugin-auth-backend-module-oidc-provider'));" /app/packages/backend/dist/index.cjs.js && \
             chown -R 1001:1001 /app
 
