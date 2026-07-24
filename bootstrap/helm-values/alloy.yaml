@@ -97,17 +97,10 @@ alloy:
       }
 
       loki.process "pods" {
-        stage.json {}
-
         stage.labels {
           values = {
             cluster = "compute-lsis-2",
           }
-        }
-
-        stage.timestamp {
-          source  = "ts"
-          format  = "RFC3339Nano"
         }
 
         forward_to = [loki.write.default.receiver]
