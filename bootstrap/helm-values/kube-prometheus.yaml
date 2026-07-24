@@ -102,8 +102,6 @@ grafana:
       role_attribute_path: contains(groups,"platform-admins") && "Admin" || contains(groups,"readonly") && "Viewer" || "Editor"
       scopes: openid profile email groups
       token_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
-    auth.basic:
-       disable_login_form: false
     analytics:
        check_for_updates: false
        reporting_enabled: false
