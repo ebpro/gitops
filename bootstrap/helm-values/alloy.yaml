@@ -159,11 +159,7 @@ alloy:
         }
       }
 
-      otelcol.exporter.prometheus "alloy_metrics" {
-        resource_to_telemetry_conversion {
-          enabled = true
-        }
-      }
+      otelcol.exporter.prometheus "alloy_metrics" {}
     create: true
   mounts:
     dockercontainers: true
