@@ -111,9 +111,7 @@ grafana:
      log:
        mode: console
        level: warn
-     auth.basic:
-       disable_login_form: false
-    analytics:
+     analytics:
        check_for_updates: false
        reporting_enabled: false
      unifiedAlerting:

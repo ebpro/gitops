@@ -25,7 +25,11 @@ server:
     WOODPECKER_HOST: "https://woodpecker.ebruno.fr"
     # Database: external CNPG
     WOODPECKER_DATABASE_DRIVER: "postgres"
-    WOODPECKER_DATABASE_DATASOURCE: "sslmode=disable host=woodpecker-postgresql.ci.svc.cluster.local port=5432 dbname=woodpecker user=woodpecker"
+    WOODPECKER_DATABASE_DATASOURCE:
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-db-app
+          key: fqdn-uri
     # OIDC (Keycloak)
     WOODPECKER_OPEN_ID: "true"
     WOODPECKER_OPEN_ID_CONFIG: "oidc"
@@ -38,7 +42,6 @@ server:
 
   # Inject DB creds and OIDC secret from ExternalSecrets
   extraSecretNamesForEnvFrom:
-    - woodpecker-db-vault
     - woodpecker-oidc-secret
 
   serviceAccount:
