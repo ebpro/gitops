@@ -16,7 +16,7 @@ spec:
         repoURL: https://grafana.github.io/helm-charts
         version: 1.11.0
         syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/49b1fd0/bootstrap/helm-values/alloy.yaml
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/fe1899f/bootstrap/helm-values/alloy.yaml
       - app: argo-image-updater
         chart: argocd-image-updater
         namespace: argocd
