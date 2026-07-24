@@ -173,8 +173,8 @@ spec:
         chart: woodpecker
         namespace: ci
         releaseName: woodpecker
-        repoURL: https://woodpecker-ci.org/charts
-        version: 2.8.0
+        repoURL: https://woodpecker-ci.org/
+        version: 3.6.5
         syncWave: '25'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/woodpecker-values.yaml?v=1
 
