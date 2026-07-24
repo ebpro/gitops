@@ -278,29 +278,7 @@ grafana:
         revision: 1
         datasource:
           __expr: "Prometheus"
-   downloadDashboards:
-     "1860/prometheus":
-       datasource: Prometheus
-     "15756/kubernetes":
-       datasource: Prometheus
-     "7507/argocd":
-       datasource: Prometheus
-     "22567/traefik":
-       datasource: Prometheus
-     "19869/cnpg":
-       datasource: Prometheus
-     "3662/prometheus":
-       datasource: Prometheus
-     "19109/prometheus-advanced":
-       datasource: Prometheus
-     "10220/alertmanager":
-       datasource: Prometheus
-     "30251/loki":
-       datasource: Prometheus
-     "14284/tempo":
-       datasource: Prometheus
-     "10145/sonarqube":
-       datasource: Prometheus
+   downloadDashboards: {}
   securityContext:
     fsGroup: 472
     runAsUser: 472
