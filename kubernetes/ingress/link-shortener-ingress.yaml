@@ -1,0 +1,56 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: link-shortener-https-redirect
+  namespace: link-shortener
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: link-shortener-proxy-headers
+  namespace: link-shortener
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Proto: https
+      X-Forwarded-Host: link.ebruno.fr
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: link-shortener-redirect
+  namespace: link-shortener
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`link.ebruno.fr`)
+      kind: Rule
+      middlewares:
+        - name: link-shortener-https-redirect
+      services:
+        - name: link-shortener
+          port: 80
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: link-shortener-ingress
+  namespace: link-shortener
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`link.ebruno.fr`)
+      kind: Rule
+      middlewares:
+        - name: link-shortener-proxy-headers
+      services:
+        - name: link-shortener
+          port: 80
+  tls:
+    certResolver: letsencrypt-ovh
