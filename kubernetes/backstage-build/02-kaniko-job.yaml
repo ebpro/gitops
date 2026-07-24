@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: build-backstage-plugins-v2
+  name: build-backstage-plugins-v3
   namespace: backstage
 spec:
   template:

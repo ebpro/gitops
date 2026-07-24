@@ -213,6 +213,11 @@ extraDeploy:
         sonarqube:
           baseUrl: https://sonarqube.ebruno.fr
 
+        grafana:
+          dashboards:
+            - name: Backstage Dashboard
+              url: https://grafana.ebruno.fr
+
         argocd:
           ui:
             baseUrl: https://argocd.ebruno.fr
