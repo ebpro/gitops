@@ -85,3 +85,7 @@ spec:
       - /metadata/annotations
       jqPathExpressions:
       - .status
+    - group: ""
+      kind: PersistentVolumeClaim
+      jsonPointers:
+      - /spec/volumeName
