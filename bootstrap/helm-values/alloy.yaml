@@ -97,14 +97,7 @@ alloy:
       }
 
       loki.process "pods" {
-        stage.json {
-          expressions = {
-            ts      = ".ts",
-            level   = ".level",
-            caller  = ".caller",
-            msg     = ".msg",
-          }
-        }
+        stage.json {}
 
         stage.labels {
           values = {
@@ -114,7 +107,7 @@ alloy:
 
         stage.timestamp {
           source  = "ts"
-          format  = "UNIX"
+          format  = "RFC3339Nano"
         }
 
         forward_to = [loki.write.default.receiver]
