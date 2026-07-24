@@ -105,6 +105,10 @@ grafana:
     security:
       cookie_secure: true
       cookie_samesite: lob
+    server:
+      domain: grafana.ebruno.fr
+      root_url: https://grafana.ebruno.fr
+      serve_from_sub_path: true
     log:
       mode: console
       level: warn
