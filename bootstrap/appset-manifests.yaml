@@ -20,6 +20,7 @@ spec:
           - path: kubernetes/matrix/element
           - path: kubernetes/matrix/synapse
           - path: kubernetes/observability
+          - path: helm/apps
   template:
     metadata:
       name: '{{path.basename}}'

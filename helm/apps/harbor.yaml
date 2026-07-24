@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: harbor
+  namespace: argocd
+
+spec:
+  project: platform
+
+  source:
+    repoURL: https://charts.harbor.io
+    chart: harbor
+    targetRevision: latest
+    helm:
+      valueFiles:
+        - ../releases/harbor/values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

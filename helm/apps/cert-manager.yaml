@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: cert-manager
+  namespace: argocd
+
+spec:
+  project: platform
+
+  source:
+    repoURL: https://charts.cert-manager.io
+    chart: cert-manager
+    targetRevision: latest
+    helm:
+      valueFiles:
+        - ../releases/cert-manager/values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

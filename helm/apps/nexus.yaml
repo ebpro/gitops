@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: nexus
+  namespace: argocd
+
+spec:
+  project: platform
+
+  source:
+    repoURL: https://charts.nexus.io
+    chart: nexus
+    targetRevision: latest
+    helm:
+      valueFiles:
+        - ../releases/nexus/values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

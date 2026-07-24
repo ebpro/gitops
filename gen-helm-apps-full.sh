@@ -11,6 +11,8 @@ declare -A NS=(
   [nfs-client]=nfs-client
   [vault]=vault
   [woodpecker]=ci
+  [garage]=garage
+  [velero]=velero
 )
 
 # Default namespace fallback
