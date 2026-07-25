@@ -96,7 +96,7 @@ extraDeploy:
       name: backstage-custom-config
       namespace: backstage
       annotations:
-        updated: "2026-07-25-guest-auth-complete"
+        updated: "2026-07-26-guest-allow-outside-dev"
     data:
       app-config.production.yaml: |
         app:
@@ -174,7 +174,7 @@ extraDeploy:
           dangerouslyAllowExternalLoginByDefault: true
           providers:
             guest:
-              dangerouslyAllowInsecureLoginByDefault: true
+              dangerouslyAllowOutsideDevelopment: true
               enabled: true
 
         sonarqube:
