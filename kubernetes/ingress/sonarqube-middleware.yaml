@@ -5,7 +5,7 @@ metadata:
   namespace: sonarqube
 spec:
   forwardAuth:
-    address: http://oauth2-proxy.oauth2-proxy.svc.cluster.local:4180/oauth2/start?rd=https://sonarqube.ebruno.fr/
+    address: http://oauth2-proxy.oauth2-proxy.svc.cluster.local:4180/oauth2/auth
     trustForwardHeader: true
     authResponseHeaders:
       - X-Forwarded-User
@@ -17,4 +17,18 @@ spec:
       - X-Forwarded-Access-Token
       - X-Forwarded-Proto
       - Cookie
-    authResponseHeadersRegex: ".*"
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: oauth2-errors
+  namespace: sonarqube
+spec:
+  errors:
+    status:
+      - "401-403"
+    service:
+      name: oauth2-proxy
+      namespace: oauth2-proxy
+      port: 4180
+    query: "/oauth2/start?rd={url}"

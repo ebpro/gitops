@@ -19,6 +19,7 @@ spec:
       priority: 10
       middlewares:
         - name: fwd-auth
+        - name: oauth2-errors
       services:
         - name: sonarqube-sonarqube
           port: http
