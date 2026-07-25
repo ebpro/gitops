@@ -48,7 +48,7 @@ spec:
             - --set-authorization-header
             - --pass-access-token
             - --whitelist-domain=.ebruno.fr
-            - --redirect-url=https://oauth2-proxy.ebruno.fr/oauth2/callback
+            - --reverse-proxy=true
             - --skip-auth-route=/ready
             - --skip-auth-route=/healthz
             - --skip-auth-route=/healthcheck
