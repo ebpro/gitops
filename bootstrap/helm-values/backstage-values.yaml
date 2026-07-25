@@ -95,6 +95,8 @@ extraDeploy:
     metadata:
       name: backstage-custom-config
       namespace: backstage
+      annotations:
+        updated: "2026-07-25- reopening staging"
     data:
       app-config.production.yaml: |
         app:
