@@ -188,3 +188,47 @@ spec:
           configMap:
             name: keycloak-devops-realm-sync-script
             defaultMode: 0755
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-devops-realm-signing-fix
+  namespace: keycloak
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: kcadm-fix
+          image: quay.io/keycloak/keycloak:26.7.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              KCADM=/opt/keycloak/bin/kcadm.sh
+              $KCADM config credentials --server http://keycloak-http.keycloak.svc.cluster.local:80 --realm master --user admin --password "$KEYCLOAK_ADMIN_PASSWORD"
+              echo "Fixing WantAuthnRequestsSigned for devops realm..."
+              $KCADM update realms/devops -s wantAuthnRequestsSigned=true -r master --merge
+              echo "WantAuthnRequestsSigned set to true"
+              # Also verify the sonarqube and nexus SAML clients have signing enabled
+              CLIENT_ID_SQ=$($KCADM get clients -r devops -q clientId=sonarqube -o json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0]['id'] if d else '')")
+              if [ -n "$CLIENT_ID_SQ" ]; then
+                echo "Enabling saml.client.signature on sonarqube client..."
+                $KCADM update clients/"$CLIENT_ID_SQ" -r devops -s 'saml.client.signature=true' --merge
+              fi
+              CLIENT_ID_NX=$($KCADM get clients -r devops -q clientId=nexus -o json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0]['id'] if d else '')")
+              if [ -n "$CLIENT_ID_NX" ]; then
+                echo "Enabling saml.client.signature on nexus client..."
+                $KCADM update clients/"$CLIENT_ID_NX" -r devops -s 'saml.client.signature=true' --merge
+              fi
+              echo "Done."
+          env:
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: adminPassword
