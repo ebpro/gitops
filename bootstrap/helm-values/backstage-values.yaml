@@ -96,7 +96,7 @@ extraDeploy:
       name: backstage-custom-config
       namespace: backstage
       annotations:
-        updated: "2026-07-25-final-fix"
+        updated: "2026-07-25-guest-auth-complete"
     data:
       app-config.production.yaml: |
         app:
@@ -107,6 +107,9 @@ extraDeploy:
           baseUrl: https://backstage.ebruno.fr
           listen:
             port: 7007
+          reading:
+            allow:
+              - host: raw.githubusercontent.com
           auth:
             options:
               debug: false
@@ -170,8 +173,9 @@ extraDeploy:
         auth:
           dangerouslyAllowExternalLoginByDefault: true
           providers:
-            guest: {}
-
+            guest:
+              dangerouslyAllowInsecureLoginByDefault: true
+              enabled: true
 
         sonarqube:
           baseUrl: https://sonarqube.ebruno.fr
