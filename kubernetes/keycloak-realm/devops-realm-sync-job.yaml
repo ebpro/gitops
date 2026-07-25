@@ -225,18 +225,4 @@ spec:
                 secretKeyRef:
                   name: keycloak-secrets
                   key: adminPassword
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: keycloak
-  namespace: keycloak
-  annotations:
-    argocd.argoproj.io/hook: PostSync
-    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
-    keycloak-restart-at: "1756306800"
-spec:
-  template:
-    metadata:
-      annotations:
-        keycloak-restart-at: "1756306800"
+
