@@ -10,7 +10,7 @@ data:
     KCADM=/opt/keycloak/bin/kcadm.sh
 
     echo "Logging into Keycloak admin API..."
-    "$KCADM" config credentials --server http://keycloak.keycloak.svc.cluster.local:80 \
+    "$KCADM" config credentials --server http://keycloak-http.keycloak.svc.cluster.local:80 \
       --realm master --user admin --password "$KEYCLOAK_ADMIN_PASSWORD"
 
     echo "Ensuring realm 'devops' exists..."
