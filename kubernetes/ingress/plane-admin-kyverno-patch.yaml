@@ -3,6 +3,9 @@ kind: ClusterPolicy
 metadata:
   name: plane-admin-custom-nginx
 spec:
+  admission: true
+  background: true
+  emitWarning: false
   rules:
   - name: inject-nginx-fix
     match:
