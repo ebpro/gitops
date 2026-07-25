@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://charts.nfs-client.io
     chart: nfs-client
-    targetRevision: latest
+    targetRevision: 4.0.18
     helm:
       valueFiles:
         - ../releases/nfs-client/values.yaml
