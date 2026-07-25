@@ -134,7 +134,7 @@ data:
         "saml_single_logout_service_url_redirect": "https://sonarqube.ebruno.fr/",
         "saml.assertion.lifespan": "300"
       },
-      "redirectUris": ["https://sonarqube.ebruno.fr/oauth2/callback/saml"],
+      "redirectUris": ["https://sonarqube.ebruno.fr/*"],
       "adminUrl": "https://sonarqube.ebruno.fr/oauth2/callback/saml",
       "baseUrl": "https://sonarqube.ebruno.fr/"
     }
