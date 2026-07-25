@@ -17,3 +17,8 @@ microcks:
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
   ingressClassName: traefik
   url: microcks.ebruno.fr
+  grpcIngressClassName: traefik
+  grpcIngressAnnotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh

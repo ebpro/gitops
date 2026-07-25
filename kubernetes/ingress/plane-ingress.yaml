@@ -80,30 +80,3 @@ spec:
           port: 3000
   tls:
     certResolver: letsencrypt-ovh
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: plane-redirect
-  namespace: plane
-spec:
-  entryPoints:
-    - web
-  routes:
-    - kind: Rule
-      match: Host(`plane.ebruno.fr`)
-      middlewares:
-        - name: plane-https-redirect
-      services:
-        - name: plane-web
-          port: 3000
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: plane-https-redirect
-  namespace: plane
-spec:
-  redirectScheme:
-    scheme: https
-    permanent: true
