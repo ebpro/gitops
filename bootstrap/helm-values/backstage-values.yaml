@@ -197,7 +197,12 @@ extraDeploy:
           serviceLocatorMethod:
             type: multiTenant
           clusterLocatorMethods:
-            - type: inCluster
+            - type: config
+              clusters:
+                - url: https://kubernetes.default.svc
+                  name: local-cluster
+                  authProvider: serviceAccount
+                  skipTLSVerify: true
           skipConfigValidate: true
 
         techdocs:
