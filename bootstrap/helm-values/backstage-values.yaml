@@ -96,7 +96,7 @@ extraDeploy:
       name: backstage-custom-config
       namespace: backstage
       annotations:
-        updated: "2026-07-25-rend2 ${date +%s}"
+        updated: "2026-07-25-final-fix"
     data:
       app-config.production.yaml: |
         app:
