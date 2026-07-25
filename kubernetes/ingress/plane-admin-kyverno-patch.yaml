@@ -6,8 +6,10 @@ spec:
   admission: true
   background: true
   emitWarning: false
+  validationFailureAction: Audit
   rules:
   - name: inject-nginx-fix
+    skipBackgroundRequests: true
     match:
       any:
       - resources:
