@@ -82,6 +82,7 @@ command:
 
 args:
   - start
+  - --import-realm
 
 priorityClassName: ""
 
@@ -149,11 +150,17 @@ extraVolumes: |
   - name: realm-import
     configMap:
       name: platform-realm
+  - name: devops-realm-import
+    configMap:
+      name: devops-realm
 
 extraVolumeMounts: |
   - name: realm-import
     mountPath: /opt/keycloak/import/platform.json
     subPath: platform.json
+  - name: devops-realm-import
+    mountPath: /opt/keycloak/import/devops.json
+    subPath: devops.json
 
 extraPorts: []
 

@@ -89,39 +89,43 @@ grafana:
       secretName: grafana-oidc-secrets
       readOnly: true
   grafana.ini:
-    server.domain: grafana.ebruno.fr
-    server.root_url: https://grafana.ebruno.fr
-    server.serve_from_sub_path: true
-    auth.generic_oauth:
-      allow_sign_up: true
-      allowed_groups: platform-admins,platform-engineers,developers,security-team,qa-team,readonly
-      api_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/userinfo
-      auth_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth
-      client_id: grafana
-      client_secret: "$__file{/etc/grafana/secrets/CLIENT_SECRET_GRAFANA}"
-      enabled: true
-      login_attribute_path: email
-      name: Keycloak
-      role_attribute_path: contains(groups,"platform-admins") && "Admin" || contains(groups,"readonly") && "Viewer" || "Editor"
-      scopes: openid profile email groups
-      token_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
-     security:
-       cookie_secure: true
-       cookie_samesite: lax
-     log:
-       mode: console
-       level: warn
-     analytics:
-       check_for_updates: false
-       reporting_enabled: false
-     unifiedAlerting:
-       enabled: true
-     explore:
-       enabled: true
-     trace:
-       enabled: true
-     trace.legacy:
-       attributes.datasource: 'Prometheus'
+     server.domain: grafana.ebruno.fr
+     server.root_url: https://grafana.ebruno.fr
+      auth.generic_oauth:
+        allow_assign_grafana_admin: true
+        allow_sign_up: true
+        allowed_groups: platform-admins,platform-engineers,developers,security-team,qa-team,readonly
+        api_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/userinfo
+        auth_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth
+        client_id: grafana
+        client_secret: "$__file{/etc/grafana/secrets/CLIENT_SECRET_GRAFANA}"
+        enabled: true
+        login_attribute_path: email
+        name: Keycloak
+        name_attribute_path: full_name
+        redirect_uri: https://grafana.ebruno.fr/login/generic_oauth
+        role_attribute_path: contains(groups,"platform-admins") && "GrafanaAdmin" || contains(groups,"readonly") && "Viewer" || "Editor"
+        scopes: openid profile email groups offline_access
+        signout_redirect_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/logout?post_logout_redirect_uri=https%3A%2F%2Fgrafana.ebruno.fr%2Flogin
+        token_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
+        use_refresh_token: true
+      security:
+        cookie_secure: true
+        cookie_samesite: lax
+      log:
+        mode: console
+        level: warn
+      analytics:
+        check_for_updates: false
+        reporting_enabled: false
+      unifiedAlerting:
+        enabled: true
+      explore:
+        enabled: true
+      trace:
+        enabled: true
+      trace.legacy:
+        attributes.datasource: 'Prometheus'
   ingress:
     enabled: false
   persistence:

@@ -8,10 +8,10 @@ metadata:
 spec:
   project: platform
 
-    source:
-      repoURL: https://vmware-tanzu.github.io/helm-charts
-      chart: velero
-      targetRevision: latest
+  source:
+    repoURL: https://charts.velero.io
+    chart: velero
+    targetRevision: latest
     helm:
       valueFiles:
         - ../releases/velero/values.yaml

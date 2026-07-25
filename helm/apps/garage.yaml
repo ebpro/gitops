@@ -8,10 +8,10 @@ metadata:
 spec:
   project: platform
 
-    source:
-      repoURL: https://garagehq.github.io/garage-helm
-      chart: garage
-      targetRevision: latest
+  source:
+    repoURL: https://charts.garage.io
+    chart: garage
+    targetRevision: latest
     helm:
       valueFiles:
         - ../releases/garage/values.yaml
