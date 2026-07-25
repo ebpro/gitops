@@ -167,8 +167,7 @@ extraDeploy:
               type: pg
             defaultRemote: origin
 
-        auth:
-          dangerouslyAllowExternalLoginByDefault: true
+
 
         sonarqube:
           baseUrl: https://sonarqube.ebruno.fr
