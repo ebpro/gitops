@@ -48,9 +48,9 @@ spec:
             - --set-authorization-header
             - --pass-access-token
             - --whitelist-domain=.ebruno.fr
-             - --redirect-url=https://oauth2-proxy.ebruno.fr/oauth2/callback
-             - --redirect-url=https://nexus.ebruno.fr/oauth2/callback
-             - --redirect-url=https://sonarqube.ebruno.fr/oauth2/callback
+            - --redirect-url=https://oauth2-proxy.ebruno.fr/oauth2/callback
+            - --redirect-url=https://nexus.ebruno.fr/oauth2/callback
+            - --redirect-url=https://sonarqube.ebruno.fr/oauth2/callback
             - --skip-auth-route=/ready
             - --skip-auth-route=/healthz
             - --skip-auth-route=/healthcheck
