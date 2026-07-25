@@ -77,10 +77,10 @@ backstage:
            key: BACKSTAGE_KEYCLOAK_CLIENT_ID
 
      - name: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
-      valueFrom:
-        secretKeyRef:
-          name: backstage-secrets
-          key: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
+       valueFrom:
+         secretKeyRef:
+           name: backstage-secrets
+           key: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
 
   extraEnvVarsSecrets:
     - backstage-secrets
@@ -95,6 +95,8 @@ extraDeploy:
     metadata:
       name: backstage-custom-config
       namespace: backstage
+      annotations:
+        updated: "2026-07-25- reopening staging"
     data:
       app-config.production.yaml: |
         app:

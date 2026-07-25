@@ -77,10 +77,10 @@ backstage:
            key: BACKSTAGE_KEYCLOAK_CLIENT_ID
 
      - name: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
-      valueFrom:
-        secretKeyRef:
-          name: backstage-secrets
-          key: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
+       valueFrom:
+         secretKeyRef:
+           name: backstage-secrets
+           key: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
 
   extraEnvVarsSecrets:
     - backstage-secrets
