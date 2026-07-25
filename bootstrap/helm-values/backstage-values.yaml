@@ -26,7 +26,7 @@ backstage:
       path: /.backstage/health/v1/readiness
       port: 7007
       scheme: HTTP
-    initialDelaySeconds: 30
+    initialDelaySeconds: 60
     periodSeconds: 15
     failureThreshold: 30
 
