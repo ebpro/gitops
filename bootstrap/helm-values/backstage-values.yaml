@@ -96,7 +96,7 @@ extraDeploy:
       name: backstage-custom-config
       namespace: backstage
       annotations:
-        updated: "2026-07-26-guest-allow-outside-dev"
+        updated: "2026-07-26-guest-dangerously-allow-2"
     data:
       app-config.production.yaml: |
         app:
