@@ -28,6 +28,8 @@ certificatesResolvers:
 providers:
   kubernetesCRD:
     enabled: true
+    allowCrossNamespace: true
+    allowExternalNameServices: true
   kubernetesIngress:
     enabled: true
     ingressClass: traefik
