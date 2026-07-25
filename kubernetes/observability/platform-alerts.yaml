@@ -8,6 +8,7 @@ items:
     namespace: kube-prometheus
     labels:
       prometheus: kube-prometheus
+      release: kube-prometheus
       role: alert-rules
   spec:
     groups:
@@ -74,7 +75,7 @@ items:
               severity: warning
             annotations:
               summary: "{{ $labels.mountpoint }} on {{ $labels.instance }} predicted to fill in 48h"
-              description: "Current usage {{ 1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes) | humanizePercentage }}. Projected to be full based on 6h trend."
+               description: "Projected to be full based on 6h trend. Available bytes trending toward zero within 48 hours."
 
       - name: platform/pod
         rules:
