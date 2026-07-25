@@ -25,6 +25,8 @@ spec:
   errors:
     status:
       - "401-403"
+    statusRewrites:
+      "401-403": 302
     service:
       name: oauth2-proxy
       namespace: oauth2-proxy

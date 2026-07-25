@@ -18,8 +18,8 @@ spec:
       match: Host(`nexus.ebruno.fr`) && !PathPrefix(`/oauth2/`)
       priority: 10
       middlewares:
-        - name: fwd-auth
         - name: oauth2-errors
+        - name: fwd-auth
       services:
         - name: nexus-nexus3
           port: http
