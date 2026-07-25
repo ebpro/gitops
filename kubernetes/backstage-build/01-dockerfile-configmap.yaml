@@ -9,11 +9,12 @@ data:
 
     USER root
 
-        RUN cd /app && \
-            yarn add @backstage/plugin-auth-backend-module-oidc-provider && \
+    # Install additional plugins
+# NOTE: backend.add() for auth modules must be done in source code (packages/backend/src/index.ts),
+# not via sed on the compiled dist. For OIDC support, rebuild with proper source modification.
+    RUN cd /app && \
             yarn add @backstage-community/plugin-grafana && \
             yarn add @roadiehq/backstage-plugin-argo-cd @roadiehq/backstage-plugin-argo-cd-backend && \
-            sed -i "/plugin-auth-backend-module-guest-provider/a backend.add(import('@backstage\/plugin-auth-backend-module-oidc-provider'));" /app/packages/backend/dist/index.cjs.js && \
             chown -R 1001:1001 /app
 
     USER 1001

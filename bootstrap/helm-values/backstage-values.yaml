@@ -5,12 +5,10 @@ serviceAccount:
 
 backstage:
   image:
-    registry: harbor.ebruno.fr
-    repository: library/backstage-keycloak
+    registry: ghcr.io
+    repository: backstage/backstage
     tag: latest
     pullPolicy: Always
-    pullSecrets:
-      - harbor-registry-secret
 
   resources:
     requests:
@@ -60,43 +58,25 @@ backstage:
           name: backstage-secrets
           key: BACKSTAGE_JWT
 
-    - name: APP_CONFIG_backend_database_connection_user
-      valueFrom:
-        secretKeyRef:
-          name: backstage-db-superuser
-          key: username
+     - name: APP_CONFIG_backend_database_connection_user
+       valueFrom:
+         secretKeyRef:
+           name: backstage-db-superuser
+           key: username
 
-    - name: APP_CONFIG_backend_database_connection_password
-      valueFrom:
-        secretKeyRef:
-          name: backstage-db-superuser
-          key: password
+     - name: APP_CONFIG_backend_database_connection_password
+       valueFrom:
+         secretKeyRef:
+           name: backstage-db-superuser
+           key: password
 
-    - name: GITEA_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: backstage-secrets
-          key: GITEA_TOKEN
+     - name: BACKSTAGE_KEYCLOAK_CLIENT_ID
+       valueFrom:
+         secretKeyRef:
+           name: backstage-secrets
+           key: BACKSTAGE_KEYCLOAK_CLIENT_ID
 
-    - name: BACKSTAGE_GITEA_CLIENT_ID
-      valueFrom:
-        secretKeyRef:
-          name: backstage-secrets
-          key: BACKSTAGE_GITEA_CLIENT_ID
-
-    - name: BACKSTAGE_GITEA_CLIENT_SECRET
-      valueFrom:
-        secretKeyRef:
-          name: backstage-secrets
-          key: BACKSTAGE_GITEA_CLIENT_SECRET
-
-    - name: BACKSTAGE_KEYCLOAK_CLIENT_ID
-      valueFrom:
-        secretKeyRef:
-          name: backstage-secrets
-          key: BACKSTAGE_KEYCLOAK_CLIENT_ID
-
-    - name: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
+     - name: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
       valueFrom:
         secretKeyRef:
           name: backstage-secrets
@@ -154,10 +134,6 @@ extraDeploy:
             logLevel: info
 
         integrations:
-          gitea:
-            - host: gitea.ebruno.fr
-              baseUrl: https://gitea.ebruno.fr
-              token: ${GITEA_TOKEN}
           sonarqube:
             - host: sonarqube.ebruno.fr
               baseUrl: https://sonarqube.ebruno.fr
@@ -169,16 +145,6 @@ extraDeploy:
           import:
             entityFilename: backstage.yaml
             pullRequestBranchName: backstage-integration
-          providers:
-            giteaOrg:
-              default:
-                host: gitea.ebruno.fr
-                organization: /
-                token: ${GITEA_TOKEN}
-                schedule:
-                  wait: { seconds: 5 }
-                  frequency: { seconds: 300 }
-                  timeout: { seconds: 60 }
           rules:
             - allow:
                 - kind: Component
@@ -190,8 +156,8 @@ extraDeploy:
                 - kind: Template
                 - kind: User
           locations:
-            - type: gitea
-              target: gitea.ebruno.fr/ebruno/backstage-entities
+            - type: url
+              target: https://raw.githubusercontent.com/ebpro/gitops/main/kubernetes/backstage-catalog/entities.yaml
 
         scaffolder:
           backend:
@@ -202,6 +168,7 @@ extraDeploy:
         auth:
           dangerouslyAllowExternalLoginByDefault: true
           providers:
+            guest: {}
             oidc:
               default:
                 clientId: ${BACKSTAGE_KEYCLOAK_CLIENT_ID}
@@ -228,12 +195,7 @@ extraDeploy:
           serviceLocatorMethod:
             type: multiTenant
           clusterLocatorMethods:
-            - type: config
-              clusters:
-                - url: https://kubernetes.default.svc
-                  name: local-cluster
-                  authProvider: serviceAccount
-                  skipTLSVerify: true
+            - type: inCluster
           skipConfigValidate: true
 
         techdocs:

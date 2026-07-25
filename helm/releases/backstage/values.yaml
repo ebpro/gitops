@@ -5,63 +5,82 @@ serviceAccount:
 
 backstage:
   image:
-    registry: harbor.ebruno.fr
-    repository: library/backstage-keycloak
+    registry: ghcr.io
+    repository: backstage/backstage
     tag: latest
     pullPolicy: Always
-    pullSecrets:
-      - harbor-registry-secret
 
   resources:
     requests:
       cpu: 500m
       memory: 1Gi
     limits:
-      cpu: 1
+      cpu: "1"
       memory: 2Gi
 
   strategy:
     type: Recreate
 
+  startupProbe:
+    httpGet:
+      path: /.backstage/health/v1/readiness
+      port: 7007
+      scheme: HTTP
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    failureThreshold: 30
+
+  readinessProbe:
+    httpGet:
+      path: /.backstage/health/v1/readiness
+      port: 7007
+      scheme: HTTP
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    failureThreshold: 10
+
+  livenessProbe:
+    httpGet:
+      path: /.backstage/health/v1/liveness
+      port: 7007
+      scheme: HTTP
+    initialDelaySeconds: 120
+    periodSeconds: 30
+    failureThreshold: 5
+
   extraEnvVars:
-    - name: APP_CONFIG_backend_database_connection_user
-      valueFrom:
-        secretKeyRef:
-          name: backstage-db-superuser
-          key: username
-    - name: APP_CONFIG_backend_database_connection_password
-      valueFrom:
-        secretKeyRef:
-          name: backstage-db-superuser
-          key: password
-    - name: APP_CONFIG_backend_authentication_keys__0
+    - name: LOG_LEVEL
+      value: info
+
+    - name: BACKSTAGE_JWT
       valueFrom:
         secretKeyRef:
           name: backstage-secrets
           key: BACKSTAGE_JWT
-    - name: GITEA_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: backstage-secrets
-          key: GITEA_TOKEN
 
-    - name: BACKSTAGE_KEYCLOAK_CLIENT_ID
-      valueFrom:
-        secretKeyRef:
-          name: backstage-secrets
-          key: BACKSTAGE_KEYCLOAK_CLIENT_ID
+     - name: APP_CONFIG_backend_database_connection_user
+       valueFrom:
+         secretKeyRef:
+           name: backstage-db-superuser
+           key: username
 
-     - name: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
+     - name: APP_CONFIG_backend_database_connection_password
+       valueFrom:
+         secretKeyRef:
+           name: backstage-db-superuser
+           key: password
+
+     - name: BACKSTAGE_KEYCLOAK_CLIENT_ID
        valueFrom:
          secretKeyRef:
            name: backstage-secrets
-           key: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
+           key: BACKSTAGE_KEYCLOAK_CLIENT_ID
 
-    - name: GRAFANA_API_KEY
-       valueFrom:
-         secretKeyRef:
-           name: backstage-grafana-api-token
-           key: GRAFANA_API_KEY
+     - name: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: backstage-secrets
+          key: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
 
   extraEnvVarsSecrets:
     - backstage-secrets
@@ -89,6 +108,8 @@ extraDeploy:
           auth:
             options:
               debug: false
+            keys:
+              - secret: ${BACKSTAGE_JWT}
           database:
             client: pg
             connection:
@@ -113,10 +134,6 @@ extraDeploy:
             logLevel: info
 
         integrations:
-          gitea:
-            - host: gitea.ebruno.fr
-              baseUrl: https://gitea.ebruno.fr
-              token: ${GITEA_TOKEN}
           sonarqube:
             - host: sonarqube.ebruno.fr
               baseUrl: https://sonarqube.ebruno.fr
@@ -128,47 +145,19 @@ extraDeploy:
           import:
             entityFilename: backstage.yaml
             pullRequestBranchName: backstage-integration
-          providers:
-            giteaOrg:
-              default:
-                host: gitea.ebruno.fr
-                organization: /
-                token: ${GITEA_TOKEN}
-                schedule:
-                  wait: { seconds: 5 }
-                  frequency: { seconds: 300 }
-                  timeout: { seconds: 60 }
           rules:
-            allow:
-              - kind: Component
-              - kind: API
-              - kind: Resource
-              - kind: System
-              - kind: Domain
-              - kind: Group
-              - kind: Template
-              - kind: User
+            - allow:
+                - kind: Component
+                - kind: API
+                - kind: Resource
+                - kind: System
+                - kind: Domain
+                - kind: Group
+                - kind: Template
+                - kind: User
           locations:
-            - type: gitea
-              target: gitea.ebruno.fr/ebruno/backstage-entities
-              rules:
-                - allow:
-                  - kinds:
-                    - Component
-                    - API
-                    - Resource
-                    - System
-                    - Domain
-                    - Template
             - type: url
               target: https://raw.githubusercontent.com/ebpro/gitops/main/kubernetes/backstage-catalog/entities.yaml
-              rules:
-                - allow:
-                  - kinds:
-                    - Component
-                    - Resource
-                    - System
-                    - Domain
 
         scaffolder:
           backend:
@@ -179,32 +168,26 @@ extraDeploy:
         auth:
           dangerouslyAllowExternalLoginByDefault: true
           providers:
-            gitea:
+            guest: {}
+            oidc:
               default:
-                provider: gitea
-                production:
-                  instance: gitea.ebruno.fr
-                  scope: repo user:email notification
-                  clientId: ${BACKSTAGE_GITEA_CLIENT_ID}
-                  clientSecret: ${BACKSTAGE_GITEA_CLIENT_SECRET}
-            keycloak:
-              default:
-                production:
-                  clientId: ${BACKSTAGE_KEYCLOAK_CLIENT_ID}
-                  clientSecret: ${BACKSTAGE_KEYCLOAK_CLIENT_SECRET}
-                  issuerBaseUrl: https://keycloak.ebruno.fr/realms/platform
-                  baseURL: https://backstage.ebruno.fr/auth/keycloak
-                  healthCheck: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
-                  meta:
-                    name: keycloak
+                clientId: ${BACKSTAGE_KEYCLOAK_CLIENT_ID}
+                clientSecret: ${BACKSTAGE_KEYCLOAK_CLIENT_SECRET}
+                issuerBaseUrl: https://keycloak.ebruno.fr/realms/platform
+                metadataUrl: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
+                healthCheck: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
 
         sonarqube:
           baseUrl: https://sonarqube.ebruno.fr
 
+        grafana:
+          dashboards:
+            - name: Backstage Dashboard
+              url: https://grafana.ebruno.fr
+
         argocd:
           ui:
             baseUrl: https://argocd.ebruno.fr
-            ignorePlatformsMissing: true
           backend:
             baseUrl: https://argocd.ebruno.fr/api/v1
 
@@ -212,8 +195,8 @@ extraDeploy:
           serviceLocatorMethod:
             type: multiTenant
           clusterLocatorMethods:
-            -       type: inCluster
-          skipConfigValidate: false
+            - type: inCluster
+          skipConfigValidate: true
 
         techdocs:
           builder: local
@@ -221,12 +204,3 @@ extraDeploy:
             runIn: local
           publisher:
             type: local
-
-        grafana:
-          baseUrl: https://grafana.ebruno.fr
-          apiKey: ${GRAFANA_API_KEY}
-
-        trivy:
-          baseUrl: https://trivy-operator.trivy-system.svc.cluster.local:8080
-          ignorePendingWithoutScan: true
-          useAppWrapping: false
