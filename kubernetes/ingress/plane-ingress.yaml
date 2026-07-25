@@ -79,7 +79,7 @@ spec:
         - name: plane-admin
           port: 3000
   tls:
-    secretName: plane-tls
+    certResolver: letsencrypt-ovh
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute

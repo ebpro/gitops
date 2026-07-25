@@ -53,18 +53,4 @@ spec:
         - name: link-shortener
           port: 80
   tls:
-    secretName: link-shortener-tls
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: link-shortener-tls
-  namespace: link-shortener
-spec:
-  dnsNames:
-    - link.ebruno.fr
-  issuerRef:
-    group: cert-manager.io
-    kind: ClusterIssuer
-    name: letsencrypt-ovh
-  secretName: link-shortener-tls
+    certResolver: letsencrypt-ovh

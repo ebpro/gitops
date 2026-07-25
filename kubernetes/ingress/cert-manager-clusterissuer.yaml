@@ -12,18 +12,3 @@ spec:
     - http01:
         ingress:
           class: traefik
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: plane-tls
-  namespace: plane
-spec:
-  secretName: plane-tls
-  duration: 2160h
-  renewBefore: 360h
-  issuerRef:
-    name: letsencrypt-ovh
-    kind: ClusterIssuer
-  dnsNames:
-  - plane.ebruno.fr
