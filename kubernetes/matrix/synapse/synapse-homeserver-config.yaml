@@ -65,10 +65,11 @@ data:
         client_auth_method: client_secret_post
         discover: true
         skip_verification: false
+        auto_register: true
         user_mapping_provider:
           module: synapse.handlers.oidc.JinjaOidcMappingProvider
           config:
-            localpart_template: '${utf8email.local}'
+            localpart_template: '{{ email.split("@")[0] | lower }}'
             displayname_template: "{{ given_name }} {{ family_name }}"
             emails:
               - '{{ email }}'
