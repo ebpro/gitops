@@ -13,6 +13,5 @@ spec:
     authRequestHeaders:
       - X-Forwarded-User
       - X-Forwarded-Email
-      - Host
-      - X-Forwarded-Host
       - X-Forwarded-Proto
+    authResponseHeadersRegex: ".*"
