@@ -74,7 +74,7 @@ items:
             labels:
               severity: warning
             annotations:
-              summary: "{{ $labels.mountpoint }} on {{ $labels.instance }} predicted to fill in 48h"
+               summary: "{{ $labels.mountpoint }} on {{ $labels.instance }} predicted to fill in 48h"
                description: "Projected to be full based on 6h trend. Available bytes trending toward zero within 48 hours."
 
       - name: platform/pod
