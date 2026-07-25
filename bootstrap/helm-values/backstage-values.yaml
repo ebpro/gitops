@@ -58,29 +58,29 @@ backstage:
           name: backstage-secrets
           key: BACKSTAGE_JWT
 
-     - name: APP_CONFIG_backend_database_connection_user
-       valueFrom:
-         secretKeyRef:
-           name: backstage-db-superuser
-           key: username
+    - name: APP_CONFIG_backend_database_connection_user
+      valueFrom:
+        secretKeyRef:
+          name: backstage-db-superuser
+          key: username
 
-     - name: APP_CONFIG_backend_database_connection_password
-       valueFrom:
-         secretKeyRef:
-           name: backstage-db-superuser
-           key: password
+    - name: APP_CONFIG_backend_database_connection_password
+      valueFrom:
+        secretKeyRef:
+          name: backstage-db-superuser
+          key: password
 
-     - name: BACKSTAGE_KEYCLOAK_CLIENT_ID
-       valueFrom:
-         secretKeyRef:
-           name: backstage-secrets
-           key: BACKSTAGE_KEYCLOAK_CLIENT_ID
+    - name: BACKSTAGE_KEYCLOAK_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: backstage-secrets
+          key: BACKSTAGE_KEYCLOAK_CLIENT_ID
 
-     - name: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
-       valueFrom:
-         secretKeyRef:
-           name: backstage-secrets
-           key: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
+    - name: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: backstage-secrets
+          key: BACKSTAGE_KEYCLOAK_CLIENT_SECRET
 
   extraEnvVarsSecrets:
     - backstage-secrets
