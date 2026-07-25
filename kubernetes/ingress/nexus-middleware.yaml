@@ -10,6 +10,7 @@ spec:
     authResponseHeaders:
       - X-Forwarded-User
       - X-Forwarded-Email
+      - Set-Cookie
     authRequestHeaders:
       - X-Forwarded-User
       - X-Forwarded-Email
