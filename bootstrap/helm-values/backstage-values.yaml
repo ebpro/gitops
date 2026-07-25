@@ -167,10 +167,7 @@ extraDeploy:
               type: pg
             defaultRemote: origin
 
-        auth:
-          providers:
-            guest:
-              dangerouslyAllowInsecureLoginByDefault: true
+        auth: {}
 
 
         sonarqube:
