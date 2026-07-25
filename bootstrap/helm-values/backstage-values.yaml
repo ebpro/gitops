@@ -164,9 +164,13 @@ extraDeploy:
         scaffolder:
           backend:
             database:
-              type: pg
-            defaultRemote: origin
+               type: pg
+             defaultRemote: origin
 
+        auth:
+          providers:
+            guest:
+              dangerouslyAllowInsecureLoginByDefault: true
 
 
         sonarqube:
