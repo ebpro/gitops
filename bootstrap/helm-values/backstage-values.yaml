@@ -169,15 +169,6 @@ extraDeploy:
 
         auth:
           dangerouslyAllowExternalLoginByDefault: true
-          providers:
-            guest: {}
-            oidc:
-              default:
-                clientId: ${BACKSTAGE_KEYCLOAK_CLIENT_ID}
-                clientSecret: ${BACKSTAGE_KEYCLOAK_CLIENT_SECRET}
-                issuerBaseUrl: https://keycloak.ebruno.fr/realms/platform
-                metadataUrl: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
-                healthCheck: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
 
         sonarqube:
           baseUrl: https://sonarqube.ebruno.fr
