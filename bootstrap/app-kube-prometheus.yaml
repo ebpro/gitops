@@ -64,6 +64,7 @@ spec:
       - del(.spec.evaluationInterval)
       - del(.spec.scrapeInterval)
       - del(.spec.scrapeConfigSelector)
+      - del(.spec.tsdb)
     - group: monitoring.coreos.com
       kind: ServiceMonitor
       jsonPointers:
