@@ -61,6 +61,9 @@ spec:
       - del(.spec.template)
       - del(.spec.externalUrl)
       - del(.spec.alerting.alertmanagers[].namespace)
+      - del(.spec.evaluationInterval)
+      - del(.spec.scrapeInterval)
+      - del(.spec.scrapeConfigSelector)
     - group: monitoring.coreos.com
       kind: ServiceMonitor
       jsonPointers:
