@@ -73,8 +73,6 @@ prometheus:
           storageClassName: local-path
     podAnnotations:
       prometheus.io/scrape: "false"
-  tsdb:
-    outOfOrderTimeWindow: 120
 
 grafana:
   enabled: true
