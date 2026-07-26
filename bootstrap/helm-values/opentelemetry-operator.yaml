@@ -1,5 +1,4 @@
 manager:
-  featureGates: "--feature-gates=+AutoInstrumentation,+TargetAllocator+Observability"
   collectorImage:
     repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-collector
     tag: "0.109.0"
