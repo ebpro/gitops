@@ -102,7 +102,7 @@ spec:
         namespace: opentelemetry-operator-system
         releaseName: opentelemetry
         repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
-        version: 0.70.0
+        version: 0.69.0
         syncWave: '15'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/opentelemetry-operator.yaml
       - app: pact-broker
