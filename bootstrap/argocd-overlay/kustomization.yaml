@@ -7,3 +7,7 @@ patches:
   - path: patches/argocd-cm.yaml
   - path: patches/argocd-cmd-params-cm.yaml
   - path: patches/argocd-rbac-cm.yaml
+  - target:
+      kind: CustomResourceDefinition
+      name: applications.argoproj.io
+    path: patches/crd-applications-resource-ignore-differences.yaml

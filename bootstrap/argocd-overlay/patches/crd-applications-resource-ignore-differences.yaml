@@ -1,0 +1,33 @@
+- op: add
+  path: "/spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/syncPolicy/properties/resourceIgnoreDifferences"
+  value:
+    description: Resources and their JSON pointers on which to enable ignoreAggregatedTypeErrors and/or jqPathExpressions.
+    type: array
+    items:
+      type: object
+      properties:
+        group:
+          type: string
+        kind:
+          type: string
+        name:
+          type: string
+        namespace:
+          type: string
+        jsonPointers:
+          type: array
+          items:
+            type: string
+        jqPathExpressions:
+          type: array
+          items:
+            type: string
+        managedFieldsMask:
+          type: array
+          items:
+            type: object
+            properties:
+              fields:
+                type: string
+              manager:
+                type: string
