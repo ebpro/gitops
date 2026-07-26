@@ -15,12 +15,10 @@ spec:
           - path: kubernetes/oauth2-proxy
           - path: kubernetes/ingress
           - path: kubernetes/csi-snapshot-controller
-          - path: kubernetes/backstage-catalog
           - path: kubernetes/keycloak-realm
           - path: kubernetes/matrix/element
           - path: kubernetes/matrix/synapse
           - path: kubernetes/observability
-          - path: helm/apps
   template:
     metadata:
       name: '{{path.basename}}'
