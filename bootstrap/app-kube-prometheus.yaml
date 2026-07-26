@@ -288,6 +288,7 @@ spec:
       name: kube-prometheus-grafana
       jsonPointers:
       - /data
+      - /metadata
     - group: ""
       kind: ConfigMap
       name: kube-prometheus-grafana
@@ -299,4 +300,6 @@ spec:
       name: kube-prometheus-grafana
       jqPathExpressions:
       - del(.spec.template.spec.initContainers)
+      jsonPointers:
+      - /metadata
 
