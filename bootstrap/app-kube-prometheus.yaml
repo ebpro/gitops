@@ -16,197 +16,63 @@ spec:
       valuesObject:
         grafana:
           dashboards: false
-      values: |
-        alertmanager:
-          alertmanagerSpec:
-            storage:
-              volumeClaimTemplate:
-                spec:
-                  accessModes:
-                  - ReadWriteOnce
-                  resources:
-                    requests:
-                      storage: 5Gi
-                  storageClassName: local-path
-            resources:
-              requests:
-                cpu: 50m
-                memory: 64Mi
-              limits:
-                cpu: 200m
-                memory: 256Mi
-            volumeMounts:
-            - name: alertmanager-config
-              mountPath: /etc/alertmanager/config
-              readOnly: true
-            volumes:
-            - name: alertmanager-config
-              configMap:
-                name: alertmanager-config
-          enabled: true
-        coreDns:
-          enabled: true
-        kubeScheduler:
-          enabled: false
-        kubeControllerManager:
-          enabled: false
-        kubeEtcd:
-          enabled: false
-        kubeApiServer:
-          enabled: false
-        kubeStateMetrics:
-          enabled: true
-        nodeExporter:
-          enabled: true
-          releaseLabel: true
-          prometheus:
-            enabled: true
-            prometheusSpec:
-              retention: 30d
-              retentionSize: 45GB
-              enableCompression: true
-              walCompression: true
-              resources:
-                limits:
-                  cpu: 2
-                  memory: 4Gi
-              requests:
-                cpu: 500m
-                memory: 2Gi
-            serviceMonitorSelectorNilUsesHelmValues: false
-            podMonitorSelectorNilUsesHelmValues: false
-            storageSpec:
-              volumeClaimTemplate:
-                spec:
-                  accessModes:
-                  - ReadWriteOnce
-                  resources:
-                    requests:
-                      storage: 50Gi
-                  storageClassName: local-path
-            podAnnotations:
-              prometheus.io/scrape: 'false'
-        grafana:
-          enabled: true
-          adminPassword: ''
-          existingSecret: grafana-admin-password
-          existingSecretKey: admin-password
-          initChownData:
-            enabled: false
-          extraSecretMounts:
-          - name: grafana-oidc-secrets
-            mountPath: /etc/grafana/secrets
-            secretName: grafana-oidc-secrets
-            readOnly: true
-          grafana.ini:
-            auth.generic_oauth:
-              allow_assign_grafana_admin: true
-              allow_sign_up: true
-              allowed_groups: platform-admins,platform-engineers,developers,security-team,qa-team,readonly
-              api_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/userinfo
-              auth_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth
-              client_id: grafana
-              client_secret: $__file{/etc/grafana/secrets/CLIENT_SECRET_GRAFANA}
-              enabled: true
-              login_attribute_path: email
-              name: Keycloak
-              name_attribute_path: full_name
-              redirect_uri: https://grafana.ebruno.fr/login/generic_oauth
-              role_attribute_path: contains(groups,"platform-admins") && "GrafanaAdmin" ||
-                contains(groups,"readonly") && "Viewer" || "Editor"
-              scopes: openid profile email groups offline_access
-              signout_redirect_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/logout?post_logout_redirect_uri=https%3A%2F%2Fgrafana.ebruno.fr%2Flogin
-              token_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token
-              use_refresh_token: true
-            analytics:
-              check_for_updates: false
-              reporting_enabled: false
-            unifiedAlerting:
-              enabled: true
-            explore:
-              enabled: true
-            trace:
-              enabled: true
-            trace.legacy:
-              attributes.datasource: Prometheus
-            security:
-              cookie_secure: true
-              cookie_samesite: lax
-            server:
-              domain: grafana.ebruno.fr
-              root_url: https://grafana.ebruno.fr
-            log:
-              mode: console
-              level: warn
-          ingress:
-            enabled: false
-          persistence:
-            enabled: true
-            size: 10Gi
-            storageClassName: local-path
-          additionalDataSources:
-          - access: proxy
-            name: Loki
-            type: loki
-            url: http://loki.loki.svc.cluster.local:3100
-            editable: true
-            isDefault: false
-          - access: proxy
-            name: Tempo
-            type: tempo
-            url: http://tempo.tempo.svc.cluster.local:3200
-            editable: true
-            isDefault: false
-            jsonData:
-              tracesToLogs:
-                datasourceUid: loki
-                filterByTraceID: true
-                spanStartTimeShift: -1h
-                spanEndTimeShift: +1h
-                mapTag:
-                  enabled: true
-                  tagName: app
-                tags:
-                - app
-                - namespace
-                - pod
-                - container
-                - cluster
-              tracesToMetrics:
-                datasourceUid: prometheus
-              lokiSearch:
-                datasourceUid: loki
-          - access: proxy
-            name: Alloy
-            type: prometheus
-            url: http://alloy.alloy.svc.cluster.local:12345
-            editable: true
-            isDefault: false
-          dashboardProviders:
-            dashboardproviders.yaml:
-              apiVersion: 1
-              providers:
-              - name: default
-                orgId: 1
-                folder: ''
-                type: file
-                disableDeletion: false
-                editable: true
-                options:
-                  path: /var/lib/grafana/dashboards/default
-              - name: observability
-                orgId: 1
-                folder: Observability
-                type: file
-                disableDeletion: false
-                editable: true
-                options:
-                     path: /var/lib/grafana/dashboards/observability
-          defaultDashboardsEnabled: false
-          securityContext:
-            fsGroup: 472
-            runAsUser: 472
-            runAsNonRoot: true
+      values: "alertmanager:\n  alertmanagerSpec:\n    storage:\n      volumeClaimTemplate:\n\
+        \        spec:\n          accessModes:\n          - ReadWriteOnce\n      \
+        \    resources:\n            requests:\n              storage: 5Gi\n     \
+        \     storageClassName: local-path\n    resources:\n      requests:\n    \
+        \    cpu: 50m\n        memory: 64Mi\n      limits:\n        cpu: 200m\n  \
+        \      memory: 256Mi\n    volumeMounts:\n    - name: alertmanager-config\n\
+        \      mountPath: /etc/alertmanager/config\n      readOnly: true\n    volumes:\n\
+        \    - name: alertmanager-config\n      configMap:\n        name: alertmanager-config\n\
+        \  enabled: true\ncoreDns:\n  enabled: true\nkubeScheduler:\n  enabled: false\n\
+        kubeControllerManager:\n  enabled: false\nkubeEtcd:\n  enabled: false\nkubeApiServer:\n\
+        \  enabled: false\nkubeStateMetrics:\n  enabled: true\nnodeExporter:\n  enabled:\
+        \ true\n  releaseLabel: true\n  prometheus:\n    enabled: true\n    prometheusSpec:\n\
+        \      retention: 30d\n      retentionSize: 45GB\n      enableCompression:\
+        \ true\n      walCompression: true\n      resources:\n        limits:\n  \
+        \        cpu: 2\n          memory: 4Gi\n      requests:\n        cpu: 500m\n\
+        \        memory: 2Gi\n    serviceMonitorSelectorNilUsesHelmValues: false\n\
+        \    podMonitorSelectorNilUsesHelmValues: false\n    storageSpec:\n      volumeClaimTemplate:\n\
+        \        spec:\n          accessModes:\n          - ReadWriteOnce\n      \
+        \    resources:\n            requests:\n              storage: 50Gi\n    \
+        \      storageClassName: local-path\n    podAnnotations:\n      prometheus.io/scrape:\
+        \ 'false'\ngrafana:\n  enabled: true\n  adminPassword: ''\n  existingSecret:\
+        \ grafana-admin-password\n  existingSecretKey: admin-password\n  initChownData:\n\
+        \    enabled: false\n  extraSecretMounts:\n  - name: grafana-oidc-secrets\n\
+        \    mountPath: /etc/grafana/secrets\n    secretName: grafana-oidc-secrets\n\
+        \    readOnly: true\n  grafana.ini:\n    auth.generic_oauth:\n      allow_assign_grafana_admin:\
+        \ true\n      allow_sign_up: true\n      allowed_groups: platform-admins,platform-engineers,developers,security-team,qa-team,readonly\n\
+        \      api_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/userinfo\n\
+        \      auth_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth\n\
+        \      client_id: grafana\n      client_secret: $__file{/etc/grafana/secrets/CLIENT_SECRET_GRAFANA}\n\
+        \      enabled: true\n      login_attribute_path: email\n      name: Keycloak\n\
+        \      name_attribute_path: full_name\n      redirect_uri: https://grafana.ebruno.fr/login/generic_oauth\n\
+        \      role_attribute_path: contains(groups,\"platform-admins\") && \"GrafanaAdmin\"\
+        \ ||\n        contains(groups,\"readonly\") && \"Viewer\" || \"Editor\"\n\
+        \      scopes: openid profile email groups offline_access\n      signout_redirect_url:\
+        \ https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/logout?post_logout_redirect_uri=https%3A%2F%2Fgrafana.ebruno.fr%2Flogin\n\
+        \      token_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token\n\
+        \      use_refresh_token: true\n    analytics:\n      check_for_updates: false\n\
+        \      reporting_enabled: false\n    unifiedAlerting:\n      enabled: true\n\
+        \    explore:\n      enabled: true\n    trace:\n      enabled: true\n    trace.legacy:\n\
+        \      attributes.datasource: Prometheus\n    security:\n      cookie_secure:\
+        \ true\n      cookie_samesite: lax\n    server:\n      domain: grafana.ebruno.fr\n\
+        \      root_url: https://grafana.ebruno.fr\n    log:\n      mode: console\n\
+        \      level: warn\n  ingress:\n    enabled: false\n  persistence:\n    enabled:\
+        \ true\n    size: 10Gi\n    storageClassName: local-path\n  additionalDataSources:\n\
+        \  - access: proxy\n    name: Loki\n    type: loki\n    url: http://loki.loki.svc.cluster.local:3100\n\
+        \    editable: true\n    isDefault: false\n  - access: proxy\n    name: Tempo\n\
+        \    type: tempo\n    url: http://tempo.tempo.svc.cluster.local:3200\n   \
+        \ editable: true\n    isDefault: false\n    jsonData:\n      tracesToLogs:\n\
+        \        datasourceUid: loki\n        filterByTraceID: true\n        spanStartTimeShift:\
+        \ -1h\n        spanEndTimeShift: +1h\n        mapTag:\n          enabled:\
+        \ true\n          tagName: app\n        tags:\n        - app\n        - namespace\n\
+        \        - pod\n        - container\n        - cluster\n      tracesToMetrics:\n\
+        \        datasourceUid: prometheus\n      lokiSearch:\n        datasourceUid:\
+        \ loki\n  - access: proxy\n    name: Alloy\n    type: prometheus\n    url:\
+        \ http://alloy.alloy.svc.cluster.local:12345\n    editable: true\n    isDefault:\
+        \ false\n  dashboards: false\n  defaultDashboardsEnabled: false\n  securityContext:\n\
+        \    fsGroup: 472\n    runAsUser: 472\n    runAsNonRoot: true\n"
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-prometheus
@@ -279,19 +145,18 @@ spec:
       - /metadata/annotations
       jqPathExpressions:
       - .status
-    - group: ""
+    - group: ''
       kind: PersistentVolumeClaim
       jsonPointers:
       - /spec/volumeName
-    - group: ""
+    - group: ''
       kind: Secret
       name: kube-prometheus-grafana
       jsonPointers:
       - /data
-    - group: ""
+    - group: ''
       kind: ConfigMap
       name: kube-prometheus-grafana
       jsonPointers:
       - /data
       - /metadata
-
