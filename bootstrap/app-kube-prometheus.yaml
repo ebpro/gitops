@@ -15,7 +15,7 @@ spec:
       releaseName: kube-prometheus
       values: |
         crds:
-          enabled: false
+          enabled: true
       valueFiles:
       - https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/kube-prometheus.yaml
   destination:
@@ -60,7 +60,6 @@ spec:
       - del(.status)
       - del(.spec.resources.requests)
       - del(.spec.template)
-      - del(.spec.enableOTLPReceiver)
     - group: monitoring.coreos.com
       kind: ServiceMonitor
       jsonPointers:
