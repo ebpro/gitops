@@ -298,14 +298,13 @@ spec:
     - group: apps
       kind: Deployment
       name: kube-prometheus-grafana
-      jqPathExpressions:
-      - del(.spec.template.spec.initContainers)
-      - del(.spec.template.spec.containers)
-      - del(.spec.template.spec.volumes)
-      - del(.spec.template.spec.securityContext)
-      - del(.spec.template.spec.serviceAccountName)
-      - del(.spec.template.spec.automountServiceAccountToken)
       jsonPointers:
       - /metadata
       - /spec/replicas
+      - /spec/template/spec/initContainers
+      - /spec/template/spec/containers
+      - /spec/template/spec/volumes
+      - /spec/template/spec/securityContext
+      - /spec/template/spec/serviceAccountName
+      - /spec/template/spec/automountServiceAccountToken
 
