@@ -17,14 +17,6 @@ spec:
         version: 1.11.0
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/a84ff2e/bootstrap/helm-values/alloy.yaml
-      - app: argo-cd
-        chart: argo-cd
-        namespace: argocd
-        releaseName: argo-cd
-        repoURL: https://argoproj.github.io/argo-helm
-        version: 7.7.15
-        syncWave: '90'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/argocd.yaml
       - app: argo-image-updater
         chart: argocd-image-updater
         namespace: argocd

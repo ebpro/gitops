@@ -1,74 +1,31 @@
-dex:
-  enabled: true
-
-notifications:
-  enabled: true
-
-redis:
-  enabled: true
-
-repoServer:
-  enabled: true
-
-# argocd-cm ConfigMap
-config:
-  sso: "true"
-  timeout.reconciliation: "180s"
-  oidc.config: |
-    issuer: https://keycloak.ebruno.fr/realms/platform
-    clientID: argocd
-    clientSecret: $ARGOCD_SERVER_OIDC_CLIENT_SECRET
-    rootCA:
-    requestedIDTokenClaims:
-      groups:
-        essential: true
-    requestedScopes:
-      - openid
-      - profile
-      - email
-      - groups
-
-# argocd-cmd-params-cm ConfigMap
-params:
-  server.basehref: /
-  server.insecure: "true"
-  server.rootpath: ""
-  timeout.reconciliation: "180"
-  resource.customizations.health: |
-    external-secrets.io/ExternalSecret:
-      health.lua: |
-        hs = { status = "Healthy", message = "Managed by External Secrets" }
-    postgresql.cnpg.io/Cluster:
-      health.lua: |
-        hs = { status = "Healthy", message = "Managed by CloudNativePG" }
-    traefik.io/Middleware:
-      health.lua: |
-        hs = { status = "Healthy", message = "Managed by Traefik" }
-    traefik.io/ServersTransport:
-      health.lua: |
-        hs = { status = "Healthy", message = "Managed by Traefik" }
-    opentelemetry.io/OpenTelemetryCollector:
-      health.lua: |
-        hs = { status = "Healthy", message = "Managed by OpenTelemetry Operator" }
-    traefik.io/IngressRoute:
-      health.lua: |
-        hs = { status = "Healthy", message = "Managed by Traefik" }
-
 server:
-  replicas: 1
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
   extraArgs:
     sso: true
     oidc.config: |
       issuer: https://keycloak.ebruno.fr/realms/platform
       clientID: argocd
       clientSecret: $ARGOCD_SERVER_OIDC_CLIENT_SECRET
+      rootCA:
+      requestedIDTokenClaims:
+        groups:
+          essential: true
+      requestedScopes:
+        - openid
+        - profile
+        - email
+        - groups
   extraEnv:
+    - name: OAUTH2_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: argocd-oidc-secrets
+          key: CLIENT_SECRET_ARGOCD
     - name: ARGOCD_SERVER_OIDC_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: argocd-oidc-secrets
+          key: CLIENT_SECRET_ARGOCD
+    - name: OAUTH2_SECRET
       valueFrom:
         secretKeyRef:
           name: argocd-oidc-secrets
