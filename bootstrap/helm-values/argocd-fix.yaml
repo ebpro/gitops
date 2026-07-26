@@ -1,0 +1,3 @@
+# Replicate the Original ArgoCD installation
+nameOverride: argocd
+fullnameOverride: argocd
