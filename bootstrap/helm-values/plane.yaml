@@ -17,6 +17,8 @@ rabbitmq:
 
 env:
   remote_redis_url: redis://plane-redis.plane.svc.cluster.local:6379/0
+  CELERY_BROKER_URL: redis://plane-redis.plane.svc.cluster.local:6379/0
+  CELERY_WORKER_QUEUE: celery
   pgdb_remote_url: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
   PLANE_URL: https://plane.ebruno.fr
   docstore_bucket: uploads
@@ -30,23 +32,25 @@ ssl:
   tls_secret_name: plane-tls
 
 worker:
-  memoryLimit: 4096Mi
+  memoryLimit: 4Gi
   cpuLimit: 1000m
   cpuRequest: 250m
   memoryRequest: 1024Mi
 
 api:
-  memoryLimit: 4096Mi
+  memoryLimit: 4Gi
   cpuLimit: 1000m
   cpuRequest: 250m
   memoryRequest: 1024Mi
 
 beatworker:
-  memoryLimit: 4096Mi
+  memoryLimit: 4Gi
   cpuLimit: 1000m
   cpuRequest: 250m
   memoryRequest: 1024Mi
   replicas: 1
+
+replicas: 1
 
 autoscaling:
   enabled: false
