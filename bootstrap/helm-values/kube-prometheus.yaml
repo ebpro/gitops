@@ -74,7 +74,7 @@ prometheus:
     podAnnotations:
       prometheus.io/scrape: "false"
   tsdb:
-    outOfOrderTimeWindow: 0
+    outOfOrderTimeWindow: 120
 
 grafana:
   enabled: true
