@@ -186,49 +186,7 @@ grafana:
           editable: true
           options:
             path: /var/lib/grafana/dashboards/observability
-  dashboards:
-    kubernetes:
-      k8s-cluster:
-        gnetId: 15756
-        revision: 30
-        datasource:
-          __expr: "Prometheus"
-      k8s-pods:
-        gnetId: 6407
-        revision: 3
-        datasource:
-          __expr: "Prometheus"
-      k8s-nodes:
-        gnetId: 16273
-        revision: 30
-        datasource:
-          __expr: "Prometheus"
-      k8s-workloads:
-        gnetId: 15761
-        revision: 33
-        datasource:
-          __expr: "Prometheus"
-    alloy:
-      alloy:
-        gnetId: 20320
-        revision: 1
-        datasource:
-          __expr: "Prometheus"
-        # folder: Observability
-    node-exporter:
-      full:
-        gnetId: 1860
-        revision: 34
-        datasource:
-          __expr: "Prometheus"
-        # folder: Observability
-    cilium:
-      cilium:
-        gnetId: 12235
-        revision: 19
-        datasource:
-          __expr: "Prometheus"
-        # folder: Observability
+  dashboards: {}
   downloadDashboards: {}
   securityContext:
     fsGroup: 472
