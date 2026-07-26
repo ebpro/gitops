@@ -36,3 +36,13 @@ spec:
         - /metadata/creationTimestamp
         - /metadata/uid
         - /metadata/generation
+        - /metadata/finalizers
+        - /spec/selector
+        - /spec/template/metadata
+      jqPathExpressions:
+        - del(.metadata.finalizers)
+        - del(.status)
+        - del(.spec.selector)
+        - del(.spec.template.metadata)
+        - del(.spec.template.spec.containers[].resources)
+        - del(.spec.template.spec.initContainers[].resources)
