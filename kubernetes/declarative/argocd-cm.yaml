@@ -2,44 +2,20 @@ apiVersion: v1
 data:
   timeout.reconciliation: 180s
   url: https://argocd.ebruno.fr
-  cluster.inClusterEnabled: "true"
-  oidc.config: |
-    issuer: https://keycloak.ebruno.fr/realms/platform
-    clientID: argocd
-    clientSecret: $CLIENT_SECRET_ARGOCD
-    requestedScopes:
-      - openid
-      - profile
-      - email
-    requestedIDTokenClaims: {}
-  rbac.policy.default: |
-    # Keycloak groups → ArgoCD roles
-    p, g:/platform-admins, role:admin
-    p, g:/platform-engineers, role:projects-admin
-    p, g:/developers, role:readonly
-    p, g:/readonly, role:readonly
-    p, g:/developers/qa-team, role:readonly
-    p, g:/developers/security-team, role:readonly
-  sso: "true"
+  cluster.inClusterEnabled: 'true'
+  oidc.config: "issuer: https://keycloak.ebruno.fr/realms/platform\nclientID: argocd\n\
+    clientSecret: $CLIENT_SECRET_ARGOCD\nrequestedScopes:\n  - openid\n  - profile\n\
+    \  - email\nrequestedIDTokenClaims: {}\n"
+  rbac.policy.default: "# Keycloak groups \u2192 ArgoCD roles\np, g:/platform-admins,\
+    \ role:admin\np, g:/platform-engineers, role:projects-admin\np, g:/developers,\
+    \ role:readonly\np, g:/readonly, role:readonly\np, g:/developers/qa-team, role:readonly\n\
+    p, g:/developers/security-team, role:readonly\n"
+  sso: 'true'
   sso.providers: oidc
-  resource.customizations.health: |
-    traefik.io/v1alpha1/Middleware:
-      health.lua: |
-        hs = { status = "Healthy", message = "Managed by Traefik" }
-    traefik.io/v1alpha1/ServersTransport:
-      health.lua: |
-        hs = { status = "Healthy", message = "Managed by Traefik" }
-  resource.exclusions: |
-    - groups: ['admissionregistration.k8s.io']
-      kinds: ['MutatingWebhookConfiguration', 'ValidatingWebhookConfiguration']
-    - groups: ['apiextensions.k8s.io']
-      kinds: ['CustomResourceDefinition']
-    - groups: ['rbac.authorization.k8s.io']
-      kinds: ['ClusterRole', 'ClusterRoleBinding', 'Role', 'RoleBinding']
-    - groups: ['external-secrets.io']
-      kinds: ['ExternalSecret']
-    - groups: ['postgresql.cnpg.io']
-      kinds: ['Cluster']
+  resource.customizations.health: "traefik.io/v1alpha1/Middleware:\n  health.lua:\
+    \ |\n    hs = { status = \"Healthy\", message = \"Managed by Traefik\" }\ntraefik.io/v1alpha1/ServersTransport:\n\
+    \  health.lua: |\n    hs = { status = \"Healthy\", message = \"Managed by Traefik\"\
+    \ }\n"
 kind: ConfigMap
 metadata:
   name: argocd-cm
