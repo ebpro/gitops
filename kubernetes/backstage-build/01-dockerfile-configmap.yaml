@@ -10,8 +10,7 @@ data:
     USER root
 
     # Install additional plugins
-# NOTE: backend.add() for auth modules must be done in source code (packages/backend/src/index.ts),
-# not via sed on the compiled dist. For OIDC support, rebuild with proper source modification.
+    # NOTE: OIDC support requires proper source rebuild
     RUN cd /app && \
             yarn add @backstage-community/plugin-grafana && \
             yarn add @roadiehq/backstage-plugin-argo-cd @roadiehq/backstage-plugin-argo-cd-backend && \
