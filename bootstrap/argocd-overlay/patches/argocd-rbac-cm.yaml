@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-rbac-cm
+  namespace: argocd
+data:
+  policy.csv: |
+    # Keycloak groups → ArgoCD roles
+    p, g:/platform-admins, role:admin
+    p, g:/platform-engineers, role:projects-admin
+    p, g:/developers, role:readonly
+    p, g:/readonly, role:readonly
+    p, g:/developers/qa-team, role:readonly
+    p, g:/developers/security-team, role:readonly
