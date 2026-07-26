@@ -18,7 +18,7 @@ rabbitmq:
 env:
   remote_redis_url: redis://plane-redis.plane.svc.cluster.local:6379/0
   REDIS_URL: redis://plane-redis.plane.svc.cluster.local:6379/0
-  CELERY_BROKER_URL: ''
+  CELERY_BROKER_URL: amqp://plane:plane@plane-rabbitmq.plane.svc.cluster.local/
   pgdb_remote_url: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
   PLANE_URL: https://plane.ebruno.fr
   docstore_bucket: uploads
