@@ -123,11 +123,11 @@ grafana:
        cookie_samesite: lax
     server:
       domain: grafana.ebruno.fr
-       root_url: https://grafana.ebruno.fr
+      root_url: https://grafana.ebruno.fr
     log:
       mode: console
       level: warn
-   ingress:
+  ingress:
     enabled: false
   persistence:
     enabled: true

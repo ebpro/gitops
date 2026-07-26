@@ -6,8 +6,6 @@ manager:
   targetAllocatorImage:
     repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
     tag: "0.109.0"
-  metrics:
-    enableMetrics: true
   resources:
     requests:
       cpu: 50m
