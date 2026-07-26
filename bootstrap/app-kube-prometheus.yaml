@@ -60,6 +60,8 @@ spec:
       - del(.status)
       - del(.spec.resources.requests)
       - del(.spec.template)
+      - del(.spec.externalUrl)
+      - del(.spec.alerting.alertmanagers[].namespace)
     - group: monitoring.coreos.com
       kind: ServiceMonitor
       jsonPointers:
@@ -89,4 +91,14 @@ spec:
       kind: PersistentVolumeClaim
       jsonPointers:
       - /spec/volumeName
+    - group: ""
+      kind: Secret
+      name: kube-prometheus-grafana
+      jsonPointers:
+      - /data
+    - group: ""
+      kind: Secret
+      name: kube-prometheus-grafana-dashboards
+      jsonPointers:
+      - /data
 
