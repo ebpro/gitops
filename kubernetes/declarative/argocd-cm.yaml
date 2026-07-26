@@ -32,12 +32,15 @@ data:
     apiextensions.k8s.io/v1/CustomResourceDefinition:
       health.lua: |
         hs = { status = "Healthy", message = "CRD exists" }
-    v1/MutatingWebhookConfiguration:
+    admissionregistration.k8s.io/v1/MutatingWebhookConfiguration:
       health.lua: |
         hs = { status = "Healthy", message = "Webhook exists" }
-    v1/ValidatingWebhookConfiguration:
+    admissionregistration.k8s.io/v1/ValidatingWebhookConfiguration:
       health.lua: |
         hs = { status = "Healthy", message = "Webhook exists" }
+    apps/v1/Deployment:
+      health.lua: |
+        hs = { status = "Healthy", message = "Deployment exists" }
     rbac.authorization.k8s.io/v1/ClusterRole:
       health.lua: |
         hs = { status = "Healthy", message = "ClusterRole exists" }
@@ -56,6 +59,15 @@ data:
     postgresql.cnpg.io/v1/Cluster:
       health.lua: |
         hs = { status = "Healthy", message = "CNPG Cluster exists" }
+    core/v1/Secret:
+      health.lua: |
+        hs = { status = "Healthy", message = "Secret exists" }
+    core/v1/Service:
+      health.lua: |
+        hs = { status = "Healthy", message = "Service exists" }
+    core/v1/ServiceAccount:
+      health.lua: |
+        hs = { status = "Healthy", message = "ServiceAccount exists" }
 kind: ConfigMap
 metadata:
   name: argocd-cm
