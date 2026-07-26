@@ -97,14 +97,6 @@ spec:
         version: 4.0.18
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/nfs-client.yaml
-      - app: open-telemetry
-        chart: opentelemetry-operator
-        namespace: opentelemetry-operator-system
-        releaseName: opentelemetry
-        repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
-        version: 0.69.0
-        syncWave: '15'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/opentelemetry-operator.yaml
       - app: pact-broker
         chart: pact-broker
         namespace: pact-broker

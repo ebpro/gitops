@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: open-telemetry
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '15'
+spec:
+  project: platform
+  source:
+    repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+    targetRevision: 0.69.0
+    chart: opentelemetry-operator
+    helm:
+      releaseName: opentelemetry
+      valueFiles:
+      - https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/opentelemetry-operator.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: opentelemetry-operator-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  ignoreDifferences:
+  - group: ""
+    kind: MutatingWebhookConfiguration
+    name: opentelemetry-opentelemetry-operator-mutation
+    jsonPointers:
+    - /webhooks
+    - /metadata.resourceVersion
+  - group: ""
+    kind: ValidatingWebhookConfiguration
+    name: opentelemetry-opentelemetry-operator-validation
+    jsonPointers:
+    - /webhooks
+    - /metadata.resourceVersion

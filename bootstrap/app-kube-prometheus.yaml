@@ -60,6 +60,7 @@ spec:
       - del(.status)
       - del(.spec.resources.requests)
       - del(.spec.template)
+      - del(.spec.enableOTLPReceiver)
     - group: monitoring.coreos.com
       kind: ServiceMonitor
       jsonPointers:
