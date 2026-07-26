@@ -4,10 +4,10 @@ metadata:
   name: argocd-rbac-cm
 data:
   policy.csv: |
-    # Keycloak groups → ArgoCD roles
-    p, g:/platform-admins, role:admin
-    p, g:/platform-engineers, role:projects-admin
-    p, g:/developers, role:readonly
-    p, g:/readonly, role:readonly
-    p, g:/developers/qa-team, role:readonly
-    p, g:/developers/security-team, role:readonly
+    # Keycloak groups → ArgoCD roles (v3.x format)
+    g, /platform-admins, role:admin
+    g, /platform-engineers, role:projects-admin
+    g, /developers, role:readonly
+    g, /readonly, role:readonly
+    g, /developers/qa-team, role:readonly
+    g, /developers/security-team, role:readonly
