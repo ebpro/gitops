@@ -126,7 +126,7 @@ spec:
         namespace: tempo
         releaseName: tempo
         repoURL: https://grafana.github.io/helm-charts
-        version: 1.24.4
+        version: 1.24.3
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/tempo.yaml
       - app: trivyoperator
