@@ -14,7 +14,9 @@ spec:
     helm:
       releaseName: kube-prometheus
       parameters:
-      - name: grafana.dashboards
+      - name: grafana.dashboards.enabled
+        value: "false"
+      - name: grafana.sidecar.dashboards.enabled
         value: "false"
       values: |
         alertmanager:
