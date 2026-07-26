@@ -44,16 +44,14 @@ nodeExporter:
   enabled: true
   releaseLabel: true
 
-prometheus:
-  enabled: true
-  prometheusSpec:
-    retention: 30d
-    retentionSize: 45GB
-    enableCompression: true
-    walCompression: true
-    tsdb:
-      outOfOrderTimeWindow: "0s"
-    resources:
+  prometheus:
+    enabled: true
+    prometheusSpec:
+      retention: 30d
+      retentionSize: 45GB
+      enableCompression: true
+      walCompression: true
+      resources:
       limits:
         cpu: 2
         memory: 4Gi
