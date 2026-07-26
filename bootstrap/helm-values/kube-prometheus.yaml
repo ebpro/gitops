@@ -51,8 +51,6 @@ prometheus:
     retentionSize: 45GB
     enableCompression: true
     walCompression: true
-    tsdb:
-      outOfOrderTimeWindow: 0
     resources:
       limits:
         cpu: 2
