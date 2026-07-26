@@ -53,10 +53,42 @@ data:
         hs = { status = "Healthy", message = "RoleBinding exists" }
     external-secrets.io/v1beta1/ExternalSecret:
       health.lua: |
-        hs = { status = "Healthy", message = "ExternalSecret exists" }
+        if obj.status == nil or obj.status.conditions == nil then
+          hs = { status = "Progressing", message = "ExternalSecret not yet reconciled" }
+          return
+        end
+        for _, cond in ipairs(obj.status.conditions) do
+          if cond.type == "Ready" then
+            if cond.status == "True" then
+              hs = { status = "Healthy", message = "ExternalSecret synced" }
+              return
+            end
+            hs = { status = "Degraded", message = cond.message }
+            return
+          end
+        end
+        hs = { status = "Degraded", message = "No Ready condition" }
     postgresql.cnpg.io/v1/Cluster:
       health.lua: |
-        hs = { status = "Healthy", message = "CNPG Cluster exists" }
+        if obj.status == nil then
+          hs = { status = "Progressing", message = "CNPG Cluster not yet initialized" }
+          return
+        end
+        if obj.status.conditions == nil then
+          hs = { status = "Progressing", message = "CNPG Cluster initializing" }
+          return
+        end
+        for _, cond in ipairs(obj.status.conditions) do
+          if cond.type == "Ready" then
+            if cond.status == "True" then
+              hs = { status = "Healthy", message = "CNPG Cluster Ready (instances: " .. tostring(obj.status.instances or "?") .. ")" }
+              return
+            end
+            hs = { status = "Degraded", message = cond.message }
+            return
+          end
+        end
+        hs = { status = "Progressing", message = "CNPG Cluster conditions unknown" }
   resource.exclusions: |
     - groups: ['']
       kinds: ['Deployment', 'Secret', 'Service', 'ServiceAccount']
@@ -67,9 +99,9 @@ data:
     - groups: ['rbac.authorization.k8s.io']
       kinds: ['ClusterRole', 'ClusterRoleBinding', 'Role', 'RoleBinding']
     - groups: ['external-secrets.io']
-      kinds: ['ExternalSecret']
+      kinds: ['ClusterSecretStore']
     - groups: ['postgresql.cnpg.io']
-      kinds: ['Cluster']
+      kinds: ['ClusterConfiguration']
   server.basehref: /
   server.dex.server: https://argocd-dex-server.argocd.svc:5556
   server.dex.server.strict.tls: "false"
