@@ -52,9 +52,9 @@ nodeExporter:
       enableCompression: true
       walCompression: true
       resources:
-      limits:
-        cpu: 2
-        memory: 4Gi
+        limits:
+          cpu: 2
+          memory: 4Gi
       requests:
         cpu: 500m
         memory: 2Gi

@@ -12,10 +12,14 @@ data:
     p, g:/developers/security-team, role:readonly\n"
   sso: 'true'
   sso.providers: oidc
-  resource.customizations.health: "traefik.io/v1alpha1/Middleware:\n  health.lua:\
-    \ |\n    hs = { status = \"Healthy\", message = \"Managed by Traefik\" }\ntraefik.io/v1alpha1/ServersTransport:\n\
-    \  health.lua: |\n    hs = { status = \"Healthy\", message = \"Managed by Traefik\"\
-    \ }\n"
+  resource.customizations.health: "external-secrets.io/ExternalSecret:\n  health.lua:\
+    \ |\n    hs = { status = \"Healthy\", message = \"Managed by External Secrets\" }\n\
+    postgresql.cnpg.io/Cluster:\n  health.lua:\
+    \ |\n    hs = { status = \"Healthy\", message = \"Managed by CloudNativePG\" }\n\
+    traefik.io/Middleware:\n  health.lua: |\n    hs = { status = \"Healthy\",\
+    \ message = \"Managed by Traefik\" }\ntraefik.io/ServersTransport:\n  health.lua:\
+    \ |\n    hs = { status = \"Healthy\", message = \"Managed by Traefik\" }\nopentelemetry.io/OpenTelemetryCollector:\n\
+    \  health.lua: |\n    hs = { status = \"Healthy\", message = \"Managed by OpenTelemetry Operator\" }\n"
 kind: ConfigMap
 metadata:
   name: argocd-cm
