@@ -13,6 +13,10 @@ spec:
     chart: kube-prometheus-stack
     helm:
       releaseName: kube-prometheus
+      parameters:
+      - name: grafana.dashboards
+        forceString: true
+        value: ""
       values: |
         alertmanager:
           alertmanagerSpec:
