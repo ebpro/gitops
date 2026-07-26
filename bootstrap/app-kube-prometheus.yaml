@@ -294,4 +294,9 @@ spec:
       jsonPointers:
       - /data
       - /metadata
+    - group: apps
+      kind: Deployment
+      name: kube-prometheus-grafana
+      jqPathExpressions:
+      - del(.spec.template.spec.initContainers)
 
