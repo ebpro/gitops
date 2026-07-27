@@ -11,23 +11,6 @@ spec:
   template:
     spec:
       restartPolicy: Never
-      initContainers:
-        - name: wait-for-keycloak
-          image: curlimages/curl:8.12.1
-          command:
-            - /bin/sh
-            - -c
-            - |
-              echo "Waiting for Keycloak to be ready..."
-              for i in $(seq 1 60); do
-                if curl -sf http://keycloak-http.keycloak.svc.cluster.local:80/health/ready; then
-                  echo "Keycloak is ready!"
-                  exit 0
-                fi
-                sleep 5
-              done
-              echo "Keycloak did not become ready in time"
-              exit 1
       containers:
         - name: kcadm-setup
           image: quay.io/keycloak/keycloak:26.7.0
@@ -37,11 +20,26 @@ spec:
             - |
               set -euo pipefail
               KCADM=/opt/keycloak/bin/kcadm.sh
+              KC_SERVER=http://keycloak-http.keycloak.svc.cluster.local:80
 
-              echo "Configuring kcadm for platform realm..."
-              "$KCADM" config credentials \
-                --server http://keycloak-http.keycloak.svc.cluster.local:80 \
-                --realm master --user admin --password "$KEYCLOAK_ADMIN_PASSWORD"
+              # Login with retry
+              echo "Waiting for Keycloak admin API..."
+              LOGIN_RETRIES=12
+              LOGIN_DELAY=10
+              for attempt in $(seq 1 "$LOGIN_RETRIES"); do
+                echo "  Login attempt $attempt/$LOGIN_RETRIES..."
+                if "$KCADM" config credentials \
+                  --server "$KC_SERVER" \
+                  --realm master --user admin --password "$KEYCLOAK_ADMIN_PASSWORD" 2>/dev/null; then
+                  echo "  Login successful!"
+                  break
+                fi
+                if [ "$attempt" -eq "$LOGIN_RETRIES" ]; then
+                  echo "  FAILED: Could not authenticate after $LOGIN_RETRIES attempts"
+                  exit 1
+                fi
+                sleep "$LOGIN_DELAY"
+              done
 
               REALM="platform"
 

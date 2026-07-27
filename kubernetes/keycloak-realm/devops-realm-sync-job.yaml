@@ -255,23 +255,6 @@ spec:
   template:
     spec:
       restartPolicy: Never
-      initContainers:
-        - name: wait-for-keycloak
-          image: curlimages/curl:8.12.1
-          command:
-            - /bin/sh
-            - -c
-            - |
-              echo "Waiting for Keycloak to be ready..."
-              for i in $(seq 1 60); do
-                if curl -sf http://keycloak-http.keycloak.svc.cluster.local:80/health/ready; then
-                  echo "Keycloak is ready!"
-                  exit 0
-                fi
-                sleep 5
-              done
-              echo "Keycloak did not become ready in time"
-              exit 1
       containers:
         - name: kcadm-sync
           image: quay.io/keycloak/keycloak:26.7.0
