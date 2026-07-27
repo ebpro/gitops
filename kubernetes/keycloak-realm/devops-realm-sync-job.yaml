@@ -1,0 +1,292 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-devops-realm-sync-script
+  namespace: keycloak
+data:
+  sync.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    KCADM=/opt/keycloak/bin/kcadm.sh
+    KC_SERVER=http://keycloak-http.keycloak.svc.cluster.local:80
+
+    # --- Login to Keycloak admin API (with retry) ---
+    echo "Waiting for Keycloak admin API..."
+    LOGIN_RETRIES=12
+    LOGIN_DELAY=10
+    for attempt in $(seq 1 "$LOGIN_RETRIES"); do
+      echo "  Login attempt $attempt/$LOGIN_RETRIES..."
+      if "$KCADM" config credentials \
+        --server "$KC_SERVER" \
+        --realm master \
+        --user admin \
+        --password "$KEYCLOAK_ADMIN_PASSWORD" 2>/dev/null; then
+        echo "  Login successful!"
+        break
+      fi
+      if [ "$attempt" -eq "$LOGIN_RETRIES" ]; then
+        echo "  FAILED: Could not authenticate after $LOGIN_RETRIES attempts"
+        exit 1
+      fi
+      sleep "$LOGIN_DELAY"
+    done
+
+    # --- Ensure realm 'devops' exists ---
+    echo "Ensuring realm 'devops' exists..."
+    if ! "$KCADM" get realms/devops >/dev/null 2>&1; then
+      "$KCADM" create realms \
+        -s realm=devops \
+        -s enabled=true \
+        -s sslRequired=external \
+        -s registrationAllowed=false \
+        -s bruteForceProtected=true
+      echo "  Created devops realm"
+    fi
+
+    # --- Ensure realm-level settings ---
+    echo "Applying realm-level settings..."
+    "$KCADM" update realms/devops \
+      -s wantAuthnRequestsSigned=true \
+      -s sslRequired=external \
+      --merge
+    echo "  wantAuthnRequestsSigned=true confirmed"
+
+    # --- Ensure realm roles exist ---
+    echo "Ensuring realm roles exist..."
+    for role in devops-admin devops-developer devops-viewer; do
+      if ! "$KCADM" get roles/"$role" -r devops >/dev/null 2>&1; then
+        "$KCADM" create roles -r devops \
+          -s name="$role" \
+          -s description="DevOps platform role: $role"
+        echo "  Created role: $role"
+      fi
+    done
+
+    # --- Ensure groups exist and map to roles ---
+    echo "Ensuring groups exist with role mappings..."
+    for grp in devops-admin devops-developer devops-viewer; do
+      GID=$("$KCADM" get groups -r devops -q search="$grp" -o json 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
+      if [ -z "$GID" ]; then
+        "$KCADM" create groups -r devops -s name="$grp"
+        GID=$("$KCADM" get groups -r devops -q search="$grp" -o json 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1)
+      fi
+      "$KCADM" add-roles -r devops --gid "$GID" --rolename "$grp" 2>/dev/null || true
+    done
+
+    # --- Sync SAML clients ---
+    sync_client() {
+      local client_id="$1"
+      local json_file="$2"
+      local secret_value="$3"
+
+      local CID
+      CID=$("$KCADM" get clients -r devops -q clientId="$client_id" -o json 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
+
+      if [ -z "$CID" ]; then
+        echo "Creating client $client_id..."
+        "$KCADM" create clients -r devops -f "$json_file"
+        CID=$("$KCADM" get clients -r devops -q clientId="$client_id" -o json 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1)
+      else
+        echo "Updating client $client_id (id=$CID)..."
+        "$KCADM" update clients/"$CID" -r devops -f "$json_file" --merge
+      fi
+
+      # Set real secret from Vault
+      echo "Setting client secret for $client_id from Vault..."
+      "$KCADM" update clients/"$CID" -r devops -s "secret=$secret_value"
+
+      # Also set SAML signing explicitly
+      echo "Ensuring SAML signing attributes on $client_id..."
+      "$KCADM" update clients/"$CID" -r devops \
+        -s 'saml.assertion.signature=true' \
+        -s 'saml.server.signature=true' \
+        -s 'saml.client.signature=true' \
+        --merge
+
+      # Remove role_list from default scopes (SAML compatibility)
+      local ROLE_LIST_ID
+      ROLE_LIST_ID=$("$KCADM" get clients/"$CID"/default-client-scopes -r devops -o json 2>/dev/null \
+        | grep -oP '"name"\s*:\s*"role_list"[^}]*"id"\s*:\s*"\K[^"]+' || true)
+      if [ -n "$ROLE_LIST_ID" ]; then
+        echo "Removing role_list default scope from $client_id..."
+        "$KCADM" delete clients/"$CID"/default-client-scopes/"$ROLE_LIST_ID" -r devops 2>/dev/null || true
+      fi
+
+      # Ensure protocol mappers
+      local existing_mappers
+      existing_mappers=$("$KCADM" get clients/"$CID"/protocol-mappers/models -r devops -o json 2>/dev/null \
+        | grep -oP '"name"\s*:\s*"\K[^"]+' | tr '\n' ',' || echo "")
+
+      add_mapper() {
+        local name="$1"; shift
+        case ",$existing_mappers," in
+          *",$name,"*) echo "  Mapper $name already exists" ;;
+          *) echo "  Creating mapper $name"; "$KCADM" create clients/"$CID"/protocol-mappers/models -r devops -s name="$name" "$@" ;;
+        esac
+      }
+
+      if [ "$client_id" = "nexus" ]; then
+        add_mapper username \
+          -s protocol=saml \
+          -s protocolMapper=saml-user-property-mapper \
+          -s 'config."user.attribute"=username' \
+          -s 'config."attribute.name"=uid' \
+          -s 'config."friendly.name"=uid'
+        add_mapper email \
+          -s protocol=saml \
+          -s protocolMapper=saml-user-property-mapper \
+          -s 'config."user.attribute"=email' \
+          -s 'config."attribute.name"=mail' \
+          -s 'config."friendly.name"=mail'
+        add_mapper fullName \
+          -s protocol=saml \
+          -s protocolMapper=saml-user-property-mapper \
+          -s 'config."user.attribute"=firstName' \
+          -s 'config."attribute.name"=displayName' \
+          -s 'config."friendly.name"=displayName'
+        add_mapper groups \
+          -s protocol=saml \
+          -s protocolMapper=saml-group-membership-mapper \
+          -s 'config."attribute.name"=groups' \
+          -s 'config."full.path"=false' \
+          -s 'config."friendly.name"=groups'
+      else
+        add_mapper loginName \
+          -s protocol=saml \
+          -s protocolMapper=saml-user-property-mapper \
+          -s 'config."user.attribute"=username' \
+          -s 'config."attribute.name"=login' \
+          -s 'config."friendly.name"=login'
+        add_mapper fullName \
+          -s protocol=saml \
+          -s protocolMapper=saml-user-property-mapper \
+          -s 'config."user.attribute"=firstName' \
+          -s 'config."attribute.name"=name' \
+          -s 'config."friendly.name"=name'
+        add_mapper email \
+          -s protocol=saml \
+          -s protocolMapper=saml-user-property-mapper \
+          -s 'config."user.attribute"=email' \
+          -s 'config."attribute.name"=email' \
+          -s 'config."friendly.name"=email'
+        add_mapper groups \
+          -s protocol=saml \
+          -s protocolMapper=saml-group-membership-mapper \
+          -s 'config."attribute.name"=groups' \
+          -s 'config."full.path"=false' \
+          -s 'config."friendly.name"=groups'
+      fi
+    }
+
+    # --- Nexus SAML client ---
+    cat > /tmp/nexus-client.json << 'JSONEOF'
+    {
+      "clientId": "nexus",
+      "protocol": "saml",
+      "enabled": true,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "standardFlowEnabled": true,
+      "attributes": {
+        "saml.assertion.signature": "true",
+        "saml.server.signature": "true",
+        "saml.server.signature.keyinfo.ext": "false",
+        "saml.signature.algorithm": "RSA_SHA256",
+        "saml.client.signature": "true",
+        "saml_name_id_format": "email",
+        "saml_force_name_id_format": "true",
+        "saml.authnstatement": "true",
+        "saml_single_logout_service_url_redirect": "https://nexus.ebruno.fr/",
+        "saml.assertion.lifespan": "300",
+        "saml.signature.canonicalization.method": "http://www.w3.org/2001/10/xml-exc-c14n#"
+      },
+      "redirectUris": ["https://nexus.ebruno.fr/*"],
+      "webOrigins": ["https://nexus.ebruno.fr"],
+      "adminUrl": "https://nexus.ebruno.fr/service/rest/v1/security/saml/callback",
+      "baseUrl": "https://nexus.ebruno.fr/"
+    }
+    JSONEOF
+
+    # --- SonarQube SAML client ---
+    cat > /tmp/sonarqube-client.json << 'JSONEOF'
+    {
+      "clientId": "sonarqube",
+      "protocol": "saml",
+      "enabled": true,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "standardFlowEnabled": true,
+      "attributes": {
+        "saml.assertion.signature": "true",
+        "saml.server.signature": "true",
+        "saml.server.signature.keyinfo.ext": "false",
+        "saml.signature.algorithm": "RSA_SHA256",
+        "saml.client.signature": "true",
+        "saml_name_id_format": "email",
+        "saml_force_name_id_format": "true",
+        "saml.authnstatement": "true",
+        "saml_single_logout_service_url_redirect": "https://sonarqube.ebruno.fr/",
+        "saml.assertion.lifespan": "300",
+        "saml.signature.canonicalization.method": "http://www.w3.org/2001/10/xml-exc-c14n#"
+      },
+      "redirectUris": ["https://sonarqube.ebruno.fr/*"],
+      "webOrigins": ["https://sonarqube.ebruno.fr"],
+      "adminUrl": "https://sonarqube.ebruno.fr/oauth2/callback/saml",
+      "baseUrl": "https://sonarqube.ebruno.fr/"
+    }
+    JSONEOF
+
+    sync_client nexus /tmp/nexus-client.json "$CLIENT_SECRET_NEXUS_SAML"
+    sync_client sonarqube /tmp/sonarqube-client.json "$CLIENT_SECRET_SONARQUBE_SAML"
+
+    echo ""
+    echo "=== DevOps realm reconciliation complete ==="
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-devops-realm-sync
+  namespace: keycloak
+  annotations: {}
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: kcadm-sync
+          image: quay.io/keycloak/keycloak:26.7.0
+          command:
+            - /bin/bash
+            - /scripts/sync.sh
+          env:
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: adminPassword
+            - name: CLIENT_SECRET_NEXUS_SAML
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: CLIENT_SECRET_NEXUS_SAML
+            - name: CLIENT_SECRET_SONARQUBE_SAML
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: CLIENT_SECRET_SONARQUBE_SAML
+          volumeMounts:
+            - name: sync-script
+              mountPath: /scripts
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: sync-script
+          configMap:
+            name: keycloak-devops-realm-sync-script
+            defaultMode: 0755

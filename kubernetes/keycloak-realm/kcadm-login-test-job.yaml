@@ -3,9 +3,7 @@ kind: Job
 metadata:
   name: keycloak-kcadm-login-test
   namespace: keycloak
-  annotations:
-    argocd.argoproj.io/hook: PostSync
-    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+  annotations: {}
 spec:
   backoffLimit: 3
   template:
