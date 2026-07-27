@@ -3247,3 +3247,4 @@ data:
         "policies": []
       }
     }
+# Auto-trigger ArgoCD re-sync 2026-07-27
