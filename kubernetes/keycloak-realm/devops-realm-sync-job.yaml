@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: keycloak-devops-realm-sync-script
+  name: keycloak-devops-realm-sync-v2-script
   namespace: keycloak
 data:
   sync.sh: |
@@ -246,7 +246,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-devops-realm-sync
+  name: keycloak-devops-realm-sync-v2
   namespace: keycloak
   annotations: {}
 spec:
@@ -289,5 +289,5 @@ spec:
       volumes:
         - name: sync-script
           configMap:
-            name: keycloak-devops-realm-sync-script
+            name: keycloak-devops-realm-sync-v2-script
             defaultMode: 0755

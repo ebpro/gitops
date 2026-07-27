@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-platform-realm-setup
+  name: keycloak-platform-realm-setup-v2
   namespace: keycloak
   annotations: {}
 spec:
