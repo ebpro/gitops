@@ -46,10 +46,9 @@ data:
     # --- Ensure realm-level settings ---
     echo "Applying realm-level settings..."
     "$KCADM" update realms/devops \
-      -s wantAuthnRequestsSigned=true \
       -s sslRequired=external \
       --merge
-    echo "  wantAuthnRequestsSigned=true confirmed"
+    echo "  sslRequired=external confirmed"
 
     # --- Ensure realm roles exist ---
     echo "Ensuring realm roles exist..."
