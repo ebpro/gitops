@@ -36,7 +36,7 @@ spec:
                   --password "$KEYCLOAK_ADMIN_PASSWORD"; then
                   echo "Login successful!"
 
-                  REALMS=$("$KCADM" get realms -o json 2>/dev/null || true)
+                  REALMS=$("$KCADM" get realms 2>/dev/null || true)
                   echo "Realms found:"
                   echo "$REALMS"
 
