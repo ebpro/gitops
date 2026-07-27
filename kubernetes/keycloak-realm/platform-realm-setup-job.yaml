@@ -21,79 +21,94 @@ spec:
               set -euo pipefail
               KCADM=/opt/keycloak/bin/kcadm.sh
               KC_SERVER=http://keycloak-http.keycloak.svc.cluster.local:80
+              REALM="platform"
 
-              # Login with retry
+              echo "=== Keycloak Platform Realm Setup ==="
+
+              # --- Login (with retry) ---
               echo "Waiting for Keycloak admin API..."
-              LOGIN_RETRIES=12
-              LOGIN_DELAY=10
-              for attempt in $(seq 1 "$LOGIN_RETRIES"); do
-                echo "  Login attempt $attempt/$LOGIN_RETRIES..."
+              LOGIN_RETRIES=15
+              for attempt in $(seq 1 $LOGIN_RETRIES); do
+                printf "  Login attempt %d/%d... " "$attempt" "$LOGIN_RETRIES"
                 if "$KCADM" config credentials \
                   --server "$KC_SERVER" \
-                  --realm master --user admin --password "$KEYCLOAK_ADMIN_PASSWORD" 2>/dev/null; then
-                  echo "  Login successful!"
+                  --realm master \
+                  --user admin \
+                  --password "$KEYCLOAK_ADMIN_PASSWORD" 2>/dev/null; then
+                  echo "OK"
                   break
                 fi
                 if [ "$attempt" -eq "$LOGIN_RETRIES" ]; then
-                  echo "  FAILED: Could not authenticate after $LOGIN_RETRIES attempts"
+                  echo "FATAL: Authentication failed after $LOGIN_RETRIES attempts"
                   exit 1
                 fi
-                sleep "$LOGIN_DELAY"
+                echo "retrying..."
+                sleep 10
               done
 
-              REALM="platform"
+              # --- Extract admin token from kcadm session ---
+              echo "Extracting admin token..."
+              ADMIN_TOKEN=$(cat /opt/keycloak/.keycloak/kcadm.config | tr '\n' ' ' | sed 's/.*"token" *: *"\([^"]*\)".*/\1/')
+              if [ -z "$ADMIN_TOKEN" ] || [ "$ADMIN_TOKEN" = "cat /opt/keycloak/.keycloak/kcadm.config | tr '\n' ' ' | sed 's/.*\"token\" *: *\"\\([^\"]*\\)\".*/\1/' ]; then
+                echo "FATAL: Could not extract admin token from kcadm session file"
+                exit 1
+              fi
+              printf "  Token extracted (%d chars)\n" "${#ADMIN_TOKEN}"
 
-              # --- User: bruno (platform-admin) ---
+              # --- Helper: add user to group via /dev/tcp ---
+              add_to_group() {
+                local grp_name="$1"
+                local uid="$2"
+                local gid
+                gid=$("$KCADM" get groups -r "$REALM" -q search="$grp_name" 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
+                if [ -z "$gid" ] || [ -z "$uid" ]; then
+                  echo "    Group/user ID not found, skipping $grp_name"
+                  return 0
+                fi
+                local http_code
+                http_code=$({ exec 5<>/dev/tcp/keycloak-http.keycloak.svc.cluster.local/80; \
+                  printf "PUT /admin/realms/%s/users/%s/groups/%s HTTP/1.1\r\n" "$REALM" "$uid" "$gid" >&5; \
+                  printf "Host: keycloak-http.keycloak.svc.cluster.local:80\r\n" >&5; \
+                  printf "Authorization: Bearer %s\r\n" "$ADMIN_TOKEN" >&5; \
+                  printf "Connection: close\r\n" >&5; \
+                  printf "\r\n" >&5; \
+                  head -1 <&5; \
+                  exec 5>&-; \
+                  } 2>/dev/null || echo "FAILED")
+                if echo "$http_code" | grep -q "204"; then
+                  echo "    Added to $grp_name (HTTP 204)"
+                else
+                  echo "    WARNING: Group assignment for $grp_name returned: $http_code"
+                fi
+              }
+
+              # --- User: bruno ---
               echo "Setting up user bruno..."
               UID_BRUNO=$("$KCADM" get users -r "$REALM" -q username=bruno 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
               if [ -z "$UID_BRUNO" ]; then
-                echo "Creating user bruno..."
-                "$KCADM" create users -r "$REALM" \
-                  -s username=bruno \
-                  -s enabled=true \
-                  -s emailVerified=true \
-                  -s email=bruno@ebruno.fr
-                UID_BRUNO=$("$KCADM" get users -r "$REALM" -q username=bruno -o json | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1)
+                echo "  Creating user bruno..."
+                "$KCADM" create users -r "$REALM" -s username=bruno -s enabled=true -s emailVerified=true -s email=bruno@ebruno.fr
+                UID_BRUNO=$("$KCADM" get users -r "$REALM" -q username=bruno 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1)
               fi
+              echo "  Setting password..."
+              "$KCADM" set-password --username bruno --new-password "$BRUNO_PASSWORD" -r "$REALM"
+              echo "  Assigning to /platform-admins..."
+              add_to_group "platform-admins" "$UID_BRUNO"
 
-              echo "Setting password for bruno..."
-              "$KCADM" update users/"$UID_BRUNO"/reset-password -r "$REALM" \
-                -s type=password \
-                -s value="$BRUNO_PASSWORD" \
-                -s temporary=false
-
-              echo "Assigning bruno to /platform-admins group..."
-              GID_ADMINS=$("$KCADM" get groups -r "$REALM" -q search=platform-admins 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
-              if [ -n "$GID_ADMINS" ]; then
-                "$KCADM" add-groups -r "$REALM" --uid "$UID_BRUNO" --gid "$GID_ADMINS" 2>/dev/null || true
-              fi
-
-              # --- User: ci-runner (platform-engineer) ---
+              # --- User: ci-runner ---
               echo "Setting up user ci-runner..."
               UID_CI=$("$KCADM" get users -r "$REALM" -q username=ci-runner 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
               if [ -z "$UID_CI" ]; then
-                echo "Creating user ci-runner..."
-                "$KCADM" create users -r "$REALM" \
-                  -s username=ci-runner \
-                  -s enabled=true \
-                  -s emailVerified=true \
-                  -s email=ci-runner@ebruno.fr
-                UID_CI=$("$KCADM" get users -r "$REALM" -q username=ci-runner -o json | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1)
+                echo "  Creating user ci-runner..."
+                "$KCADM" create users -r "$REALM" -s username=ci-runner -s enabled=true -s emailVerified=true -s email=ci-runner@ebruno.fr
+                UID_CI=$("$KCADM" get users -r "$REALM" -q username=ci-runner 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1)
               fi
+              echo "  Setting password..."
+              "$KCADM" set-password --username ci-runner --new-password "$CI_RUNNER_PASSWORD" -r "$REALM"
+              echo "  Assigning to /platform-engineers..."
+              add_to_group "platform-engineers" "$UID_CI"
 
-              echo "Setting password for ci-runner..."
-              "$KCADM" update users/"$UID_CI"/reset-password -r "$REALM" \
-                -s type=password \
-                -s value="$CI_RUNNER_PASSWORD" \
-                -s temporary=false
-
-              echo "Assigning ci-runner to /platform-engineers group..."
-              GID_ENG=$("$KCADM" get groups -r "$REALM" -q search=platform-engineers 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
-              if [ -n "$GID_ENG" ]; then
-                "$KCADM" add-groups -r "$REALM" --uid "$UID_CI" --gid "$GID_ENG" 2>/dev/null || true
-              fi
-
-              echo "Platform realm user setup complete."
+              echo "=== Platform realm setup complete ==="
           env:
             - name: KEYCLOAK_ADMIN_PASSWORD
               valueFrom:
