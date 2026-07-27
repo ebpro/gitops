@@ -21,7 +21,7 @@ env:
   CELERY_BROKER_URL: ''
 CELERY_BROKER_URL: amqp://plane:plane@plane-rabbitmq.plane.svc.cluster.local/
 CELERY_WORKER_QUEUE: celery
-  CELERY_WORKER_QUEUE: celery
+CELERY_WORKER_QUEUE: amqp://plane:plane@plane-rabbitmq.plane.svc.cluster.local/
   pgdb_remote_url: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
   PLANE_URL: https://plane.ebruno.fr
   docstore_bucket: uploads
