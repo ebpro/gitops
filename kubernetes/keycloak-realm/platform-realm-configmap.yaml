@@ -1221,7 +1221,10 @@ data:
           "alwaysDisplayInConsole": false,
           "clientAuthenticatorType": "client-secret",
           "redirectUris": [
-            "https://oauth2proxy.ebruno.fr/*"
+            "https://oauth2proxy.ebruno.fr/*",
+            "https://sonarqube.ebruno.fr/oauth2/callback",
+            "https://nexus.ebruno.fr/oauth2/callback",
+            "https://pactbroker.ebruno.fr/oauth2/callback"
           ],
           "webOrigins": [
             "*"

@@ -5,7 +5,7 @@ metadata:
   namespace: sonarqube
 spec:
   forwardAuth:
-    address: http://oauth2-proxy.oauth2-proxy.svc.cluster.local:4180/oauth2/start?rd=https://sonarqube.ebruno.fr/
+    address: http://oauth2-proxy.oauth2-proxy.svc.cluster.local:4180/oauth2/auth
     trustForwardHeader: true
     authResponseHeaders:
       - X-Forwarded-User
@@ -32,6 +32,3 @@ spec:
     stsSeconds: 63072000
     stsIncludeSubdomains: true
     stsPreload: true
-    customRequestHeaders:
-      X-Forwarded-User: "(({{ .Get X-Forwarded-User }}))"
-      X-Forwarded-Email: "(({{ .Get X-Forwarded-Email }}))"
