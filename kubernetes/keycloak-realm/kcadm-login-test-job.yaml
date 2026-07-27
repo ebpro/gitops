@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-kcadm-login-test
+  name: keycloak-kcadm-login-test-v2
   namespace: keycloak
   annotations: {}
 spec:
