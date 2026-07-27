@@ -248,10 +248,7 @@ kind: Job
 metadata:
   name: keycloak-devops-realm-sync
   namespace: keycloak
-  annotations:
-    # FIXME: uncomment after ArgoCD unsticks
-    # argocd.argoproj.io/hook: PostSync
-    # argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+  annotations: {}
 spec:
   backoffLimit: 5
   template:
