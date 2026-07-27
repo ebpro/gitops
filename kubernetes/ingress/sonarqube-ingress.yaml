@@ -10,6 +10,9 @@ spec:
     - kind: Rule
       match: Host(`sonarqube.ebruno.fr`)
       priority: 10
+      middlewares:
+        - name: fwd-auth
+        - name: fwd-auth-headers
       services:
         - name: sonarqube-sonarqube
           port: http

@@ -47,7 +47,9 @@ spec:
             - --cookie-domain=.ebruno.fr
             - --set-authorization-header
             - --pass-access-token
-            - --whitelist-domain=.ebruno.fr
+            - --whitelist-domain=sonarqube.ebruno.fr
+            - --whitelist-domain=nexus.ebruno.fr
+            - --whitelist-domain=pactbroker.ebruno.fr
             - --reverse-proxy=true
             - --skip-auth-route=/ready
             - --skip-auth-route=/healthz
