@@ -1,0 +1,114 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-platform-realm-setup
+  namespace: keycloak
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-keycloak
+          image: curlimages/curl:8.12.1
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for Keycloak to be ready..."
+              for i in $(seq 1 60); do
+                if curl -sf http://keycloak-http.keycloak.svc.cluster.local:80/health/ready; then
+                  echo "Keycloak is ready!"
+                  exit 0
+                fi
+                sleep 5
+              done
+              echo "Keycloak did not become ready in time"
+              exit 1
+      containers:
+        - name: kcadm-setup
+          image: quay.io/keycloak/keycloak:26.7.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              KCADM=/opt/keycloak/bin/kcadm.sh
+
+              echo "Configuring kcadm for platform realm..."
+              "$KCADM" config credentials \
+                --server http://keycloak-http.keycloak.svc.cluster.local:80 \
+                --realm master --user admin --password "$KEYCLOAK_ADMIN_PASSWORD"
+
+              REALM="platform"
+
+              # --- User: bruno (platform-admin) ---
+              echo "Setting up user bruno..."
+              UID_BRUNO=$("$KCADM" get users -r "$REALM" -q username=bruno 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
+              if [ -z "$UID_BRUNO" ]; then
+                echo "Creating user bruno..."
+                "$KCADM" create users -r "$REALM" \
+                  -s username=bruno \
+                  -s enabled=true \
+                  -s emailVerified=true \
+                  -s email=bruno@ebruno.fr
+                UID_BRUNO=$("$KCADM" get users -r "$REALM" -q username=bruno -o json | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1)
+              fi
+
+              echo "Setting password for bruno from Vault..."
+              "$KCADM" update users/"$UID_BRUNO"/reset-password -r "$REALM" \
+                -s type=password \
+                -s value="$BRUNO_PASSWORD" \
+                -s temporary=false
+
+              echo "Assigning bruno to /platform-admins group..."
+              GID_ADMINS=$("$KCADM" get groups -r "$REALM" -q search=platform-admins 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
+              if [ -n "$GID_ADMINS" ]; then
+                "$KCADM" add-groups -r "$REALM" --uid "$UID_BRUNO" --gid "$GID_ADMINS" 2>/dev/null || true
+              fi
+
+              # --- User: ci-runner (platform-engineer) ---
+              echo "Setting up user ci-runner..."
+              UID_CI=$("$KCADM" get users -r "$REALM" -q username=ci-runner 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
+              if [ -z "$UID_CI" ]; then
+                echo "Creating user ci-runner..."
+                "$KCADM" create users -r "$REALM" \
+                  -s username=ci-runner \
+                  -s enabled=true \
+                  -s emailVerified=true \
+                  -s email=ci-runner@ebruno.fr
+                UID_CI=$("$KCADM" get users -r "$REALM" -q username=ci-runner -o json | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1)
+              fi
+
+              echo "Setting password for ci-runner from Vault..."
+              "$KCADM" update users/"$UID_CI"/reset-password -r "$REALM" \
+                -s type=password \
+                -s value="$CI_RUNNER_PASSWORD" \
+                -s temporary=false
+
+              echo "Assigning ci-runner to /platform-engineers group..."
+              GID_ENG=$("$KCADM" get groups -r "$REALM" -q search=platform-engineers 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
+              if [ -n "$GID_ENG" ]; then
+                "$KCADM" add-groups -r "$REALM" --uid "$UID_CI" --gid "$GID_ENG" 2>/dev/null || true
+              fi
+
+              echo "Platform realm user setup complete."
+          env:
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: adminPassword
+            - name: BRUNO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: userPasswordBruno
+            - name: CI_RUNNER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: userPasswordCiRunner

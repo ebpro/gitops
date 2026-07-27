@@ -212,13 +212,42 @@ postgresql:
     enabled: false
 
 serviceMonitor:
-  enabled: false
+  enabled: true
+  namespace: keycloak
+  labels:
+    release: kube-prometheus
+  interval: 30s
+  scrapeTimeout: 10s
+  path: /metrics
+  port: http-management
 
 extraServiceMonitor:
   enabled: false
 
 prometheusRule:
-  enabled: false
+  enabled: true
+  namespace: keycloak
+  labels:
+    release: kube-prometheus
+  groups:
+    - name: keycloak.rules
+      rules:
+        - alert: KeycloakDown
+          expr: up{job="keycloak"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Keycloak instance down"
+            description: "Keycloak has been down for more than 2 minutes."
+        - alert: KeycloakHighMemoryUsage
+          expr: (process_memory_used_bytes{job="keycloak"} / 1) > 3.5e+9
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Keycloak high memory usage"
+            description: "Keycloak is using more than 3.5Gi of memory."
 
 autoscaling:
   enabled: false
