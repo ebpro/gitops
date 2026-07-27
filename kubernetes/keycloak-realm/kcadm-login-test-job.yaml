@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-kcadm-login-test
+  namespace: keycloak
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: kcadm-test
+          image: quay.io/keycloak/keycloak:26.7.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              KCADM=/opt/keycloak/bin/kcadm.sh
+              KC_SERVER=http://keycloak-http.keycloak.svc.cluster.local:80
+
+              echo "=== Keycloak kcadm login test ==="
+              echo "Server: $KC_SERVER"
+              echo "Admin user: admin"
+              echo "Password length from env: ${#KEYCLOAK_ADMIN_PASSWORD}"
+
+              LOGIN_RETRIES=12
+              LOGIN_DELAY=10
+              for attempt in $(seq 1 "$LOGIN_RETRIES"); do
+                echo "Login attempt $attempt/$LOGIN_RETRIES..."
+                if "$KCADM" config credentials \
+                  --server "$KC_SERVER" \
+                  --realm master \
+                  --user admin \
+                  --password "$KEYCLOAK_ADMIN_PASSWORD"; then
+                  echo "Login successful!"
+
+                  REALMS=$("$KCADM" get realms -o json 2>/dev/null || true)
+                  echo "Realms found:"
+                  echo "$REALMS"
+
+                  echo ""
+                  echo "=== kcadm login test PASSED ==="
+                  exit 0
+                fi
+                if [ "$attempt" -eq "$LOGIN_RETRIES" ]; then
+                  echo "FAILED: Could not authenticate after $LOGIN_RETRIES attempts"
+                  echo "Verifying KEYCLOAK_ADMIN_PASSWORD is set: ${KEYCLOAK_ADMIN_PASSWORD:+YES} ${KEYCLOAK_ADMIN_PASSWORD:-UNSET}"
+                  exit 1
+                fi
+                sleep "$LOGIN_DELAY"
+              done
+          env:
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: adminPassword
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi

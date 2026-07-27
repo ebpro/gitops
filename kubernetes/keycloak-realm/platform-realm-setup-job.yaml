@@ -56,7 +56,7 @@ spec:
                 UID_BRUNO=$("$KCADM" get users -r "$REALM" -q username=bruno -o json | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1)
               fi
 
-              echo "Setting password for bruno from Vault..."
+              echo "Setting password for bruno..."
               "$KCADM" update users/"$UID_BRUNO"/reset-password -r "$REALM" \
                 -s type=password \
                 -s value="$BRUNO_PASSWORD" \
@@ -81,7 +81,7 @@ spec:
                 UID_CI=$("$KCADM" get users -r "$REALM" -q username=ci-runner -o json | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1)
               fi
 
-              echo "Setting password for ci-runner from Vault..."
+              echo "Setting password for ci-runner..."
               "$KCADM" update users/"$UID_CI"/reset-password -r "$REALM" \
                 -s type=password \
                 -s value="$CI_RUNNER_PASSWORD" \
