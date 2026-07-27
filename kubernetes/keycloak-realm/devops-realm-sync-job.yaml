@@ -98,14 +98,6 @@ data:
       echo "Setting client secret for $client_id from Vault..."
       "$KCADM" update clients/"$CID" -r devops -s "secret=$secret_value"
 
-      # Also set SAML signing explicitly
-      echo "Ensuring SAML signing attributes on $client_id..."
-      "$KCADM" update clients/"$CID" -r devops \
-        -s 'saml.assertion.signature=true' \
-        -s 'saml.server.signature=true' \
-        -s 'saml.client.signature=true' \
-        --merge
-
       # Remove role_list from default scopes (SAML compatibility)
       local ROLE_LIST_ID
       ROLE_LIST_ID=$("$KCADM" get clients/"$CID"/default-client-scopes -r devops 2>/dev/null \
