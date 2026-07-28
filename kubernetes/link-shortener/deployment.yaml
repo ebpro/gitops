@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: link-shortener
-          image: docker.io/ebpro/link-shortener:1.0.0
+          image: harbor.ebruno.fr/link-shortener/link-shortener:latest
           imagePullPolicy: Always
           env:
             - name: QUARKUS_DATASOURCE_JDBC_URL

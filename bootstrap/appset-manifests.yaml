@@ -19,6 +19,8 @@ spec:
           - path: kubernetes/matrix/element
           - path: kubernetes/matrix/synapse
           - path: kubernetes/observability
+          - path: kubernetes/argocd-image-updater
+          - path: kubernetes/harbor-init
   template:
     metadata:
       name: '{{path.basename}}'

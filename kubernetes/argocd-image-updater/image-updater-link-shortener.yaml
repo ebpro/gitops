@@ -1,0 +1,18 @@
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: link-shortener
+  namespace: argocd
+spec:
+  applicationRefs:
+    - namePattern: link-shortener
+      images:
+        - imageName: harbor.ebruno.fr/link-shortener/link-shortener
+          alias: link-shortener
+          commonUpdateSettings:
+            allowTags: "^[0-9]+@[0-9]+@is[0-9]+$"
+            forceUpdate: false
+            updateStrategy: latest
+            pullSecret: argocd/image-updater-creds
+  writeBackConfig:
+    method: "git:argocd/image-updater-creds"

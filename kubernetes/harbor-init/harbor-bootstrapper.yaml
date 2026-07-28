@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: harbor-bootstrapper
+  namespace: harbor
+spec:
+  template:
+    spec:
+      serviceAccountName: harbor-bootstrapper
+      containers:
+        - name: harbor-bootstrapper
+          image: curlimages/curl:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              API="http://harbor-core:8080/api/v2.0"
+              CRED="admin:Harbor12345"
+
+              for proj in link-shortener gitea quay; do
+                exists=$(curl -s -u "$CRED" "$API/projects?name=$proj" | grep -c '"project_name"')
+                if [ "$exists" = "0" ]; then
+                  echo "Creating project $proj..."
+                  curl -s -u "$CRED" "$API/projects" \
+                    -X POST -H "Content-Type: application/json" \
+                    -d "{\"project_name\": \"$proj\", \"public\": true}"
+                  echo ""
+                else
+                  echo "Project $proj already exists, skipping"
+                fi
+              done
+
+              for proj in link-shortener gitea quay; do
+                eid=$(curl -s -u "$CRED" "$API/projects/$proj/members/users" \
+                  | grep -m1 '"user_id":' | grep -o '[0-9]*')
+                if echo "$eid" | grep -q '[0-9]' && [ "$eid" != "0" ]; then
+                  echo "Granting admin to $eid on $proj"
+                  curl -s -u "$CRED" "$API/projects/$proj/members/users/$eid" \
+                    -X PUT -H "Content-Type: application/json" \
+                    -d '{"role_id": 1}'
+                  echo ""
+                fi
+              done
+      restartPolicy: Never

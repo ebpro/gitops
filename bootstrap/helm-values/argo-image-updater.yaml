@@ -1,21 +1,27 @@
 config:
   kube.events: false
   log.level: "info"
-  git.user: "ArgoCD Image Updater"
-  git.email: "image-updater@argocd"
+  git.user: "ebpro"
+  git.email: "gitops@ebpro.dev"
+  git.write-back: secret
+  git.write-back-method: commit
+  git.write-back-secret: argocd/image-updater-creds
   git.commit-message-template: |
-    Update {{.Image.Name}}: {{.Image.TagVersion}} -> {{.NewImage.TagVersion}}
+    {{.App}}: Update {{.Image.Name}} {{.Image.TagVersion}} -> {{.NewImage.TagVersion}}
+    Commit-by: ArgoCD Image Updater
 
   registries:
     - name: Docker Hub
       api_url: https://registry-1.docker.io
       ping: yes
       defaultns: library
+      credentials: secret:argocd/image-updater-creds#.dockerconfigjson
     - name: Harbor
       api_url: https://harbor.ebruno.fr
       ping: no
       insecure: yes
       prefix: harbor.ebruno.fr
+      credentials: secret:argocd/image-updater-creds#.dockerconfigjson
 
 extraArgs: []
 
