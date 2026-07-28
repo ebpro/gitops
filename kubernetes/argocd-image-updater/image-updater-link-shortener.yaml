@@ -13,6 +13,6 @@ spec:
             allowTags: "latest"
             forceUpdate: true
             updateStrategy: newest-build
-            pullSecret: image-updater-creds
+            pullSecret: "kubernetes-secret: image-updater-creds"
   writeBackConfig:
     method: git
