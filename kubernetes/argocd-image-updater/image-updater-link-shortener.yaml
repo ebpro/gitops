@@ -9,9 +9,10 @@ spec:
       images:
         - imageName: harbor.ebruno.fr/link-shortener/link-shortener
           alias: link-shortener
-          updateStrategy: regexp
-          allowTags:
-            - "latest"
-          forceUpdate: true
+          commonUpdateSettings:
+            updateStrategy: latest
+            allowTags:
+              - "^latest$"
+            forceUpdate: true
   writeBackConfig:
     method: git
