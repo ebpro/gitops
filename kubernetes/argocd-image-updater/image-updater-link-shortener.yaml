@@ -9,10 +9,9 @@ spec:
       images:
         - imageName: harbor.ebruno.fr/link-shortener/link-shortener
           alias: link-shortener
-          commonUpdateSettings:
-            allowTags: "latest"
-            forceUpdate: true
-            updateStrategy: newest-build
-            pullSecret: "kubernetes-secret: image-updater-creds"
+          updateStrategy: regexp
+          allowTags:
+            - "latest"
+          forceUpdate: true
   writeBackConfig:
     method: git
