@@ -13,4 +13,4 @@ spec:
             updateStrategy: newest-build
             forceUpdate: true
   writeBackConfig:
-    method: git
+    method: git:secret:argocd/image-updater-creds

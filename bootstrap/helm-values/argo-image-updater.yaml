@@ -6,9 +6,7 @@ config:
   git.write-back: secret
   git.write-back-method: commit
   git.write-back-secret: argocd/image-updater-creds
-  git.commit-message-template: |
-    {{.App}}: Update {{.Image.Name}} {{.Image.TagVersion}} -> {{.NewImage.TagVersion}}
-    Commit-by: ArgoCD Image Updater
+  git.commit-message-template: Update {{.images}}
 
   registries:
     - name: Docker Hub
