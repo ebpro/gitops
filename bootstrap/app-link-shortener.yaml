@@ -11,6 +11,8 @@ spec:
     repoURL: https://github.com/ebpro/gitops
     targetRevision: main
     path: kubernetes/link-shortener
+    plugin:
+      name: kustomize
   destination:
     server: https://kubernetes.default.svc
   syncPolicy:

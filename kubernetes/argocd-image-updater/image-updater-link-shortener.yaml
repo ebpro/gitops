@@ -10,9 +10,9 @@ spec:
         - imageName: harbor.ebruno.fr/link-shortener/link-shortener
           alias: link-shortener
           commonUpdateSettings:
-            allowTags: "^[0-9]+@[0-9]+@is[0-9]+$"
+            allowTags: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
             forceUpdate: false
             updateStrategy: latest
             pullSecret: argocd/image-updater-creds
   writeBackConfig:
-    method: "git:argocd/image-updater-creds"
+    method: "git:secret:argocd/image-updater-creds"
