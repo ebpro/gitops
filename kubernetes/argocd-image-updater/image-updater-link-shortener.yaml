@@ -10,7 +10,7 @@ spec:
         - imageName: harbor.ebruno.fr/link-shortener/link-shortener
           alias: link-shortener
           commonUpdateSettings:
-            allowTags: "^2026-[0-9]+\-?[0-9]+@isovalues[a-zA-Z]+$"
+            allowTags: "^latest$"
             forceUpdate: true
             updateStrategy: newest-build
             pullSecret: image-updater-creds
