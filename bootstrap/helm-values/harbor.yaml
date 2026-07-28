@@ -55,10 +55,22 @@ resources:
       memory: 128Mi
 core:
   extraEnvVars:
-    - name: HARBOR_OIDC_CLIENT_SECRET
+    - name: CORE_AUTH_MODE
+      value: oidc_auth
+    - name: CORE_OIDC_ENABLED
+      value: "true"
+    - name: CORE_OIDC_NAME
+      value: Keycloak
+    - name: CORE_OIDC_CLIENT_ID
+      value: harbor
+    - name: CORE_OIDC_CLIENT_SECRET
       valueFrom:
         secretKeyRef:
           name: harbor-oidc-secret
           key: Harboroidcclientsecret
+    - name: CORE_OIDC_ENDPOINT
+      value: https://keycloak.ebruno.fr/realms/platform
+    - name: CORE_OIDC_SCOPE
+      value: openid profile email
 service:
   type: ClusterIP

@@ -43,7 +43,6 @@ sonarProperties:
   sonar.web.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=web
   sonar.core.cryptoSecret: fixedkey1234567890123456789012
   sonar.security.textblock.cipherType: None
-sonarSecretProperties: sonarqube-oidc-secret
 startupProbe:
   failureThreshold: 60
   periodSeconds: 10

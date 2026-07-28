@@ -58,8 +58,8 @@ gitea:
       START_SSH_SERVER: true
     service:
       DISABLE_REGISTRATION: true
-      ENABLE_PASSWORD_SIGNIN_FORM: true
-      REQUIRE_SIGNIN_VIEW: false
+      ENABLE_PASSWORD_SIGNIN_FORM: false
+      REQUIRE_SIGNIN_VIEW: true
     oauth2_client:
       ENABLE_AUTO_REGISTRATION: true
       USERNAME: preferred_username
