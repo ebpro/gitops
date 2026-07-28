@@ -10,9 +10,7 @@ spec:
         - imageName: harbor.ebruno.fr/link-shortener/link-shortener
           alias: link-shortener
           commonUpdateSettings:
-            updateStrategy: latest
-            allowTags:
-              - "^latest$"
+            updateStrategy: newest-build
             forceUpdate: true
   writeBackConfig:
     method: git
