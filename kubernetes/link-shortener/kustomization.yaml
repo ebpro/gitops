@@ -3,7 +3,3 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - service.yaml
-images:
-  - name: harbor.ebruno.fr/link-shortener/link-shortener
-    newName: harbor.ebruno.fr/link-shortener/link-shortener
-    newTag: latest
