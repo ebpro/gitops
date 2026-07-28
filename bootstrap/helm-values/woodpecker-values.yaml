@@ -22,7 +22,7 @@ server:
     # Forge: Gitea with OAuth
     WOODPECKER_GITEA: "true"
     WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
-    WOODPECKER_GITEA_ID: "441a812de1904044012517b6c72819cdaa2156d31713dbed"
+    WOODPECKER_GITEA_CLIENT: "441a812de1904044012517b6c72819cdaa2156d31713dbed"
     WOODPECKER_GITEA_SECRET:
       valueFrom:
         secretKeyRef:
@@ -37,21 +37,11 @@ server:
         secretKeyRef:
           name: woodpecker-db-app
           key: fqdn-uri
-    # OIDC (Keycloak)
-    WOODPECKER_OPEN_ID: "true"
-    WOODPECKER_OPEN_ID_CONFIG: "oidc"
-    WOODPECKER_OPEN_ID_ISSUER: "https://keycloak.ebruno.fr/realms/platform"
-    WOODPECKER_OPEN_ID_CLIENT: "woodpecker"
-    WOODPECKER_OPEN_ID_SCOPES: "openid profile email groups"
     # Logging
     WOODPECKER_LOG_LEVEL: "debug"
     WOODPECKER_LOG_FORMAT: "text"
     # Server secret — required for agent⇆server encryption (v3)
     WOODPECKER_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
-
-  # Inject DB creds and OIDC secret from ExternalSecrets
-  extraSecretNamesForEnvFrom:
-    - woodpecker-oidc-secret
 
   serviceAccount:
     create: true
