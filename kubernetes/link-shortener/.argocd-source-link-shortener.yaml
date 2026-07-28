@@ -1,0 +1,3 @@
+kustomize:
+  images:
+  - harbor.ebruno.fr/link-shortener/link-shortener:1.0.1
