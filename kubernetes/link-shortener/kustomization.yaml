@@ -3,3 +3,5 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - service.yaml
+patches:
+  - path: patch-deployment-pull-secret.yaml
