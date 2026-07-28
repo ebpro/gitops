@@ -3,3 +3,4 @@ kind: Kustomization
 
 resources:
   - image-updater-link-shortener.yaml
+  - image-updater-rbac.yaml
