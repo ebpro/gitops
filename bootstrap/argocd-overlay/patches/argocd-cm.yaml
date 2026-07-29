@@ -29,3 +29,28 @@ data:
     p, g:/readonly, role:readonly
     p, g:/developers/qa-team, role:readonly
     p, g:/developers/security-team, role:readonly
+  resource.customizations.postgresql.cnpg.io_Cluster: |
+    healthLuke: |
+      hs.status = "Progressing"
+      hs.message = ""
+      if obj.status then
+        if obj.status.conditions then
+          for i, condition in ipairs(obj.status.conditions) do
+            if condition.type == "Ready" then
+              if condition.status == "True" then
+                hs.status = "Healthy"
+                hs.message = "Cluster is Ready"
+              elseif condition.status == "False" then
+                hs.status = "Degraded"
+                hs.message = condition.message or "Cluster not Ready"
+              end
+            elseif condition.type == "Created" and condition.status == "True" then
+              hs.status = "Progressing"
+              hs.message = "Cluster has been created"
+            end
+          end
+        end
+        if obj.status.phase then
+          hs.message = hs.message .. " (phase: " .. obj.status.phase .. ")"
+        end
+      end
