@@ -34,13 +34,7 @@ server:
     # Forge: Gitea (repo access, pipeline hooks, webhooks)
     WOODPECKER_GITEA: "true"
     WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
-    WOODPECKER_GITEA_CLIENT: "441a812de1904044012517b6c72819cdaa2156d31713dbed"
-    WOODPECKER_GITEA_SECRET:
-      valueFrom:
-        secretKeyRef:
-          name: woodpecker-gitea-oauth
-          key: secret
-    # Driver: OIDC (Keycloak) — user login only, Forge OAuth != User login
+    # Driver: OIDC (Keycloak) — pure OIDC login, Forge OAuth removed
     WOODPECKER_OPEN_ID: "true"
     WOODPECKER_OPEN_ID_CONFIG: "oidc"
     WOODPECKER_OPEN_ID_ISSUER: "https://keycloak.ebruno.fr/realms/platform"
