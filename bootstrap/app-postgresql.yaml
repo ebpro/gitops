@@ -34,4 +34,3 @@ spec:
     - /metadata/annotations
     - /metadata/resourceVersion
     - /metadata/creationTimestamp
-    - /status

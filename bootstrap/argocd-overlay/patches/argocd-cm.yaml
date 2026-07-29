@@ -29,5 +29,3 @@ data:
     p, g:/readonly, role:readonly
     p, g:/developers/qa-team, role:readonly
     p, g:/developers/security-team, role:readonly
-  resource.customizations: ""
-  resource.customizations.ignoreResourceUpdates.all: ""

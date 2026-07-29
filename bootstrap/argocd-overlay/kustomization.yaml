@@ -11,3 +11,7 @@ patches:
       kind: CustomResourceDefinition
       name: applications.argoproj.io
     path: patches/crd-applications-resource-ignore-differences.yaml
+  - target:
+      kind: ConfigMap
+      name: argocd-cm
+    path: patches/remove-status-stripping-patch.json
