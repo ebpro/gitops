@@ -15,6 +15,7 @@ data:
   controller.log.level: info
   controller.operation.processors: "10"
   controller.repo.server.timeout.seconds: "60"
+  controller.resource.health.persist: "true"
   controller.self.heal.timeout.seconds: "5"
   controller.status.processors: "20"
   otlp.address: ""
