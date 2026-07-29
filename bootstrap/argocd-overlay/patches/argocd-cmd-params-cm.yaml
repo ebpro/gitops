@@ -24,23 +24,23 @@ data:
   reposerver.log.level: info
   reposerver.parallelism.limit: "0"
   resource.customizations.health: |
-    /v1/Service:
+    /Service:
       health.lua: |
         hs = { status = "Healthy", message = "Service exists" }
         return hs
-    /v1/Secret:
+    /Secret:
       health.lua: |
         hs = { status = "Healthy", message = "Secret exists" }
         return hs
-    /v1/ConfigMap:
+    /ConfigMap:
       health.lua: |
         hs = { status = "Healthy", message = "ConfigMap exists" }
         return hs
-    /v1/PersistentVolumeClaim:
+    /PersistentVolumeClaim:
       health.lua: |
         hs = { status = "Healthy", message = "PVC exists" }
         return hs
-    /v1/ServiceAccount:
+    /ServiceAccount:
       health.lua: |
         hs = { status = "Healthy", message = "ServiceAccount exists" }
         return hs
