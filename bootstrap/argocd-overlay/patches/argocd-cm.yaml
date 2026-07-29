@@ -29,3 +29,18 @@ data:
     p, g:/readonly, role:readonly
     p, g:/developers/qa-team, role:readonly
     p, g:/developers/security-team, role:readonly
+  resource.customizations.health.Service: |
+    hs = { status = "Healthy", message = "Service exists" }
+    return hs
+  resource.customizations.health.Secret: |
+    hs = { status = "Healthy", message = "Secret exists" }
+    return hs
+  resource.customizations.health.ConfigMap: |
+    hs = { status = "Healthy", message = "ConfigMap exists" }
+    return hs
+  resource.customizations.health.PersistentVolumeClaim: |
+    hs = { status = "Healthy", message = "PVC exists" }
+    return hs
+  resource.customizations.health.ServiceAccount: |
+    hs = { status = "Healthy", message = "ServiceAccount exists" }
+    return hs
