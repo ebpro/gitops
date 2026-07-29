@@ -34,16 +34,4 @@ spec:
     - /metadata/annotations
     - /metadata/resourceVersion
     - /metadata/creationTimestamp
-  resourceHealthOverrides:
-  - group: postgresql.cnpg.io
-    kind: Cluster
-    override:
-    - path: status.ready
-      successMessage: "Cluster is ready"
-      targetValues: ["=*"]
-  - group: external-secrets.io
-    kind: ExternalSecret
-    override:
-    - path: status.capabilities
-      successMessage: "ExternalSecret is synced"
-      targetValues: ["Read", "ReadWrite"]
+

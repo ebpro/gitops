@@ -32,3 +32,6 @@ data:
   resource.customizations.health.postgresql.cnpg.io.Cluster: |
     hs = { status = "Healthy", message = "CNPG Cluster exists" }
     return hs
+  resource.customizations.health.external-secrets.io.ExternalSecret: |
+    hs = { status = "Healthy", message = "ExternalSecret synced" }
+    return hs
