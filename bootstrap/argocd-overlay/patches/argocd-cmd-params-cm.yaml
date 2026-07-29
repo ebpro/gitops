@@ -36,3 +36,5 @@ data:
   server.rootpath: ""
   server.staticassets: /shared/app
   server.x.frame.options: sameorigin
+  resource.exclusions: |-
+    []
