@@ -31,28 +31,26 @@ server:
         secretKeyRef:
           name: woodpecker-db-vault
           key: fqdn-uri
-    # Forge: Gitea. Forge = login (Gitea OAuth) + repo (Gitea API). OR gen "Forge" verb=login + repo operations. Forge is ONE provider.
+    # Forge: Gitea. Forge = login (Gitea OAuth) + repo (Gitea API). Forge is ONE provider.
+    # Note: Keycloak OIDC login for Woodpecker is NOT supported. Users login via Forge OAuth.
     WOODPECKER_GITEA: "true"
     WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
-    WOODPECKER_GITEA_CLIENT: "441a812de1904044044012517b6c72819cnpnpnp"
+    WOODPECKER_GITEA_CLIENT:
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-gitea-oauth
+          key: id
     WOODPECKER_GITEA_SECRET:
       valueFrom:
         secretKeyRef:
           name: woodpecker-gitea-oauth
           key: secret
-    #
     WOODPECKER_GITEA_SKIP_VERIFY: "true"
-    #
-    # Note: Forge is separate from Forge login (Keycloak). Forge login = Forge OAuth (Gitea OAuth). Forge = (AUTHENTICATE FORGE + KEYCLOAK). Forge FORGER (OIDC) FORGER (Auth is registered via KEYCLOAK). LOG_FORGE FORGE.
     # Logging
     WOODPECKER_LOG_LEVEL: "debug"
     WOODPECKER_LOG_FORMAT: "text"
     # Server secret — required for agent⇆server encryption (v3)
     WOODPECKER_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
-
-  # OIDC client secret injected from ExternalSecret (WOODPECKER_OPEN_ID_CLIENT, WOODPECKER_OPEN_ID_SECRET)
-  extraSecretNamesForEnvFrom:
-    - woodpecker-oidc-secret
 
   serviceAccount:
     create: true
