@@ -222,90 +222,90 @@ spec:
         maxDuration: 5m
     syncOptions:
     - CreateNamespace=true
-    resourceIgnoreDifferences:
-    - group: apiextensions.k8s.io
-      kind: CustomResourceDefinition
-      jqPathExpressions:
-      - del(.metadata)
-      - del(.spec.versions)
-      - del(.spec.conversion)
-      - del(.spec.validation)
-      - del(.spec.additionalPrinterColumns)
-      - del(.spec.preserveUnknownFields)
-      - del(.spec.group)
-      - del(.spec.names)
-      - del(.spec.scope)
-      - del(.status)
-      jsonPointers:
-      - /spec
-      - /status
-    - group: monitoring.coreos.com
-      kind: Alertmanager
-      jqPathExpressions:
-      - del(.metadata)
-      - del(.status)
-      - del(.spec.resources.requests)
-      - del(.spec.template)
-    - group: monitoring.coreos.com
-      kind: Prometheus
-      jqPathExpressions:
-      - del(.metadata)
-      - del(.status)
-      - del(.spec.resources.requests)
-      - del(.spec.template)
-      - del(.spec.externalUrl)
-      - del(.spec.alerting.alertmanagers[].namespace)
-      - del(.spec.evaluationInterval)
-      - del(.spec.scrapeInterval)
-      - del(.spec.scrapeConfigSelector)
-      - del(.spec.tsdb)
-    - group: monitoring.coreos.com
-      kind: ServiceMonitor
-      jsonPointers:
-      - /metadata/managedFields
-      - /metadata/annotations
-      - /metadata/resourceVersion
-    - group: monitoring.coreos.com
-      kind: PodMonitor
-      jsonPointers:
-      - /metadata/managedFields
-      - /metadata/annotations
-      - /metadata/resourceVersion
-    - group: monitoring.coreos.com
-      kind: PrometheusRule
-      jsonPointers:
-      - /metadata/managedFields
-      - /metadata/annotations
-    - group: batch
-      kind: Job
-      jsonPointers:
-      - /status
-      - /metadata/managedFields
-      - /metadata/annotations
-      jqPathExpressions:
-      - .status
-    - group: ""
-      kind: PersistentVolumeClaim
-      jsonPointers:
-      - /spec/volumeName
-    - group: ""
-      kind: Secret
-      name: kube-prometheus-grafana
-      jsonPointers:
-      - /data
-      - /metadata
-      - /type
-    - group: ""
-      kind: ConfigMap
-      name: kube-prometheus-grafana
-      jsonPointers:
-      - /data
-      - /metadata
-    - group: apps
-      kind: Deployment
-      name: kube-prometheus-grafana
-      jsonPointers:
-      - /metadata
-      - /spec/template/metadata
-      - /spec/template/spec
+  ignoreDifferences:
+  - group: apiextensions.k8s.io
+    kind: CustomResourceDefinition
+    jqPathExpressions:
+    - del(.metadata)
+    - del(.spec.versions)
+    - del(.spec.conversion)
+    - del(.spec.validation)
+    - del(.spec.additionalPrinterColumns)
+    - del(.spec.preserveUnknownFields)
+    - del(.spec.group)
+    - del(.spec.names)
+    - del(.spec.scope)
+    - del(.status)
+    jsonPointers:
+    - /spec
+    - /status
+  - group: monitoring.coreos.com
+    kind: Alertmanager
+    jqPathExpressions:
+    - del(.metadata)
+    - del(.status)
+    - del(.spec.resources.requests)
+    - del(.spec.template)
+  - group: monitoring.coreos.com
+    kind: Prometheus
+    jqPathExpressions:
+    - del(.metadata)
+    - del(.status)
+    - del(.spec.resources.requests)
+    - del(.spec.template)
+    - del(.spec.externalUrl)
+    - del(.spec.alerting.alertmanagers[].namespace)
+    - del(.spec.evaluationInterval)
+    - del(.spec.scrapeInterval)
+    - del(.spec.scrapeConfigSelector)
+    - del(.spec.tsdb)
+  - group: monitoring.coreos.com
+    kind: ServiceMonitor
+    jsonPointers:
+    - /metadata/managedFields
+    - /metadata/annotations
+    - /metadata/resourceVersion
+  - group: monitoring.coreos.com
+    kind: PodMonitor
+    jsonPointers:
+    - /metadata/managedFields
+    - /metadata/annotations
+    - /metadata/resourceVersion
+  - group: monitoring.coreos.com
+    kind: PrometheusRule
+    jsonPointers:
+    - /metadata/managedFields
+    - /metadata/annotations
+  - group: batch
+    kind: Job
+    jsonPointers:
+    - /status
+    - /metadata/managedFields
+    - /metadata/annotations
+    jqPathExpressions:
+    - .status
+  - group: ""
+    kind: PersistentVolumeClaim
+    jsonPointers:
+    - /spec/volumeName
+  - group: ""
+    kind: Secret
+    name: kube-prometheus-grafana
+    jsonPointers:
+    - /data
+    - /metadata
+    - /type
+  - group: ""
+    kind: ConfigMap
+    name: kube-prometheus-grafana
+    jsonPointers:
+    - /data
+    - /metadata
+  - group: apps
+    kind: Deployment
+    name: kube-prometheus-grafana
+    jsonPointers:
+    - /metadata
+    - /spec/template/metadata
+    - /spec/template/spec
 
