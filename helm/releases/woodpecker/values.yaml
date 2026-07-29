@@ -19,9 +19,6 @@ server:
 
   env:
     WOODPECKER_ADMIN: "bruno,ci-runner"
-    # Forge: Gitea
-    WOODPECKER_GITEA: "true"
-    WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
     # Host
     WOODPECKER_HOST: "https://woodpecker.ebruno.fr"
     # Database: external CNPG
@@ -35,13 +32,12 @@ server:
     WOODPECKER_OPEN_ID: "true"
     WOODPECKER_OPEN_ID_CONFIG: "oidc"
     WOODPECKER_OPEN_ID_ISSUER: "https://keycloak.ebruno.fr/realms/platform"
-    WOODPECKER_OPEN_ID_CLIENT: "woodpecker"
     WOODPECKER_OPEN_ID_SCOPES: "openid profile email groups"
     # Logging
     WOODPECKER_LOG_LEVEL: "debug"
     WOODPECKER_LOG_FORMAT: "text"
 
-  # Inject DB creds and OIDC secret from ExternalSecrets
+  # OIDC client secret injected via ExternalSecret
   extraSecretNamesForEnvFrom:
     - woodpecker-oidc-secret
 

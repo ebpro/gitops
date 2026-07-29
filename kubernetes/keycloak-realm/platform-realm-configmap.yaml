@@ -431,7 +431,8 @@ data:
             }
           ],
           "vault": [],
-          "microcks": []
+          "microcks": [],
+          "woodpecker": []
         }
       },
       "groups": [
@@ -1038,7 +1039,7 @@ data:
           "alwaysDisplayInConsole": false,
           "clientAuthenticatorType": "client-secret",
           "redirectUris": [
-            "https://woodpecker.ebruno.fr/oidc/callback"
+            "https://woodpecker.ebruno.fr/login/oidc"
           ],
           "webOrigins": [
             "*"
