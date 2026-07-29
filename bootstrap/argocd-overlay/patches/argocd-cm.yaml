@@ -29,7 +29,7 @@ data:
     p, g:/readonly, role:readonly
     p, g:/developers/qa-team, role:readonly
     p, g:/developers/security-team, role:readonly
-  resource.customizations.postgresql.cnpg.io_Cluster: |
+  resource.customizations.postgresql_cnpg_io_Cluster: |
     healthLuke: |
       hs.status = "Progressing"
       hs.message = ""
