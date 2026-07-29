@@ -44,3 +44,79 @@ data:
   resource.customizations.health.ServiceAccount: |
     hs = { status = "Healthy", message = "ServiceAccount exists" }
     return hs
+  resource.customizations.health.external-secrets.io.v1.ExternalSecret: |
+    if obj.status == nil or obj.status.conditions == nil then
+      hs = { status = "Progressing", message = "ExternalSecret not yet reconciled" }
+      return hs
+    end
+    for _, cond in ipairs(obj.status.conditions) do
+      if cond.type == "Ready" then
+        if cond.status == "True" then
+          hs = { status = "Healthy", message = "ExternalSecret synced" }
+          return hs
+        end
+        hs = { status = "Degraded", message = cond.message }
+        return hs
+      end
+    end
+    hs = { status = "Degraded", message = "No Ready condition" }
+    return hs
+  resource.customizations.health.postgresql.cnpg.io.v1.Cluster: |
+    hs = { status = "Healthy", message = "CNPG Cluster exists" }
+    return hs
+  resource.customizations.health.batch.v1.CronJob: |
+    hs = { status = "Healthy", message = "CronJob exists" }
+    return hs
+  resource.customizations.health.traefik.io.v1alpha1.IngressRoute: |
+    hs = { status = "Healthy", message = "Traefik IngressRoute exists" }
+    return hs
+  resource.customizations.health.traefik.io.v1alpha1.Middleware: |
+    hs = { status = "Healthy", message = "Traefik Middleware exists" }
+    return hs
+  resource.customizations.health.traefik.io.v1alpha1.ServersTransport: |
+    hs = { status = "Healthy", message = "Traefik ServersTransport exists" }
+    return hs
+  resource.customizations.health.traefik.io.v1.IngressRoute: |
+    hs = { status = "Healthy", message = "Traefik IngressRoute exists" }
+    return hs
+  resource.customizations.health.traefik.io.v1.Middleware: |
+    hs = { status = "Healthy", message = "Traefik Middleware exists" }
+    return hs
+  resource.customizations.health.traefik.io.v1.ServersTransport: |
+    hs = { status = "Healthy", message = "Traefik ServersTransport exists" }
+    return hs
+  resource.customizations.health.apiextensions.k8s.io.v1.CustomResourceDefinition: |
+    hs = { status = "Healthy", message = "CRD exists" }
+    return hs
+  resource.customizations.health.admissionregistration.k8s.io.v1.MutatingWebhookConfiguration: |
+    hs = { status = "Healthy", message = "MutatingWebhookConfiguration exists" }
+    return hs
+  resource.customizations.health.admissionregistration.k8s.io.v1.ValidatingWebhookConfiguration: |
+    hs = { status = "Healthy", message = "ValidatingWebhookConfiguration exists" }
+    return hs
+  resource.customizations.health.rbac.authorization.k8s.io.v1.ClusterRole: |
+    hs = { status = "Healthy", message = "ClusterRole exists" }
+    return hs
+  resource.customizations.health.rbac.authorization.k8s.io.v1.ClusterRoleBinding: |
+    hs = { status = "Healthy", message = "ClusterRoleBinding exists" }
+    return hs
+  resource.customizations.health.rbac.authorization.k8s.io.v1.Role: |
+    hs = { status = "Healthy", message = "Role exists" }
+    return hs
+  resource.customizations.health.rbac.authorization.k8s.io.v1.RoleBinding: |
+    hs = { status = "Healthy", message = "RoleBinding exists" }
+    return hs
+  resource.customizations.health.opentelemetry.io.v1alpha1.OpenTelemetryCollector: |
+    if obj.status == nil then
+      hs = { status = "Progressing", message = "OpenTelemetryCollector not yet reconciled" }
+      return hs
+    end
+    if obj.status.phase == "ready" or obj.status.phase == "healthy" then
+      hs = { status = "Healthy", message = "OpenTelemetryCollector ready" }
+      return hs
+    end
+    hs = { status = "Progressing", message = obj.status.phase or "unknown phase" }
+    return hs
+  resource.customizations.health.monitoring.coreos.com.v1.PrometheusRule: |
+    hs = { status = "Healthy", message = "PrometheusRule exists" }
+    return hs
