@@ -21,6 +21,9 @@ server:
     WOODPECKER_ADMIN: "bruno,ci-runner"
     # Host
     WOODPECKER_HOST: "https://woodpecker.ebruno.fr"
+    # Server binding
+    WOODPECKER_HTTP_ADDR: ":8000"
+    WOODPECKER_GRPC_ADDR: ":9000"
     # Database: external CNPG
     WOODPECKER_DATABASE_DRIVER: "postgres"
     WOODPECKER_DATABASE_DATASOURCE:

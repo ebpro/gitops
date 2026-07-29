@@ -21,6 +21,9 @@ server:
     WOODPECKER_ADMIN: "bruno,ci-runner"
     # Host
     WOODPECKER_HOST: "https://woodpecker.ebruno.fr"
+    # Server binding (chart expects HTTP on 8000, gRPC on 9000)
+    WOODPECKER_HTTP_ADDR: ":8000"
+    WOODPECKER_GRPC_ADDR: ":9000"
     # Database: external CNPG
     WOODPECKER_DATABASE_DRIVER: "postgres"
     WOODPECKER_DATABASE_DATASOURCE:
@@ -36,6 +39,8 @@ server:
     # Logging
     WOODPECKER_LOG_LEVEL: "debug"
     WOODPECKER_LOG_FORMAT: "text"
+    # Server secret
+    WOODPECKER_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
 
   # OIDC client secret injected via ExternalSecret
   extraSecretNamesForEnvFrom:
