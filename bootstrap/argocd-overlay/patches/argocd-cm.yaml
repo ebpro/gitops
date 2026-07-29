@@ -30,7 +30,7 @@ data:
     p, g:/developers/qa-team, role:readonly
     p, g:/developers/security-team, role:readonly
   resource.customizations.postgresql_cnpg_io_Cluster: |
-    healthLuke: |
+    health.lua: |
       hs.status = "Progressing"
       hs.message = ""
       if obj.status then
