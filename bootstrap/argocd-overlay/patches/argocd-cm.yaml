@@ -29,6 +29,6 @@ data:
     p, g:/readonly, role:readonly
     p, g:/developers/qa-team, role:readonly
     p, g:/developers/security-team, role:readonly
-  resource.customizations.health.postgresql.cnpg.io/v1/Cluster: |
+  resource.customizations.health.postgresql.cnpg.io.Cluster: |
     hs = { status = "Healthy", message = "CNPG Cluster exists" }
     return hs
