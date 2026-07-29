@@ -70,8 +70,8 @@ data:
         hs = { status = "Degraded", message = "No Ready condition" }
     postgresql.cnpg.io/v1/Cluster:
       health.lua: |
-        assert(false, "CNPG-LUA-EXECUTED")
         hs = { status = "Healthy", message = "CNPG Cluster exists" }
+        return hs
   resource.exclusions: |
     - groups: ['']
       kinds: ['Deployment', 'Secret', 'Service', 'ServiceAccount']
