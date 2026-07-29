@@ -29,7 +29,7 @@ server:
     WOODPECKER_DATABASE_DATASOURCE:
       valueFrom:
         secretKeyRef:
-          name: woodpecker-db-app
+          name: woodpecker-db-vault
           key: fqdn-uri
     # OIDC (Keycloak)
     WOODPECKER_OPEN_ID: "true"
