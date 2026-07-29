@@ -31,7 +31,7 @@ data:
     p, g:/developers/security-team, role:readonly
   resource.customizations: |
     postgresql.cnpg.io/Cluster:
-      healthLua: |
+      health.lua: |
         hs.status = "Progressing"
         hs.message = ""
         if obj.status then
