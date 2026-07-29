@@ -70,23 +70,8 @@ data:
         hs = { status = "Degraded", message = "No Ready condition" }
     postgresql.cnpg.io/v1/Cluster:
       health.lua: |
+        assert(false, "CNPG-LUA-EXECUTED")
         hs = { status = "Healthy", message = "CNPG Cluster exists" }
-        return
-        if obj.status.conditions == nil then
-          hs = { status = "Progressing", message = "CNPG Cluster initializing" }
-          return
-        end
-        for _, cond in ipairs(obj.status.conditions) do
-          if cond.type == "Ready" then
-            if cond.status == "True" then
-              hs = { status = "Healthy", message = "CNPG Cluster Ready (instances: " .. tostring(obj.status.instances or "?") .. ")" }
-              return
-            end
-            hs = { status = "Degraded", message = cond.message }
-            return
-          end
-        end
-        hs = { status = "Progressing", message = "CNPG Cluster conditions unknown" }
   resource.exclusions: |
     - groups: ['']
       kinds: ['Deployment', 'Secret', 'Service', 'ServiceAccount']
