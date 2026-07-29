@@ -31,7 +31,16 @@ server:
         secretKeyRef:
           name: woodpecker-db-vault
           key: fqdn-uri
-    # OIDC (Keycloak) — replaces Gitea OAuth
+    # Forge: Gitea (required — manages repos, pipelines, webhooks)
+    WOODPECKER_GITEA: "true"
+    WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
+    WOODPECKER_GITEA_CLIENT: "441a812de1904044012517b6c72819cdaa2156d31713dbed"
+    WOODPECKER_GITEA_SECRET:
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-gitea-oauth
+          key: secret
+    # OIDC (Keycloak) — user authentication (works alongside forge)
     WOODPECKER_OPEN_ID: "true"
     WOODPECKER_OPEN_ID_CONFIG: "oidc"
     WOODPECKER_OPEN_ID_ISSUER: "https://keycloak.ebruno.fr/realms/platform"

@@ -1065,6 +1065,7 @@ data:
             "acr",
             "roles",
             "profile",
+            "groups",
             "basic",
             "email"
           ],
