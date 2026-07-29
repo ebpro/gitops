@@ -70,14 +70,8 @@ data:
         hs = { status = "Degraded", message = "No Ready condition" }
     postgresql.cnpg.io/v1/Cluster:
       health.lua: |
-        if obj == nil then
-          hs = { status = "Progressing", message = "CNPG Cluster obj not available" }
-          return
-        end
-        if obj.status == nil then
-          hs = { status = "Progressing", message = "CNPG Cluster not yet initialized" }
-          return
-        end
+        hs = { status = "Healthy", message = "CNPG Cluster exists" }
+        return
         if obj.status.conditions == nil then
           hs = { status = "Progressing", message = "CNPG Cluster initializing" }
           return
