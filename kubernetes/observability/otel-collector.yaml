@@ -1,4 +1,4 @@
-apiVersion: opentelemetry.io/v1beta1
+apiVersion: opentelemetry.io/v1beta
 kind: OpenTelemetryCollector
 metadata:
   name: platform-collector

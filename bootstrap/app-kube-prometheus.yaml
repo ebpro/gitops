@@ -306,5 +306,6 @@ spec:
       name: kube-prometheus-grafana
       jsonPointers:
       - /metadata
+      - /spec/template/metadata
       - /spec/template/spec
 
