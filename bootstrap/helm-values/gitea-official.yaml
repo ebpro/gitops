@@ -39,7 +39,7 @@ gitea:
       provider: openidConnect
       key: gitea
       autoDiscoverUrl: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
-      scopes: openid email profile groups
+      scopes: openid email profile
 
   config:
     _generals_:
@@ -63,7 +63,7 @@ gitea:
     oauth2_client:
       ENABLE_AUTO_REGISTRATION: true
       USERNAME: preferred_username
-      OPENID_CONNECT_SCOPES: openid email profile groups
+      OPENID_CONNECT_SCOPES: openid email profile
     repository:
       DEFAULT_PRIVATE: private
 
