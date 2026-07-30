@@ -42,83 +42,12 @@ resources:
 networkPolicy:
   enabled: true
 
-# Mount the OIDC secret into the sidecar
+# Mount the OIDC secret
 extraVolumes:
   - name: gitea-oidc-secret
     secret:
       secretName: gitea-oidc-secret
 
-# Sidecar: registers Keycloak OIDC login source after Gitea is fully running.
-# Uses admin API with the admin user's password from the same secret.
-extraContainers:
-  - name: setup-keycloak-oidc
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    command:
-      - sh
-      - -ec
-      - |
-        COUNT=0
-        MAX=60
-
-        # Wait for Gitea to be reachable
-        while ! curl -sk --max-time 5 "https://localhost:3000/api/healthz" -o /dev/null 2>&1; do
-          COUNT=$((COUNT + 1))
-          [ $COUNT -ge $MAX ] && { echo "Gave up waiting for Gitea"; exit 1; }
-          echo "Waiting for Gitea... ($COUNT/$MAX)"
-          sleep 2
-        done
-        echo "Gitea is up"
-
-        # Login as admin to get token
-        ADMIN_TOKEN=$(curl -sk "https://localhost:3000/users/login" \
-          -d "username=$ADMIN_USERNAME&password=$ADMIN_PASSWORD" | python3 -c "import sys,json; print(json.load(sys.stdin).get('token',''))" 2>/dev/null)
-
-        # If token-based login doesn't work, use the admin API directly
-        if [ -z "$ADMIN_TOKEN" ]; then
-          ADMIN_TOKEN="$ADMIN_PASSWORD"
-        fi
-
-        # Register the OIDC login source via admin API
-        curl -sk "http://localhost:3000/api/v1/admin/oauth2-applications" \
-          -H "Authorization: token $ADMIN_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "name": "Keycloak",
-            "auto_discover": true,
-            "local_url": "https://keycloak.ebruno.fr/realms/platform",
-            "scopes": "openid email profile",
-            "enable_auto_register": true,
-            "responses_mode": "Code",
-            "token_url": "https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token",
-            "auth_url": "https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth",
-            "user_url": "https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/userinfo",
-            "client_id": "$OAUTH2_CLIENT_ID",
-            "client_secret": "$OAUTH2_CLIENT_SECRET"
-          }'
-        echo "OIDC registration sent"
-        exit 0
-    env:
-      - name: ADMIN_USERNAME
-        valueFrom:
-          secretKeyRef:
-            name: gitea-admin-secret
-            key: admin-password
-      - name: ADMIN_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: gitea-admin-secret
-            key: admin-password
-      - name: OAUTH2_CLIENT_ID
-        valueFrom:
-          secretKeyRef:
-            name: gitea-oidc-secret
-            key: client-id
-      - name: OAUTH2_CLIENT_SECRET
-        valueFrom:
-          secretKeyRef:
-            name: gitea-oidc-secret
-            key: client-secret
-    volumeMounts:
-      - name: gitea-oidc-secret
-        mountPath: /etc/gitea-oidc
-        readOnly: true
+# Force restart to pick up app.ini patches (OPENID_CONNECT_SCOPES)
+podAnnotations:
+  restart: "2026-07-30"
