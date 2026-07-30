@@ -86,7 +86,7 @@ extraContainers:
             "name": "Keycloak",
             "auto_discover": true,
             "local_url": "https://keycloak.ebruno.fr/realms/platform",
-            "scopes": "openid email profile groups",
+            "scopes": "openid email profile",
             "enable_auto_register": true,
             "responses_mode": "Code",
             "token_url": "https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/token",
