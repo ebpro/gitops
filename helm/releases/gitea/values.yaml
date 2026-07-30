@@ -48,6 +48,9 @@ extraVolumes:
     secret:
       secretName: gitea-oidc-secret
 
-# Force restart to pick up app.ini patches (OPENID_CONNECT_SCOPES)
-podAnnotations:
-  restart: "2026-07-30"
+# Override Bitnami chart's OAuth2 scopes to exclude 'groups'
+# (Keycloak platform realm rejects requests with 'groups' scope)
+oauth2:
+  enabled: true
+  autoDiscovery: true
+  scopes: "openid email profile"
