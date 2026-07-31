@@ -106,20 +106,21 @@ data:
     # ---------------------------------------------------------------------------
 
     def find_group(token: str, name: str, parent_id: str | None = None) -> str | None:
-        """Find group by name. If parent_id set, only search within that group's children."""
-        groups = get(f"{BASE}/groups", token) or []
-        found = []
-
-        def search(grps, my_parent_id=None):
-            for g in grps:
-                cur_parent = g.get("parentId", my_parent_id)
-                if g["name"] == name and (parent_id is None or cur_parent == parent_id):
-                    found.append(g["id"])
-                if g.get("subGroups"):
-                    search(g["subGroups"], g["id"])
-
-        search(groups)
-        return found[0] if found else None
+        """Find group by name. If parent_id set, only match under that parent."""
+        if parent_id:
+            # Search within specific parent's children
+            children = get(f"{BASE}/groups/{parent_id}/children", token) or []
+            for g in children:
+                if g["name"] == name:
+                    return g["id"]
+            return None
+        else:
+            # Top-level search
+            groups = get(f"{BASE}/groups", token) or []
+            for g in groups:
+                if g["name"] == name:
+                    return g["id"]
+            return None
 
     def ensure_group(token: str, grp: dict, parent_id: str | None = None) -> str | None:
         name = grp["name"]
