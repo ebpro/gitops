@@ -106,17 +106,17 @@ data:
     # ---------------------------------------------------------------------------
 
     def find_group(token: str, name: str, parent_id: str | None = None) -> str | None:
-        """Find group by name (and optional parentId). Return first matching id."""
+        """Find group by name. If parent_id set, only search within that group's children."""
         groups = get(f"{BASE}/groups", token) or []
         found = []
 
-        def search(grps):
+        def search(grps, my_parent_id=None):
             for g in grps:
-                if g["name"] == name:
-                    if parent_id is None or g.get("parentId") == parent_id:
-                        found.append(g["id"])
+                cur_parent = g.get("parentId", my_parent_id)
+                if g["name"] == name and (parent_id is None or cur_parent == parent_id):
+                    found.append(g["id"])
                 if g.get("subGroups"):
-                    search(g["subGroups"])
+                    search(g["subGroups"], g["id"])
 
         search(groups)
         return found[0] if found else None
