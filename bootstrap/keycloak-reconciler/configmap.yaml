@@ -108,17 +108,18 @@ data:
     def find_group(token: str, name: str, parent_id: str | None = None) -> str | None:
         """Find group by name (and optional parentId). Return first matching id."""
         groups = get(f"{BASE}/groups", token) or []
-        for g in groups:
-            if g["name"] == name:
-                if parent_id is None or g.get("parentId") == parent_id:
-                    return g["id"]
-        # Search sub-groups recursively
-        for g in groups:
-            if g.get("subGroups"):
-                for sg in g["subGroups"]:
-                    if sg["name"] == name and (parent_id is None or sg.get("id") == parent_id or g.get("id") == parent_id):
-                        return sg["id"]
-        return None
+        found = []
+
+        def search(grps):
+            for g in grps:
+                if g["name"] == name:
+                    if parent_id is None or g.get("parentId") == parent_id:
+                        found.append(g["id"])
+                if g.get("subGroups"):
+                    search(g["subGroups"])
+
+        search(groups)
+        return found[0] if found else None
 
     def ensure_group(token: str, grp: dict, parent_id: str | None = None) -> str | None:
         name = grp["name"]
@@ -188,13 +189,17 @@ data:
             was_created = True
             if cli_id:
                 print(f"[CLIENT] created {cid} (id={cli_id[:8]}...)")
-        # Assign default client scopes
+        # Assign default client scopes (POST individual scope associations)
         if cli_id and cli.get("defaultClientScopes"):
             all_scopes = get(f"{BASE}/client-scopes", token) or []
-            scope_ids = [s["id"] for s in all_scopes if s["name"] in cli["defaultClientScopes"]]
-            if scope_ids:
-                if put(f"{BASE}/clients/{cli_id}/default-client-scopes", scope_ids, token):
-                    print(f"  assigned default scopes: {cli['defaultClientScopes']}")
+            for scope_name in cli["defaultClientScopes"]:
+                scope_obj = next((s for s in all_scopes if s["name"] == scope_name), None)
+                if scope_obj:
+                    res = put(f"{BASE}/clients/{cli_id}/default-client-scopes/{scope_obj['id']}", {}, token)
+                    if res:
+                        print(f"  assigned default scope: {scope_name}")
+                    else:
+                        print(f"  [W] scope {scope_name} already assigned or failed")
         return cli_id, was_created
 
     # ---------------------------------------------------------------------------
