@@ -118,3 +118,4 @@ agent:
 # ─── Global ────────────────────────────────────────────
 imagePullSecrets:
   - name: harbor-registry-secret
+# updated Sat Aug  1 10:42:56 PM CEST 2026
