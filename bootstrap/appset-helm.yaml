@@ -16,7 +16,7 @@ spec:
         repoURL: https://grafana.github.io/helm-charts
         version: 1.11.0
         syncWave: '20'
-        valueFiles: $values/helm-values/alloy.yaml
+        valueFiles: $values/alloy.yaml
       - app: argo-image-updater
         chart: argocd-image-updater
         namespace: argocd
@@ -24,7 +24,7 @@ spec:
         repoURL: https://argoproj.github.io/argo-helm
         version: 1.2.4
         syncWave: '25'
-        valueFiles: $values/helm-values/argo-image-updater.yaml
+        valueFiles: $values/argo-image-updater.yaml
       - app: cert-manager
         chart: cert-manager
         namespace: cert-manager
@@ -32,7 +32,7 @@ spec:
         repoURL: https://charts.jetstack.io
         version: v1.16.3
         syncWave: '5'
-        valueFiles: $values/helm-values/cert-manager.yaml
+        valueFiles: $values/cert-manager.yaml
       - app: cloudnative-pg
         chart: cloudnative-pg
         namespace: cnpg-system
@@ -40,7 +40,7 @@ spec:
         repoURL: https://cloudnative-pg.github.io/charts
         version: 0.29.0
         syncWave: '10'
-        valueFiles: $values/helm-values/cloudnative-pg.yaml
+        valueFiles: $values/cloudnative-pg.yaml
       - app: external-secrets
         chart: external-secrets
         namespace: external-secrets
@@ -48,7 +48,7 @@ spec:
         repoURL: https://charts.external-secrets.io
         version: 2.7.0
         syncWave: '20'
-        valueFiles: $values/helm-values/external-secrets.yaml
+        valueFiles: $values/external-secrets.yaml
       - app: gitea
         chart: gitea
         namespace: gitea
@@ -56,7 +56,7 @@ spec:
         repoURL: https://dl.gitea.com/charts/
         version: 12.6.0
         syncWave: '20'
-        valueFiles: $values/helm-values/gitea-official.yaml
+        valueFiles: $values/gitea-official.yaml
       - app: harbor
         chart: harbor
         namespace: harbor
@@ -64,7 +64,7 @@ spec:
         repoURL: https://helm.goharbor.io
         version: 1.18.3
         syncWave: '20'
-        valueFiles: $values/helm-values/harbor.yaml
+        valueFiles: $values/harbor.yaml
       - app: kyverno
         chart: kyverno
         namespace: kyverno
@@ -72,7 +72,7 @@ spec:
         repoURL: https://kyverno.github.io/kyverno
         version: 3.5.0
         syncWave: '20'
-        valueFiles: $values/helm-values/kyverno.yaml
+        valueFiles: $values/kyverno.yaml
       - app: loki
         chart: loki
         namespace: loki
@@ -80,7 +80,7 @@ spec:
         repoURL: https://grafana.github.io/helm-charts
         version: 6.55.0
         syncWave: '20'
-        valueFiles: $values/helm-values/loki.yaml
+        valueFiles: $values/loki.yaml
       - app: microcks
         chart: microcks
         namespace: microcks
@@ -88,7 +88,7 @@ spec:
         repoURL: https://microcks.io/helm
         version: 1.13.2
         syncWave: '20'
-        valueFiles: $values/helm-values/microcks.yaml
+        valueFiles: $values/microcks.yaml
       - app: nfs-client
         chart: nfs-subdir-external-provisioner
         namespace: nfs-client
@@ -96,7 +96,7 @@ spec:
         repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
         version: 4.0.18
         syncWave: '20'
-        valueFiles: $values/helm-values/nfs-client.yaml
+        valueFiles: $values/nfs-client.yaml
       - app: pact-broker
         chart: pact-broker
         namespace: pact-broker
@@ -104,7 +104,7 @@ spec:
         repoURL: https://pact-foundation.github.io/pact-broker-chart
         version: 6.1.0
         syncWave: '20'
-        valueFiles: $values/helm-values/pact-broker.yaml
+        valueFiles: $values/pact-broker.yaml
       - app: sonarqube
         chart: sonarqube
         namespace: sonarqube
@@ -112,7 +112,7 @@ spec:
         repoURL: https://SonarSource.github.io/helm-chart-sonarqube
         version: 2026.1.0
         syncWave: '20'
-        valueFiles: $values/helm-values/sonarqube.yaml
+        valueFiles: $values/sonarqube.yaml
       - app: tempo
         chart: tempo
         namespace: tempo
@@ -120,7 +120,7 @@ spec:
         repoURL: https://grafana.github.io/helm-charts
         version: 1.24.4
         syncWave: '20'
-        valueFiles: $values/helm-values/tempo.yaml
+        valueFiles: $values/tempo.yaml
       - app: trivyoperator
         chart: trivy-operator
         namespace: trivy-system
@@ -128,7 +128,7 @@ spec:
         repoURL: https://aquasecurity.github.io/helm-charts
         version: 0.21.0
         syncWave: '20'
-        valueFiles: $values/helm-values/trivyoperator.yaml
+        valueFiles: $values/trivyoperator.yaml
       - app: traefik
         chart: traefik
         namespace: kube-system
@@ -136,7 +136,7 @@ spec:
         repoURL: https://traefik.github.io/charts
         version: 37.1.1
         syncWave: '20'
-        valueFiles: $values/helm-values/traefik.yaml
+        valueFiles: $values/traefik.yaml
       - app: vpa
         chart: vertical-pod-autoscaler
         namespace: vpa
@@ -144,7 +144,7 @@ spec:
         repoURL: https://kubernetes.github.io/autoscaler
         version: 0.10.0
         syncWave: '15'
-        valueFiles: $values/helm-values/vpa.yaml
+        valueFiles: $values/vpa.yaml
       - app: keycloak
         chart: keycloak
         namespace: keycloak
@@ -152,7 +152,7 @@ spec:
         repoURL: https://codecentric.github.io/helm-charts
         version: 18.0.0
         syncWave: '25'
-        valueFiles: $values/helm-values/keycloak.yaml
+        valueFiles: $values/keycloak.yaml
       - app: backstage
         chart: backstage
         namespace: backstage
@@ -160,7 +160,7 @@ spec:
         repoURL: https://backstage.github.io/charts
         version: 2.8.2
         syncWave: '25'
-        valueFiles: $values/helm-values/backstage-values.yaml
+        valueFiles: $values/backstage-values.yaml
       - app: woodpecker
         chart: woodpecker
         namespace: ci
@@ -168,7 +168,7 @@ spec:
         repoURL: https://woodpecker-ci.org/
         version: 3.6.5
         syncWave: '25'
-        valueFiles: $values/helm-values/woodpecker-values.yaml
+        valueFiles: $values/woodpecker-values.yaml
 
   template:
     metadata:
@@ -185,6 +185,11 @@ spec:
           releaseName: '{{releaseName}}'
           valueFiles:
           - '{{valueFiles}}'
+      sources:
+        - repoURL: https://github.com/ebpro/gitops
+          targetRevision: main
+          path: bootstrap/helm-values
+          ref: values
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
