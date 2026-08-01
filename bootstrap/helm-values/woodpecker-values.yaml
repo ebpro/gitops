@@ -109,8 +109,7 @@ agent:
     rbac:
       create: true
 
-  defaultAgentSecret:
-    create: false
+  createAgentSecret: false
 
   persistence:
     enabled: true
