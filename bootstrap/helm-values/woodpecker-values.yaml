@@ -103,6 +103,7 @@ agent:
     WOODPECKER_BACKEND_K8S_STORAGE_RWX: "false"
     # Must match server's WOODPECKER_SECRET
     WOODPECKER_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
+    WOODPECKER_AGENT_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
 
   serviceAccount:
     create: true
