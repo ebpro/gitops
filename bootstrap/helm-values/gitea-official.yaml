@@ -60,6 +60,8 @@ gitea:
       DISABLE_REGISTRATION: true
       ENABLE_PASSWORD_SIGNIN_FORM: false
       REQUIRE_SIGNIN_VIEW: true
+    webhook:
+      ALLOWED_HOST_LIST: woodpecker-server.ci.svc.cluster.local
     oauth2_client:
       ENABLE_AUTO_REGISTRATION: true
       USERNAME: preferred_username
