@@ -74,5 +74,7 @@ core:
       value: openid profile email
     - name: CORE_VENDOR
       value: keycloak_v2
+    - name: CORE_RESTART_TRIGGER
+      value: "2026-08-01T12:00"
 service:
   type: ClusterIP
