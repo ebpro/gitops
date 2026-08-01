@@ -111,6 +111,7 @@ agent:
       create: true
 
   createAgentSecret: false
+  mapAgentSecret: false
 
   persistence:
     enabled: true
