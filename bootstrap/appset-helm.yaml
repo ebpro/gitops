@@ -64,7 +64,7 @@ spec:
         repoURL: https://helm.goharbor.io
         version: 1.18.3
         syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/harbor.yaml
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/harbor.yaml?v=2
       - app: kyverno
         chart: kyverno
         namespace: kyverno
