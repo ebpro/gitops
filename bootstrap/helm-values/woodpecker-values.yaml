@@ -109,6 +109,9 @@ agent:
     rbac:
       create: true
 
+  defaultAgentSecret:
+    create: false
+
   persistence:
     enabled: true
     size: 2Gi
