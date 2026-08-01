@@ -72,5 +72,7 @@ core:
       value: https://keycloak.ebruno.fr/realms/platform
     - name: CORE_OIDC_SCOPE
       value: openid profile email
+    - name: CORE_VENDOR
+      value: keycloak_v2
 service:
   type: ClusterIP
