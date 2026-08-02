@@ -21,7 +21,7 @@ server:
     WOODPECKER_ADMIN: "bruno,ci-runner"
     # Host
     WOODPECKER_HOST: "https://woodpecker.ebruno.fr"
-    # Server binding (chart expects HTTP on 8000, gRPC on 9000)
+    # Server binding
     WOODPECKER_HTTP_ADDR: ":8000"
     WOODPECKER_GRPC_ADDR: ":9000"
     # Database: external CNPG
@@ -31,29 +31,27 @@ server:
         secretKeyRef:
           name: woodpecker-db-vault
           key: fqdn-uri
-    # Forge: Gitea (required — manages repos, pipelines, webhooks)
+    # Forge: Gitea. Forge = login (Gitea OAuth) + repo (Gitea API). Forge is ONE provider.
+    # Note: Keycloak OIDC login for Woodpecker is NOT supported. Users login via Forge OAuth.
     WOODPECKER_GITEA: "true"
     WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
-    WOODPECKER_GITEA_CLIENT: "441a812de1904044012517b6c72819cdaa2156d31713dbed"
+    WOODPECKER_GITEA_CLIENT:
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-gitea-oauth
+          key: id
     WOODPECKER_GITEA_SECRET:
       valueFrom:
         secretKeyRef:
           name: woodpecker-gitea-oauth
           key: secret
-    # OIDC (Keycloak) — user authentication (works alongside forge)
-    WOODPECKER_OPEN_ID: "true"
-    WOODPECKER_OPEN_ID_CONFIG: "oidc"
-    WOODPECKER_OPEN_ID_ISSUER: "https://keycloak.ebruno.fr/realms/platform"
-    WOODPECKER_OPEN_ID_SCOPES: "openid profile email groups"
+    WOODPECKER_GITEA_SKIP_VERIFY: "true"
     # Logging
-    WOODPECKER_LOG_LEVEL: "debug"
-    WOODPECKER_LOG_FORMAT: "text"
-    # Server secret
+    WOODPECKER_LOG_LEVEL: "info"
+    WOODPECKER_LOG_FORMAT: "json"
+    # Server secret — required for agent⇆server encryption (v3)
     WOODPECKER_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
-
-  # OIDC client secret injected via ExternalSecret
-  extraSecretNamesForEnvFrom:
-    - woodpecker-oidc-secret
+    WOODPECKER_GRPC_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
 
   serviceAccount:
     create: true
@@ -98,13 +96,25 @@ agent:
 
   env:
     WOODPECKER_SERVER: "woodpecker-server:9000"
-    WOODPECKER_GRPC_SECRET: "woodpecker-grpc-secret-4e7b2a1d-8c9f-3456-bcde-0123456789ab"
-    WOODPECKER_BACKEND: "docker"
+    WOODPECKER_AGENT_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
+    WOODPECKER_GRPC_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
+    WOODPECKER_LOG_LEVEL: "debug"
+    WOODPECKER_BACKEND: "kubernetes"
+    WOODPECKER_BACKEND_K8S_NAMESPACE: "ci"
+    WOODPECKER_BACKEND_K8S_NAMESPACE_PER_ORGANIZATION: "false"
+    WOODPECKER_BACKEND_K8S_STORAGE_CLASS: "local-path"
+    WOODPECKER_BACKEND_K8S_VOLUME_SIZE: "10G"
+    WOODPECKER_BACKEND_K8S_STORAGE_RWX: "false"
+    WOODPECKER_CONNECT_RETRY_COUNT: "20"
+    WOODPECKER_FORCE_IGNORE_SERVICE_FAILURE: "true"
 
   serviceAccount:
     create: true
     rbac:
       create: true
+
+  createAgentSecret: false
+  mapAgentSecret: false
 
   persistence:
     enabled: true
