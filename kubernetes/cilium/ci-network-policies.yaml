@@ -12,6 +12,14 @@ spec:
         - kube-apiserver
     - toEndpoints:
         - matchingLabels:
+            k8s:io.kubernetes.pod.namespace: ci
+            app.kubernetes.io/instance: woodpecker
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
+    - toEndpoints:
+        - matchingLabels:
             k8s:io.kubernetes.pod.namespace: gitea
             app.kubernetes.io/name: gitea
       toPorts:
