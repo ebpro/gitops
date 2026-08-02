@@ -12,7 +12,6 @@ spec:
         - kube-apiserver
     - toEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: ci
             app.kubernetes.io/instance: woodpecker
       toPorts:
         - ports:
@@ -20,7 +19,6 @@ spec:
               protocol: TCP
     - toEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: gitea
             app.kubernetes.io/name: gitea
       toPorts:
         - ports:
@@ -38,7 +36,6 @@ spec:
               protocol: TCP
     - toEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: ci
             app.kubernetes.io/name: postgresql
       toPorts:
         - ports:
@@ -54,7 +51,6 @@ spec:
               protocol: TCP
     - toEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: kube-system
             k8s-app: kube-dns
       toPorts:
         - ports:
@@ -85,7 +81,6 @@ spec:
         - kube-apiserver
     - toEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: ci
             app.kubernetes.io/instance: woodpecker
       toPorts:
         - ports:
@@ -95,7 +90,6 @@ spec:
               protocol: TCP
     - toEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: gitea
             app.kubernetes.io/name: postgresql
       toPorts:
         - ports:
@@ -111,7 +105,6 @@ spec:
               protocol: TCP
     - toEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: kube-system
             k8s-app: kube-dns
       toPorts:
         - ports:
