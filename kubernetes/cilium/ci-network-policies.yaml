@@ -52,12 +52,12 @@ spec:
               protocol: UDP
             - port: "53"
               protocol: TCP
+    - toFQDNs:
+        - matchPattern: "*dl.gitea.com"
+      toPorts:
+        - ports:
             - port: "443"
               protocol: TCP
-          rules:
-            http:
-              - method: GET
-                path: "https://dl.gitea.com/*"
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
@@ -96,6 +96,4 @@ spec:
             - port: "53"
               protocol: UDP
             - port: "53"
-              protocol: TCP
-            - port: "443"
               protocol: TCP
