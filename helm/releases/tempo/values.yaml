@@ -20,9 +20,7 @@ tempo:
       backend: local
       local:
         path: /var/tempo/traces
-  overrides:
-    defaults:
-      max_bytes_per_trace: 5_000_000
+  overrides: {}
   search:
     attributes:
       - app

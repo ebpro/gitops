@@ -4,9 +4,7 @@ dockerRegistry:
   enabled: false
 
 ingress:
-  enabled: true
-  ingressClass: traefik
-  appHost: plane.ebruno.fr
+  enabled: false
 
 redis:
   local_setup: false
@@ -19,9 +17,12 @@ rabbitmq:
 
 env:
   remote_redis_url: redis://plane-redis.plane.svc.cluster.local:6379/0
-  CELERY_BROKER_URL: redis://plane-redis.plane.svc.cluster.local:6379/0
+  REDIS_URL: redis://plane-redis.plane.svc.cluster.local:6379/0
+  CELERY_BROKER_URL: redis://plane-redis.plane.svc.cluster.local:6379/1
+  CELERY_RESULT_BACKEND: redis://plane-redis.plane.svc.cluster.local:6379/2
   CELERY_WORKER_QUEUE: celery
   pgdb_remote_url: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
+  DATABASE_URL: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
   PLANE_URL: https://plane.ebruno.fr
   docstore_bucket: uploads
 
@@ -33,14 +34,26 @@ ssl:
   enabled: true
   tls_secret_name: plane-tls
 
-resources:
-  requests:
-    cpu: 250m
-    memory: 512Mi
-  limits:
-    memory: 4Gi
+worker:
+  memoryLimit: 4Gi
+  cpuLimit: 1000m
+  cpuRequest: 250m
+  memoryRequest: 1024Mi
 
-replicas: 2
+api:
+  memoryLimit: 4Gi
+  cpuLimit: 1000m
+  cpuRequest: 250m
+  memoryRequest: 1024Mi
+
+beatworker:
+  memoryLimit: 4Gi
+  cpuLimit: 1000m
+  cpuRequest: 250m
+  memoryRequest: 1024Mi
+  replicas: 1
+
+replicas: 1
 
 autoscaling:
   enabled: false

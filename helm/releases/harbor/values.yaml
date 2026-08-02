@@ -9,12 +9,12 @@ internalTLS:
 database:
   type: external
   external:
-    host: harbor-postgresql.harbor.svc.cluster.local
+    host: harbor-db-rw.harbor.svc.cluster.local
     port: "5432"
     username: postgres
     coreDatabase: registry
-    secretName: harbor-db-superuser
-    passwordKey: postgres-password
+    password: ""
+    existingSecret: harbor-db-superuser
     sslmode: disable
 externalURL: https://harbor.ebruno.fr
 persistence:
@@ -55,13 +55,26 @@ resources:
       memory: 128Mi
 core:
   extraEnvVars:
-    - name: HARBOR_OIDC_CLIENT_SECRET
+    - name: CORE_AUTH_MODE
+      value: oidc_auth
+    - name: CORE_OIDC_ENABLED
+      value: "true"
+    - name: CORE_OIDC_NAME
+      value: Keycloak
+    - name: CORE_OIDC_CLIENT_ID
+      value: harbor
+    - name: CORE_OIDC_CLIENT_SECRET
       valueFrom:
         secretKeyRef:
           name: harbor-oidc-secret
           key: Harboroidcclientsecret
+    - name: CORE_OIDC_ENDPOINT
+      value: https://keycloak.ebruno.fr/realms/platform
+    - name: CORE_OIDC_SCOPE
+      value: openid profile email
+    - name: CORE_VENDOR
+      value: oidc
     - name: CORE_RESTART_TRIGGER
-      value: "2026-07-31T15:00"
-
+      value: "2026-08-01T13:00"
 service:
   type: ClusterIP

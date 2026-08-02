@@ -7,7 +7,7 @@ spec:
   applicationRefs:
     - namePattern: link-shortener
       images:
-        - imageName: harbor.ebruno.fr/link-shortener/link-shortener
+         - imageName: harbor.ebruno.fr/bruno/link-shortener
           alias: link-shortener
           commonUpdateSettings:
             updateStrategy: newest-build

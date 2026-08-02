@@ -9,7 +9,6 @@ keycloak:
   privateUrl: http://keycloak-http.keycloak.svc.cluster.local:80
   url: keycloak.ebruno.fr
   realm: platform
-  clientSecret: b274d14a378f41347ee0f5a70e59665b290178920da37c2d
 microcks:
   generateCert: false
   ingressAnnotations:
@@ -18,3 +17,8 @@ microcks:
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
   ingressClassName: traefik
   url: microcks.ebruno.fr
+  grpcIngressClassName: traefik
+  grpcIngressAnnotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh

@@ -1,0 +1,30 @@
+replicaCount: 1
+
+image:
+  repository: harbor.ebruno.fr/bruno/link-shortener
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: short.ebruno.fr
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 250m
+    memory: 512Mi
+
+# DB Credentials Secret managed by ExternalSecrets
+dbSecretName: link-shortener-db-credentials

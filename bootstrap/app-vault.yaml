@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: vault
       valueFiles:
-      - https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/vault.yaml
+       - helm/releases/vault/values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: vault

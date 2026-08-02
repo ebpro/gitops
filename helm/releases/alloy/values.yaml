@@ -94,32 +94,13 @@ alloy:
       loki.source.file "pods" {
         targets    = discovery.relabel.logs_pods.output
         forward_to = [loki.process.pods.receiver]
-        charset    = "utf-8"
       }
 
       loki.process "pods" {
-        stage.json {
-          expressions = {
-            ts      = ".ts",
-            level   = ".level",
-            caller  = ".caller",
-            msg     = ".msg",
-          }
-        }
-
         stage.labels {
           values = {
             cluster = "compute-lsis-2",
           }
-        }
-
-        stage.regex {
-          expression = "(?P<level>(info|warn|error|debug))"
-        }
-
-        stage.timestamp {
-          source = "ts"
-          formats = ["RFC3339Nano", "%Y-%m-%dT%H:%M:%S.%LZ"]
         }
 
         forward_to = [loki.write.default.receiver]
@@ -149,11 +130,6 @@ alloy:
       otelcol.receiver.otlp "default" {
         output {
           traces  = [otelcol.processor.batch.traces.input]
-          metrics = [otelcol.exporter.prometheus.alloy_metrics.input]
-        }
-
-        tls {
-          enabled = false
         }
 
         http {
@@ -182,20 +158,20 @@ alloy:
         }
       }
 
-      otelcol.exporter.prometheus "alloy_metrics" {
-        resource_to_telemetry_conversion {
-          enabled = true
-        }
-      }
+
     create: true
   mounts:
     dockercontainers: true
     varlog: true
+  volumes:
     extra:
       - name: k3slogs
-        hostPath: /var/lib/rancher/k3s/data/logs
-        mountPath: /var/lib/rancher/k3s/data/logs
-        readOnly: true
+        hostPath:
+          path: /var/lib/rancher/k3s/data/logs
+  extraVolumeMounts:
+    - name: k3slogs
+      mountPath: /var/lib/rancher/k3s/data/logs
+      readOnly: true
   extraPorts:
     - name: otlp-http
       port: 4318
@@ -204,10 +180,6 @@ alloy:
     - name: otlp-grpc
       port: 4317
       targetPort: 4317
-      protocol: TCP
-    - name: prometheus
-      port: 12345
-      targetPort: 12345
       protocol: TCP
   resources:
     limits:

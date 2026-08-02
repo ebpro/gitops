@@ -13,7 +13,7 @@ spec:
             - sh
             - -c
             - |
-                   printf '{"auths":{"harbor.ebruno.fr":{"username":"admin","password":"REDACTED","auth":"REDACTED"}}}' > /kaniko/.docker/config.json
+                    printf '{"auths":{"harbor.ebruno.fr":{"username":"bruno-robot","password":"REDACTED","auth":"REDACTED"}}}' > /kaniko/.docker/config.json
           volumeMounts:
             - name: docker-config
               mountPath: /kaniko/.docker

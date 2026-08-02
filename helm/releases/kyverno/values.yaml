@@ -1,0 +1,4 @@
+cleanUp:
+  enabled: true
+crds:
+  cleanup: false

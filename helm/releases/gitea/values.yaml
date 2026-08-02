@@ -1,56 +1,97 @@
 image:
+  registry: docker.io
+  repository: gitea/gitea
+  tag: 1.26.4
   pullPolicy: IfNotPresent
+  rootless: true
 
-adminUsername: admin
-adminEmail: admin@ebruno.fr
-rootURL: https://gitea.ebruno.fr
-runMode: prod
-exposeSSH: false
+serviceAccount:
+  create: true
+
+strategy:
+  type: "RollingUpdate"
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 1
+
+deployment:
+  env:
+    - name: GITEA__DATABASE__PASSWD
+      valueFrom:
+        secretKeyRef:
+          name: gitea-postgresql-auth
+          key: password
+    - name: GITEA_OAUTH_SECRET_0
+      valueFrom:
+        secretKeyRef:
+          name: gitea-oidc-secret
+          key: CLIENT_SECRET_GITEA
+
+gitea:
+  admin:
+    username: admin
+    email: admin@eb
+    password: gitea-admin-pwd
+    passwordMode: keepUpdated
+
+  oauth:
+    - name: Keycloak
+      provider: openidConnect
+      key: gitea
+      autoDiscoverUrl: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
+      scopes: openid email profile
+
+  config:
+    _generals_:
+      APP_NAME: Gitea
+    database:
+      DB_TYPE: postgres
+      HOST: gitea-postgresql.gitea.svc.cluster.local:5432
+      NAME: gitea
+      USER: gitea
+    server:
+      ROOT_URL: https://gitea.ebruno.fr
+      DOMAIN: gitea.ebruno.fr
+      HTTP_PORT: 3000
+      SSH_LISTEN_PORT: 22
+      OFFLINE_MODE: false
+      START_SSH_SERVER: true
+    service:
+      DISABLE_REGISTRATION: true
+      ENABLE_PASSWORD_SIGNIN_FORM: false
+      REQUIRE_SIGNIN_VIEW: true
+    webhook:
+      ALLOWED_HOST_LIST: woodpecker-server.ci.svc.cluster.local
+    oauth2_client:
+      ENABLE_AUTO_REGISTRATION: true
+      USERNAME: preferred_username
+      OPENID_CONNECT_SCOPES: openid email profile
+    repository:
+      DEFAULT_PRIVATE: private
+
+postgresql:
+  enabled: false
+
+postgresql-ha:
+  enabled: false
+
+valkey:
+  enabled: false
+
+valkey-cluster:
+  enabled: false
 
 ingress:
   enabled: false
 
 service:
   type: ClusterIP
-  ports:
-    http: 80
-    ssh: 22
-
-postgresql:
-  enabled: false
-
-externalDatabase:
-  host: gitea-postgresql.gitea.svc.cluster.local
-  port: 5432
-  database: gitea
-  user: gitea
-  existingSecret: gitea-postgresql-auth
-  existingSecretPasswordKey: password
+  port: 3000
 
 persistence:
   enabled: true
   size: 20Gi
-  storageClass: local-path
+  storageClassName: local-path
 
-resources:
-  requests:
-    cpu: 100m
-    memory: 256Mi
-  limits:
-    memory: 512Mi
-
-networkPolicy:
-  enabled: true
-
-# Mount the OIDC secret
-extraVolumes:
-  - name: gitea-oidc-secret
-    secret:
-      secretName: gitea-oidc-secret
-
-# Override Bitnami chart's OAuth2 scopes to exclude 'groups'
-# (Keycloak platform realm rejects requests with 'groups' scope)
-oauth2:
-  enabled: true
-  autoDiscovery: true
-  scopes: "openid email profile"
+podSecurityContext:
+  fsGroup: 1000

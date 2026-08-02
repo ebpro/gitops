@@ -1,0 +1,6 @@
+# Recommendation-only mode: updater and evictionNotifier disabled
+updater:
+  enabled: false
+
+evictionNotifier:
+  enabled: false

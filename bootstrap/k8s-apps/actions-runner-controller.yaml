@@ -18,7 +18,7 @@ spec:
       releaseName: actions-runner-controller
       skipCrds: true
       valueFiles:
-        - https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/actions-runner-controller.yaml
+         - helm/releases/arc/values.yaml
   syncPolicy:
     automated:
       prune: true

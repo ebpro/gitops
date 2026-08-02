@@ -1,9 +1,6 @@
 global:
   enabled: true
-  tlsDisable: false
-  image:
-    repository: hashicorp/vault
-    tag: 1.21.2
+  tlsDisable: true
 injector:
   enabled: true
   replicas: 1
@@ -18,57 +15,57 @@ server:
     raft:
       enabled: true
       setNodeId: true
-      storageDir: /vault/data
     replicas: 1
+  image:
+    repository: hashicorp/vault
+    tag: 1.21.2
   resources:
     limits:
       cpu: 1000m
-      memory: 2Gi
-    requests:
-      cpu: 500m
       memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
   ui:
     enabled: true
-    serviceType: ClusterIP
+
   extraInitContainers:
-    - name: configure-oidc
+    - name: vault-unseal
       image: hashicorp/vault:1.21.2
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi
       command:
         - /bin/sh
-        - -ec
+        - -c
         - |
-          vault login "$VAULT_ROOT_TOKEN"
-          until vault status; do sleep 2; done
-          vault auth enable oidc || true
-          vault write auth/oidc/config \
-            oidc_discovery_url="https://keycloak.ebruno.fr/realms/platform" \
-            oidc_client_id="vault" \
-            oidc_client_secret="$OIDC_CLIENT_SECRET" \
-            default_role="vault-admin"
-          vault write auth/oidc/role/vault-admin \
-            bound_audiences="vault" \
-            user_claim="email" \
-            ttl="1h" \
-            ttl_max="24h" \
-            policies="default" \
-            redirect_uri="https://vault.ebruno.fr/oidc/callback"
+          for i in $(seq 1 90); do
+            VAULT_STATUS=$(vault status -format=json 2>/dev/null || echo '{}')
+            SEALED=$(echo "$VAULT_STATUS" | python3 -c "import sys,json;print(json.load(sys.stdin).get('sealed','unknown'))" 2>/dev/null || echo "unknown")
+            if [ "$SEALED" = "false" ]; then
+              echo "Vault already unsealed"
+              exit 0
+            fi
+            echo "Waiting for Vault to be ready (attempt $i/90)..."
+            sleep 2
+          done
+          echo "Unsealing Vault..."
+          sleep 3
+          for i in $(seq 1 5); do
+            vault operator unseal "$VAULT_UNSEAL_TOKEN" && break
+            sleep 2
+          done
+          echo "Vault unsealed successfully"
       env:
         - name: VAULT_ADDR
-          value: "http://vault-0.vault-internal:8200"
-        - name: VAULT_CLIENT_TIMEOUT
-          value: "30"
-        - name: VAULT_SKIP_VERIFY
-          value: "true"
-        - name: VAULT_ROOT_TOKEN
+          value: http://127.0.0.1:8200
+        - name: VAULT_UNSEAL_TOKEN
           valueFrom:
             secretKeyRef:
               name: vault-init
-              key: admin_token
-        - name: OIDC_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: vault-oidc-secrets
-              key: OIDC_CLIENT_SECRET
-      securityContext:
-        capabilities:
-          drop: ["ALL"]
+              key: unseal_key

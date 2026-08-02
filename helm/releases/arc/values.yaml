@@ -1,0 +1,270 @@
+actionsMetrics:
+  port: 8443
+  proxy:
+    enabled: true
+    image:
+      repository: quay.io/brancz/kube-rbac-proxy
+      tag: v0.13.1
+  serviceAnnotations: {}
+  serviceMonitor:
+    enable: false
+    interval: 1m
+    namespace: ""
+    timeout: 30s
+  serviceMonitorLabels: {}
+actionsMetricsServer:
+  affinity: {}
+  enabled: false
+  fullnameOverride: ""
+  imagePullSecrets: []
+  ingress:
+    annotations: {}
+    enabled: false
+    hosts:
+      - extraPaths: []
+        host: chart-example.local
+        paths: []
+    ingressClassName: ""
+    tls: []
+  lifecycle: {}
+  logFormat: text
+  nameOverride: ""
+  nodeSelector: {}
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext: {}
+  priorityClassName: ""
+  replicaCount: 1
+  resources: {}
+  secret:
+    create: false
+    enabled: false
+    github_webhook_secret_token: ""
+    name: actions-metrics-server
+  securityContext: {}
+  service:
+    annotations: {}
+    loadBalancerSourceRanges: []
+    ports:
+      - name: http
+        port: 80
+        protocol: TCP
+        targetPort: http
+    type: ClusterIP
+  serviceAccount:
+    annotations: {}
+    create: true
+    name: ""
+  terminationGracePeriodSeconds: 10
+  tolerations: []
+additionalVolumeMounts: []
+additionalVolumes: []
+admissionWebHooks: {}
+affinity: {}
+authSecret:
+  annotations: {}
+  create: false
+  enabled: true
+  name: controller-manager
+certManagerEnabled: true
+defaultScaleDownDelay: 10m
+dockerRegistryMirror: ""
+enableLeaderElection: true
+ephemeral: true
+fullnameOverride: ""
+githubWebhookServer:
+  affinity: {}
+  enabled: false
+  fullnameOverride: ""
+  imagePullSecrets: []
+  ingress:
+    annotations: {}
+    enabled: false
+    hosts:
+      - extraPaths: []
+        host: chart-example.local
+        paths: []
+    ingressClassName: ""
+    tls: []
+  lifecycle: {}
+  logFormat: text
+  nameOverride: ""
+  nodeSelector: {}
+  podAnnotations: {}
+  podDisruptionBudget:
+    enabled: false
+  podLabels: {}
+  podSecurityContext: {}
+  priorityClassName: ""
+  replicaCount: 1
+  resources: {}
+  secret:
+    create: false
+    enabled: false
+    github_webhook_secret_token: ""
+    name: github-webhook-server
+  securityContext: {}
+  service:
+    annotations: {}
+    loadBalancerSourceRanges: []
+    ports:
+      - name: http
+        port: 80
+        protocol: TCP
+        targetPort: http
+    type: ClusterIP
+  serviceAccount:
+    annotations: {}
+    create: true
+    name: ""
+  terminationGracePeriodSeconds: 10
+  tolerations: []
+  useRunnerGroupsVisibility: false
+image:
+  actionsRunnerImagePullSecrets: []
+  actionsRunnerRepositoryAndTag: summerwind/actions-runner:latest
+  dindSidecarRepositoryAndTag: docker:dind
+  pullPolicy: IfNotPresent
+  repository: summerwind/actions-runner-controller
+imagePullSecrets: []
+labels: {}
+logFormat: text
+metrics:
+  port: 8443
+  proxy:
+    enabled: true
+    image:
+      repository: quay.io/brancz/kube-rbac-proxy
+      tag: v0.13.1
+  serviceAnnotations: {}
+  serviceMonitor:
+    enable: false
+    interval: 1m
+    namespace: ""
+    timeout: 30s
+  serviceMonitorLabels: {}
+nameOverride: ""
+nodeSelector:
+  ci-runner: "true"
+podAnnotations: {}
+podDisruptionBudget:
+  enabled: false
+podLabels: {}
+podSecurityContext: {}
+postJobLifecycleHook:
+  exec:
+    command:
+      - sh
+      - -c
+      - docker system prune -af && docker volume prune -f && rm -rf /tmp/*
+preJobLifecycleHook:
+  exec:
+    command:
+      - sh
+      - -c
+      - docker system prune -af && docker volume prune -f && rm -rf /tmp/*
+priorityClassName: ""
+rbac: {}
+replicaCount: 1
+resources:
+  limits:
+    cpu: 1
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+runner:
+  statusUpdateHook:
+    enabled: false
+  volumes:
+    - name: m2-cache
+      persistentVolumeClaim:
+        claimName: arc-runner-m2-cache
+    - name: jib-cache
+      persistentVolumeClaim:
+        claimName: arc-runner-jib-cache
+    - name: npm-cache
+      persistentVolumeClaim:
+        claimName: arc-runner-npm-cache
+runners:
+  extraDeploy: |
+    apiVersion: actions.summerwind.dev/v1alpha1
+    kind: RunnerDeployment
+    metadata:
+      name: ebpro-build-runners
+    spec:
+      replicas: 1
+      template:
+        spec:
+          dockerVolumeMounts:
+          - mountPath: /var/lib/docker
+            name: docker
+            subPathExpr: $(POD_NAME)-docker
+          - mountPath: /runner/_work
+            name: work
+            subPathExpr: $(POD_NAME)-work
+          volumes:
+          - name: docker
+            hostPath:
+              path: /mnt/disk/runner-work
+              type: DirectoryOrCreate
+          dockerdContainerResources:
+            requests:
+              cpu: "1"
+              memory: "2Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
+scope:
+  singleNamespace: false
+  watchNamespace: ""
+securityContext: {}
+service:
+  annotations: {}
+  port: 443
+  type: ClusterIP
+serviceAccount:
+  annotations: {}
+  create: true
+  name: actions-runner-controller
+syncPeriod: 1m
+tolerations:
+  - effect: NoSchedule
+    key: ci-runner
+    operator: Equal
+    value: "true"
+volumeMounts:
+  - mountPath: /home/runner/.m2
+    name: m2-cache
+  - mountPath: /home/runner/.npm
+    name: npm-cache
+  - mountPath: /opt/hostedtoolcache
+    name: tool-cache
+  - mountPath: /var/lib/docker
+    name: docker-storage
+  - mountPath: /var/run/docker
+    name: docker-run-storage
+  - mountPath: /var/run/containerd
+    name: containerd-run-storage
+volumes:
+  - name: npm-cache
+    persistentVolumeClaim:
+      claimName: arc-runner-npm-cache
+  - name: tool-cache
+    persistentVolumeClaim:
+      claimName: runner-tool-cache-pvc
+  - emptyDir:
+      sizeLimit: 10Gi
+    name: var-run
+  - emptyDir:
+      sizeLimit: 20Gi
+    name: docker-storage
+  - emptyDir:
+      sizeLimit: 5Gi
+    name: docker-run-storage
+  - emptyDir:
+      sizeLimit: 2Gi
+    name: containerd-run-storage
+webhookPort: 9443
+crds:
+  enabled: false
