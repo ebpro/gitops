@@ -1,0 +1,19 @@
+# .woodpecker-ci.yml
+pipeline:
+  - build:
+      image: quay.io/quarkus/maven:latest
+      commands:
+        - mvn package -Pnative -Dquarkus.native.container-build=true
+  - package:
+      image: quay.io/buildpacks/pack:latest
+      commands:
+        - pack build harbor.ebruno.fr/bruno/link-shortener:${CI_COMMIT_SHA} --builder pktobuildpacks/builder:base
+        - pack push harbor.ebruno.fr/bruno/link-shortener:${CI_COMMIT_SHA}
+  - scan:
+      image: harbor.ebruno.fr/trivy/trivy:latest
+      commands:
+        - trivy image --exit-code 1 --severity CRITICAL harbor.ebruno.fr/bruno/link-shortener:${CI_COMMIT_SHA}
+  - notify:
+      image: curlimages/curl:latest
+      commands:
+        - curl -X POST -d "image=harbor.ebruno.fr/bruno/link-shortener:${CI_COMMIT_SHA}" https://argocd.ebruno.fr/api/webhook
