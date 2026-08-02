@@ -11,7 +11,7 @@ spec:
     - toEntities:
         - kube-apiserver
     - toEndpoints:
-        - matchingLabels:
+        - matchLabels:
             k8s:io.kubernetes.pod.namespace: ci
             app.kubernetes.io/instance: woodpecker
       toPorts:
@@ -19,7 +19,7 @@ spec:
             - port: "9000"
               protocol: TCP
     - toEndpoints:
-        - matchingLabels:
+        - matchLabels:
             k8s:io.kubernetes.pod.namespace: gitea
             app.kubernetes.io/name: gitea
       toPorts:
@@ -30,11 +30,14 @@ spec:
             http:
               - method: POST
                 path: "/api/hook"
-      toMatches:
-        - toDNS:
-            - matchPattern: gitea-http.gitea.svc.cluster.local
+    - toFQDNs:
+        - matchPattern: gitea-http.gitea.svc.cluster.local
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
     - toEndpoints:
-        - matchingLabels:
+        - matchLabels:
             k8s:io.kubernetes.pod.namespace: ci
             app.kubernetes.io/name: cloudnative-pg
       toPorts:
@@ -69,7 +72,7 @@ spec:
     - toEntities:
         - kube-apiserver
     - toEndpoints:
-        - matchingLabels:
+        - matchLabels:
             k8s:io.kubernetes.pod.namespace: ci
             app.kubernetes.io/instance: woodpecker
       toPorts:
@@ -79,7 +82,7 @@ spec:
             - port: "8000"
               protocol: TCP
     - toEndpoints:
-        - matchingLabels:
+        - matchLabels:
             k8s:io.kubernetes.pod.namespace: gitea
             app.kubernetes.io/name: postgresql
       toPorts:
