@@ -39,7 +39,7 @@ spec:
     - toEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: ci
-            app.kubernetes.io/name: cloudnative-pg
+            app.kubernetes.io/name: postgresql
       toPorts:
         - ports:
             - port: "5432"
