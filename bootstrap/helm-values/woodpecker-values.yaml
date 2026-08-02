@@ -2,6 +2,7 @@
 # Chart: https://github.com/woodpecker-ci/helm/tree/main/charts/woodpecker (v3.6.5)
 # Docs: https://woodpecker-ci.org/docs/
 # Updated: 2026-08-02 - Vault-backed secrets, internal Gitea URL, TLS verify enabled
+# Agent auth token preserved from existing woodpecker-default-agent-secret
 
 # ─── Server ─────────────────────────────────────────────
 server:
