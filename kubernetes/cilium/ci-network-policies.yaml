@@ -1,0 +1,90 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: woodpecker-egress
+  namespace: ci
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: woodpecker
+  egress:
+    - toEntities:
+        - kube-apiserver
+    - toEndpoints:
+        - matchingLabels:
+            k8s:io.kubernetes.pod.namespace: gitea
+            app.kubernetes.io/name: gitea
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+          rules:
+            http:
+              - method: POST
+                path: "/api/hook"
+      toMatches:
+        - toDNS:
+            - matchPattern: gitea-http.gitea.svc.cluster.local
+    - toEndpoints:
+        - matchingLabels:
+            k8s:io.kubernetes.pod.namespace: ci
+            app.kubernetes.io/name: cloudnative-pg
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+          rules:
+            http:
+              - method: GET
+                path: "https://dl.gitea.com/*"
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: gitea-webhook-egress
+  namespace: gitea
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: gitea
+  egress:
+    - toEntities:
+        - kube-apiserver
+    - toEndpoints:
+        - matchingLabels:
+            k8s:io.kubernetes.pod.namespace: ci
+            app.kubernetes.io/instance: woodpecker
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "8000"
+              protocol: TCP
+    - toEndpoints:
+        - matchingLabels:
+            k8s:io.kubernetes.pod.namespace: gitea
+            app.kubernetes.io/name: postgresql
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP

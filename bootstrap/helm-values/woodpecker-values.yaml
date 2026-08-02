@@ -34,7 +34,7 @@ server:
     # Forge: Gitea. Forge = login (Gitea OAuth) + repo (Gitea API). Forge is ONE provider.
     # Note: Keycloak OIDC login for Woodpecker is NOT supported. Users login via Forge OAuth.
     WOODPECKER_GITEA: "true"
-    WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
+    WOODPECKER_GITEA_URL: "http://gitea-http.gitea.svc.cluster.local:3000"
     WOODPECKER_GITEA_CLIENT:
       valueFrom:
         secretKeyRef:
@@ -45,13 +45,21 @@ server:
         secretKeyRef:
           name: woodpecker-gitea-oauth
           key: secret
-    WOODPECKER_GITEA_SKIP_VERIFY: "true"
+    WOODPECKER_GITEA_SKIP_VERIFY: "false"
     # Logging
     WOODPECKER_LOG_LEVEL: "info"
     WOODPECKER_LOG_FORMAT: "json"
     # Server secret — required for agent⇆server encryption (v3)
-    WOODPECKER_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
-    WOODPECKER_GRPC_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
+    WOODPECKER_SECRET:
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-server-auth
+          key: WOODPECKER_SECRET
+    WOODPECKER_GRPC_SECRET:
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-server-auth
+          key: WOODPECKER_GRPC_SECRET
 
   serviceAccount:
     create: true
@@ -81,7 +89,7 @@ server:
 agent:
   enabled: true
 
-  replicaCount: 1
+  replicaCount: 2
 
   image:
     tag: "v3.17.0"
@@ -96,8 +104,16 @@ agent:
 
   env:
     WOODPECKER_SERVER: "woodpecker-server:9000"
-    WOODPECKER_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
-    WOODPECKER_GRPC_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
+    WOODPECKER_AGENT_SECRET:
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-server-auth
+          key: WOODPECKER_AGENT_SECRET
+    WOODPECKER_GRPC_SECRET:
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-server-auth
+          key: WOODPECKER_GRPC_SECRET
     WOODPECKER_LOG_LEVEL: "debug"
     WOODPECKER_BACKEND: "kubernetes"
     WOODPECKER_BACKEND_K8S_NAMESPACE: "ci"
@@ -106,7 +122,6 @@ agent:
     WOODPECKER_BACKEND_K8S_VOLUME_SIZE: "10G"
     WOODPECKER_BACKEND_K8S_STORAGE_RWX: "false"
     WOODPECKER_CONNECT_RETRY_COUNT: "20"
-    WOODPECKER_FORCE_IGNORE_SERVICE_FAILURE: "true"
 
   serviceAccount:
     create: true

@@ -26,13 +26,18 @@ deployment:
         secretKeyRef:
           name: gitea-oidc-secret
           key: CLIENT_SECRET_GITEA
+    - name: GITEA__user__ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: gitea-admin-secret
+          key: password
 
 gitea:
   admin:
     username: admin
     email: admin@eb
-    password: gitea-admin-pwd
-    passwordMode: keepUpdated
+    password: ""
+    passwordMode: createOnly
 
   oauth:
     - name: Keycloak
