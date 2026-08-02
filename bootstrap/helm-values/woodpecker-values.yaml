@@ -81,7 +81,7 @@ server:
 agent:
   enabled: true
 
-  replicaCount: 2
+  replicaCount: 1
 
   image:
     tag: "v3.17.0"
@@ -96,7 +96,7 @@ agent:
 
   env:
     WOODPECKER_SERVER: "woodpecker-server:9000"
-    WOODPECKER_AGENT_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
+    WOODPECKER_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
     WOODPECKER_GRPC_SECRET: "woodpecker-server-secret-2f8a9e7c-4b3d-11f0-a8c2-0242ac130002"
     WOODPECKER_LOG_LEVEL: "debug"
     WOODPECKER_BACKEND: "kubernetes"
