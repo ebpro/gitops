@@ -26,6 +26,7 @@ spec:
       match: Host(`plane.ebruno.fr`) && PathPrefix(`/spaces`)
       middlewares:
         - name: plane-body-limit
+        - name: fwd-auth
       services:
         - name: plane-space
           port: 3000
@@ -33,6 +34,7 @@ spec:
       match: Host(`plane.ebruno.fr`) && PathPrefix(`/god-mode`)
       middlewares:
         - name: plane-body-limit
+        - name: fwd-auth
       services:
         - name: plane-admin
           port: 3000
@@ -40,6 +42,7 @@ spec:
       match: Host(`plane.ebruno.fr`) && PathPrefix(`/api`)
       middlewares:
         - name: plane-body-limit
+        - name: fwd-auth
       services:
         - name: plane-admin
           port: 3000
@@ -47,6 +50,7 @@ spec:
       match: Host(`plane.ebruno.fr`) && PathPrefix(`/auth`)
       middlewares:
         - name: plane-body-limit
+        - name: fwd-auth
       services:
         - name: plane-api
           port: 8000
@@ -54,6 +58,7 @@ spec:
       match: Host(`plane.ebruno.fr`) && PathPrefix(`/live`)
       middlewares:
         - name: plane-body-limit
+        - name: fwd-auth
       services:
         - name: plane-admin
           port: 3000
@@ -61,6 +66,7 @@ spec:
       match: Host(`plane.ebruno.fr`) && PathPrefix(`/uploads`)
       middlewares:
         - name: plane-body-limit
+        - name: fwd-auth
       services:
         - name: plane-minio
           port: 9000
@@ -68,6 +74,7 @@ spec:
       match: Host(`plane.ebruno.fr`) && PathPrefix(`/`)
       middlewares:
         - name: plane-body-limit
+        - name: fwd-auth
       services:
         - name: plane-admin
           port: 3000

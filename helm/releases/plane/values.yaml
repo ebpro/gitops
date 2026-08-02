@@ -24,11 +24,12 @@ env:
   pgdb_remote_url: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
   DATABASE_URL: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
   PLANE_URL: https://plane.ebruno.fr
+  GITEA_HOST: http://gitea-http.gitea.svc.cluster.local:3000
   docstore_bucket: uploads
 
 external_secrets:
   pgdb_existingSecret: plane-postgresql-auth
-  app_env_existingSecret: plane-oidc-secret
+  gitea_existingSecret: plane-gitea-oauth
 
 ssl:
   enabled: true
