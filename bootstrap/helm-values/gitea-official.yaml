@@ -41,6 +41,7 @@ gitea:
       autoDiscoverUrl: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
       scopes: openid email profile
 
+
   config:
     _generals_:
       APP_NAME: Gitea
@@ -92,6 +93,10 @@ persistence:
   enabled: true
   size: 20Gi
   storageClassName: local-path
+
+gitea:
+  podAnnotations:
+    io.cilium.k8s.policy.skip: "true"
 
 podSecurityContext:
   fsGroup: 1000
