@@ -33,11 +33,12 @@ deployment:
           key: password
 
 gitea:
+  podAnnotations:
+    io.cilium.k8s.policy.skip: "true"
+
   admin:
     username: admin
     email: admin@eb
-    password: ""
-    passwordMode: createOnly
 
   oauth:
     - name: Keycloak
