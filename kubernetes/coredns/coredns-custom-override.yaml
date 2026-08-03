@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  gitea.override: |
+    hosts {
+      10.43.222.23 gitea.ebruno.fr
+      fallthrough
+    }
