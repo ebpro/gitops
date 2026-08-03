@@ -104,26 +104,25 @@ spec:
         repoURL: https://pact-foundation.github.io/pact-broker-chart
         version: 6.1.0
         syncWave: '20'
-        valueFiles: helm/releases/pact-broker/values.yaml
-       - app: sonarqube
-         chart: sonarqube
-         namespace: sonarqube
-         releaseName: sonarqube
-         repoURL: https://SonarSource.github.io/helm-chart-sonarqube
-         version: 2026.1.0
-         syncWave: '20'
-         valueFiles: helm/releases/sonarqube/values.yaml
-       - app: link-shortener
-         chart: quarkus-app
-         namespace: link-shortener
-         releaseName: link-shortener
-         repoURL: https://charts.bruno.fr
-         version: 1.0.0
-         syncWave: '20'
-         valueFiles: helm/releases/link-shortener/values.yaml
-       - app: tempo
-         chart: tempo
-
+         valueFiles: helm/releases/pact-broker/values.yaml
+      - app: sonarqube
+        chart: sonarqube
+        namespace: sonarqube
+        releaseName: sonarqube
+        repoURL: https://SonarSource.github.io/helm-chart-sonarqube
+        version: 2026.1.0
+        syncWave: '20'
+        valueFiles: helm/releases/sonarqube/values.yaml
+      - app: link-shortener
+        chart: quarkus-app
+        namespace: link-shortener
+        releaseName: link-shortener
+        repoURL: https://charts.bruno.fr
+        version: 1.0.0
+        syncWave: '20'
+        valueFiles: helm/releases/link-shortener/values.yaml
+      - app: tempo
+        chart: tempo
         namespace: tempo
         releaseName: tempo
         repoURL: https://grafana.github.io/helm-charts
