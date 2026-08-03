@@ -27,7 +27,8 @@ env:
   WEB_URL: https://plane.ebruno.fr
   CORS_ALLOWED_ORIGINS: https://plane.ebruno.fr
   SECRET_KEY: OMRmTHWzhCes4zp2R7cAl48JLM7+7u+xBNg/tX4NpSU=
-  GITEA_HOST: https://gitea.ebruno.fr
+   GITEA_HOST: https://gitea.ebruno.fr
+   IS_GITEA_ENABLED: "1"
   docstore_bucket: uploads
 
 external_secrets:
