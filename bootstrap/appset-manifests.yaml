@@ -21,9 +21,9 @@ spec:
           - path: kubernetes/matrix/synapse
           - path: kubernetes/observability
           - path: kubernetes/argocd-image-updater
-           - path: kubernetes/harbor-init
-           - path: kubernetes/plane
-           - path: bootstrap/keycloak-reconciler
+          - path: kubernetes/harbor-init
+          - path: kubernetes/plane
+          - path: bootstrap/keycloak-reconciler
   template:
     metadata:
       name: '{{path.basename}}'
