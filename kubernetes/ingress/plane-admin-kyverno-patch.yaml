@@ -32,63 +32,69 @@ spec:
                 - -c
                 - |
                   cat > /nginx/nginx.conf << 'CONFEOF'
-                  worker_processes 4;
-                  events { worker_connections 1024; }
-                  http {
-                    include mime.types;
-                    default_type application/octet-stream;
-                    set_real_ip_from 0.0.0.0/0;
-                    real_ip_recursive on;
-                    real_ip_header X-Forwarded-For;
-                    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
-                    access_log /dev/stdout;
-                    error_log /dev/stderr;
-                    port_in_redirect off;
-                    server {
-                      listen 3000;
-                      server_name plane.ebruno.fr localhost;
-                      location = / {
-                        return 302 /god-mode/;
+                    worker_processes 4;
+                    events { worker_connections 1024; }
+                    http {
+                      include mime.types;
+                      default_type application/octet-stream;
+                      map $http_x_forwarded_proto $public_scheme {
+                        default $http_x_forwarded_proto;
+                        https https;
+                        http http;
                       }
-                      location / {
-                        root /usr/share/nginx/html/god-mode;
-                        try_files $uri $uri/ /index.html;
-                      }
-                      location @fixredirect {
-                        if ($http_x_forwarded_proto = https) {
-                          set $target https://$host$uri/;
+                      set_real_ip_from 0.0.0.0/0;
+                      real_ip_recursive on;
+                      real_ip_header X-Forwarded-For;
+                      access_log /dev/stdout;
+                      error_log /dev/stderr;
+                      port_in_redirect off;
+                      server {
+                        listen 3000;
+                        server_name plane.ebruno.fr localhost;
+                        location = / {
+                          return 302 $public_scheme://$host/god-mode/;
                         }
-                        if ($http_x_forwarded_proto != https) {
-                          set $target http://$host$uri/;
+                        location / {
+                          root /usr/share/nginx/html/god-mode;
+                          try_files $uri $uri/ /index.html;
                         }
-                        return 301 $target;
-                      }
-                      location /api/ {
-                        proxy_set_header Host $host;
-                        proxy_set_header X-Real-IP $remote_addr;
-                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                        proxy_http_version 1.1;
-                        proxy_set_header Upgrade $http_upgrade;
-                        proxy_set_header Connection "upgrade";
-                        proxy_connect_timeout 300s;
-                        proxy_read_timeout 300s;
-                        proxy_pass http://plane-api:8000;
-                      }
-                      location /live/ {
-                        proxy_pass http://plane-live:3000;
-                        proxy_http_version 1.1;
-                        proxy_set_header Upgrade $http_upgrade;
-                        proxy_set_header Connection "upgrade";
-                        proxy_set_header X-Real-IP $remote_addr;
-                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                        proxy_set_header Host $host;
-                        proxy_redirect default;
-                        proxy_read_timeout 120s;
-                        proxy_send_timeout 120s;
-                        proxy_connect_timeout 7d;
+                        location @fixredirect {
+                          if ($http_x_forwarded_proto = https) {
+                            set $target https://$host$uri/;
+                          }
+                          if ($http_x_forwarded_proto != https) {
+                            set $target http://$host$uri/;
+                          }
+                          return 301 $target;
+                        }
+                        location /api/ {
+                          proxy_set_header Host $host;
+                          proxy_set_header X-Real-IP $remote_addr;
+                          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                          proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+                          proxy_http_version 1.1;
+                          proxy_set_header Upgrade $http_upgrade;
+                          proxy_set_header Connection "upgrade";
+                          proxy_connect_timeout 300s;
+                          proxy_read_timeout 300s;
+                          proxy_pass http://plane-api:8000;
+                        }
+                        location /live/ {
+                          proxy_pass http://plane-live:3000;
+                          proxy_http_version 1.1;
+                          proxy_set_header Upgrade $http_upgrade;
+                          proxy_set_header Connection "upgrade";
+                          proxy_set_header X-Real-IP $remote_addr;
+                          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                          proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+                          proxy_set_header Host $host;
+                          proxy_redirect default;
+                          proxy_read_timeout 120s;
+                          proxy_send_timeout 120s;
+                          proxy_connect_timeout 7d;
+                        }
                       }
                     }
-                  }
                   CONFEOF
                 volumeMounts:
                 - name: nginx-conf
