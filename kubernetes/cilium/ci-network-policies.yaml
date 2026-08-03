@@ -55,10 +55,16 @@ spec:
               protocol: TCP
             - port: "9153"
               protocol: TCP
+    - toServices:
+        - k8sService:
+            namespace: kube-system
+            serviceName: traefik
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
     - toFQDNs:
         - matchPattern: "*dl.gitea.com"
-        - matchPattern: gitea.ebruno.fr
-        - matchPattern: keycloak.ebruno.fr
       toPorts:
         - ports:
             - port: "443"
@@ -110,6 +116,14 @@ spec:
             - port: "53"
               protocol: UDP
             - port: "53"
+              protocol: TCP
+    - toServices:
+        - k8sService:
+            namespace: kube-system
+            serviceName: traefik
+      toPorts:
+        - ports:
+            - port: "443"
               protocol: TCP
     - toFQDNs:
         - matchPattern: keycloak.ebruno.fr
