@@ -66,6 +66,12 @@ server:
   serviceAccount:
     create: true
 
+  hostAliases:
+    - ip: "10.43.222.23"
+      hostnames:
+        - "gitea.ebruno.fr"
+        - "keycloak.ebruno.fr"
+
   service:
     type: ClusterIP
     port: 80
