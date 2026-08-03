@@ -24,6 +24,8 @@ env:
   pgdb_remote_url: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
   DATABASE_URL: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
   PLANE_URL: https://plane.ebruno.fr
+  WEB_URL: https://plane.ebruno.fr
+  CORS_ALLOWED_ORIGINS: https://plane.ebruno.fr
   SECRET_KEY: OMRmTHWzhCes4zp2R7cAl48JLM7+7u+xBNg/tX4NpSU=
   GITEA_HOST: https://gitea.ebruno.fr
   docstore_bucket: uploads
