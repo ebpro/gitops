@@ -111,3 +111,10 @@ spec:
               protocol: UDP
             - port: "53"
               protocol: TCP
+    - toFQDNs:
+        - matchPattern: keycloak.ebruno.fr
+        - matchPattern: gitea.ebruno.fr
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
