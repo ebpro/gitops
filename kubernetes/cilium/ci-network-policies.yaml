@@ -57,7 +57,7 @@ spec:
               protocol: TCP
     - toFQDNs:
         - matchPattern: "*dl.gitea.com"
-        - matchPattern: gitea.ebruno.fr
+        - matchPattern: traefik.kube-system.svc.cluster.local
       toPorts:
         - ports:
             - port: "443"
