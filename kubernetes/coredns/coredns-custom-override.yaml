@@ -4,8 +4,8 @@ metadata:
   name: coredns-custom
   namespace: kube-system
 data:
-  gitea.override: |
+  gitea-keycloak.override: |
     hosts {
-      10.43.222.23 gitea.ebruno.fr
+      10.43.222.23 gitea.ebruno.fr keycloak.ebruno.fr
       fallthrough
     }
