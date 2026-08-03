@@ -58,6 +58,7 @@ spec:
     - toFQDNs:
         - matchPattern: "*dl.gitea.com"
         - matchPattern: gitea.ebruno.fr
+        - matchPattern: keycloak.ebruno.fr
       toPorts:
         - ports:
             - port: "443"
