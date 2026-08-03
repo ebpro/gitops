@@ -103,7 +103,7 @@ spec:
         releaseName: pact-broker
         repoURL: https://pact-foundation.github.io/pact-broker-chart
         version: 6.1.0
-        syncWave: '20'
+         syncWave: '20'
          valueFiles: helm/releases/pact-broker/values.yaml
       - app: sonarqube
         chart: sonarqube
