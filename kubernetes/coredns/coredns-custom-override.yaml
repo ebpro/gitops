@@ -5,7 +5,28 @@ metadata:
   namespace: kube-system
 data:
   gitea-keycloak.override: |
-    hosts {
-      10.43.222.23 gitea.ebruno.fr keycloak.ebruno.fr
-      fallthrough
+    # We cannot use 'hosts' plugin here because the main Corefile already uses it.
+    # Using 'rewrite' to redirect traffic at the DNS level is not possible for IPs.
+    # Instead, we use 'template' or just stick to hostAliases.
+    # Since hostAliases failed, let's try using the 'rewrite' plugin for the FQDN if applicable, 
+    # but actually, the most robust way in K3s when the main block has 'hosts' is to 
+    # avoid 'hosts' in the overrides.
+    # Wait, the main block is:
+    # hosts /etc/coredns/NodeHosts { ... }
+    # This means the 'hosts' plugin is ALREADY loaded.
+    # We cannot load it again.
+    # But we can't add to NodeHosts easily.
+    # Let's use 'template' or just go back to fixing hostAliases correctly.
+    # Actually, there is a better way: Use the 'rewrite' plugin to change the name, 
+    # but that doesn't help with the IP.
+    # The only way to add IPs to CoreDNS without the 'hosts' plugin is using 'template' 
+    # or by editing the NodeHosts file.
+    # Since we can't edit NodeHosts easily, let's try to use 'rewrite' for the domain to a cluster-local service.
+    
+    gitea.ebruno.fr {
+      rewrite name traefik.kube-system.svc.cluster.local
     }
+    keycloak.ebruno.fr {
+      rewrite name traefik.kube-system.svc.cluster.local
+    }
+    
