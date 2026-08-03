@@ -28,12 +28,6 @@ spec:
             http:
               - method: POST
                 path: "/api/hook"
-    - toFQDNs:
-        - matchPattern: gitea-http.gitea.svc.cluster.local
-      toPorts:
-        - ports:
-            - port: "3000"
-              protocol: TCP
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: postgresql
@@ -63,6 +57,7 @@ spec:
               protocol: TCP
     - toFQDNs:
         - matchPattern: "*dl.gitea.com"
+        - matchPattern: gitea.ebruno.fr
       toPorts:
         - ports:
             - port: "443"
