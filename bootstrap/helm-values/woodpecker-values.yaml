@@ -1,4 +1,10 @@
 # Woodpecker CI v3 - values for K3s
+hostAliases:
+  - ip: "10.43.222.23"
+    hostnames:
+      - "gitea.ebruno.fr"
+      - "keycloak.ebruno.fr"
+
 # Chart: https://github.com/woodpecker-ci/helm/tree/main/charts/woodpecker (v3.6.5)
 # Docs: https://woodpecker-ci.org/docs/
 # Updated: 2026-08-02 - Vault-backed secrets, internal Gitea URL, TLS verify enabled
@@ -65,12 +71,6 @@ server:
 
   serviceAccount:
     create: true
-
-  hostAliases:
-    - ip: "10.43.222.23"
-      hostnames:
-        - "gitea.ebruno.fr"
-        - "keycloak.ebruno.fr"
 
   service:
     type: ClusterIP
