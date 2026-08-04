@@ -31,6 +31,32 @@ deployment:
         secretKeyRef:
           name: gitea-admin-secret
           key: password
+    - name: GITEA__server__ROOT_URL
+      value: https://gitea.ebruno.fr
+    - name: GITEA__server__DOMAIN
+      value: gitea.ebruno.fr
+    - name: GITEA__server__PROTOCOL
+      value: https
+    - name: GITEA__server__SSH_DOMAIN
+      value: gitea.ebruno.fr
+    - name: GITEA__service__DISABLE_REGISTRATION
+      value: "true"
+    - name: GITEA__service__ENABLE_PASSWORD_SIGNIN_FORM
+      value: "false"
+    - name: GITEA__service__REQUIRE_SIGNIN_VIEW
+      value: "true"
+    - name: GITEA__webhook__ALLOWED_HOST_LIST
+      value: woodpecker-server.ci.svc.cluster.local
+    - name: GITEA__oauth2_client__USERNAME
+      value: preferred_username
+    - name: GITEA__oauth2_client__ENABLE_AUTO_REGISTRATION
+      value: "true"
+    - name: GITEA__oauth2_client__OPENID_CONNECT_SCOPES
+      value: openid email profile
+    - name: GITEA__repository__DEFAULT_PRIVATE
+      value: private
+    - name: GITEA__security__INSTALL_LOCK
+      value: "true"
 
 gitea:
   admin:
