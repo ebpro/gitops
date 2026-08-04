@@ -55,13 +55,13 @@ spec:
               protocol: TCP
             - port: "9153"
               protocol: TCP
-    - toServices:
-        - k8sService:
-            namespace: kube-system
-            serviceName: traefik
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: traefik
+            k8s:io.kubernetes.pod.namespace: kube-system
       toPorts:
         - ports:
-            - port: "443"
+            - port: "8443"
               protocol: TCP
     - toFQDNs:
         - matchPattern: "*dl.gitea.com"
@@ -117,13 +117,13 @@ spec:
               protocol: UDP
             - port: "53"
               protocol: TCP
-    - toServices:
-        - k8sService:
-            namespace: kube-system
-            serviceName: traefik
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: traefik
+            k8s:io.kubernetes.pod.namespace: kube-system
       toPorts:
         - ports:
-            - port: "443"
+            - port: "8443"
               protocol: TCP
     - toFQDNs:
         - matchPattern: keycloak.ebruno.fr

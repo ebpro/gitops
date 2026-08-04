@@ -94,9 +94,5 @@ persistence:
   size: 20Gi
   storageClassName: local-path
 
-gitea:
-  podAnnotations:
-    io.cilium.k8s.policy.skip: "true"
-
 podSecurityContext:
   fsGroup: 1000
