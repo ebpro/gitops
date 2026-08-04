@@ -36,7 +36,7 @@ deployment:
     - name: GITEA__server__DOMAIN
       value: gitea.ebruno.fr
     - name: GITEA__server__PROTOCOL
-      value: https
+      value: http
     - name: GITEA__server__SSH_DOMAIN
       value: gitea.ebruno.fr
     - name: GITEA__service__DISABLE_REGISTRATION
