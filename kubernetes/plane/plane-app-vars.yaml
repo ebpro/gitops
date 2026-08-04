@@ -13,3 +13,5 @@ data:
   SENTRY_DSN: ""
   SENTRY_ENVIRONMENT: ""
   WEB_URL: https://plane.ebruno.fr
+  PLANE_URL: https://plane.ebruno.fr
+  AMQP_URL: redis://plane-redis.plane.svc.cluster.local:6379/1
