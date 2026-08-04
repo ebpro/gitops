@@ -34,7 +34,7 @@ server:
     # Forge: Gitea. Forge = login (Gitea OAuth) + repo (Gitea API). Forge is ONE provider.
     # Note: Keycloak OIDC login for Woodpecker is NOT supported. Users login via Forge OAuth.
     WOODPECKER_GITEA: "true"
-    WOODPECKER_GITEA_URL: "https://gitea-http.gitea.svc.cluster.local"
+    WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
     WOODPECKER_GITEA_CLIENT:
       valueFrom:
         secretKeyRef:
