@@ -125,6 +125,8 @@ spec:
         - ports:
             - port: "8443"
               protocol: TCP
+            - port: "443"
+              protocol: TCP
     - toFQDNs:
         - matchPattern: keycloak.ebruno.fr
         - matchPattern: gitea.ebruno.fr
