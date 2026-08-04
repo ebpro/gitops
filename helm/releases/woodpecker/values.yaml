@@ -47,7 +47,7 @@ server:
           key: secret
     WOODPECKER_GITEA_SKIP_VERIFY: "true"
     # Logging
-    WOODPECKER_LOG_LEVEL: "info"
+    WOODPECKER_LOG_LEVEL: "debug"
     WOODPECKER_LOG_FORMAT: "json"
     # Server secret — required for agent⇆server encryption (v3)
     WOODPECKER_SECRET:
