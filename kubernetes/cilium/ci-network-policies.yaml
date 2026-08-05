@@ -190,14 +190,22 @@ spec:
             - port: "443"
               protocol: TCP
     - toFQDNs:
+        - matchPattern: "gitea.ebruno.fr"
+        - matchPattern: "*.github.com"
+        - matchPattern: "*.githubusercontent.com"
+        - matchPattern: "*.gitlab.com"
         - matchPattern: "*dl.gitea.com"
         - matchPattern: "*registry-1.docker.io*"
         - matchPattern: "*.docker.com"
+        - matchPattern: "*.docker.io"
         - matchPattern: "*.gcr.io"
         - matchPattern: "*.quay.io"
         - matchPattern: "*proxy.golang.org*"
         - matchPattern: "*sum.golang.org*"
+        - matchPattern: "*.pulumi.com"
       toPorts:
         - ports:
+            - port: "80"
+              protocol: TCP
             - port: "443"
               protocol: TCP
