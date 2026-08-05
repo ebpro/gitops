@@ -181,6 +181,26 @@ spec:
               protocol: UDP
             - port: "53"
               protocol: TCP
+    - toCIDRs:
+        - "10.2.248.31/32"
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: traefik
+            k8s:io.kubernetes.pod.namespace: kube-system
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
     - toEntities:
         - world
       toPorts:
