@@ -7,8 +7,7 @@ hostAliases:
 
 # Chart: https://github.com/woodpecker-ci/helm/tree/main/charts/woodpecker (v3.6.5)
 # Docs: https://woodpecker-ci.org/docs/
-# Updated: 2026-08-02 - Vault-backed secrets, internal Gitea URL, TLS verify enabled
-# Agent auth token preserved from existing woodpecker-default-agent-secret
+# Updated: 2026-08-05 - Unified agent/grpc secrets, pipeline network policy, internal Gitea URL
 
 # ─── Server ─────────────────────────────────────────────
 server:
@@ -42,7 +41,7 @@ server:
     # Forge: Gitea. Forge = login (Gitea OAuth) + repo (Gitea API). Forge is ONE provider.
     # Note: Keycloak OIDC login for Woodpecker is NOT supported. Users login via Forge OAuth.
     WOODPECKER_GITEA: "true"
-    WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
+    WOODPECKER_GITEA_URL: "http://gitea.gitea.svc.cluster.local:3000"
     WOODPECKER_GITEA_CLIENT:
       valueFrom:
         secretKeyRef:
@@ -55,7 +54,7 @@ server:
           key: secret
     WOODPECKER_GITEA_SKIP_VERIFY: "false"
     # Logging
-    WOODPECKER_LOG_LEVEL: "debug"
+    WOODPECKER_LOG_LEVEL: "warn"
     WOODPECKER_LOG_FORMAT: "json"
     # Server secret — required for agent⇆server encryption (v3)
     WOODPECKER_SECRET:
@@ -122,13 +121,15 @@ agent:
         secretKeyRef:
           name: woodpecker-server-auth
           key: WOODPECKER_GRPC_SECRET
-    WOODPECKER_LOG_LEVEL: "debug"
+    WOODPECKER_LOG_LEVEL: "warn"
     WOODPECKER_BACKEND: "kubernetes"
     WOODPECKER_BACKEND_K8S_NAMESPACE: "ci"
     WOODPECKER_BACKEND_K8S_NAMESPACE_PER_ORGANIZATION: "false"
     WOODPECKER_BACKEND_K8S_STORAGE_CLASS: "local-path"
     WOODPECKER_BACKEND_K8S_VOLUME_SIZE: "10G"
     WOODPECKER_BACKEND_K8S_STORAGE_RWX: "false"
+    WOODPECKER_BACKEND_K8S_POD_LABELS: "woodpecker-pipeline=true,app.kubernetes.io/part-of=woodpecker"
+    WOODPECKER_BACKEND_K8S_POD_SERVICE_ACCOUNT: "woodpecker-agent"
     WOODPECKER_CONNECT_RETRY_COUNT: "20"
 
   serviceAccount:

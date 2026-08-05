@@ -134,3 +134,68 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: woodpecker-pipeline-egress
+  namespace: ci
+spec:
+  endpointSelector:
+    matchLabels:
+      woodpecker-pipeline: "true"
+  egress:
+    - toEntities:
+        - kube-apiserver
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: woodpecker
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: gitea
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+    - toFQDNs:
+        - matchPattern: "*dl.gitea.com"
+        - matchPattern: "*registry-1.docker.io*"
+        - matchPattern: "*.docker.com"
+        - matchPattern: "*.gcr.io"
+        - matchPattern: "*.quay.io"
+        - matchPattern: "*proxy.golang.org*"
+        - matchPattern: "*sum.golang.org*"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
