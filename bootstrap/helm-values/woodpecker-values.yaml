@@ -41,7 +41,7 @@ server:
     # Forge: Gitea. Forge = login (Gitea OAuth) + repo (Gitea API). Forge is ONE provider.
     # Note: Keycloak OIDC login for Woodpecker is NOT supported. Users login via Forge OAuth.
     WOODPECKER_GITEA: "true"
-    WOODPECKER_GITEA_URL: "http://gitea.gitea.svc.cluster.local:3000"
+    WOODPECKER_GITEA_URL: "http://gitea-http.gitea.svc.cluster.local:3000"
     WOODPECKER_GITEA_CLIENT:
       valueFrom:
         secretKeyRef:
@@ -128,7 +128,7 @@ agent:
     WOODPECKER_BACKEND_K8S_STORAGE_CLASS: "local-path"
     WOODPECKER_BACKEND_K8S_VOLUME_SIZE: "10G"
     WOODPECKER_BACKEND_K8S_STORAGE_RWX: "false"
-    WOODPECKER_BACKEND_K8S_POD_LABELS: "woodpecker-pipeline=true,app.kubernetes.io/part-of=woodpecker"
+    WOODPECKER_BACKEND_K8S_POD_LABELS: '{"woodpecker-pipeline":"true","app.kubernetes.io/part-of":"woodpecker"}'
     WOODPECKER_BACKEND_K8S_POD_SERVICE_ACCOUNT: "woodpecker-agent"
     WOODPECKER_CONNECT_RETRY_COUNT: "20"
 

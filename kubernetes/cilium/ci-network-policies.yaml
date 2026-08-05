@@ -20,6 +20,7 @@ spec:
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: gitea
+            k8s:io.kubernetes.pod.namespace: gitea
       toPorts:
         - ports:
             - port: "3000"
@@ -157,6 +158,7 @@ spec:
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: gitea
+            k8s:io.kubernetes.pod.namespace: gitea
       toPorts:
         - ports:
             - port: "3000"
