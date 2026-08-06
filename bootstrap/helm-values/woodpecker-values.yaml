@@ -42,7 +42,7 @@ server:
     # Note: Keycloak OIDC login for Woodpecker is NOT supported. Users login via Forge OAuth.
     WOODPECKER_FORGE: "gitea"
     WOODPECKER_GITEA: "true"
-    WOODPECKER_GITEA_URL: "http://gitea.gitea.svc.cluster.local:3000"
+     WOODPECKER_GITEA_URL: "http://gitea-http.gitea.svc.cluster.local:3000"
     WOODPECKER_GITEA_CLIENT:
       valueFrom:
         secretKeyRef:
