@@ -68,6 +68,11 @@ server:
         secretKeyRef:
           name: woodpecker-server-auth
           key: WOODPECKER_GRPC_SECRET
+    WOODPECKER_AGENT_SECRET:
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-server-auth
+          key: WOODPECKER_SECRET
 
   serviceAccount:
     create: true
