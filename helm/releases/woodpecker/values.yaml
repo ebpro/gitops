@@ -42,12 +42,6 @@ server:
     WOODPECKER_FORGE: "gitea"
     WOODPECKER_GITEA: "true"
     WOODPECKER_GITEA_URL: "http://gitea.gitea.svc.cluster.local:3000"
-    # Agent secret MUST match agent WOODPECKER_AGENT_SECRET for gRPC auth
-    WOODPECKER_AGENT_SECRET:
-      valueFrom:
-        secretKeyRef:
-          name: woodpecker-server-auth
-          key: WOODPECKER_AGENT_SECRET
     WOODPECKER_GITEA_CLIENT:
       valueFrom:
         secretKeyRef:
@@ -121,7 +115,7 @@ agent:
       valueFrom:
         secretKeyRef:
           name: woodpecker-server-auth
-          key: WOODPECKER_AGENT_SECRET
+          key: WOODPECKER_SECRET
     WOODPECKER_GRPC_SECRET:
       valueFrom:
         secretKeyRef:
