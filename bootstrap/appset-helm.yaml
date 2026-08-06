@@ -176,7 +176,7 @@ spec:
         repoURL: https://woodpecker-ci.org/
         version: 3.6.5
         syncWave: '25'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/woodpecker-values.yaml?v=41
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/woodpecker-values.yaml?v=42
 
   template:
     metadata:
