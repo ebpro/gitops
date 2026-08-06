@@ -54,6 +54,8 @@ server:
           name: woodpecker-gitea-oauth
           key: secret
     WOODPECKER_GITEA_SKIP_VERIFY: "false"
+    # Public Gitea URL for browser-based OAuth redirect (AuthURL). Internal URL stays WOODPECKER_GITEA_URL.
+    WOODPECKER_GITEA_OAUTH: "https://gitea.ebruno.fr"
     # Logging
     WOODPECKER_LOG_LEVEL: "warn"
     WOODPECKER_LOG_FORMAT: "json"
