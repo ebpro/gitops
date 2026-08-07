@@ -1,13 +1,7 @@
 # Woodpecker CI v3 - values for K3s
-hostAliases:
-  - ip: "10.43.222.23"
-    hostnames:
-      - "gitea.ebruno.fr"
-      - "keycloak.ebruno.fr"
-
 # Chart: https://github.com/woodpecker-ci/helm/tree/main/charts/woodpecker (v3.6.5)
 # Docs: https://woodpecker-ci.org/docs/
-# Updated: 2026-08-05 - Unified agent/grpc secrets, pipeline network policy, internal Gitea URL
+# Updated: 2026-08-07 - Fixed SSO: WOODPECKER_GITEA_OAUTH ignored in v3.17.0, use public Gitea URL
 
 # ─── Server ─────────────────────────────────────────────
 server:
@@ -42,7 +36,7 @@ server:
     # Note: Keycloak OIDC login for Woodpecker is NOT supported. Users login via Forge OAuth.
     WOODPECKER_FORGE: "gitea"
     WOODPECKER_GITEA: "true"
-    WOODPECKER_GITEA_URL: "http://gitea-http.gitea.svc.cluster.local:3000"
+    WOODPECKER_GITEA_URL: "https://gitea.ebruno.fr"
     WOODPECKER_GITEA_CLIENT:
       valueFrom:
         secretKeyRef:
@@ -54,8 +48,6 @@ server:
           name: woodpecker-gitea-oauth
           key: secret
     WOODPECKER_GITEA_SKIP_VERIFY: "false"
-    # Public Gitea URL for browser-based OAuth redirect (AuthURL). Internal URL stays WOODPECKER_GITEA_URL.
-    WOODPECKER_GITEA_OAUTH: "https://gitea.ebruno.fr"
     # Logging
     WOODPECKER_LOG_LEVEL: "warn"
     WOODPECKER_LOG_FORMAT: "json"
