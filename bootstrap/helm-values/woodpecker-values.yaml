@@ -48,6 +48,8 @@ server:
           name: woodpecker-gitea-oauth
           key: secret
     WOODPECKER_GITEA_SKIP_VERIFY: "false"
+    # Force netrc auth even for public repos (Gitea requires it for all HTTPS clones)
+    WOODPECKER_AUTHENTICATE_PUBLIC_REPOS: "true"
     # Logging
     WOODPECKER_LOG_LEVEL: "warn"
     WOODPECKER_LOG_FORMAT: "json"
