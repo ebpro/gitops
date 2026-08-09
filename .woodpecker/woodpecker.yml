@@ -1,18 +1,25 @@
-# .woodpecker-ci.yml
 steps:
   - name: build
-    image: quay.io/quarkus/maven:latest
+    image: quay.io/quarkus/quarkus-maven-builder:latest
     commands:
       - mvn package -Pnative -Dquarkus.native.container-build=true
-  - name: package
-    image: quay.io/buildpacks/pack:latest
+
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
     commands:
-      - pack build harbor.ebruno.fr/bruno/link-shortener:${CI_COMMIT_SHA} --builder pktobuildpacks/builder:base
-      - pack push harbor.ebruno.fr/bruno/link-shortener:${CI_COMMIT_SHA}
+      - mkdir -p /kaniko/.docker
+      - printf '{"auths":{"harbor.ebruno.fr":{"username":"$HARBOR_USERNAME","password":"$HARBOR_PASSWORD"}}}' > /kaniko/.docker/config.json
+      - /kaniko/executor
+          --context "$(pwd)"
+          --dockerfile src/main/docker/Dockerfile.native
+          --destination harbor.ebruno.fr/bruno/link-shortener:${CI_COMMIT_SHA}
+          --skip-tls-verify=true
+
   - name: scan
     image: harbor.ebruno.fr/trivy/trivy:latest
     commands:
       - trivy image --exit-code 1 --severity CRITICAL harbor.ebruno.fr/bruno/link-shortener:${CI_COMMIT_SHA}
+
   - name: notify
     image: curlimages/curl:latest
     commands:
