@@ -46,7 +46,7 @@ deployment:
     - name: GITEA__service__REQUIRE_SIGNIN_VIEW
       value: "true"
     - name: GITEA__webhook__ALLOWED_HOST_LIST
-      value: woodpecker-server.ci.svc.cluster.local,woodpecker-server.ci.svc.cluster.local:8080,woodpecker-server.ci.svc.cluster.local:80
+      value: woodpecker-server.ci.svc.cluster.local,woodpecker-server.ci.svc.cluster.local:8080,woodpecker-server.ci.svc.cluster.local:80,woodpecker-server.ci,woodpecker.ebruno.fr
     - name: GITEA__oauth2_client__USERNAME
       value: preferred_username
     - name: GITEA__oauth2_client__ENABLE_AUTO_REGISTRATION
@@ -90,7 +90,7 @@ gitea:
       ENABLE_PASSWORD_SIGNIN_FORM: false
       REQUIRE_SIGNIN_VIEW: true
     webhook:
-      ALLOWED_HOST_LIST: woodpecker-server.ci.svc.cluster.local,woodpecker-server.ci.svc.cluster.local:8080,woodpecker-server.ci.svc.cluster.local:80
+      ALLOWED_HOST_LIST: woodpecker-server.ci.svc.cluster.local,woodpecker-server.ci.svc.cluster.local:8080,woodpecker-server.ci.svc.cluster.local:80,woodpecker-server.ci,woodpecker.ebruno.fr
     oauth2_client:
       ENABLE_AUTO_REGISTRATION: true
       USERNAME: preferred_username
