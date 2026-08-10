@@ -13,147 +13,147 @@ spec:
         chart: alloy
         namespace: alloy
         releaseName: alloy
-        repoURL: https://grafana.github.io/helm-charts
+        helmRepoURL: https://grafana.github.io/helm-charts
         version: 1.11.0
         syncWave: '20'
       - app: argo-image-updater
         chart: argocd-image-updater
         namespace: argocd
         releaseName: argo-image-updater
-        repoURL: https://argoproj.github.io/argo-helm
+        helmRepoURL: https://argoproj.github.io/argo-helm
         version: 1.2.4
         syncWave: '25'
       - app: cert-manager
         chart: cert-manager
         namespace: cert-manager
         releaseName: cert-manager
-        repoURL: https://charts.jetstack.io
+        helmRepoURL: https://charts.jetstack.io
         version: v1.16.3
         syncWave: '5'
       - app: cloudnative-pg
         chart: cloudnative-pg
         namespace: cnpg-system
         releaseName: cloudnative-pg
-        repoURL: https://cloudnative-pg.github.io/charts
+        helmRepoURL: https://cloudnative-pg.github.io/charts
         version: 0.29.0
         syncWave: '10'
       - app: external-secrets
         chart: external-secrets
         namespace: external-secrets
         releaseName: external-secrets
-        repoURL: https://charts.external-secrets.io
+        helmRepoURL: https://charts.external-secrets.io
         version: 2.7.0
         syncWave: '20'
       - app: gitea
         chart: gitea
         namespace: gitea
         releaseName: gitea
-        repoURL: https://dl.gitea.com/charts/
+        helmRepoURL: https://dl.gitea.com/charts/
         version: 12.6.0
         syncWave: '20'
       - app: harbor
         chart: harbor
         namespace: harbor
         releaseName: harbor
-        repoURL: https://helm.goharbor.io
+        helmRepoURL: https://helm.goharbor.io
         version: 1.19.2
         syncWave: '20'
       - app: kyverno
         chart: kyverno
         namespace: kyverno
         releaseName: kyverno
-        repoURL: https://kyverno.github.io/kyverno
+        helmRepoURL: https://kyverno.github.io/kyverno
         version: 3.5.0
         syncWave: '20'
       - app: loki
         chart: loki
         namespace: loki
         releaseName: loki
-        repoURL: https://grafana.github.io/helm-charts
+        helmRepoURL: https://grafana.github.io/helm-charts
         version: 6.55.0
         syncWave: '20'
       - app: microcks
         chart: microcks
         namespace: microcks
         releaseName: microcks
-        repoURL: https://microcks.io/helm
+        helmRepoURL: https://microcks.io/helm
         version: 1.13.2
         syncWave: '20'
       - app: nfs-client
         chart: nfs-subdir-external-provisioner
         namespace: nfs-client
         releaseName: nfs-client
-        repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+        helmRepoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
         version: 4.0.18
         syncWave: '20'
       - app: pact-broker
         chart: pact-broker
         namespace: pact-broker
         releaseName: pact-broker
-        repoURL: https://pact-foundation.github.io/pact-broker-chart
+        helmRepoURL: https://pact-foundation.github.io/pact-broker-chart
         version: 6.1.0
         syncWave: '20'
       - app: sonarqube
         chart: sonarqube
         namespace: sonarqube
         releaseName: sonarqube
-        repoURL: https://SonarSource.github.io/helm-chart-sonarqube
+        helmRepoURL: https://SonarSource.github.io/helm-chart-sonarqube
         version: 2026.1.0
         syncWave: '20'
       - app: link-shortener
         chart: quarkus-app
         namespace: link-shortener
         releaseName: link-shortener
-        repoURL: https://charts.bruno.fr
+        helmRepoURL: https://charts.bruno.fr
         version: 1.0.0
         syncWave: '20'
       - app: tempo
         chart: tempo
         namespace: tempo
         releaseName: tempo
-        repoURL: https://grafana.github.io/helm-charts
+        helmRepoURL: https://grafana.github.io/helm-charts
         version: 1.24.4
         syncWave: '20'
       - app: trivyoperator
         chart: trivy-operator
         namespace: trivy-system
         releaseName: trivy-operator
-        repoURL: https://aquasecurity.github.io/helm-charts
+        helmRepoURL: https://aquasecurity.github.io/helm-charts
         version: 0.21.0
         syncWave: '20'
       - app: traefik
         chart: traefik
         namespace: kube-system
         releaseName: traefik
-        repoURL: https://traefik.github.io/charts
+        helmRepoURL: https://traefik.github.io/charts
         version: 37.1.1
         syncWave: '20'
       - app: vpa
         chart: vertical-pod-autoscaler
         namespace: vpa
         releaseName: vpa
-        repoURL: https://kubernetes.github.io/autoscaler
+        helmRepoURL: https://kubernetes.github.io/autoscaler
         version: 0.10.0
         syncWave: '15'
       - app: keycloak
         chart: keycloak
         namespace: keycloak
         releaseName: keycloak
-        repoURL: https://codecentric.github.io/helm-charts
+        helmRepoURL: https://codecentric.github.io/helm-charts
         version: 18.0.0
         syncWave: '25'
       - app: backstage
         chart: backstage
         namespace: backstage
         releaseName: backstage
-        repoURL: https://backstage.github.io/charts
+        helmRepoURL: https://backstage.github.io/charts
         version: 2.8.2
         syncWave: '25'
       - app: woodpecker
         chart: woodpecker
         namespace: ci
         releaseName: woodpecker
-        repoURL: https://woodpecker-ci.org/
+        helmRepoURL: https://woodpecker-ci.org/
         version: 3.6.5
         syncWave: '25'
 
@@ -170,7 +170,7 @@ spec:
         path: 'helm/releases/{{app}}'
         chart: '{{chart}}'
         helm:
-          repoURL: '{{repoURL}}'
+          repoURL: '{{helmRepoURL}}'
           releaseName: '{{releaseName}}'
           valueFiles:
             - 'values.yaml'
