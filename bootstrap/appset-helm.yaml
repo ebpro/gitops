@@ -81,15 +81,6 @@ spec:
         version: 6.55.0
         syncWave: '20'
         valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/loki/values.yaml?v=1
-      - app: microcks
-        chart: microcks
-        namespace: microcks
-        releaseName: microcks
-        repoURL: https://microcks.io/helm
-        version: 1.13.2
-        syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/microcks/values.yaml?v=1
-      - app: nfs-client
         chart: nfs-subdir-external-provisioner
         namespace: nfs-client
         releaseName: nfs-client

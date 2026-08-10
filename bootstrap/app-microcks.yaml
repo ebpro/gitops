@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: microcks
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '20'
+spec:
+  project: platform
+  source:
+    repoURL: https://microcks.io/helm
+    targetRevision: 1.13.2
+    chart: microcks
+    helm:
+      releaseName: microcks
+      valueFiles:
+      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/microcks/values.yaml?v=2
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: microcks
+  ignoreDifferences:
+  - group: ""
+    kind: Secret
+    name: microcks-microcks-grpc-secret
+    jsonPointers:
+    - /data
+  - group: ""
+    kind: Secret
+    name: microcks-mongodb-connection
+    jsonPointers:
+    - /data
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
