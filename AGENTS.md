@@ -78,6 +78,9 @@ DNS pattern: `<cluster-name>-primary.<namespace>.svc.cluster.local:5432`
 - **App stuck in Progressing**: Check pod logs, then check resource status
 - **App OutOfSync**: `kubectl argocd app <app> diff` to see drift, fix in git
 - **ArgoCD not picking up changes**: Verify the full reconciliation chain: `gitops-platform` (sync status) → `helm-apps`/`kubernetes-manifests` AppSets → individual Application → live resource. If AppSet wasn't updated, refresh `gitops-platform`: `kubectl annotate application gitops-platform -n argocd argocd.argoproj.io/refresh=hard --overwrite`. If Application wasn't updated, annotate it similarly. **Never patch the live resource** — fix the source files, commit, push, and refresh the chain.
+- **ArgoCD ignores remote valueFile changes**: Apps that reference `valueFiles` via raw GitHub URLs (e.g. `https://raw.githubusercontent.com/.../values.yaml?v=N`) are cached aggressively. Even after pushing a new commit, ArgoCD won't re-download. **Bump the `?v=N` query param** in `bootstrap/appset-helm.yaml` to force a cache miss, then commit and push.
+- **Helm chart drops pod-level settings**: Some charts do not propagate top-level `hostAliases`, `tolerations`, or `affinity` to the actual pod spec. Always verify with `kubectl get <resource> -o json | python3 -c "..."` to confirm the pod spec contains the expected fields. If missing, use the chart's supported mechanisms (e.g., `server.podTemplate`) instead.
+- **gitops-platform OutOfSync**: Even after pushing commits, `gitops-platform` may go OutOfSync and stall. Run `kubectl annotate application gitops-platform -n argocd argocd.argoproj.io/refresh=hard --overwrite` to force a refresh. If it persists, check the cluster network and GitHub API availability.
 - **Pod CrashLoopBackOff**: Check ALL container logs (sidecars may be the problem)
 - **Maintenance mode (SonarQube)**: Database migration failed — check migration logs, verify DB schema and PKs match migration expectations
 - **Data store not found (Nexus)**: JDBC driver missing, or storeProperties not correctly formatted
@@ -150,12 +153,21 @@ Platform is migrating to **Keycloak as single source of identity**. Central auth
 | Microcks | Keycloak | ✅ | — |
 | Nexus OSS | — | ❌ | Traefik ForwardAuth |
 | SonarQube CE | — | ❌ (Commercial only) | Traefik ForwardAuth |
+| Woodpecker CI | Gitea OAuth | ❌ | Gitea OAuth (indirect SSO via Keycloak) |
 
 ### Identity Model
 ```
 Users → Groups → Roles → Application permissions
 ```
 Groups: `platform-admins`, `platform-engineers`, `developers`, `security-team`, `qa-team`, `readonly`
+
+### Known SSO Limitations
+
+**Woodpecker CI** does not support native OIDC. Uses Gitea OAuth (indirect chain: Woodpecker → Gitea → Keycloak).
+
+- `WOODPECKER_GITEA_URL` serves **both** OAuth redirects and API calls — Woodpecker v3+ ignores `WOODPECKER_GITEA_OAUTH`
+- Always set `WOODPECKER_GITEA_URL` to the **public** Gitea URL — never an internal ClusterIP
+- The Woodpecker helm chart `server-3.0.1` does not propagate top-level `hostAliases` to the pod spec — do not rely on it
 
 ### Keycloak Deployment
 - **Deployment**: Keycloak Quarkus via CodeCentric Helm chart
