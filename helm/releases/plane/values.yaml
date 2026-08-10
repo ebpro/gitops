@@ -36,6 +36,7 @@ external_secrets:
   gitea_existingSecret: plane-gitea-oauth
   app_env_existingSecret: plane-app-secrets
 
+
 ssl:
   enabled: true
   tls_secret_name: plane-tls
