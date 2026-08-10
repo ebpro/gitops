@@ -163,6 +163,31 @@ spec:
         - ports:
             - port: "3000"
               protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/component: repository
+            app.kubernetes.io/instance: nexus
+            k8s:io.kubernetes.pod.namespace: nexus
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: harbor-core
+            k8s:io.kubernetes.pod.namespace: harbor
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: harbor-jobservice
+            k8s:io.kubernetes.pod.namespace: harbor
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP
     - toEntities:
         - world
       toPorts:
