@@ -12,7 +12,6 @@ spec:
         revision: main
         directories:
           - path: kubernetes/cilium
-          - path: kubernetes/microcks
           - path: kubernetes/coredns
           - path: kubernetes/oauth2-proxy
           - path: kubernetes/ingress
