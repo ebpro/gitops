@@ -13,6 +13,7 @@ server:
   enabled: true
 
   image:
+    repository: "harbor.ebruno.fr/docker-hub-p2c/woodpeckerci/woodpecker-server"
     tag: "v3.17.0"
 
   resources:
@@ -99,6 +100,7 @@ agent:
   replicaCount: 2
 
   image:
+    repository: "harbor.ebruno.fr/docker-hub-p2c/woodpeckerci/woodpecker-agent"
     tag: "v3.17.0"
 
   resources:
