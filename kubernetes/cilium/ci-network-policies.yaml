@@ -173,17 +173,15 @@ spec:
             - port: "8081"
               protocol: TCP
     - toEndpoints:
-        - matchLabels:
-            app.kubernetes.io/name: harbor-core
-            k8s:io.kubernetes.pod.namespace: harbor
-      toPorts:
-        - ports:
-            - port: "8081"
-              protocol: TCP
-    - toEndpoints:
-        - matchLabels:
-            app.kubernetes.io/name: harbor-jobservice
-            k8s:io.kubernetes.pod.namespace: harbor
+        - or:
+            - matchLabels:
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/component: core
+                k8s:io.kubernetes.pod.namespace: harbor
+            - matchLabels:
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/component: jobservice
+                k8s:io.kubernetes.pod.namespace: harbor
       toPorts:
         - ports:
             - port: "8081"
