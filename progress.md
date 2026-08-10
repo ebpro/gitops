@@ -22,16 +22,20 @@
 - ArgoCD mounted in kubectl to verify sync. All applications now show `Synced` status correctly.
 - Kustomize apps that were deprecated are removed from operands (now fully Helm-based).
 
+### Completed (2026-08-10)
+- All Vault KV data restored: `secret/data/keycloak` (admin credentials, user passwords), all 10 OIDC client secrets at `secret/data/oidc/<app>`, and SAML certs (`devopsRealmScalingCert`, `sonarqubePrivateKeySecured`, `sonarqubeCertificateSecured`)
+- All 29 ExternalSecrets now Ready=True (keycloak-secrets + sonarqube-saml previously failed)
+- ArgoCD platform 35/39 apps Healthy ✅; 4 Unknown: argocd-image-updater, kube-prometheus, link-shortener, open-telemetry (metadata only, not breaking)
+- microcks MongoDB auth fixed: `userM` password synced between secret and MongoDB admin user; microcks app 1/1 READY
+- Plane pods now scheduling after stuck pods cleanup (Too many pods limit no longer hit)
+- Legacy cleanup: 24 stuck pods force-deleted (backstage, ci, default, gitea, keycloak, microcks, plane), 20 old microcks-mongodb legacy RS deleted
+
 ### In Progress
-- Fixed Duplicate `backstage-secrets` ExternalSecret (caused postgresql app Degraded)
-- Plane app OutOfSync resolved: Deleted broken Jobs, reset operationState, ArGoCD re-synced successfully
-- ArGoCD postgresql app stuck Degraded: 2 resources OutOfSync (`backstage-secrets` missing Vault KV path `postgresql/backstage`)
-- All 12 Keycloak OIDC secrets restored in `secret/keycloak` and verified by ExternalSecrets
-- Cluster/Operator secrets (backstage, postgresql) not yet recovered from Vault rebuild
+- Helm values: `helm/releases/microcks/values.yaml` still has hardcoded MongoDB admin credentials — should be replaced with Vault-backed ExternalSecret once `secret/data/microcks` path created
+- old pod 54445cb879 is the current active RS for microcks (should rollback once MongoDB secret synced)
 
 ### Blocked
-- **postgresql app**💀 ArGoCD self-heal deadlock — Degraded app won't autosync, app is Degraded because ArGoCD can't self-heal. Needs manual resolution.
-- **Vault KV recovery**: `postgresql/backstage`, `postgresql/harbor`, `postgresql/nexus`, `postgresql/gitea`, `backstage` paths all missing (PVC was deleted during rebuild)
+- Keycloak service: HTTPS via Traefik unreachable internally (realm signing cert needs manual fetch for SonarQube SAML)
 
 ## Key Decisions
 - Vault KV v2 base path is `secret` → ExternalSecret `key` only needs `keycloak` (not `secret/data/keycloak`).
