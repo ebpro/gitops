@@ -19,6 +19,9 @@ spec:
     server: https://kubernetes.default.svc
     namespace: plane
   ignoreDifferences:
+  - group: ''
+    kind: ConfigMap
+    name: plane-app-vars
   - group: batch
     kind: Job
     jsonPointers:
