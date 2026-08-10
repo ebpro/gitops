@@ -1,19 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: coreinfig
+  name: harbor-init
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '9'
 spec:
-  destination:
-    server: https://kubernetes.default.svc
   project: platform
   source:
-    path: kubernetes/coredns
     repoURL: https://github.com/ebpro/gitops
     targetRevision: main
+    path: kubernetes/harbor-init
+  destination:
+    server: https://kubernetes.default.svc
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
+    - CreateNamespace=true
+    - Replace=true

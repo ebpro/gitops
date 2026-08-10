@@ -138,6 +138,9 @@ agent:
     create: true
     rbac:
       create: true
+    imagePullSecrets:
+      - name: harbor-registry-secret
+      - name: addon-registry-config
 
   createAgentSecret: false
   mapAgentSecret: false

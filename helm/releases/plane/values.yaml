@@ -34,6 +34,7 @@ env:
 external_secrets:
   pgdb_existingSecret: plane-postgresql-auth
   gitea_existingSecret: plane-gitea-oauth
+  app_env_existingSecret: plane-app-secrets
 
 ssl:
   enabled: true
