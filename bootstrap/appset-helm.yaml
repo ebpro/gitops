@@ -57,7 +57,7 @@ spec:
         version: 12.6.0
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/gitea/values.yaml?v=2
-       - app: harbor
+      - app: harbor
         chart: harbor
         namespace: harbor
         releaseName: harbor
