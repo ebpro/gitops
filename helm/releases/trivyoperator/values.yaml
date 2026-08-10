@@ -1,0 +1,19 @@
+trivy:
+  ignoreUnfixed: true
+  skipDBUpdate: false
+  offlineScan: false
+  autoRestart:
+    enabled: false
+
+trivyOperator:
+  operator:
+    scanAllNamespaces: true
+    createCRD: true
+    RBAC:
+      clusterWide: true
+    scanInterval: 24h
+    scanWorkerThreads: 50
+    signature:
+      notations:
+        sign:
+          enable: true
