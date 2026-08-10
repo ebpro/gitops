@@ -57,14 +57,14 @@ spec:
         version: 12.6.0
         syncWave: '20'
         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/gitea/values.yaml?v=2
-      - app: harbor
-        chart: harbor
-        namespace: harbor
-        releaseName: harbor
-        repoURL: https://helm.goharbor.io
-        version: 1.19.2
-        syncWave: '20'
-        valueFiles: helm/releases/harbor/values.yaml
+       - app: harbor
+         chart: harbor
+         namespace: harbor
+         releaseName: harbor
+         repoURL: https://helm.goharbor.io
+         version: 1.19.2
+         syncWave: '20'
+         valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/harbor/values.yaml?v=1
       - app: kyverno
         chart: kyverno
         namespace: kyverno
