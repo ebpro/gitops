@@ -72,7 +72,7 @@ spec:
         repoURL: https://kyverno.github.io/kyverno
         version: 3.5.0
         syncWave: '20'
-        valueFiles: helm/releases/kyverno/values.yaml
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/kyverno/values.yaml?v=1
       - app: loki
         chart: loki
         namespace: loki
