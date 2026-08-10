@@ -56,7 +56,7 @@ spec:
         repoURL: https://dl.gitea.com/charts/
         version: 12.6.0
         syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/gitea/values.yaml?v=3
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/gitea/values.yaml?v=4
       - app: harbor
         chart: harbor
         namespace: harbor
@@ -64,7 +64,7 @@ spec:
         repoURL: https://helm.goharbor.io
         version: 1.19.2
         syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/harbor/values.yaml?v=3
+        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/harbor/values.yaml?v=4
       - app: kyverno
         chart: kyverno
         namespace: kyverno
