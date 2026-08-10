@@ -22,3 +22,8 @@ microcks:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+mongodb:
+  username: userM
+  password: Ia3vPM8GN1D5SBlSxkf24TsnMyVLVhZi
+  adminUsername: WOrYnZwXxeWsR80s
+  adminPassword: H2kCABXN8jUCzFK48PVbvwPvN6gERkNGhC6lOx8S
