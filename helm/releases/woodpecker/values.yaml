@@ -1,19 +1,13 @@
 # Woodpecker CI v3 - values for K3s
-hostAliases:
-  - ip: "10.43.222.23"
-    hostnames:
-      - "gitea.ebruno.fr"
-      - "keycloak.ebruno.fr"
-
 # Chart: https://github.com/woodpecker-ci/helm/tree/main/charts/woodpecker (v3.6.5)
 # Docs: https://woodpecker-ci.org/docs/
+# Updated: 2026-08-07 - Fixed SSO: WOODPECKER_GITEA_OAUTH ignored in v3.17.0, use public Gitea URL
 
 # ─── Server ─────────────────────────────────────────────
 server:
   enabled: true
 
   image:
-    repository: "harbor.ebruno.fr/docker-hub-p2c/woodpeckerci/woodpecker-server"
     tag: "v3.17.0"
 
   resources:
@@ -54,6 +48,8 @@ server:
           name: woodpecker-gitea-oauth
           key: secret
     WOODPECKER_GITEA_SKIP_VERIFY: "false"
+    # Force netrc auth even for public repos (Gitea requires it for all HTTPS clones)
+    WOODPECKER_AUTHENTICATE_PUBLIC_REPOS: "true"
     # Logging
     WOODPECKER_LOG_LEVEL: "warn"
     WOODPECKER_LOG_FORMAT: "json"
@@ -68,6 +64,11 @@ server:
         secretKeyRef:
           name: woodpecker-server-auth
           key: WOODPECKER_GRPC_SECRET
+    WOODPECKER_AGENT_SECRET:
+      valueFrom:
+        secretKeyRef:
+          name: woodpecker-server-auth
+          key: WOODPECKER_SECRET
 
   serviceAccount:
     create: true
@@ -100,7 +101,6 @@ agent:
   replicaCount: 2
 
   image:
-    repository: "harbor.ebruno.fr/docker-hub-p2c/woodpeckerci/woodpecker-agent"
     tag: "v3.17.0"
 
   resources:
@@ -130,7 +130,7 @@ agent:
     WOODPECKER_BACKEND_K8S_STORAGE_CLASS: "local-path"
     WOODPECKER_BACKEND_K8S_VOLUME_SIZE: "10G"
     WOODPECKER_BACKEND_K8S_STORAGE_RWX: "false"
-    WOODPECKER_BACKEND_K8S_POD_LABELS: "woodpecker-pipeline=true,app.kubernetes.io/part-of=woodpecker"
+    WOODPECKER_BACKEND_K8S_POD_LABELS: '{"woodpecker-pipeline":"true","app.kubernetes.io/part-of":"woodpecker"}'
     WOODPECKER_BACKEND_K8S_POD_SERVICE_ACCOUNT: "woodpecker-agent"
     WOODPECKER_CONNECT_RETRY_COUNT: "20"
 
@@ -138,6 +138,9 @@ agent:
     create: true
     rbac:
       create: true
+    imagePullSecrets:
+      - name: harbor-registry-secret
+      - name: addon-registry-config
 
   createAgentSecret: false
   mapAgentSecret: false

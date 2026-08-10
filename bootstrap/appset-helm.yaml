@@ -16,7 +16,6 @@ spec:
         repoURL: https://grafana.github.io/helm-charts
         version: 1.11.0
         syncWave: '20'
-        valueFiles: helm/releases/alloy/values.yaml
       - app: argo-image-updater
         chart: argocd-image-updater
         namespace: argocd
@@ -24,7 +23,6 @@ spec:
         repoURL: https://argoproj.github.io/argo-helm
         version: 1.2.4
         syncWave: '25'
-        valueFiles: helm/releases/argo-image-updater/values.yaml
       - app: cert-manager
         chart: cert-manager
         namespace: cert-manager
@@ -32,7 +30,6 @@ spec:
         repoURL: https://charts.jetstack.io
         version: v1.16.3
         syncWave: '5'
-        valueFiles: helm/releases/cert-manager/values.yaml
       - app: cloudnative-pg
         chart: cloudnative-pg
         namespace: cnpg-system
@@ -40,7 +37,6 @@ spec:
         repoURL: https://cloudnative-pg.github.io/charts
         version: 0.29.0
         syncWave: '10'
-        valueFiles: helm/releases/cloudnative-pg/values.yaml
       - app: external-secrets
         chart: external-secrets
         namespace: external-secrets
@@ -48,7 +44,6 @@ spec:
         repoURL: https://charts.external-secrets.io
         version: 2.7.0
         syncWave: '20'
-        valueFiles: helm/releases/external-secrets/values.yaml
       - app: gitea
         chart: gitea
         namespace: gitea
@@ -56,7 +51,6 @@ spec:
         repoURL: https://dl.gitea.com/charts/
         version: 12.6.0
         syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/gitea/values.yaml?v=5
       - app: harbor
         chart: harbor
         namespace: harbor
@@ -64,7 +58,6 @@ spec:
         repoURL: https://helm.goharbor.io
         version: 1.19.2
         syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/harbor/values.yaml?v=5
       - app: kyverno
         chart: kyverno
         namespace: kyverno
@@ -72,7 +65,6 @@ spec:
         repoURL: https://kyverno.github.io/kyverno
         version: 3.5.0
         syncWave: '20'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/kyverno/values.yaml?v=1
       - app: loki
         chart: loki
         namespace: loki
@@ -80,7 +72,6 @@ spec:
         repoURL: https://grafana.github.io/helm-charts
         version: 6.55.0
         syncWave: '20'
-        valueFiles: helm/releases/loki/values.yaml
       - app: microcks
         chart: microcks
         namespace: microcks
@@ -88,7 +79,6 @@ spec:
         repoURL: https://microcks.io/helm
         version: 1.13.2
         syncWave: '20'
-        valueFiles: helm/releases/microcks/values.yaml
       - app: nfs-client
         chart: nfs-subdir-external-provisioner
         namespace: nfs-client
@@ -96,7 +86,6 @@ spec:
         repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
         version: 4.0.18
         syncWave: '20'
-        valueFiles: helm/releases/nfs-client/values.yaml
       - app: pact-broker
         chart: pact-broker
         namespace: pact-broker
@@ -104,7 +93,6 @@ spec:
         repoURL: https://pact-foundation.github.io/pact-broker-chart
         version: 6.1.0
         syncWave: '20'
-        valueFiles: helm/releases/pact-broker/values.yaml
       - app: sonarqube
         chart: sonarqube
         namespace: sonarqube
@@ -112,7 +100,6 @@ spec:
         repoURL: https://SonarSource.github.io/helm-chart-sonarqube
         version: 2026.1.0
         syncWave: '20'
-        valueFiles: helm/releases/sonarqube/values.yaml
       - app: link-shortener
         chart: quarkus-app
         namespace: link-shortener
@@ -120,7 +107,6 @@ spec:
         repoURL: https://charts.bruno.fr
         version: 1.0.0
         syncWave: '20'
-        valueFiles: helm/releases/link-shortener/values.yaml
       - app: tempo
         chart: tempo
         namespace: tempo
@@ -128,7 +114,6 @@ spec:
         repoURL: https://grafana.github.io/helm-charts
         version: 1.24.4
         syncWave: '20'
-        valueFiles: helm/releases/tempo/values.yaml
       - app: trivyoperator
         chart: trivy-operator
         namespace: trivy-system
@@ -136,7 +121,6 @@ spec:
         repoURL: https://aquasecurity.github.io/helm-charts
         version: 0.21.0
         syncWave: '20'
-        valueFiles: helm/releases/trivy-operator/values.yaml
       - app: traefik
         chart: traefik
         namespace: kube-system
@@ -144,7 +128,6 @@ spec:
         repoURL: https://traefik.github.io/charts
         version: 37.1.1
         syncWave: '20'
-        valueFiles: helm/releases/traefik/values.yaml
       - app: vpa
         chart: vertical-pod-autoscaler
         namespace: vpa
@@ -152,7 +135,6 @@ spec:
         repoURL: https://kubernetes.github.io/autoscaler
         version: 0.10.0
         syncWave: '15'
-        valueFiles: helm/releases/vpa/values.yaml
       - app: keycloak
         chart: keycloak
         namespace: keycloak
@@ -160,7 +142,6 @@ spec:
         repoURL: https://codecentric.github.io/helm-charts
         version: 18.0.0
         syncWave: '25'
-        valueFiles: helm/releases/keycloak/values.yaml
       - app: backstage
         chart: backstage
         namespace: backstage
@@ -168,7 +149,6 @@ spec:
         repoURL: https://backstage.github.io/charts
         version: 2.8.2
         syncWave: '25'
-        valueFiles: helm/releases/backstage/values.yaml
       - app: woodpecker
         chart: woodpecker
         namespace: ci
@@ -176,7 +156,6 @@ spec:
         repoURL: https://woodpecker-ci.org/
         version: 3.6.5
         syncWave: '25'
-        valueFiles: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/woodpecker-values.yaml?v=55
 
   template:
     metadata:
@@ -186,13 +165,15 @@ spec:
     spec:
       project: platform
       source:
-        repoURL: '{{repoURL}}'
-        targetRevision: '{{version}}'
+        repoURL: https://github.com/ebpro/gitops
+        targetRevision: main
+        path: 'helm/releases/{{app}}'
         chart: '{{chart}}'
         helm:
+          repoURL: '{{repoURL}}'
           releaseName: '{{releaseName}}'
           valueFiles:
-          - '{{valueFiles}}'
+            - 'values.yaml'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
