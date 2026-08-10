@@ -30,7 +30,7 @@ data:
   server.disable.auth: "false"
   server.enable.gzip: "true"
   server.enable.proxy.protocol.extension: "false"
-  server.insecure: "false"
+  server.insecure: "true"
   server.log.format: text
   server.log.level: info
   server.repo.server.strict.tls: "false"
