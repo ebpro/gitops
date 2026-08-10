@@ -13,149 +13,170 @@ spec:
         chart: alloy
         namespace: alloy
         releaseName: alloy
-        helmRepoURL: https://grafana.github.io/helm-charts
+        repoURL: https://grafana.github.io/helm-charts
         version: 1.11.0
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/alloy/values.yaml?v=1
       - app: argo-image-updater
         chart: argocd-image-updater
         namespace: argocd
         releaseName: argo-image-updater
-        helmRepoURL: https://argoproj.github.io/argo-helm
+        repoURL: https://argoproj.github.io/argo-helm
         version: 1.2.4
         syncWave: '25'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/argo-image-updater/values.yaml?v=1
       - app: cert-manager
         chart: cert-manager
         namespace: cert-manager
         releaseName: cert-manager
-        helmRepoURL: https://charts.jetstack.io
+        repoURL: https://charts.jetstack.io
         version: v1.16.3
         syncWave: '5'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/cert-manager/values.yaml?v=1
       - app: cloudnative-pg
         chart: cloudnative-pg
         namespace: cnpg-system
         releaseName: cloudnative-pg
-        helmRepoURL: https://cloudnative-pg.github.io/charts
+        repoURL: https://cloudnative-pg.github.io/charts
         version: 0.29.0
         syncWave: '10'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/cloudnative-pg/values.yaml?v=1
       - app: external-secrets
         chart: external-secrets
         namespace: external-secrets
         releaseName: external-secrets
-        helmRepoURL: https://charts.external-secrets.io
+        repoURL: https://charts.external-secrets.io
         version: 2.7.0
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/external-secrets/values.yaml?v=1
       - app: gitea
         chart: gitea
         namespace: gitea
         releaseName: gitea
-        helmRepoURL: https://dl.gitea.com/charts/
+        repoURL: https://dl.gitea.com/charts/
         version: 12.6.0
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/gitea/values.yaml?v=5
       - app: harbor
         chart: harbor
         namespace: harbor
         releaseName: harbor
-        helmRepoURL: https://helm.goharbor.io
+        repoURL: https://helm.goharbor.io
         version: 1.19.2
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/harbor/values.yaml?v=5
       - app: kyverno
         chart: kyverno
         namespace: kyverno
         releaseName: kyverno
-        helmRepoURL: https://kyverno.github.io/kyverno
+        repoURL: https://kyverno.github.io/kyverno
         version: 3.5.0
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/kyverno/values.yaml?v=1
       - app: loki
         chart: loki
         namespace: loki
         releaseName: loki
-        helmRepoURL: https://grafana.github.io/helm-charts
+        repoURL: https://grafana.github.io/helm-charts
         version: 6.55.0
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/loki/values.yaml?v=1
       - app: microcks
         chart: microcks
         namespace: microcks
         releaseName: microcks
-        helmRepoURL: https://microcks.io/helm
+        repoURL: https://microcks.io/helm
         version: 1.13.2
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/microcks/values.yaml?v=1
       - app: nfs-client
         chart: nfs-subdir-external-provisioner
         namespace: nfs-client
         releaseName: nfs-client
-        helmRepoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+        repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
         version: 4.0.18
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/nfs-client/values.yaml?v=1
       - app: pact-broker
         chart: pact-broker
         namespace: pact-broker
         releaseName: pact-broker
-        helmRepoURL: https://pact-foundation.github.io/pact-broker-chart
+        repoURL: https://pact-foundation.github.io/pact-broker-chart
         version: 6.1.0
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/pact-broker/values.yaml?v=1
       - app: sonarqube
         chart: sonarqube
         namespace: sonarqube
         releaseName: sonarqube
-        helmRepoURL: https://SonarSource.github.io/helm-chart-sonarqube
+        repoURL: https://SonarSource.github.io/helm-chart-sonarqube
         version: 2026.1.0
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/sonarqube/values.yaml?v=1
       - app: link-shortener
         chart: quarkus-app
         namespace: link-shortener
         releaseName: link-shortener
-        helmRepoURL: https://charts.bruno.fr
+        repoURL: https://charts.bruno.fr
         version: 1.0.0
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/link-shortener/values.yaml?v=1
       - app: tempo
         chart: tempo
         namespace: tempo
         releaseName: tempo
-        helmRepoURL: https://grafana.github.io/helm-charts
+        repoURL: https://grafana.github.io/helm-charts
         version: 1.24.4
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/tempo/values.yaml?v=1
       - app: trivyoperator
         chart: trivy-operator
         namespace: trivy-system
         releaseName: trivy-operator
-        helmRepoURL: https://aquasecurity.github.io/helm-charts
+        repoURL: https://aquasecurity.github.io/helm-charts
         version: 0.21.0
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/trivyoperator/values.yaml?v=1
       - app: traefik
         chart: traefik
         namespace: kube-system
         releaseName: traefik
-        helmRepoURL: https://traefik.github.io/charts
+        repoURL: https://traefik.github.io/charts
         version: 37.1.1
         syncWave: '20'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/traefik/values.yaml?v=1
       - app: vpa
         chart: vertical-pod-autoscaler
         namespace: vpa
         releaseName: vpa
-        helmRepoURL: https://kubernetes.github.io/autoscaler
+        repoURL: https://kubernetes.github.io/autoscaler
         version: 0.10.0
         syncWave: '15'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/vpa/values.yaml?v=1
       - app: keycloak
         chart: keycloak
         namespace: keycloak
         releaseName: keycloak
-        helmRepoURL: https://codecentric.github.io/helm-charts
+        repoURL: https://codecentric.github.io/helm-charts
         version: 18.0.0
         syncWave: '25'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/keycloak/values.yaml?v=1
       - app: backstage
         chart: backstage
         namespace: backstage
         releaseName: backstage
-        helmRepoURL: https://backstage.github.io/charts
+        repoURL: https://backstage.github.io/charts
         version: 2.8.2
         syncWave: '25'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/backstage/values.yaml?v=1
       - app: woodpecker
         chart: woodpecker
         namespace: ci
         releaseName: woodpecker
-        helmRepoURL: https://woodpecker-ci.org/
+        repoURL: https://woodpecker-ci.org/
         version: 3.6.5
         syncWave: '25'
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/woodpecker-values.yaml?v=55
 
   template:
     metadata:
@@ -165,15 +186,13 @@ spec:
     spec:
       project: platform
       source:
-        repoURL: https://github.com/ebpro/gitops
-        targetRevision: main
-        path: 'helm/releases/{{app}}'
+        repoURL: '{{repoURL}}'
+        targetRevision: '{{version}}'
         chart: '{{chart}}'
         helm:
-          repoURL: '{{helmRepoURL}}'
           releaseName: '{{releaseName}}'
           valueFiles:
-            - 'values.yaml'
+            - '{{valueURL}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
