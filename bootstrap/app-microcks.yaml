@@ -29,6 +29,9 @@ spec:
     name: microcks-mongodb-connection
     jsonPointers:
     - /data
+    - /metadata/annotations
+    - /metadata/ownerReferences
+    - /metadata/labels
   syncPolicy:
     automated:
       prune: true
