@@ -58,7 +58,7 @@ spec:
                 "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets/alertmanager-matrix-token" \
                 --header="Content-Type: application/json" \
                 --data "$SECRET_JSON" \
-                --no-check-certificate || echo "Warning: Secret write failed"
+                --insecure || echo "Warning: Secret write failed"
 
               echo "=== ALL GOOD ==="
           env:
