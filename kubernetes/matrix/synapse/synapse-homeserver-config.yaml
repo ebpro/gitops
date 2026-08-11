@@ -48,7 +48,7 @@ data:
     dynamic_thumbnails: false
 
     # Registration disabled - SSO only
-    enable_registration: false
+    enable_registration: true
     enable_registration_cas: false
     enable_3pid_lookup: false
 
@@ -82,7 +82,7 @@ data:
       enable_username_in_pickle: true
 
     # Login (disable password login, enforce OIDC)
-    experimental_enable_password_auth: false
+    experimental_enable_password_auth: true
 
     # Well-known discovery
     public_baseurl: "https://matrix.ebruno.fr"
