@@ -131,6 +131,7 @@ spec:
               allow_assign_grafana_admin: true
               allow_sign_up: true
               allowed_groups: platform-admins,platform-engineers,developers,security-team,qa-team,readonly
+              hide_login_form: true
               api_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/userinfo
               auth_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth
               client_id: grafana

@@ -52,6 +52,9 @@ data:
     enable_registration_cas: false
     enable_3pid_lookup: false
 
+    # Admin registration API for alertmanager bot (persistent token, never expires)
+    registration_shared_secret: "synapse-alertmanager-bot-reg-2026-XK9mP2qR7vN3wZ8f"
+
     # OIDC / SSO Authentication (Keycloak) - new provider list format
     macaroon_secret_key: "MATRIX-BRUNO-SECURE-SECRET-KEY-2026"
 

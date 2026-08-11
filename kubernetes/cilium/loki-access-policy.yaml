@@ -1,0 +1,40 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: loki-access-policy
+  namespace: loki
+spec:
+  description: Restrict Loki access to kube-prometheus (Grafana queries) and alloy (log ingestion) only
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: loki
+  ingress:
+    - fromEndpoints:
+        - labelsSelector:
+            k8s:io.kubernetes.pod.namespace: kube-prometheus
+      toPorts:
+        - ports:
+            - port: "3100"
+              protocol: TCP
+    - fromEndpoints:
+        - labelsSelector:
+            k8s:io.kubernetes.pod.namespace: alloy
+      toPorts:
+        - ports:
+            - port: "3100"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+            - port: "9153"
+              protocol: TCP
+    - toEntities:
+        - cluster

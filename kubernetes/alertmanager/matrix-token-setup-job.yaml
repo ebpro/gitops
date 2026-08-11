@@ -1,0 +1,115 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: matrix-token-setup
+  namespace: kube-prometheus
+spec:
+  template:
+    spec:
+      serviceAccountName: alertmanager-token-writer
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-synapse
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              COUNT=0
+              while true; do
+                if wget -q -O /dev/null http://synapse.synapse.svc.cluster.local:8008/_matrix/client/versions 2>/dev/null; then
+                  echo "Synapse is ready"
+                  exit 0
+                fi
+                COUNT=$((COUNT + 1))
+                [ $COUNT -ge 120 ] && { echo "Synapse not ready after 4 minutes"; exit 1; }
+                echo "Waiting for Synapse... ($COUNT/120)"
+                sleep 2
+              done
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+      containers:
+        - name: register-bot
+          image: curlimages/curl:8.11.1
+          command:
+            - /bin/bash
+            - -ceuc
+          args:
+            - |
+              SYNAPSE="http://synapse.synapse.svc.cluster.local:8008"
+              REG_SECRET="$REGISTRATION_SHARED_SECRET"
+              MATRIX_ROOM="$MATRIX_ROOM_ID"
+              
+              echo "=== Step 1: Get macaroon token from Synapse admin API ==="
+              REG_RESP=$(curl -sf \
+                -X POST \
+                -H "Content-Type: application/json" \
+                "${SYNAPSE}/_synapse/admin/v1/register?key=${REG_SECRET}")
+              echo "Admin registration API responded"
+              
+              MACAROON=$(echo "$REG_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['macaroon'])")
+              NEXT_ID=$(echo "$REG_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['next_id'])")
+              echo "Macaroon received, next_id: ${NEXT_ID}"
+              
+              echo "=== Step 2: Complete bot registration ==="
+              FINAL_RESP=$(curl -sf \
+                -X POST \
+                -H "Content-Type: application/json" \
+                -H "Authorization: Macaroon $MACAROON" \
+                -H "X-Logout-Prefix: /_matrix/client" \
+                -d '{"username": "alertmanager", "displayname": "Alertmanager Bot", "password": "bot-password-alertmanager"}' \
+                "${SYNAPSE}/_synapse/client/v1/register?kind=user&next_id=${NEXT_ID}&complete=true")
+              
+              ACCESS_TOKEN=$(echo "$FINAL_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+              USER_ID=$(echo "$FINAL_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['user_id'])")
+              
+              echo "Registered bot: ${USER_ID}"
+              echo "Token length: ${#ACCESS_TOKEN} chars"
+              
+              echo "=== Step 3: Join Matrix room ==="
+              if curl -sf \
+                -H "Authorization: Bearer $ACCESS_TOKEN" \
+                -X POST \
+                "${SYNAPSE}/_matrix/client/v3/join/${MATRIX_ROOM}" >/dev/null 2>&1; then
+                echo "Joined room: ${MATRIX_ROOM}"
+              else
+                echo "Room join skipped (room may be invite-only or bot already member)"
+              fi
+              
+              echo "=== Step 4: Write token to K8s Secret ==="
+              SA_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+              CA_CERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              ACCESS_TOKEN_B64=$(printf '%s' "$ACCESS_TOKEN" | base64 -w0)
+              
+              SECRET_JSON=$(printf '{"apiVersion":"v1","kind":"Secret","metadata":{"name":"alertmanager-matrix-token","namespace":"kube-prometheus"},"type":"Opaque","data":{"matrix-access-token":"%s"}}' "$ACCESS_TOKEN_B64")
+              
+              if curl -sk \
+                -X PUT \
+                -H "Authorization: Bearer $SA_TOKEN" \
+                --cacert "$CA_CERT" \
+                -H "Content-Type: application/json" \
+                -d "$SECRET_JSON" \
+                "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets/alertmanager-matrix-token"; then
+                echo "Secret 'alertmanager-matrix-token' written successfully"
+              else
+                echo "Warning: Failed to write secret via K8s API - it may already exist or RBAC issue"
+              fi
+              
+              echo ""
+              echo "=== Setup complete ==="
+              echo "Bot user: ${USER_ID}"
+              echo "Token will be mounted at: /etc/alertmanager/secrets/matrix-access-token"
+          env:
+            - name: REGISTRATION_SHARED_SECRET
+              value: "synapse-alertmanager-bot-reg-2026-XK9mP2qR7vN3wZ8f"
+            - name: MATRIX_ROOM_ID
+              value: "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
