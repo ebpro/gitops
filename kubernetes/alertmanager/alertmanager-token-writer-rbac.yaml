@@ -2,28 +2,27 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: alertmanager-token-writer
-  namespace: kube-prometheus
+  namespace: synapse
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   name: alertmanager-token-writer
-  namespace: kube-prometheus
 rules:
   - apiGroups: [""]
     resources: ["secrets"]
     verbs: ["create", "update", "patch", "get"]
+    resourceNames: ["alertmanager-matrix-token"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: alertmanager-token-writer
-  namespace: kube-prometheus
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
+  kind: ClusterRole
   name: alertmanager-token-writer
 subjects:
   - kind: ServiceAccount
     name: alertmanager-token-writer
-    namespace: kube-prometheus
+    namespace: synapse
