@@ -23,7 +23,7 @@ spec:
           args:
             - |
               echo "=== Installing pip + synapse packages ==="
-              pip install requests || exit 1
+              pip install matrix-synapse || exit 1
 
               echo "=== Registering bot user ==="
               /usr/local/bin/register_new_matrix_user \
