@@ -23,9 +23,8 @@ spec:
           args:
             - |
               echo "=== Registering bot user ==="
-              wget -qO- --post-data='{"username":"alertmanager","password":"bot-password-alertmanager","initial_device_display_name":"alertmanager"}' \
+              wget -qO /tmp/reg.json --post-data='{"username":"alertmanager","password":"bot-password-alertmanager","initial_device_display_name":"alertmanager"}' \
                 --header="Content-Type: application/json" \
-                -O /tmp/reg.json \
                 "http://synapse:8008/_matrix/client/v3/register" \
                 || echo "Registration may have failed, continuing..."
               cat /tmp/reg.json 2>/dev/null || true
@@ -53,11 +52,12 @@ spec:
               TOKEN_B64=$(printf '%s' "$ACCESS_TOKEN" | base64)
               SECRET_JSON=$(printf '{"apiVersion":"v1","kind":"Secret","metadata":{"name":"alertmanager-matrix-token","namespace":"kube-prometheus"},"type":"Opaque","data":{"matrix-access-token":"%s"}}' "$TOKEN_B64")
 
-              wget -qO- --method=PUT \
+              apk add -q curl || true
+              curl -s -X PUT \
                 --header="Authorization: Bearer $SA_TOKEN" \
                 "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets/alertmanager-matrix-token" \
                 --header="Content-Type: application/json" \
-                --body-data="$SECRET_JSON" \
+                --data "$SECRET_JSON" \
                 --no-check-certificate || echo "Warning: Secret write failed"
 
               echo "=== ALL GOOD ==="
