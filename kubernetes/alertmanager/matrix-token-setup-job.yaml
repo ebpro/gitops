@@ -22,48 +22,47 @@ spec:
             - -ec
           args:
             - |
-              echo "=== Installing Matrix libraries ==="
+              echo "=== Installing pip + synapse packages ==="
               pip install requests || exit 1
 
-              echo "=== Bot registration complete ==="
-              
-              echo "=== Login for access token ==="
-              if /syn-env/bin/register_new_matrix_user -c /data/homeserver.yaml -u alertmanager -p bot-password-alertmanager --no-admin; then
-                echo "Registered OK"
-              else
-                echo "Reg returned non-zero (user may already exist)"
-              fi
+              echo "=== Registering bot user ==="
+              /usr/local/bin/register_new_matrix_user \
+                -c /data/homeserver.yaml \
+                -u alertmanager \
+                -p bot-password-alertmanager \
+                --no-admin || echo "User may already exist, continuing..."
 
-              echo "=== Bot user registered successfully ==="
-
-              LOGIN_RESP=$(wget -qO- --post-data='${"type":"m.login.password","user":"alertmanager","password":"bot-password-alertmanager"}' \
+              echo "=== Login for bot-access-token ==="
+              wget -qO- --post-data='{"type":"m.login.password","user":"alertmanager","password":"bot-password-alertmanager"}' \
                 --header="Content-Type: application/json" \
-                "http://synapse:8008/_matrix/client/v3/login")
+                -O /tmp/login.json \
+                "http://synapse:8008/_matrix/client/v3/login"
 
-              ACCESS_TOKEN=$(echo "$LOGIN_RESP" | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
-              USER_ID=$(echo "$LOGIN_RESP" | python3 -c "import sys,json;print(json.load(sys.stdin)['user_id'])")
+              echo "LOGIN response:"; cat /tmp/login.json
 
-              echo "User: ${USER_ID}"
-              echo "Token len: ${#ACCESS_TOKEN}"
+              ACCESS_TOKEN=$(python3 -c "import json;print(json.load(open('/tmp/login.json'))['access_token'])")
+              USER_ID=$(python3 -c "import json;print(json.load(open('/tmp/login.json'))['user_id'])")
 
-              echo "=== Joining room ${MATRIX_ROOM_ID} ==="
+              echo "Login: ${USER_ID}, Token: ${#ACCESS_TOKEN} chars"
+
+              echo "=== Joining Matrix room ${MATRIX_ROOM_ID} ==="
               wget -qO- --method=POST \
                 --header="Authorization: Bearer ${ACCESS_TOKEN}" \
-                "http://synapse:8008/_matrix/client/v3/join/${MATRIX_ROOM_ID}" 2>/dev/null || echo "Room join skipped"
+                "http://synapse:8008/_matrix/client/v3/join/${MATRIX_ROOM_ID}" 2>/dev/null || echo "Join skipped"
 
               echo "=== Writing K8s Secret ==="
               SA_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-              TOKEN_B64=$(echo -n "$ACCESS_TOKEN" | base64)
+              TOKEN_B64=$(printf '%s' "$ACCESS_TOKEN" | base64)
               SECRET_JSON=$(printf '{"apiVersion":"v1","kind":"Secret","metadata":{"name":"alertmanager-matrix-token","namespace":"kube-prometheus"},"type":"Opaque","data":{"matrix-access-token":"%s"}}' "$TOKEN_B64")
 
               wget -qO- --method=PUT \
                 --header="Authorization: Bearer $SA_TOKEN" \
-                --no-check-certificate \
+                "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets/alertmanager-matrix-token" \
                 --header="Content-Type: application/json" \
                 --body-data="$SECRET_JSON" \
-                "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets/alertmanager-matrix-token" 2>&1 || echo "Warning: Secret write failed"
+                --no-check-certificate || echo "Warning: Secret write failed"
 
-              echo "=== Done ==="
+              echo "=== ALL GOOD ==="
           env:
             - name: MATRIX_ROOM_ID
               value: "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr"
