@@ -69,16 +69,10 @@ data:
         user_mapping_provider:
           module: synapse.handlers.oidc.JinjaOidcMappingProvider
           config:
-            # Use preferred_username (guaranteed by OIDC spec) as fallback when email is missing
-            localpart_template: >-
-              {%- if email and email.split("@") -%}
-                {{ email.split("@")[0] | lower }}
-              {%- else -%}
-                {{ preferred_username | lower }}
-              {%- endif -%}
-            displayname_template: "{{ (given_name or '') + ' ' + (family_name or '') | trim }}"
+            localpart_template: "{{ ((email | default('')) | lower).split('@')[0] if (email | default('')) else (preferred_username | default('user')) | lower }}"
+            displayname_template: "{{ (given_name | default('') ~ ' ' ~ (family_name | default(''))) | trim }}"
             emails:
-              - '{{ email }}'
+              - '{{ email | default("") }}'
 
     # SSO settings (applies to all providers)
     sso:
