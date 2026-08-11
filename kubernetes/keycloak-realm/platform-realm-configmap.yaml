@@ -604,6 +604,23 @@ data:
           ],
           "notBefore": 0,
           "groups": []
+        },
+        {
+          "username": "gitops-user",
+          "email": "gitops-user@ebruno.fr",
+          "emailVerified": true,
+          "enabled": true,
+          "totp": false,
+          "disableableCredentialTypes": [],
+          "requiredActions": [],
+          "realmRoles": [
+            "default-roles-platform",
+            "platform-engineer"
+          ],
+          "notBefore": 0,
+          "groups": [
+            "/platform-engineers"
+          ]
         }
       ],
       "scopeMappings": [

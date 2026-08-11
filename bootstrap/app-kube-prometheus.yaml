@@ -41,11 +41,19 @@ spec:
                       - severity = "info"
               receivers:
                 - name: default
-                  webhook_configs:
-                    - url: http://0.0.0.0:9096/webhook
+                  matrix_configs:
+                    - homeserver: "matrix.ebruno.fr"
+                      api_url: "http://synapse.synapse.svc.cluster.local:8008"
+                      access_token_file: "/etc/alertmanager/secrets/matrix-access-token"
+                      recipients:
+                        - "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr"
                       send_resolved: true
-                      max_alerts: 100
                 - name: null
+            extraSecretMounts:
+            - name: alertmanager-matrix-credentials
+              mountPath: /etc/alertmanager/secrets
+              secretName: alertmanager-matrix-token
+              readOnly: true
             storage:
               volumeClaimTemplate:
                 spec:
@@ -78,17 +86,18 @@ spec:
         nodeExporter:
           enabled: true
           releaseLabel: true
-          prometheus:
-            enabled: true
-            prometheusSpec:
-              retention: 30d
-              retentionSize: 45GB
-              enableCompression: true
-              walCompression: true
-              resources:
-                limits:
-                  cpu: 2
-                  memory: 4Gi
+        prometheus:
+          enabled: true
+          prometheusSpec:
+            retention: 30d
+            retentionSize: 45GB
+            enableCompression: true
+            walCompression: true
+            webEnableRemoteWriteReceiver: true
+            resources:
+              limits:
+                cpu: 2
+                memory: 4Gi
               requests:
                 cpu: 500m
                 memory: 2Gi
