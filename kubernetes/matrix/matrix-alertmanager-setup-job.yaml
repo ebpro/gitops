@@ -41,13 +41,19 @@ spec:
               done
 
               echo "[2/6] Setting password for gitops-user in Keycloak..."
-              UID=$("$KCADMIN" get users -r platform -q "username=$USERNAME" 2>/dev/null | \
-                python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0]['id'])" 2>/dev/null || true)
-              if [ -z "$UID" ]; then
-                echo "  User $USERNAME not found in Keycloak realm"
-                exit 1
+              FOUND=$("$KCADMIN" get users -r platform -q "username=$USERNAME" -q "exact=true" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('yes' if d else 'no')" 2>/dev/null || echo "no")
+              if [ "$FOUND" != "yes" ]; then
+                echo "  Creating user $USERNAME..."
+                "$KCADMIN" create users -r platform \
+                  -s username="$USERNAME" \
+                  -s email="gitops-user@ebruno.fr" \
+                  -s emailVerified=true \
+                  -s enabled=true \
+                  -s totp=false \
+                  --set-password "$KC_PASSWORD"
               fi
               "$KCADMIN" set-password --username "$USERNAME" --new-password "$KC_PASSWORD" -r platform
+              echo "  User $USERNAME ready"
 
               echo "[3/6] Waiting for Synapse..."
               for i in $(seq 1 30); do
@@ -149,19 +155,19 @@ spec:
               echo "  USER_ID=$USER_ID"
               echo "========================================"
               echo ""
-            env:
-              - name: KEYCLOAK_ADMIN_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: keycloak-secrets
-                    key: adminPassword
-              - name: GITOPS_USER_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: keycloak-secrets
-                    key: gitopsUserPassword
-              - name: CURL_CA_BUNDLE
-                value: /etc/ssl/certs/ca-certificates.crt
+          env:
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: adminPassword
+            - name: GITOPS_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: gitopsUserPassword
+            - name: CURL_CA_BUNDLE
+              value: /etc/ssl/certs/ca-certificates.crt
           resources:
             requests:
               cpu: 100m
