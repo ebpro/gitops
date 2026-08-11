@@ -4,7 +4,7 @@ metadata:
   name: matrix-token-setup
   namespace: synapse
 spec:
-  activeDeadlineSeconds: 300
+  activeDeadlineSeconds: 600
   ttlSecondsAfterFinished: 3600
   template:
     spec:
@@ -16,63 +16,54 @@ spec:
             claimName: synapse-data-synapse-0
       containers:
         - name: register-bot
-          image: ghcr.io/element-hq/synapse:latest
+          image: python:3.13-alpine
           command:
             - sh
             - -ec
           args:
             - |
-              set -e
+              echo "Installing Synapse CLI tools..."
+              pip install matrix-synapse
 
-              # Step 1: Register bot user via Synapse CLI
-              if /syn-env/bin/register_new_matrix_user \
+              echo "Registering bot user..."
+              register_new_matrix_user \
                 -c /data/homeserver.yaml \
                 --yes-to-eula \
                 --no-validate-server \
                 --username alertmanager \
                 --displayname "Alertmanager Bot (GitOps)" \
-                --password bot-password-alertmanager 2>&1; then
-                echo "Bot user registered successfully"
-              else
-                echo "Registration returned non-zero (user may already exist)"
-              fi
+                --password bot-password-alertmanager 2>&1 || echo "User may already exist, continuing..."
 
-              # Step 2: Login to get access token
-              LOGIN_RESP=$(wget -qO- --post-data='{"type":"m.login.password","user":"alertmanager","password":"bot-password-alertmanager"}' \
+              echo "Login to get access token..."
+              ACCESS_TOKEN=$(wget -qO- --post-data='{"type":"m.login.password","user":"alertmanager","password":"bot-password-alertmanager"}' \
                 --header="Content-Type: application/json" \
-                "http://synapse:8008/_matrix/client/v3/login")
+                "http://synapse:8008/_matrix/client/v3/login" | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
 
-              ACCESS_TOKEN=$(echo "$LOGIN_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
-              USER_ID=$(echo "$LOGIN_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['user_id'])")
+              USER_ID=$(wget -qO- --post-data='{"type":"m.login.password","user":"alertmanager","password":"bot-password-alertmanager"}' \
+                --header="Content-Type: application/json" \
+                "http://synapse:8008/_matrix/client/v3/login" | python3 -c "import sys,json;print(json.load(sys.stdin)['user_id'])")
 
-              echo "User: ${USER_ID}"
-              echo "Token len: ${#ACCESS_TOKEN}"
+              echo "Joined bot: ${USER_ID}"
+              echo "Token length: ${#ACCESS_TOKEN}"
 
-              # Step 3: Join Matrix room
-              MATRIX_ROOM="$MATRIX_ROOM_ID"
+              echo "Joining room ${MATRIX_ROOM_ID}..."
               wget -qO- --method=POST \
                 --header="Authorization: Bearer ${ACCESS_TOKEN}" \
-                "http://synapse:8008/_matrix/client/v3/join/${MATRIX_ROOM}" 2>/dev/null || echo "Room join skipped (already member or invite-only)"
+                "http://synapse:8008/_matrix/client/v3/join/${MATRIX_ROOM_ID}" >/dev/null 2>&1 || echo "Room join skipped"
 
-              # Step 4: Write token to K8s Secret in kube-prometheus namespace
+              echo "Writing token to K8s Secret..."
               SA_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-              CA_CERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-              TOKEN_B64=$(echo -n "$ACCESS_TOKEN" | python3 -c "import sys,base64;print(base64.b64encode(sys.stdin.buffer.read()).decode().rstrip('\n'))")
-
+              TOKEN_B64=$(printf '%s' "$ACCESS_TOKEN" | python3 -c "import sys,base64;print(base64.b64encode(sys.stdin.buffer.read()).decode().rstrip('\n'))")
               SECRET_JSON=$(printf '{"apiVersion":"v1","kind":"Secret","metadata":{"name":"alertmanager-matrix-token","namespace":"kube-prometheus"},"type":"Opaque","data":{"matrix-access-token":"%s"}}' "$TOKEN_B64")
 
-              if wget -qO- --method=PUT \
+              wget -qO- --method=PUT \
                 --header="Authorization: Bearer $SA_TOKEN" \
-                --ca-certificate="$CA_CERT" \
+                --no-check-certificate \
                 --header="Content-Type: application/json" \
                 --body-data="$SECRET_JSON" \
-                "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets/alertmanager-matrix-token"; then
-                echo "Secret 'alertmanager-matrix-token' written successfully to kube-prometheus"
-              else
-                echo "Warning: Failed to write secret via K8s API"
-              fi
+                "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets/alertmanager-matrix-token" 2>&1 || echo "Warning: Secret write failed"
 
-              echo "=== Setup complete ==="
+              echo "=== Done ==="
           env:
             - name: MATRIX_ROOM_ID
               value: "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr"
@@ -81,8 +72,8 @@ spec:
               mountPath: /data
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 500m
+              cpu: 200m
               memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
