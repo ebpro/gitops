@@ -4,7 +4,7 @@ metadata:
   name: matrix-token-setup
   namespace: kube-prometheus
 spec:
-  activeDeadlineSeconds: 300
+  activeDeadlineSeconds: 600
   template:
     spec:
       serviceAccountName: alertmanager-token-writer
