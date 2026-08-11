@@ -15,7 +15,7 @@ data:
         type: http
         x_forwarded: true
         resources:
-          - names: [client, federation, admin]
+          - names: [client, federation]
             compress: false
       - port: 9090
         tls: false
