@@ -4,6 +4,7 @@ metadata:
   name: matrix-token-setup
   namespace: kube-prometheus
 spec:
+  activeDeadlineSeconds: 300
   template:
     spec:
       serviceAccountName: alertmanager-token-writer
@@ -32,12 +33,14 @@ spec:
               memory: 16Mi
       containers:
         - name: register-bot
-          image: curlimages/curl:8.11.1
+          image: alpine:3.20
           command:
-            - /bin/bash
-            - -ceuc
+            - /bin/sh
+            - -ec
           args:
             - |
+              apk add --no-cache curl python3
+              
               SYNAPSE="http://synapse.synapse.svc.cluster.local:8008"
               REG_SECRET="$REGISTRATION_SHARED_SECRET"
               MATRIX_ROOM="$MATRIX_ROOM_ID"
@@ -59,7 +62,7 @@ spec:
                 -H "Content-Type: application/json" \
                 -H "Authorization: Macaroon $MACAROON" \
                 -H "X-Logout-Prefix: /_matrix/client" \
-                -d '{"username": "alertmanager", "displayname": "Alertmanager Bot", "password": "bot-password-alertmanager"}' \
+                -d '{"username": "alertmanager", "displayname": "Alertmanager Bot (GitOps)", "password": "bot-password-alertmanager"}' \
                 "${SYNAPSE}/_synapse/client/v1/register?kind=user&next_id=${NEXT_ID}&complete=true")
               
               ACCESS_TOKEN=$(echo "$FINAL_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
