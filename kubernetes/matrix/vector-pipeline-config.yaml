@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-matrix-dump
+  namespace: kube-prometheus
+  labels:
+    app: alertmanager-matrix
+    component: vector-parser
+    vector.dev/shared-services: "true"
+data:
+  common: |
+    server:
+      listenAddress: "0.0.0.0:8008"
+      reliability: "standalone"
+    a

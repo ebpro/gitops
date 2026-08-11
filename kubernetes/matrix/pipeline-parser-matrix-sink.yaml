@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-matrix-dump
+  namespace: kube-prometheus
+  labels:
+    app: alertmanager-matrix
+data:
+  vector.toml: |
+    [source]
+    type = "std"
+
+    [sources]
+    type = "pipeline"
+    config = "/etc/vector/vector.toml"
+
+    [transforms]
+    [transforms.parse]
+    type = "std"
+    sources = ["parse"]
+
+    [transforms.parse.starlark]
+    type = "transform"
+    source = "parsed.ErrorCode = env('MATRIX_TOKEN')"
+
+    [sinks]
+    [sinks.stdout]
+    type = "stdout"
+    inputs = ["parse"]
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: alertmanager-matrix-sync
+  namespace: kube-prometheus
+  labels:
+    app: alertmanager-matrix
+    component: pipeline-parser
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: transform
+              image: vectorcommunity/vector:latest
+              command: ["/bin/bash", "-c"]
+              args:
+                - |
+                  /vector --source "$VECTOR_API/api/groups.json" | tee /tmp/output.json
+                  echo "[$(date)] Starlark parsed - token via env(MATRIX_TOKEN)"
+              env:
+                - name: VECTOR_SOURCE
+                  value: "prometheus"
+                - name: VECTOR_SINK_ID
+                  value: "vector-pipeline"
+                - name: MATRIX_ROOM_ID
+                  value: "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr"
+              volumeMounts:
+                - name: config
+                  mountPath: /etc/vector
+                  readOnly: true
+          volumes:
+            - name: config
+              configMap:
+                name: alertmanager-matrix-dump
+          restartPolicy: Never
