@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-server
+spec:
+  template:
+    spec:
+      containers:
+        - name: argocd-server
+          env:
+            - name: ARGOCD_SERVER_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: argocd-server-oidc-credentials
+                  key: ARGOCD_SERVER_OIDC_CLIENT_SECRET

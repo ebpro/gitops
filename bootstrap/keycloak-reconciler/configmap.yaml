@@ -282,6 +282,7 @@ data:
           "serviceAccountsEnabled": false,
           "redirectUris": ["https://argocd.ebruno.fr/*"],
           "webOrigins": ["*"],
+          "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "groups", "email"],
           "vaultSecretKey": "clientSecretArgoCD"
         },
         {

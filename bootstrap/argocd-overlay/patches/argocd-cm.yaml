@@ -15,12 +15,15 @@ data:
   oidc.config: |
     issuer: https://keycloak.ebruno.fr/realms/platform
     clientID: argocd
-    clientSecret: $ARGOCD_SERVER_EXTRA_SECRET
+    clientSecret: $ARGOCD_SERVER_OIDC_CLIENT_SECRET
     requestedScopes:
       - openid
       - profile
       - email
-    requestedIDTokenClaims: {}
+      - groups
+    requestedIDTokenClaims:
+      groups:
+        essential: true
   rbac.policy.default: |
     # Keycloak groups → ArgoCD roles
     p, g:/platform-admins, role:admin
