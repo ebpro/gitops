@@ -10,14 +10,14 @@ spec:
       app.kubernetes.io/instance: tempo
   ingress:
     - fromEndpoints:
-        - labelsSelector:
+        - matchLabels:
             k8s:io.kubernetes.pod.namespace: kube-prometheus
       toPorts:
         - ports:
             - port: "3200"
               protocol: TCP
     - fromEndpoints:
-        - labelsSelector:
+        - matchLabels:
             k8s:io.kubernetes.pod.namespace: alloy
       toPorts:
         - ports:
@@ -27,7 +27,7 @@ spec:
               protocol: TCP
   egress:
     - toEndpoints:
-        - labelsSelector:
+        - matchLabels:
             k8s:io.kubernetes.pod.namespace: kube-prometheus
       toPorts:
         - ports:
