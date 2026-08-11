@@ -53,9 +53,9 @@ spec:
               SECRET_JSON=$(printf '{"apiVersion":"v1","kind":"Secret","metadata":{"name":"alertmanager-matrix-token","namespace":"kube-prometheus"},"type":"Opaque","data":{"matrix-access-token":"%s"}}' "$TOKEN_B64")
 
               apk add -q curl || true
-              curl -s -X PUT \
+              curl -s -X POST \
                 --header="Authorization: Bearer $SA_TOKEN" \
-                "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets/alertmanager-matrix-token" \
+                "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets" \
                 --header="Content-Type: application/json" \
                 --data "$SECRET_JSON" \
                 --insecure || echo "Warning: Secret write failed"
