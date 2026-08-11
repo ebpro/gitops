@@ -4,8 +4,8 @@ metadata:
   name: matrix-token-setup
   namespace: synapse
 spec:
-  activeDeadlineSeconds: 600
-  ttlSecondsAfterFinished: 3600
+  activeDeadlineSeconds: 900
+  ttlSecondsAfterFinished: 7200
   template:
     spec:
       serviceAccountName: alertmanager-token-writer
@@ -22,38 +22,38 @@ spec:
             - -ec
           args:
             - |
-              echo "Installing Synapse CLI tools..."
-              pip install matrix-synapse
+              echo "=== Installing Matrix libraries ==="
+              pip install requests || exit 1
 
-              echo "Registering bot user..."
-              register_new_matrix_user \
-                -c /data/homeserver.yaml \
-                --yes-to-eula \
-                --no-validate-server \
-                --username alertmanager \
-                --displayname "Alertmanager Bot (GitOps)" \
-                --password bot-password-alertmanager 2>&1 || echo "User may already exist, continuing..."
+              echo "=== Bot registration complete ==="
+              
+              echo "=== Login for access token ==="
+              if /syn-env/bin/register_new_matrix_user -c /data/homeserver.yaml -u alertmanager -p bot-password-alertmanager --no-admin; then
+                echo "Registered OK"
+              else
+                echo "Reg returned non-zero (user may already exist)"
+              fi
 
-              echo "Login to get access token..."
-              ACCESS_TOKEN=$(wget -qO- --post-data='{"type":"m.login.password","user":"alertmanager","password":"bot-password-alertmanager"}' \
+              echo "=== Bot user registered successfully ==="
+
+              LOGIN_RESP=$(wget -qO- --post-data='${"type":"m.login.password","user":"alertmanager","password":"bot-password-alertmanager"}' \
                 --header="Content-Type: application/json" \
-                "http://synapse:8008/_matrix/client/v3/login" | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
+                "http://synapse:8008/_matrix/client/v3/login")
 
-              USER_ID=$(wget -qO- --post-data='{"type":"m.login.password","user":"alertmanager","password":"bot-password-alertmanager"}' \
-                --header="Content-Type: application/json" \
-                "http://synapse:8008/_matrix/client/v3/login" | python3 -c "import sys,json;print(json.load(sys.stdin)['user_id'])")
+              ACCESS_TOKEN=$(echo "$LOGIN_RESP" | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
+              USER_ID=$(echo "$LOGIN_RESP" | python3 -c "import sys,json;print(json.load(sys.stdin)['user_id'])")
 
-              echo "Joined bot: ${USER_ID}"
-              echo "Token length: ${#ACCESS_TOKEN}"
+              echo "User: ${USER_ID}"
+              echo "Token len: ${#ACCESS_TOKEN}"
 
-              echo "Joining room ${MATRIX_ROOM_ID}..."
+              echo "=== Joining room ${MATRIX_ROOM_ID} ==="
               wget -qO- --method=POST \
                 --header="Authorization: Bearer ${ACCESS_TOKEN}" \
-                "http://synapse:8008/_matrix/client/v3/join/${MATRIX_ROOM_ID}" >/dev/null 2>&1 || echo "Room join skipped"
+                "http://synapse:8008/_matrix/client/v3/join/${MATRIX_ROOM_ID}" 2>/dev/null || echo "Room join skipped"
 
-              echo "Writing token to K8s Secret..."
+              echo "=== Writing K8s Secret ==="
               SA_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-              TOKEN_B64=$(printf '%s' "$ACCESS_TOKEN" | python3 -c "import sys,base64;print(base64.b64encode(sys.stdin.buffer.read()).decode().rstrip('\n'))")
+              TOKEN_B64=$(echo -n "$ACCESS_TOKEN" | base64)
               SECRET_JSON=$(printf '{"apiVersion":"v1","kind":"Secret","metadata":{"name":"alertmanager-matrix-token","namespace":"kube-prometheus"},"type":"Opaque","data":{"matrix-access-token":"%s"}}' "$TOKEN_B64")
 
               wget -qO- --method=PUT \
@@ -75,5 +75,5 @@ spec:
               cpu: 200m
               memory: 256Mi
             limits:
-              cpu: "2"
+              cpu: "1"
               memory: 1Gi
