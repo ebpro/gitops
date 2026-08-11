@@ -12,7 +12,6 @@ rules:
   - apiGroups: [""]
     resources: ["secrets"]
     verbs: ["create", "update", "patch", "get"]
-    resourceNames: ["alertmanager-matrix-token"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
