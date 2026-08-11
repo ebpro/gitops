@@ -23,10 +23,11 @@ spec:
           args:
             - |
               echo "=== Registering bot user ==="
-              curl -s -X POST "http://synapse:8008/_matrix/client/v3/register" \
-                -H "Content-Type: application/json" \
-                -d '{"username":"alertmanager","password":"bot-password-alertmanager","initial_device_display_name":"alertmanager"}' \
-                -o /tmp/reg.json || echo "Registration may have failed, continuing..."
+              wget -qO- --post-data='{"username":"alertmanager","password":"bot-password-alertmanager","initial_device_display_name":"alertmanager"}' \
+                --header="Content-Type: application/json" \
+                -O /tmp/reg.json \
+                "http://synapse:8008/_matrix/client/v3/register" \
+                || echo "Registration may have failed, continuing..."
               cat /tmp/reg.json 2>/dev/null || true
 
               echo "=== Login for bot-access-token ==="
