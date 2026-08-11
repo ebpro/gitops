@@ -49,6 +49,7 @@ data:
 
     # Registration disabled - SSO only
     enable_registration: true
+    enable_registration_without_verification: true
     enable_registration_cas: false
     enable_3pid_lookup: false
 
