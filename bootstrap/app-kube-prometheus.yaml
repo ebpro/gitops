@@ -241,6 +241,7 @@ spec:
     - CreateNamespace=true
     - ServerSideApply=true
     - ApplyOutOfSyncOnly=true
+    - ConfigureApply=true
   ignoreDifferences:
   # CRDs — only .status is mutated by the API server
   - group: apiextensions.k8s.io
