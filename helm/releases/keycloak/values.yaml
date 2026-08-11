@@ -108,7 +108,7 @@ tolerations: []
 podLabels: {}
 
 podAnnotations:
-  secret/restartedAt: "2026-07-29T140000Z"
+  secret/restartedAt: "2026-08-11T10:30:00Z"
 
 livenessProbe: |
   httpGet:
