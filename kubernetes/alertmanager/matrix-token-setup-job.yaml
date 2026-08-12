@@ -53,12 +53,26 @@ spec:
               SECRET_JSON=$(printf '{"apiVersion":"v1","kind":"Secret","metadata":{"name":"alertmanager-matrix-token","namespace":"kube-prometheus"},"type":"Opaque","data":{"matrix-access-token":"%s"}}' "$TOKEN_B64")
 
               apk add -q curl || true
+              # Try POST first (create), fall back to PATCH (update if exists)
               curl -s -X POST \
                 --header="Authorization: Bearer $SA_TOKEN" \
                 "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets" \
                 --header="Content-Type: application/json" \
                 --data "$SECRET_JSON" \
-                --insecure || echo "Warning: Secret write failed"
+                --insecure -o /tmp/k8sresp.json 2>&1 || true
+              if grep -q "AlreadyExists" /tmp/k8sresp.json 2>/dev/null; then
+                echo "Secret exists, patching..."
+                curl -s -X PATCH \
+                  --header="Authorization: Bearer $SA_TOKEN" \
+                  "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets/alertmanager-matrix-token" \
+                  --header="Content-Type: application/json" \
+                  --data "$SECRET_JSON" \
+                  --insecure
+                echo ""
+              else
+                cat /tmp/k8sresp.json 2>/dev/null || true
+                echo ""
+              fi
 
               echo "=== ALL GOOD ==="
           env:
