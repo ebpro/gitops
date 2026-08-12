@@ -231,77 +231,77 @@ spec:
                 editable: true
                 options:
                   path: /var/lib/grafana/dashboards/observability
-        dashboards: {}
-        downloadDashboards:
-             "1860":
-               gnetId: 1860
-               revision: 36
-               datasource: Prometheus
-             "10000":
-               gnetId: 10000
-               revision: 17
-               datasource: Prometheus
-             "10003":
-               gnetId: 10003
-               revision: 16
-               datasource: Prometheus
-             "10001":
-               gnetId: 10001
-               revision: 16
-               datasource: Prometheus
-             "10005":
-               gnetId: 10005
-               revision: 1
-               datasource: Prometheus
-             "7681":
-               gnetId: 7681
-               revision: 22
-               datasource: Prometheus
-             "10015":
-               gnetId: 10015
-               revision: 23
-               datasource: Prometheus
-             "14059":
-               gnetId: 14059
-               revision: 11
-               datasource: Prometheus
-             "16257":
-               gnetId: 16257
-               revision: 7
-               datasource: Prometheus
-             "15983":
-               gnetId: 15983
-               revision: 3
-               datasource: Prometheus
-             "14945":
-               gnetId: 14945
-               revision: 2
-               datasource: Prometheus
-             "13436":
-               gnetId: 13436
-               revision: 28
-               datasource: Prometheus
-             "12889":
-               gnetId: 12889
-               revision: 9
-               datasource: Prometheus
-             "15622":
-               gnetId: 15622
-               revision: 3
-               datasource: Prometheus
-             "11509":
-               gnetId: 11509
-               revision: 12
-               datasource: Prometheus
-             "12291":
-               gnetId: 12291
-               revision: 11
-               datasource: Prometheus
-             "11090":
-               gnetId: 11090
-               revision: 2
-               datasource: Prometheus
-           defaultDashboardsEnabled: false
+          dashboards: {}
+          downloadDashboards:
+            "1860":
+              gnetId: 1860
+              revision: 36
+              datasource: Prometheus
+            "10000":
+              gnetId: 10000
+              revision: 17
+              datasource: Prometheus
+            "10003":
+              gnetId: 10003
+              revision: 16
+              datasource: Prometheus
+            "10001":
+              gnetId: 10001
+              revision: 16
+              datasource: Prometheus
+            "10005":
+              gnetId: 10005
+              revision: 1
+              datasource: Prometheus
+            "7681":
+              gnetId: 7681
+              revision: 22
+              datasource: Prometheus
+            "10015":
+              gnetId: 10015
+              revision: 23
+              datasource: Prometheus
+            "14059":
+              gnetId: 14059
+              revision: 11
+              datasource: Prometheus
+            "16257":
+              gnetId: 16257
+              revision: 7
+              datasource: Prometheus
+            "15983":
+              gnetId: 15983
+              revision: 3
+              datasource: Prometheus
+            "14945":
+              gnetId: 14945
+              revision: 2
+              datasource: Prometheus
+            "13436":
+              gnetId: 13436
+              revision: 28
+              datasource: Prometheus
+            "12889":
+              gnetId: 12889
+              revision: 9
+              datasource: Prometheus
+            "15622":
+              gnetId: 15622
+              revision: 3
+              datasource: Prometheus
+            "11509":
+              gnetId: 11509
+              revision: 12
+              datasource: Prometheus
+            "12291":
+              gnetId: 12291
+              revision: 11
+              datasource: Prometheus
+            "11090":
+              gnetId: 11090
+              revision: 2
+              datasource: Prometheus
+          defaultDashboardsEnabled: false
           securityContext:
             fsGroup: 472
             runAsUser: 472
