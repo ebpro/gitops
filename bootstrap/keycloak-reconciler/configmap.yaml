@@ -314,6 +314,7 @@ data:
           "serviceAccountsEnabled": false,
           "redirectUris": ["https://grafana.ebruno.fr/*"],
           "webOrigins": ["*"],
+          "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "groups", "email", "offline_access"],
           "vaultSecretKey": "clientSecretGrafana"
         },
         {
