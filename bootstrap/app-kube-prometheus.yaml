@@ -116,6 +116,8 @@ spec:
               prometheus.io/scrape: 'false'
         grafana:
           enabled: true
+          podAnnotations:
+            roll: "1"
           adminPassword: ''
           existingSecret: grafana-admin-password
           existingSecretKey: admin-password
@@ -323,5 +325,6 @@ spec:
     - CreateNamespace=true
     - ServerSideApply=true
     - ApplyOutOfSyncOnly=true
+    - ForceSync=true
 
 # updated 1786549790
