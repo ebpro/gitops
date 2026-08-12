@@ -230,9 +230,9 @@ spec:
                 disableDeletion: false
                 editable: true
                 options:
-                      path: /var/lib/grafana/dashboards/observability
-           dashboards: {}
-           downloadDashboards:
+                  path: /var/lib/grafana/dashboards/observability
+        dashboards: {}
+        downloadDashboards:
              "1860":
                gnetId: 1860
                revision: 36
