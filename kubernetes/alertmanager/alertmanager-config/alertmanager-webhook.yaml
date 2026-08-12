@@ -105,7 +105,7 @@ spec:
             - name: MATRIX_USER_ID
               value: "@alertmanager:matrix.ebruno.fr"
             - name: MATRIX_ROOM_ID
-              value: "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr"
+              value: "!GnsphvOGXnbnFQFONL:matrix.ebruno.fr"
             - name: MATRIX_SERVER
               value: "http://synapse.synapse.svc.cluster.local:8008"
             - name: matrix-access-token
