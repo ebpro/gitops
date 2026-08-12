@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-matrix-webhook
+  namespace: kube-prometheus
+  labels:
+    app: alertmanager-matrix-webhook
+spec:
+  selector:
+    app: alertmanager-matrix-webhook
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager-matrix-webhook
+  namespace: kube-prometheus
+  labels:
+    app: alertmanager-matrix-webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager-matrix-webhook
+  template:
+    metadata:
+      labels:
+        app: alertmanager-matrix-webhook
+    spec:
+      containers:
+        - name: webhook
+          image: python:3.13-alpine
+          command:
+            - sh
+            - -ec
+          args:
+              - |
+              pip install --quiet requests && python3 -uc '
+              import json, os, uuid
+              from http.server import HTTPServer, BaseHTTPRequestHandler
+              import requests as req
+
+              TOKEN = os.environ["matrix-access-token"]
+              ROOM = os.environ.get("MATRIX_ROOM_ID", "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr")
+              SERVER = os.environ.get("MATRIX_SERVER", "http://synapse.synapse.svc.cluster.local:8008")
+              COLORS = {"critical": "#FF6B6B", "warning": "#FDCB6E", "info": "#74B9FF", "ok": "#55EFC4"}
+
+              def fmt(alert):
+                  labels = alert.get("labels", {})
+                  annotations = alert.get("annotations", {})
+                  status = alert.get("status", "unknown")
+                  name = labels.get("alertname", "Unknown")
+                  severity = labels.get("severity", "info")
+                  summary = annotations.get("summary", "")
+                  details = annotations.get("description", "")
+                  cl = COLORS.get(severity, "#74B9FF")
+                  parts = [
+                      f"<h2 style=\"color:{cl}\">⚠ {name}</h2>",
+                      f"<p>Severity: <b>{severity}</b> | Status: <b>{status}</b></p>",
+                  ]
+                  if summary:
+                      parts.append(f"<p><b>Summary:</b> {summary}</p>")
+                  if details:
+                      parts.append(f"<p><b>Details:</b> {details}</p>")
+                  parts.append("<ul>")
+                  for k, v in labels.items():
+                      parts.append(f"<li>{k}: <code>{v}</code></li>")
+                  parts.append("</ul>")
+                  return "<br/>".join(parts)
+
+              class H(BaseHTTPRequestHandler):
+                  def do_POST(self):
+                      data = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                      alerts = data.get("alerts", [])
+                      html = "<hr/>".join(fmt(a) for a in alerts) if alerts else "<p>No alerts</p>"
+                      txn = str(uuid.uuid4()).replace("-", "")
+                      req.post(
+                          f"{SERVER}/_matrix/client/v3/rooms/{ROOM}/send/m.room.message/{txn}",
+                          json={
+                              "msgtype": "m.html",
+                              "body": html.replace("<p>", "\n<p>").replace("</p>", "</p>"),
+                              "format": "org.matrix.custom.html",
+                              "formatted_body": html
+                          },
+                          headers={"Authorization": f"Bearer {TOKEN}"}
+                      )
+                      self.send_response(200)
+                      self.end_headers()
+                      self.wfile.write(b"{}")
+                  def log_message(self, fmt, *args):
+                      pass
+
+              HTTPServer(("0.0.0.0", 8080), H).serve_forever()
+              '
+          env:
+            - name: MATRIX_USER_ID
+              value: "@alertmanager:matrix.ebruno.fr"
+            - name: MATRIX_ROOM_ID
+              value: "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr"
+            - name: MATRIX_SERVER
+              value: "http://synapse.synapse.svc.cluster.local:8008"
+            - name: matrix-access-token
+              valueFrom:
+                secretKeyRef:
+                  name: alertmanager-matrix-token
+                  key: matrix-access-token
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi

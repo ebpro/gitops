@@ -6,18 +6,10 @@ metadata:
 spec:
   receivers:
     - name: 'matrix'
-      matrix:
-        webhook:
-          uri: 'http://synapse.synapse.svc.cluster.local:8008'
-          tlsConfig:
-            insecureSkipVerify: true
-        tokenSecret:
-          name: alertmanager-matrix-token
-          key: matrix-access-token
-        tokenKeyFile: /etc/alertmanager-token/matrix-access-token
-        roomID: '!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr'
-        username: alertmanager
-        sendResolved: true
+      webhookConfigs:
+        - url: 'http://alertmanager-matrix-webhook.kube-prometheus.svc.cluster.local:8080'
+          sendResolved: true
+          maxAlerts: 100
   route:
     receiver: 'matrix'
     groupBy:
