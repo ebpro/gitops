@@ -28,6 +28,21 @@ server:
       memory: 512Mi
   ui:
     enabled: true
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: kube-prometheus
+      endpoints:
+        - port: "metrics"
+          interval: 30s
+          scrapeTimeout: 10s
+          honorLabels: true
+          path: /v1/sys/metrics
+          params:
+            format:
+              - prometheus
 
   extraInitContainers:
     - name: vault-unseal

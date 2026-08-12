@@ -61,17 +61,18 @@ nodeExporter:
   enabled: true
   releaseLabel: true
 
-  prometheus:
-    enabled: true
-    prometheusSpec:
-      retention: 30d
-      retentionSize: 45GB
-      enableCompression: true
-      walCompression: true
-      resources:
-        limits:
-          cpu: 2
-          memory: 4Gi
+prometheus:
+  enabled: true
+  prometheusSpec:
+    retention: 30d
+    retentionSize: 45GB
+    enableCompression: true
+    walCompression: true
+    webEnableRemoteWriteReceiver: true
+    resources:
+      limits:
+        cpu: 2
+        memory: 4Gi
       requests:
         cpu: 500m
         memory: 2Gi
@@ -200,7 +201,94 @@ grafana:
           options:
             path: /var/lib/grafana/dashboards/observability
   dashboards: {}
-  downloadDashboards: {}
+  downloadDashboards:
+    # Node Exporter — single-node host health
+    "1860":
+      gnetId: 1860
+      revision: 36
+      datasource: Prometheus
+    # Kubernetes compute resources — Nodes
+    "10000":
+      gnetId: 10000
+      revision: 17
+      datasource: Prometheus
+    # Kubernetes compute resources — Pods
+    "10003":
+      gnetId: 10003
+      revision: 16
+      datasource: Prometheus
+    # Kubernetes compute resources — Namespaces
+    "10001":
+      gnetId: 10001
+      revision: 16
+      datasource: Prometheus
+    # Kubernetes compute resources — Cluster
+    "10005":
+      gnetId: 10005
+      revision: 1
+      datasource: Prometheus
+    # ArgoCD
+    "7681":
+      gnetId: 7681
+      revision: 22
+      datasource: Prometheus
+    # PostgreSQL — CNPG clusters
+    "10015":
+      gnetId: 10015
+      revision: 23
+      datasource: Prometheus
+    # Loki self-monitoring
+    "14059":
+      gnetId: 14059
+      revision: 11
+      datasource: Prometheus
+    # Tempo self-monitoring
+    "16257":
+      gnetId: 16257
+      revision: 7
+      datasource: Prometheus
+    # OTel Collector
+    "15983":
+      gnetId: 15983
+      revision: 3
+      datasource: Prometheus
+    # Trivy Operator
+    "14945":
+      gnetId: 14945
+      revision: 2
+      datasource: Prometheus
+      url: https://grafana.com/api/dashboards/14945/revisions/2/download
+    # traefik
+    "13436":
+      gnetId: 13436
+      revision: 28
+      datasource: Prometheus
+    # SonarQube
+    "12889":
+      gnetId: 12889
+      revision: 9
+      datasource: Prometheus
+    # Backstage
+    "15622":
+      gnetId: 15622
+      revision: 3
+      datasource: Prometheus
+    # Keycloak
+    "11509":
+      gnetId: 11509
+      revision: 12
+      datasource: Prometheus
+    # Harbor
+    "12291":
+      gnetId: 12291
+      revision: 11
+      datasource: Prometheus
+    # Gitea
+    "11090":
+      gnetId: 11090
+      revision: 2
+      datasource: Prometheus
+      url: https://grafana.com/api/dashboards/11090/revisions/2/download
   securityContext:
     fsGroup: 472
     runAsUser: 472

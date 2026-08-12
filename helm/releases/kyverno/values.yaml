@@ -2,3 +2,7 @@ cleanUp:
   enabled: true
 crds:
   cleanup: false
+metricsPrometheusWidget:
+  enabled: true
+reports:
+  enableBroadcast: true
