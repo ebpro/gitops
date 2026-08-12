@@ -20,4 +20,6 @@ spec:
     routes:
       - receiver: 'matrix'
         matchers:
-          - alertname =~ "Watchdog"
+          - name: alertname
+            value: Watchdog
+            matchType: '=~'
