@@ -20,6 +20,7 @@ spec:
           - path: kubernetes/matrix/element
           - path: kubernetes/matrix/synapse
           - path: kubernetes/alertmanager
+          - path: kubernetes/alertmanager/alertmanager-config
           - path: kubernetes/observability
           - path: kubernetes/argocd-image-updater
           - path: bootstrap/keycloak-reconciler
