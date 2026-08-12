@@ -27,7 +27,7 @@ data:
         details = annotations.get("description", "")
         cl = COLORS.get(severity, "#74B9FF")
         parts = []
-              parts.append(f'<h2 style="color:{cl}">ALARM {name}</h2>')
+        parts.append(f'<h2 style="color:{cl}">ALARM {name}</h2>')
         parts.append(f"<p>Severity: <b>{severity}</b> | Status: <b>{status}</b></p>")
         if summary:
             parts.append(f"<p><b>Summary:</b> {summary}</p>")
