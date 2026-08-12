@@ -1,4 +1,67 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-matrix-webhook
+  namespace: kube-prometheus
+  labels:
+    app: alertmanager-matrix-webhook
+data:
+  webhook.py: |
+    import json
+    import os
+    import uuid
+    import re
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+    import requests as req
+    TOKEN = os.environ["matrix-access-token"]
+    ROOM = os.environ.get("MATRIX_ROOM_ID", "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr")
+    SERVER = os.environ.get("MATRIX_SERVER", "http://synapse.synapse.svc.cluster.local:8008")
+    COLORS = {"critical": "#FF6B6B", "warning": "#FDCB6E", "info": "#74B9FF", "ok": "#55EFC4"}
+    def fmt(alert):
+        labels = alert.get("labels", {})
+        annotations = alert.get("annotations", {})
+        status = alert.get("status", "unknown")
+        name = labels.get("alertname", "Unknown")
+        severity = labels.get("severity", "info")
+        summary = annotations.get("summary", "")
+        details = annotations.get("description", "")
+        cl = COLORS.get(severity, "#74B9FF")
+        parts = []
+              parts.append(f'<h2 style="color:{cl}">ALARM {name}</h2>')
+        parts.append(f"<p>Severity: <b>{severity}</b> | Status: <b>{status}</b></p>")
+        if summary:
+            parts.append(f"<p><b>Summary:</b> {summary}</p>")
+        if details:
+            parts.append(f"<p><b>Details:</b> {details}</p>")
+        parts.append("<ul>")
+        for k in labels:
+            parts.append(f"<li><b>{k}</b>: <code>{labels[k]}</code></li>")
+        parts.append("</ul>")
+        return "<br/>".join(parts)
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self):
+            length = int(self.headers.get("Content-Length", 0))
+            data = json.loads(self.rfile.read(length))
+            alerts = data.get("alerts", [])
+            html = "<hr/>".join(fmt(a) for a in alerts) if alerts else "<p>No alerts</p>"
+            txn = str(uuid.uuid4()).replace("-", "")
+            url = f"{SERVER}/_matrix/client/v3/rooms/{ROOM}/send/m.room.message/{txn}"
+            msg = {"msgtype": "m.html", "body": html, "format": "org.matrix.custom.html", "formatted_body": html}
+            try:
+                r = req.post(url, json=msg, headers={"Authorization": f"Bearer {TOKEN}"}, timeout=10)
+                print(f"Sent to Matrix: {r.status_code} {r.text[:100]}")
+            except Exception as e:
+                print(f"Failed to send to Matrix: {e}")
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"{}")
+        def log_message(self, fmt, *args):
+            print(f"webhook: {args}")
+    if __name__ == "__main__":
+        print("Alertmanager Matrix Webhook starting on 8080")
+        HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: alertmanager-matrix-webhook
@@ -36,64 +99,8 @@ spec:
             - sh
             - -ec
           args:
-              - |
-              pip install --quiet requests && python3 -uc '
-              import json, os, uuid
-              from http.server import HTTPServer, BaseHTTPRequestHandler
-              import requests as req
-
-              TOKEN = os.environ["matrix-access-token"]
-              ROOM = os.environ.get("MATRIX_ROOM_ID", "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr")
-              SERVER = os.environ.get("MATRIX_SERVER", "http://synapse.synapse.svc.cluster.local:8008")
-              COLORS = {"critical": "#FF6B6B", "warning": "#FDCB6E", "info": "#74B9FF", "ok": "#55EFC4"}
-
-              def fmt(alert):
-                  labels = alert.get("labels", {})
-                  annotations = alert.get("annotations", {})
-                  status = alert.get("status", "unknown")
-                  name = labels.get("alertname", "Unknown")
-                  severity = labels.get("severity", "info")
-                  summary = annotations.get("summary", "")
-                  details = annotations.get("description", "")
-                  cl = COLORS.get(severity, "#74B9FF")
-                  parts = [
-                      f"<h2 style=\"color:{cl}\">⚠ {name}</h2>",
-                      f"<p>Severity: <b>{severity}</b> | Status: <b>{status}</b></p>",
-                  ]
-                  if summary:
-                      parts.append(f"<p><b>Summary:</b> {summary}</p>")
-                  if details:
-                      parts.append(f"<p><b>Details:</b> {details}</p>")
-                  parts.append("<ul>")
-                  for k, v in labels.items():
-                      parts.append(f"<li>{k}: <code>{v}</code></li>")
-                  parts.append("</ul>")
-                  return "<br/>".join(parts)
-
-              class H(BaseHTTPRequestHandler):
-                  def do_POST(self):
-                      data = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-                      alerts = data.get("alerts", [])
-                      html = "<hr/>".join(fmt(a) for a in alerts) if alerts else "<p>No alerts</p>"
-                      txn = str(uuid.uuid4()).replace("-", "")
-                      req.post(
-                          f"{SERVER}/_matrix/client/v3/rooms/{ROOM}/send/m.room.message/{txn}",
-                          json={
-                              "msgtype": "m.html",
-                              "body": html.replace("<p>", "\n<p>").replace("</p>", "</p>"),
-                              "format": "org.matrix.custom.html",
-                              "formatted_body": html
-                          },
-                          headers={"Authorization": f"Bearer {TOKEN}"}
-                      )
-                      self.send_response(200)
-                      self.end_headers()
-                      self.wfile.write(b"{}")
-                  def log_message(self, fmt, *args):
-                      pass
-
-              HTTPServer(("0.0.0.0", 8080), H).serve_forever()
-              '
+            - |
+              pip install --no-cache-dir -q requests && python3 /opt/webhook/webhook.py
           env:
             - name: MATRIX_USER_ID
               value: "@alertmanager:matrix.ebruno.fr"
@@ -108,6 +115,9 @@ spec:
                   key: matrix-access-token
           ports:
             - containerPort: 8080
+          volumeMounts:
+            - name: webhook
+              mountPath: /opt/webhook
           resources:
             requests:
               cpu: 25m
@@ -115,3 +125,7 @@ spec:
             limits:
               cpu: 100m
               memory: 128Mi
+      volumes:
+        - name: webhook
+          configMap:
+            name: alertmanager-matrix-webhook
