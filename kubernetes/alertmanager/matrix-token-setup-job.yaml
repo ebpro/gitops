@@ -65,7 +65,7 @@ spec:
                 curl -s -X PATCH \
                   --header="Authorization: Bearer $SA_TOKEN" \
                   "https://kubernetes.default.svc/api/v1/namespaces/kube-prometheus/secrets/alertmanager-matrix-token" \
-                  --header="Content-Type: application/json" \
+                  --header="Content-Type: application/merge-patch+json" \
                   --data "$SECRET_JSON" \
                   --insecure
                 echo ""
