@@ -3,6 +3,12 @@ serviceAccount:
   create: true
   automountServiceAccountToken: true
 
+podAnnotations:
+  instrumentation.opentelemetry.io/inject-nodejs: "true"
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "7007"
+  prometheus.io/path: "/metrics2"
+
 backstage:
   image:
     registry: ghcr.io

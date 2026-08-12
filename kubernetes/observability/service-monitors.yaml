@@ -1,0 +1,65 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sonarqube
+  namespace: sonarqube
+  labels:
+    release: kube-prometheus
+spec:
+  jobLabel: app.kubernetes.io/name
+  namespaceSelector:
+    matchNames:
+      - sonarqube
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sonarqube
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+      params:
+        passcode:
+          - ''
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: backstage
+  namespace: backstage
+  labels:
+    release: kube-prometheus
+spec:
+  jobLabel: app.kubernetes.io/name
+  namespaceSelector:
+    matchNames:
+      - backstage
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backstage
+  endpoints:
+    - port: http
+      path: /.backstage/health/v1/metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: microcks
+  namespace: microcks
+  labels:
+    release: kube-prometheus
+spec:
+  jobLabel: app.kubernetes.io/name
+  namespaceSelector:
+    matchNames:
+      - microcks
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: microcks
+  endpoints:
+    - port: http
+      path: /q/health
+      interval: 30s
+      scrapeTimeout: 10s

@@ -1,0 +1,29 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: backstage-otel
+  namespace: backstage
+spec:
+  exporter:
+    endpoint: http://tempo.tempo.svc.cluster.local:4317
+    tls:
+      insecure: true
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
+  propagators:
+    - tracecontext
+    - baggage
+  nodejs:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  env:
+    - name: OTEL_SERVICE_NAME
+      value: backstage
+    - name: OTEL_RESOURCE_ATTRIBUTES
+      value: namespace=backstage,cluster=compute-lsis-2

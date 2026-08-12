@@ -109,6 +109,10 @@ podLabels: {}
 
 podAnnotations:
   secret/restartedAt: "2026-08-11T10:30:00Z"
+  instrumentation.opentelemetry.io/inject-java: "true"
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9000"
+  prometheus.io/path: "/metrics"
 
 livenessProbe: |
   httpGet:

@@ -122,5 +122,10 @@ persistence:
   size: 20Gi
   storageClassName: local-path
 
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "3000"
+  prometheus.io/path: "/metrics"
+
 podSecurityContext:
   fsGroup: 1000

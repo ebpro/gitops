@@ -1,0 +1,30 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: link-shortener-otel
+  namespace: link-shortener
+spec:
+  exporter:
+    endpoint: http://tempo.tempo.svc.cluster.local:4317
+    tls:
+      insecure: true
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
+  propagators:
+    - tracecontext
+    - baggage
+  java:
+    libs: true
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 25m
+        memory: 64Mi
+  env:
+    - name: OTEL_SERVICE_NAME
+      value: link-shortener
+    - name: OTEL_RESOURCE_ATTRIBUTES
+      value: namespace=link-shortener,cluster=compute-lsis-2

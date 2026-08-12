@@ -1,4 +1,8 @@
 appName: microcks
+podAnnotations:
+  instrumentation.opentelemetry.io/inject-java: "true"
+  prometheus.io/scrape: "true"
+  prometheus.io/path: "/q/health"
 features:
   async:
     enabled: false

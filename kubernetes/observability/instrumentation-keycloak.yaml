@@ -1,0 +1,32 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: keycloak-otel
+  namespace: keycloak
+spec:
+  exporter:
+    endpoint: http://tempo.tempo.svc.cluster.local:4317
+    tls:
+      insecure: true
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
+  propagators:
+    - tracecontext
+    - baggage
+  java:
+    libs: true
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  env:
+    - name: OTEL_SERVICE_NAME
+      value: keycloak
+    - name: OTEL_RESOURCE_ATTRIBUTES
+      value: service.version=26.7.0,namespace=keycloak,cluster=compute-lsis-2
+    - name: OTEL_TRACES_SAMPLER_ARG
+      value: "1.0"

@@ -1,5 +1,10 @@
 replicaCount: 1
 
+podAnnotations:
+  instrumentation.opentelemetry.io/inject-java: "true"
+  prometheus.io/scrape: "true"
+  prometheus.io/path: "/q/metrics"
+
 image:
   repository: harbor.ebruno.fr/bruno/link-shortener
   pullPolicy: IfNotPresent

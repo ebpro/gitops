@@ -1,0 +1,30 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: microcks-otel
+  namespace: microcks
+spec:
+  exporter:
+    endpoint: http://tempo.tempo.svc.cluster.local:4317
+    tls:
+      insecure: true
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
+  propagators:
+    - tracecontext
+    - baggage
+  java:
+    libs: true
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  env:
+    - name: OTEL_SERVICE_NAME
+      value: microcks
+    - name: OTEL_RESOURCE_ATTRIBUTES
+      value: namespace=microcks,cluster=compute-lsis-2

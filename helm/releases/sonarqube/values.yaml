@@ -24,6 +24,13 @@ jdbcOverwrite:
   jdbcSecretPasswordKey: postgresql-password
   jdbcUrl: jdbc:postgresql://sonarqube-postgresql.sonarqube.svc.cluster.local:5432/sonardb
   jdbcUsername: app
+# OTEL instrumentation annotation - OTel operator auto-injects Java agent
+podAnnotations:
+  instrumentation.opentelemetry.io/inject-java: "true"
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9000"
+  prometheus.io/path: "/metrics"
+
 jvmCeOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=ce
 jvmOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=web
 monitoringPasscodeSecretName: sonarqube-monitoring-password

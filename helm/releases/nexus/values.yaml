@@ -119,7 +119,11 @@ ordinals: {}
 podManagementPolicy:
 minReadySeconds:
 podLabels: {}
-podAnnotations: {}
+podAnnotations:
+  instrumentation.opentelemetry.io/inject-java: "true"
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8081"
+  prometheus.io/path: "/service/metrics/prometheus"
 podDisruptionBudget:
   enabled: false
 nodeSelector: {}
@@ -129,7 +133,14 @@ topologySpreadConstraints: []
 priorityClassName:
 terminationGracePeriodSeconds:
 metrics:
-  enabled: false
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    additionalLabels:
+      release: kube-prometheus
+    endpointConfig:
+      interval: 30s
+      scrapeTimeout: 10s
 
 manualMaintenanceMode:
   enabled: false
