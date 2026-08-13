@@ -173,8 +173,7 @@ spec:
             enabled: false
           persistence:
             enabled: true
-            size: 10Gi
-            storageClassName: local-path
+            existingClaim: kube-prometheus-grafana
           additionalDataSources:
           - access: proxy
             name: Loki
