@@ -19,7 +19,7 @@ spec:
       - name: grafana.dashboards
         value: "false"
       valueFiles:
-      - https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/kube-prometheus.yaml?v=2
+      - https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/kube-prometheus.yaml?v=3
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-prometheus
@@ -35,5 +35,4 @@ spec:
         maxDuration: 5m
     syncOptions:
     - CreateNamespace=true
-    - ServerSideApply=true
-    - ApplyOutOfSyncOnly=true
+    - Replace=true
