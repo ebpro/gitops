@@ -1,0 +1,158 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-10324
+  namespace: kube-prometheus
+  labels:
+    grafana_dashboard: '1'
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: observability
+data:
+  dashboard.json: "{\n  \"__inputs\": [\n    {\n      \"name\": \"DS_PROMETHEUS\"\
+    ,\n      \"label\": \"Prometheus\",\n      \"description\": \"\",\n      \"type\"\
+    : \"datasource\",\n      \"pluginId\": \"prometheus\",\n      \"pluginName\":\
+    \ \"Prometheus\"\n    }\n  ],\n  \"__requires\": [\n    {\n      \"type\": \"\
+    grafana\",\n      \"id\": \"grafana\",\n      \"name\": \"Grafana\",\n      \"\
+    version\": \"6.0.2\"\n    },\n    {\n      \"type\": \"panel\",\n      \"id\"\
+    : \"graph\",\n      \"name\": \"Graph\",\n      \"version\": \"5.0.0\"\n    },\n\
+    \    {\n      \"type\": \"datasource\",\n      \"id\": \"prometheus\",\n     \
+    \ \"name\": \"Prometheus\",\n      \"version\": \"5.0.0\"\n    }\n  ],\n  \"annotations\"\
+    : {\n    \"list\": [\n      {\n        \"builtIn\": 1,\n        \"datasource\"\
+    : \"-- Grafana --\",\n        \"enable\": true,\n        \"hide\": true,\n   \
+    \     \"iconColor\": \"rgba(0, 211, 255, 1)\",\n        \"name\": \"Annotations\
+    \ & Alerts\",\n        \"type\": \"dashboard\"\n      }\n    ]\n  },\n  \"description\"\
+    : \"A fix to the OG Kubernetes pods dashboard to show containers in the template\
+    \ for newer prom/grafana versions.\\nCredit to the original at: https://grafana.com/dashboards/3146\"\
+    ,\n  \"editable\": true,\n  \"gnetId\": 10324,\n  \"graphTooltip\": 1,\n  \"id\"\
+    : null,\n  \"iteration\": 1560174895752,\n  \"links\": [],\n  \"panels\": [\n\
+    \    {\n      \"aliasColors\": {},\n      \"bars\": false,\n      \"dashLength\"\
+    : 10,\n      \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\",\n\
+    \      \"editable\": true,\n      \"error\": false,\n      \"fill\": 1,\n    \
+    \  \"grid\": {},\n      \"gridPos\": {\n        \"h\": 7,\n        \"w\": 24,\n\
+    \        \"x\": 0,\n        \"y\": 0\n      },\n      \"id\": 1,\n      \"isNew\"\
+    : true,\n      \"legend\": {\n        \"alignAsTable\": true,\n        \"avg\"\
+    : true,\n        \"current\": true,\n        \"max\": false,\n        \"min\"\
+    : false,\n        \"rightSide\": true,\n        \"show\": true,\n        \"total\"\
+    : false,\n        \"values\": true\n      },\n      \"lines\": true,\n      \"\
+    linewidth\": 2,\n      \"links\": [],\n      \"nullPointMode\": \"connected\"\
+    ,\n      \"paceLength\": 10,\n      \"percentage\": false,\n      \"pointradius\"\
+    : 5,\n      \"points\": false,\n      \"renderer\": \"flot\",\n      \"seriesOverrides\"\
+    : [],\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"sum by(container_name) (container_memory_usage_bytes{pod_name=\\\
+    \"$pod\\\", container_name=~\\\"$container\\\", container_name!=\\\"POD\\\"})\"\
+    ,\n          \"interval\": \"10s\",\n          \"intervalFactor\": 1,\n      \
+    \    \"legendFormat\": \"Current: {{ container_name }}\",\n          \"metric\"\
+    : \"container_memory_usage_bytes\",\n          \"refId\": \"A\",\n          \"\
+    step\": 10\n        },\n        {\n          \"expr\": \"kube_pod_container_resource_requests_memory_bytes{pod=\\\
+    \"$pod\\\", container=~\\\"$container\\\"}\",\n          \"interval\": \"10s\"\
+    ,\n          \"intervalFactor\": 2,\n          \"legendFormat\": \"Requested:\
+    \ {{ container }}\",\n          \"metric\": \"kube_pod_container_resource_requests_memory_bytes\"\
+    ,\n          \"refId\": \"B\",\n          \"step\": 20\n        }\n      ],\n\
+    \      \"thresholds\": [],\n      \"timeFrom\": null,\n      \"timeRegions\":\
+    \ [],\n      \"timeShift\": null,\n      \"title\": \"Memory Usage\",\n      \"\
+    tooltip\": {\n        \"msResolution\": true,\n        \"shared\": true,\n   \
+    \     \"sort\": 0,\n        \"value_type\": \"cumulative\"\n      },\n      \"\
+    type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\": null,\n        \"\
+    mode\": \"time\",\n        \"name\": null,\n        \"show\": true,\n        \"\
+    values\": []\n      },\n      \"yaxes\": [\n        {\n          \"format\": \"\
+    bytes\",\n          \"label\": null,\n          \"logBase\": 1,\n          \"\
+    max\": null,\n          \"min\": null,\n          \"show\": true\n        },\n\
+    \        {\n          \"format\": \"short\",\n          \"label\": null,\n   \
+    \       \"logBase\": 1,\n          \"max\": null,\n          \"min\": null,\n\
+    \          \"show\": true\n        }\n      ],\n      \"yaxis\": {\n        \"\
+    align\": false,\n        \"alignLevel\": null\n      }\n    },\n    {\n      \"\
+    aliasColors\": {},\n      \"bars\": false,\n      \"dashLength\": 10,\n      \"\
+    dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"editable\"\
+    : true,\n      \"error\": false,\n      \"fill\": 1,\n      \"grid\": {},\n  \
+    \    \"gridPos\": {\n        \"h\": 7,\n        \"w\": 24,\n        \"x\": 0,\n\
+    \        \"y\": 7\n      },\n      \"id\": 2,\n      \"isNew\": true,\n      \"\
+    legend\": {\n        \"alignAsTable\": true,\n        \"avg\": true,\n       \
+    \ \"current\": true,\n        \"max\": false,\n        \"min\": false,\n     \
+    \   \"rightSide\": true,\n        \"show\": true,\n        \"total\": false,\n\
+    \        \"values\": true\n      },\n      \"lines\": true,\n      \"linewidth\"\
+    : 2,\n      \"links\": [],\n      \"nullPointMode\": \"connected\",\n      \"\
+    paceLength\": 10,\n      \"percentage\": false,\n      \"pointradius\": 5,\n \
+    \     \"points\": false,\n      \"renderer\": \"flot\",\n      \"seriesOverrides\"\
+    : [],\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"sum by (container_name)( rate(container_cpu_usage_seconds_total{image!=\\\
+    \"\\\",container_name!=\\\"POD\\\",pod_name=\\\"$pod\\\"}[1m] ) )\",\n       \
+    \   \"intervalFactor\": 2,\n          \"legendFormat\": \"{{ container_name }}\"\
+    ,\n          \"refId\": \"A\",\n          \"step\": 30\n        }\n      ],\n\
+    \      \"thresholds\": [],\n      \"timeFrom\": null,\n      \"timeRegions\":\
+    \ [],\n      \"timeShift\": null,\n      \"title\": \"CPU Usage\",\n      \"tooltip\"\
+    : {\n        \"msResolution\": true,\n        \"shared\": true,\n        \"sort\"\
+    : 0,\n        \"value_type\": \"cumulative\"\n      },\n      \"type\": \"graph\"\
+    ,\n      \"xaxis\": {\n        \"buckets\": null,\n        \"mode\": \"time\"\
+    ,\n        \"name\": null,\n        \"show\": true,\n        \"values\": []\n\
+    \      },\n      \"yaxes\": [\n        {\n          \"format\": \"short\",\n \
+    \         \"label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n\
+    \          \"min\": null,\n          \"show\": true\n        },\n        {\n \
+    \         \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": null,\n          \"show\":\
+    \ true\n        }\n      ],\n      \"yaxis\": {\n        \"align\": false,\n \
+    \       \"alignLevel\": null\n      }\n    },\n    {\n      \"aliasColors\": {},\n\
+    \      \"bars\": false,\n      \"dashLength\": 10,\n      \"dashes\": false,\n\
+    \      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"editable\": true,\n    \
+    \  \"error\": false,\n      \"fill\": 1,\n      \"grid\": {},\n      \"gridPos\"\
+    : {\n        \"h\": 7,\n        \"w\": 24,\n        \"x\": 0,\n        \"y\":\
+    \ 14\n      },\n      \"id\": 3,\n      \"isNew\": true,\n      \"legend\": {\n\
+    \        \"alignAsTable\": true,\n        \"avg\": true,\n        \"current\"\
+    : true,\n        \"max\": false,\n        \"min\": false,\n        \"rightSide\"\
+    : true,\n        \"show\": true,\n        \"total\": false,\n        \"values\"\
+    : true\n      },\n      \"lines\": true,\n      \"linewidth\": 2,\n      \"links\"\
+    : [],\n      \"nullPointMode\": \"connected\",\n      \"paceLength\": 10,\n  \
+    \    \"percentage\": false,\n      \"pointradius\": 5,\n      \"points\": false,\n\
+    \      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n      \"stack\"\
+    : false,\n      \"steppedLine\": false,\n      \"targets\": [\n        {\n   \
+    \       \"expr\": \"sort_desc(sum by (pod_name) (rate (container_network_receive_bytes_total{pod_name=\\\
+    \"$pod\\\"}[1m]) ))\",\n          \"intervalFactor\": 2,\n          \"legendFormat\"\
+    : \"{{ pod_name }}\",\n          \"refId\": \"A\",\n          \"step\": 30\n \
+    \       }\n      ],\n      \"thresholds\": [],\n      \"timeFrom\": null,\n  \
+    \    \"timeRegions\": [],\n      \"timeShift\": null,\n      \"title\": \"Network\
+    \ I/O\",\n      \"tooltip\": {\n        \"msResolution\": true,\n        \"shared\"\
+    : true,\n        \"sort\": 0,\n        \"value_type\": \"cumulative\"\n      },\n\
+    \      \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\": null,\n\
+    \        \"mode\": \"time\",\n        \"name\": null,\n        \"show\": true,\n\
+    \        \"values\": []\n      },\n      \"yaxes\": [\n        {\n          \"\
+    format\": \"bytes\",\n          \"label\": null,\n          \"logBase\": 1,\n\
+    \          \"max\": null,\n          \"min\": null,\n          \"show\": true\n\
+    \        },\n        {\n          \"format\": \"short\",\n          \"label\"\
+    : null,\n          \"logBase\": 1,\n          \"max\": null,\n          \"min\"\
+    : null,\n          \"show\": true\n        }\n      ],\n      \"yaxis\": {\n \
+    \       \"align\": false,\n        \"alignLevel\": null\n      }\n    }\n  ],\n\
+    \  \"schemaVersion\": 18,\n  \"style\": \"dark\",\n  \"tags\": [\n    \"kubernetes\"\
+    \n  ],\n  \"templating\": {\n    \"list\": [\n      {\n        \"allValue\": \"\
+    .*\",\n        \"current\": {},\n        \"datasource\": \"${DS_PROMETHEUS}\"\
+    ,\n        \"definition\": \"\",\n        \"hide\": 0,\n        \"includeAll\"\
+    : true,\n        \"label\": \"Namespace\",\n        \"multi\": false,\n      \
+    \  \"name\": \"namespace\",\n        \"options\": [],\n        \"query\": \"label_values(kube_pod_info,\
+    \ namespace)\",\n        \"refresh\": 1,\n        \"regex\": \"\",\n        \"\
+    skipUrlSync\": false,\n        \"sort\": 0,\n        \"tagValuesQuery\": \"\"\
+    ,\n        \"tags\": [],\n        \"tagsQuery\": \"\",\n        \"type\": \"query\"\
+    ,\n        \"useTags\": false\n      },\n      {\n        \"allValue\": null,\n\
+    \        \"current\": {},\n        \"datasource\": \"${DS_PROMETHEUS}\",\n   \
+    \     \"definition\": \"\",\n        \"hide\": 0,\n        \"includeAll\": false,\n\
+    \        \"label\": \"Pod\",\n        \"multi\": false,\n        \"name\": \"\
+    pod\",\n        \"options\": [],\n        \"query\": \"label_values(kube_pod_info{namespace=~\\\
+    \"$namespace\\\"}, pod)\",\n        \"refresh\": 1,\n        \"regex\": \"\",\n\
+    \        \"skipUrlSync\": false,\n        \"sort\": 0,\n        \"tagValuesQuery\"\
+    : \"\",\n        \"tags\": [],\n        \"tagsQuery\": \"\",\n        \"type\"\
+    : \"query\",\n        \"useTags\": false\n      },\n      {\n        \"allValue\"\
+    : \".*\",\n        \"current\": {},\n        \"datasource\": \"${DS_PROMETHEUS}\"\
+    ,\n        \"definition\": \"label_values(kube_pod_container_info{namespace=~\\\
+    \"$namespace\\\", pod=~\\\"$pod\\\"}, container)\",\n        \"hide\": 0,\n  \
+    \      \"includeAll\": true,\n        \"label\": \"Container\",\n        \"multi\"\
+    : false,\n        \"name\": \"container\",\n        \"options\": [],\n       \
+    \ \"query\": \"label_values(kube_pod_container_info{namespace=~\\\"$namespace\\\
+    \", pod=~\\\"$pod\\\"}, container)\",\n        \"refresh\": 1,\n        \"regex\"\
+    : \"\",\n        \"skipUrlSync\": false,\n        \"sort\": 0,\n        \"tagValuesQuery\"\
+    : \"\",\n        \"tags\": [],\n        \"tagsQuery\": \"\",\n        \"type\"\
+    : \"query\",\n        \"useTags\": false\n      }\n    ]\n  },\n  \"time\": {\n\
+    \    \"from\": \"now-6h\",\n    \"to\": \"now\"\n  },\n  \"timepicker\": {\n \
+    \   \"refresh_intervals\": [\n      \"5s\",\n      \"10s\",\n      \"30s\",\n\
+    \      \"1m\",\n      \"5m\",\n      \"15m\",\n      \"30m\",\n      \"1h\",\n\
+    \      \"2h\",\n      \"1d\"\n    ],\n    \"time_options\": [\n      \"5m\",\n\
+    \      \"15m\",\n      \"1h\",\n      \"6h\",\n      \"12h\",\n      \"24h\",\n\
+    \      \"2d\",\n      \"7d\",\n      \"30d\"\n    ]\n  },\n  \"timezone\": \"\
+    browser\",\n  \"title\": \"Kubernetes Pods\",\n  \"uid\": \"q2rvxZ7Wz\",\n  \"\
+    version\": 1,\n  \"tz\": {}\n}"

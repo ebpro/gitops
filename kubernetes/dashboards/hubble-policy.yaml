@@ -1,0 +1,423 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-18015
+  namespace: kube-prometheus
+  labels:
+    grafana_dashboard: '1'
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: observability
+data:
+  dashboard.json: "{\n  \"__inputs\": [\n    {\n      \"name\": \"DS_PROMETHEUS\"\
+    ,\n      \"label\": \"Prometheus\",\n      \"description\": \"\",\n      \"type\"\
+    : \"datasource\",\n      \"pluginId\": \"prometheus\",\n      \"pluginName\":\
+    \ \"Prometheus\"\n    }\n  ],\n  \"__elements\": {},\n  \"__requires\": [\n  \
+    \  {\n      \"type\": \"grafana\",\n      \"id\": \"grafana\",\n      \"name\"\
+    : \"Grafana\",\n      \"version\": \"9.3.0\"\n    },\n    {\n      \"type\": \"\
+    datasource\",\n      \"id\": \"prometheus\",\n      \"name\": \"Prometheus\",\n\
+    \      \"version\": \"1.0.0\"\n    },\n    {\n      \"type\": \"panel\",\n   \
+    \   \"id\": \"table\",\n      \"name\": \"Table\",\n      \"version\": \"\"\n\
+    \    },\n    {\n      \"type\": \"panel\",\n      \"id\": \"timeseries\",\n  \
+    \    \"name\": \"Time series\",\n      \"version\": \"\"\n    }\n  ],\n  \"annotations\"\
+    : {\n    \"list\": [\n      {\n        \"builtIn\": 1,\n        \"datasource\"\
+    : {\n          \"type\": \"grafana\",\n          \"uid\": \"-- Grafana --\"\n\
+    \        },\n        \"enable\": true,\n        \"hide\": true,\n        \"iconColor\"\
+    : \"rgba(0, 211, 255, 1)\",\n        \"name\": \"Annotations & Alerts\",\n   \
+    \     \"target\": {\n          \"limit\": 100,\n          \"matchAny\": false,\n\
+    \          \"tags\": [],\n          \"type\": \"dashboard\"\n        },\n    \
+    \    \"type\": \"dashboard\"\n      }\n    ]\n  },\n  \"editable\": true,\n  \"\
+    fiscalYearStartMonth\": 0,\n  \"graphTooltip\": 1,\n  \"id\": null,\n  \"links\"\
+    : [],\n  \"liveNow\": false,\n  \"panels\": [\n    {\n      \"datasource\": {\n\
+    \        \"type\": \"prometheus\",\n        \"uid\": \"${DS_PROMETHEUS}\"\n  \
+    \    },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"color\"\
+    : {\n            \"fixedColor\": \"green\",\n            \"mode\": \"palette-classic\"\
+    \n          },\n          \"custom\": {\n            \"axisCenteredZero\": false,\n\
+    \            \"axisColorMode\": \"text\",\n            \"axisLabel\": \"\",\n\
+    \            \"axisPlacement\": \"auto\",\n            \"barAlignment\": 0,\n\
+    \            \"drawStyle\": \"line\",\n            \"fillOpacity\": 100,\n   \
+    \         \"gradientMode\": \"none\",\n            \"hideFrom\": {\n         \
+    \     \"legend\": false,\n              \"tooltip\": false,\n              \"\
+    viz\": false\n            },\n            \"lineInterpolation\": \"linear\",\n\
+    \            \"lineWidth\": 0,\n            \"pointSize\": 5,\n            \"\
+    scaleDistribution\": {\n              \"type\": \"linear\"\n            },\n \
+    \           \"showPoints\": \"never\",\n            \"spanNulls\": false,\n  \
+    \          \"stacking\": {\n              \"group\": \"A\",\n              \"\
+    mode\": \"normal\"\n            },\n            \"thresholdsStyle\": {\n     \
+    \         \"mode\": \"off\"\n            }\n          },\n          \"mappings\"\
+    : [],\n          \"min\": 0,\n          \"thresholds\": {\n            \"mode\"\
+    : \"absolute\",\n            \"steps\": [\n              {\n                \"\
+    color\": \"green\",\n                \"value\": null\n              }\n      \
+    \      ]\n          }\n        },\n        \"overrides\": [\n          {\n   \
+    \         \"matcher\": {\n              \"id\": \"byName\",\n              \"\
+    options\": \"all\"\n            },\n            \"properties\": [\n          \
+    \    {\n                \"id\": \"color\",\n                \"value\": {\n   \
+    \               \"fixedColor\": \"yellow\",\n                  \"mode\": \"fixed\"\
+    \n                }\n              }\n            ]\n          },\n          {\n\
+    \            \"matcher\": {\n              \"id\": \"byName\",\n             \
+    \ \"options\": \"l3-only\"\n            },\n            \"properties\": [\n  \
+    \            {\n                \"id\": \"color\",\n                \"value\"\
+    : {\n                  \"fixedColor\": \"orange\",\n                  \"mode\"\
+    : \"fixed\"\n                }\n              }\n            ]\n          },\n\
+    \          {\n            \"matcher\": {\n              \"id\": \"byName\",\n\
+    \              \"options\": \"l3-l4\"\n            },\n            \"properties\"\
+    : [\n              {\n                \"id\": \"color\",\n                \"value\"\
+    : {\n                  \"fixedColor\": \"green\",\n                  \"mode\"\
+    : \"fixed\"\n                }\n              }\n            ]\n          },\n\
+    \          {\n            \"matcher\": {\n              \"id\": \"byName\",\n\
+    \              \"options\": \"none\"\n            },\n            \"properties\"\
+    : [\n              {\n                \"id\": \"color\",\n                \"value\"\
+    : {\n                  \"fixedColor\": \"semi-dark-red\",\n                  \"\
+    mode\": \"fixed\"\n                }\n              }\n            ]\n       \
+    \   },\n          {\n            \"matcher\": {\n              \"id\": \"byRegexp\"\
+    ,\n              \"options\": \"l7/.*\"\n            },\n            \"properties\"\
+    : [\n              {\n                \"id\": \"color\",\n                \"value\"\
+    : {\n                  \"mode\": \"continuous-BlPu\"\n                }\n    \
+    \          }\n            ]\n          }\n        ]\n      },\n      \"gridPos\"\
+    : {\n        \"h\": 9,\n        \"w\": 12,\n        \"x\": 0,\n        \"y\":\
+    \ 0\n      },\n      \"id\": 2,\n      \"options\": {\n        \"legend\": {\n\
+    \          \"calcs\": [],\n          \"displayMode\": \"list\",\n          \"\
+    placement\": \"bottom\",\n          \"showLegend\": true\n        },\n       \
+    \ \"tooltip\": {\n          \"mode\": \"single\",\n          \"sort\": \"none\"\
+    \n        }\n      },\n      \"targets\": [\n        {\n          \"datasource\"\
+    : {\n            \"type\": \"prometheus\",\n            \"uid\": \"${DS_PROMETHEUS}\"\
+    \n          },\n          \"editorMode\": \"code\",\n          \"exemplar\": false,\n\
+    \          \"expr\": \"sum by (match) (rate(hubble_policy_verdicts_total{direction=\\\
+    \"ingress\\\", destination_namespace=~\\\"$namespace\\\", destination=~\\\"$workload\\\
+    \", source_namespace=~\\\"$other_namespace|\\\", source=~\\\"$other_workload\\\
+    \"}[$__rate_interval])) * 60\",\n          \"instant\": false,\n          \"legendFormat\"\
+    : \"{{match}}\",\n          \"range\": true,\n          \"refId\": \"A\"\n   \
+    \     }\n      ],\n      \"title\": \"Ingress Policy Verdict Rate per Minute by\
+    \ Match Type\",\n      \"type\": \"timeseries\"\n    },\n    {\n      \"datasource\"\
+    : {\n        \"type\": \"prometheus\",\n        \"uid\": \"${DS_PROMETHEUS}\"\n\
+    \      },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"color\"\
+    : {\n            \"mode\": \"palette-classic\"\n          },\n          \"custom\"\
+    : {\n            \"axisCenteredZero\": false,\n            \"axisColorMode\":\
+    \ \"text\",\n            \"axisLabel\": \"\",\n            \"axisPlacement\":\
+    \ \"auto\",\n            \"barAlignment\": 0,\n            \"drawStyle\": \"line\"\
+    ,\n            \"fillOpacity\": 100,\n            \"gradientMode\": \"none\",\n\
+    \            \"hideFrom\": {\n              \"legend\": false,\n             \
+    \ \"tooltip\": false,\n              \"viz\": false\n            },\n        \
+    \    \"lineInterpolation\": \"linear\",\n            \"lineWidth\": 0,\n     \
+    \       \"pointSize\": 5,\n            \"scaleDistribution\": {\n            \
+    \  \"type\": \"linear\"\n            },\n            \"showPoints\": \"never\"\
+    ,\n            \"spanNulls\": false,\n            \"stacking\": {\n          \
+    \    \"group\": \"A\",\n              \"mode\": \"normal\"\n            },\n \
+    \           \"thresholdsStyle\": {\n              \"mode\": \"off\"\n        \
+    \    }\n          },\n          \"mappings\": [],\n          \"thresholds\": {\n\
+    \            \"mode\": \"absolute\",\n            \"steps\": [\n             \
+    \ {\n                \"color\": \"green\",\n                \"value\": null\n\
+    \              }\n            ]\n          },\n          \"unit\": \"none\"\n\
+    \        },\n        \"overrides\": [\n          {\n            \"matcher\": {\n\
+    \              \"id\": \"byName\",\n              \"options\": \"all\"\n     \
+    \       },\n            \"properties\": [\n              {\n                \"\
+    id\": \"color\",\n                \"value\": {\n                  \"fixedColor\"\
+    : \"yellow\",\n                  \"mode\": \"fixed\"\n                }\n    \
+    \          }\n            ]\n          },\n          {\n            \"matcher\"\
+    : {\n              \"id\": \"byName\",\n              \"options\": \"l3-only\"\
+    \n            },\n            \"properties\": [\n              {\n           \
+    \     \"id\": \"color\",\n                \"value\": {\n                  \"fixedColor\"\
+    : \"orange\",\n                  \"mode\": \"fixed\"\n                }\n    \
+    \          }\n            ]\n          },\n          {\n            \"matcher\"\
+    : {\n              \"id\": \"byName\",\n              \"options\": \"l3-l4\"\n\
+    \            },\n            \"properties\": [\n              {\n            \
+    \    \"id\": \"color\",\n                \"value\": {\n                  \"fixedColor\"\
+    : \"green\",\n                  \"mode\": \"fixed\"\n                }\n     \
+    \         }\n            ]\n          },\n          {\n            \"matcher\"\
+    : {\n              \"id\": \"byName\",\n              \"options\": \"none\"\n\
+    \            },\n            \"properties\": [\n              {\n            \
+    \    \"id\": \"color\",\n                \"value\": {\n                  \"fixedColor\"\
+    : \"red\",\n                  \"mode\": \"fixed\"\n                }\n       \
+    \       }\n            ]\n          },\n          {\n            \"matcher\":\
+    \ {\n              \"id\": \"byRegexp\",\n              \"options\": \"l7/.*\"\
+    \n            },\n            \"properties\": [\n              {\n           \
+    \     \"id\": \"color\",\n                \"value\": {\n                  \"mode\"\
+    : \"continuous-BlPu\"\n                }\n              }\n            ]\n   \
+    \       }\n        ]\n      },\n      \"gridPos\": {\n        \"h\": 9,\n    \
+    \    \"w\": 12,\n        \"x\": 12,\n        \"y\": 0\n      },\n      \"id\"\
+    : 8,\n      \"options\": {\n        \"legend\": {\n          \"calcs\": [],\n\
+    \          \"displayMode\": \"list\",\n          \"placement\": \"bottom\",\n\
+    \          \"showLegend\": true\n        },\n        \"tooltip\": {\n        \
+    \  \"mode\": \"single\",\n          \"sort\": \"none\"\n        }\n      },\n\
+    \      \"pluginVersion\": \"9.0.1\",\n      \"targets\": [\n        {\n      \
+    \    \"datasource\": {\n            \"type\": \"prometheus\",\n            \"\
+    uid\": \"${DS_PROMETHEUS}\"\n          },\n          \"editorMode\": \"code\"\
+    ,\n          \"exemplar\": false,\n          \"expr\": \"sum by (match) (rate(hubble_policy_verdicts_total{direction=\\\
+    \"egress\\\", source_namespace=~\\\"$namespace\\\", source=~\\\"$workload\\\"\
+    , destination_namespace=~\\\"$other_namespace|\\\", destination=~\\\"$other_workload\\\
+    \"}[$__rate_interval])) * 60\",\n          \"instant\": false,\n          \"legendFormat\"\
+    : \"{{match}}\",\n          \"range\": true,\n          \"refId\": \"A\"\n   \
+    \     }\n      ],\n      \"title\": \"Egress Policy Verdict Rate per Minute by\
+    \ Match Type\",\n      \"type\": \"timeseries\"\n    },\n    {\n      \"datasource\"\
+    : {\n        \"type\": \"prometheus\",\n        \"uid\": \"${DS_PROMETHEUS}\"\n\
+    \      },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"color\"\
+    : {\n            \"fixedColor\": \"green\",\n            \"mode\": \"palette-classic\"\
+    \n          },\n          \"custom\": {\n            \"axisCenteredZero\": false,\n\
+    \            \"axisColorMode\": \"text\",\n            \"axisLabel\": \"\",\n\
+    \            \"axisPlacement\": \"auto\",\n            \"barAlignment\": 0,\n\
+    \            \"drawStyle\": \"line\",\n            \"fillOpacity\": 100,\n   \
+    \         \"gradientMode\": \"none\",\n            \"hideFrom\": {\n         \
+    \     \"legend\": false,\n              \"tooltip\": false,\n              \"\
+    viz\": false\n            },\n            \"lineInterpolation\": \"linear\",\n\
+    \            \"lineWidth\": 0,\n            \"pointSize\": 5,\n            \"\
+    scaleDistribution\": {\n              \"type\": \"linear\"\n            },\n \
+    \           \"showPoints\": \"never\",\n            \"spanNulls\": false,\n  \
+    \          \"stacking\": {\n              \"group\": \"A\",\n              \"\
+    mode\": \"normal\"\n            },\n            \"thresholdsStyle\": {\n     \
+    \         \"mode\": \"off\"\n            }\n          },\n          \"mappings\"\
+    : [],\n          \"min\": 0,\n          \"thresholds\": {\n            \"mode\"\
+    : \"absolute\",\n            \"steps\": [\n              {\n                \"\
+    color\": \"green\",\n                \"value\": null\n              }\n      \
+    \      ]\n          }\n        },\n        \"overrides\": [\n          {\n   \
+    \         \"matcher\": {\n              \"id\": \"byName\",\n              \"\
+    options\": \"redirected\"\n            },\n            \"properties\": [\n   \
+    \           {\n                \"id\": \"color\",\n                \"value\":\
+    \ {\n                  \"fixedColor\": \"yellow\",\n                  \"mode\"\
+    : \"fixed\"\n                }\n              }\n            ]\n          },\n\
+    \          {\n            \"matcher\": {\n              \"id\": \"byName\",\n\
+    \              \"options\": \"forwarded\"\n            },\n            \"properties\"\
+    : [\n              {\n                \"id\": \"color\",\n                \"value\"\
+    : {\n                  \"fixedColor\": \"green\",\n                  \"mode\"\
+    : \"fixed\"\n                }\n              }\n            ]\n          },\n\
+    \          {\n            \"matcher\": {\n              \"id\": \"byName\",\n\
+    \              \"options\": \"dropped\"\n            },\n            \"properties\"\
+    : [\n              {\n                \"id\": \"color\",\n                \"value\"\
+    : {\n                  \"fixedColor\": \"semi-dark-red\",\n                  \"\
+    mode\": \"fixed\"\n                }\n              }\n            ]\n       \
+    \   }\n        ]\n      },\n      \"gridPos\": {\n        \"h\": 9,\n        \"\
+    w\": 12,\n        \"x\": 0,\n        \"y\": 9\n      },\n      \"id\": 9,\n  \
+    \    \"options\": {\n        \"legend\": {\n          \"calcs\": [],\n       \
+    \   \"displayMode\": \"list\",\n          \"placement\": \"bottom\",\n       \
+    \   \"showLegend\": true\n        },\n        \"tooltip\": {\n          \"mode\"\
+    : \"single\",\n          \"sort\": \"none\"\n        }\n      },\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"${DS_PROMETHEUS}\"\n          },\n          \"editorMode\"\
+    : \"code\",\n          \"exemplar\": false,\n          \"expr\": \"sum by (action)\
+    \ (rate(hubble_policy_verdicts_total{direction=\\\"ingress\\\", destination_namespace=~\\\
+    \"$namespace\\\", destination=~\\\"$workload\\\", source_namespace=~\\\"$other_namespace|\\\
+    \", source=~\\\"$other_workload\\\"}[$__rate_interval])) * 60\",\n          \"\
+    instant\": false,\n          \"legendFormat\": \"{{action}}\",\n          \"range\"\
+    : true,\n          \"refId\": \"A\"\n        }\n      ],\n      \"title\": \"\
+    Ingress Policy Verdict Rate per Minute by Action\",\n      \"type\": \"timeseries\"\
+    \n    },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n\
+    \        \"uid\": \"${DS_PROMETHEUS}\"\n      },\n      \"fieldConfig\": {\n \
+    \       \"defaults\": {\n          \"color\": {\n            \"mode\": \"palette-classic\"\
+    \n          },\n          \"custom\": {\n            \"axisCenteredZero\": false,\n\
+    \            \"axisColorMode\": \"text\",\n            \"axisLabel\": \"\",\n\
+    \            \"axisPlacement\": \"auto\",\n            \"barAlignment\": 0,\n\
+    \            \"drawStyle\": \"line\",\n            \"fillOpacity\": 100,\n   \
+    \         \"gradientMode\": \"none\",\n            \"hideFrom\": {\n         \
+    \     \"legend\": false,\n              \"tooltip\": false,\n              \"\
+    viz\": false\n            },\n            \"lineInterpolation\": \"linear\",\n\
+    \            \"lineWidth\": 0,\n            \"pointSize\": 5,\n            \"\
+    scaleDistribution\": {\n              \"type\": \"linear\"\n            },\n \
+    \           \"showPoints\": \"never\",\n            \"spanNulls\": false,\n  \
+    \          \"stacking\": {\n              \"group\": \"A\",\n              \"\
+    mode\": \"normal\"\n            },\n            \"thresholdsStyle\": {\n     \
+    \         \"mode\": \"off\"\n            }\n          },\n          \"mappings\"\
+    : [],\n          \"thresholds\": {\n            \"mode\": \"absolute\",\n    \
+    \        \"steps\": [\n              {\n                \"color\": \"green\",\n\
+    \                \"value\": null\n              }\n            ]\n          },\n\
+    \          \"unit\": \"none\"\n        },\n        \"overrides\": [\n        \
+    \  {\n            \"matcher\": {\n              \"id\": \"byName\",\n        \
+    \      \"options\": \"redirected\"\n            },\n            \"properties\"\
+    : [\n              {\n                \"id\": \"color\",\n                \"value\"\
+    : {\n                  \"fixedColor\": \"yellow\",\n                  \"mode\"\
+    : \"fixed\"\n                }\n              }\n            ]\n          },\n\
+    \          {\n            \"matcher\": {\n              \"id\": \"byName\",\n\
+    \              \"options\": \"forwarded\"\n            },\n            \"properties\"\
+    : [\n              {\n                \"id\": \"color\",\n                \"value\"\
+    : {\n                  \"fixedColor\": \"green\",\n                  \"mode\"\
+    : \"fixed\"\n                }\n              }\n            ]\n          },\n\
+    \          {\n            \"matcher\": {\n              \"id\": \"byName\",\n\
+    \              \"options\": \"dropped\"\n            },\n            \"properties\"\
+    : [\n              {\n                \"id\": \"color\",\n                \"value\"\
+    : {\n                  \"fixedColor\": \"red\",\n                  \"mode\": \"\
+    fixed\"\n                }\n              }\n            ]\n          }\n    \
+    \    ]\n      },\n      \"gridPos\": {\n        \"h\": 9,\n        \"w\": 12,\n\
+    \        \"x\": 12,\n        \"y\": 9\n      },\n      \"id\": 10,\n      \"options\"\
+    : {\n        \"legend\": {\n          \"calcs\": [],\n          \"displayMode\"\
+    : \"list\",\n          \"placement\": \"bottom\",\n          \"showLegend\": true\n\
+    \        },\n        \"tooltip\": {\n          \"mode\": \"single\",\n       \
+    \   \"sort\": \"none\"\n        }\n      },\n      \"pluginVersion\": \"9.0.1\"\
+    ,\n      \"targets\": [\n        {\n          \"datasource\": {\n            \"\
+    type\": \"prometheus\",\n            \"uid\": \"${DS_PROMETHEUS}\"\n         \
+    \ },\n          \"editorMode\": \"code\",\n          \"exemplar\": false,\n  \
+    \        \"expr\": \"sum by (action) (rate(hubble_policy_verdicts_total{direction=\\\
+    \"egress\\\", source_namespace=~\\\"$namespace\\\", source=~\\\"$workload\\\"\
+    , destination_namespace=~\\\"$other_namespace|\\\", destination=~\\\"$other_workload\\\
+    \"}[$__rate_interval])) * 60\",\n          \"instant\": false,\n          \"legendFormat\"\
+    : \"{{action}}\",\n          \"range\": true,\n          \"refId\": \"A\"\n  \
+    \      }\n      ],\n      \"title\": \"Egress Policy Verdict Rate per Minute by\
+    \ Action\",\n      \"type\": \"timeseries\"\n    },\n    {\n      \"datasource\"\
+    : {\n        \"type\": \"prometheus\",\n        \"uid\": \"${DS_PROMETHEUS}\"\n\
+    \      },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"color\"\
+    : {\n            \"mode\": \"thresholds\"\n          },\n          \"custom\"\
+    : {\n            \"align\": \"auto\",\n            \"displayMode\": \"auto\",\n\
+    \            \"inspect\": false\n          },\n          \"mappings\": [],\n \
+    \         \"min\": 0,\n          \"thresholds\": {\n            \"mode\": \"absolute\"\
+    ,\n            \"steps\": [\n              {\n                \"color\": \"green\"\
+    ,\n                \"value\": null\n              },\n              {\n      \
+    \          \"color\": \"red\",\n                \"value\": 80\n              }\n\
+    \            ]\n          }\n        },\n        \"overrides\": []\n      },\n\
+    \      \"gridPos\": {\n        \"h\": 11,\n        \"w\": 12,\n        \"x\":\
+    \ 0,\n        \"y\": 18\n      },\n      \"id\": 6,\n      \"options\": {\n  \
+    \      \"footer\": {\n          \"enablePagination\": false,\n          \"fields\"\
+    : \"\",\n          \"reducer\": [\n            \"sum\"\n          ],\n       \
+    \   \"show\": false\n        },\n        \"showHeader\": true,\n        \"sortBy\"\
+    : [\n          {\n            \"desc\": true,\n            \"displayName\": \"\
+    Value\"\n          }\n        ]\n      },\n      \"pluginVersion\": \"9.3.1\"\
+    ,\n      \"targets\": [\n        {\n          \"datasource\": {\n            \"\
+    type\": \"prometheus\",\n            \"uid\": \"${DS_PROMETHEUS}\"\n         \
+    \ },\n          \"editorMode\": \"code\",\n          \"exemplar\": false,\n  \
+    \        \"expr\": \"sum by (source_namespace, source, destination_namespace,\
+    \ destination, match, action) (rate(hubble_policy_verdicts_total{direction=\\\"\
+    ingress\\\", destination_namespace=~\\\"$namespace\\\", destination=~\\\"$workload\\\
+    \", source_namespace=~\\\"$other_namespace|\\\", source=~\\\"$other_workload\\\
+    \"}[$__rate_interval])) * 60\",\n          \"format\": \"table\",\n          \"\
+    instant\": true,\n          \"legendFormat\": \"source: {{source_namespace}}/{{source}}\
+    \ destination: {{destination_namespace}}/{{destination}} match: {{match}} action:\
+    \ {{action}}\",\n          \"range\": false,\n          \"refId\": \"A\"\n   \
+    \     }\n      ],\n      \"title\": \"Current Ingress Policy Verdict Rate Per\
+    \ Minute\",\n      \"transformations\": [\n        {\n          \"id\": \"filterByValue\"\
+    ,\n          \"options\": {\n            \"filters\": [\n              {\n   \
+    \             \"config\": {\n                  \"id\": \"equal\",\n          \
+    \        \"options\": {\n                    \"value\": \"\"\n               \
+    \   }\n                },\n                \"fieldName\": \"Value\"\n        \
+    \      }\n            ],\n            \"match\": \"all\",\n            \"type\"\
+    : \"exclude\"\n          }\n        },\n        {\n          \"id\": \"organize\"\
+    ,\n          \"options\": {\n            \"excludeByName\": {\n              \"\
+    Time\": true,\n              \"container\": true,\n              \"destination\"\
+    : false,\n              \"direction\": true,\n              \"endpoint\": true,\n\
+    \              \"instance\": true,\n              \"job\": true,\n           \
+    \   \"namespace\": true,\n              \"node\": true,\n              \"pod\"\
+    : true,\n              \"service\": true\n            },\n            \"indexByName\"\
+    : {\n              \"Time\": 0,\n              \"Value\": 7,\n              \"\
+    action\": 6,\n              \"destination\": 4,\n              \"destination_namespace\"\
+    : 3,\n              \"match\": 5,\n              \"source\": 2,\n            \
+    \  \"source_namespace\": 1\n            },\n            \"renameByName\": {\n\
+    \              \"destination_namespace\": \"destination namespace\",\n       \
+    \       \"source_namespace\": \"source namespace\"\n            }\n          }\n\
+    \        }\n      ],\n      \"type\": \"table\"\n    },\n    {\n      \"datasource\"\
+    : {\n        \"type\": \"prometheus\",\n        \"uid\": \"${DS_PROMETHEUS}\"\n\
+    \      },\n      \"description\": \"\",\n      \"fieldConfig\": {\n        \"\
+    defaults\": {\n          \"color\": {\n            \"mode\": \"thresholds\"\n\
+    \          },\n          \"custom\": {\n            \"align\": \"auto\",\n   \
+    \         \"displayMode\": \"auto\",\n            \"inspect\": false\n       \
+    \   },\n          \"mappings\": [],\n          \"min\": 0,\n          \"thresholds\"\
+    : {\n            \"mode\": \"absolute\",\n            \"steps\": [\n         \
+    \     {\n                \"color\": \"green\",\n                \"value\": null\n\
+    \              },\n              {\n                \"color\": \"red\",\n    \
+    \            \"value\": 80\n              }\n            ]\n          }\n    \
+    \    },\n        \"overrides\": []\n      },\n      \"gridPos\": {\n        \"\
+    h\": 11,\n        \"w\": 12,\n        \"x\": 12,\n        \"y\": 18\n      },\n\
+    \      \"id\": 7,\n      \"options\": {\n        \"footer\": {\n          \"enablePagination\"\
+    : false,\n          \"fields\": \"\",\n          \"reducer\": [\n            \"\
+    sum\"\n          ],\n          \"show\": false\n        },\n        \"showHeader\"\
+    : true,\n        \"sortBy\": [\n          {\n            \"desc\": true,\n   \
+    \         \"displayName\": \"Value\"\n          }\n        ]\n      },\n     \
+    \ \"pluginVersion\": \"9.3.1\",\n      \"targets\": [\n        {\n          \"\
+    datasource\": {\n            \"type\": \"prometheus\",\n            \"uid\": \"\
+    ${DS_PROMETHEUS}\"\n          },\n          \"editorMode\": \"code\",\n      \
+    \    \"exemplar\": false,\n          \"expr\": \"sum by (destination_namespace,\
+    \ destination, source_namespace, source, match, action) (rate(hubble_policy_verdicts_total{direction=\\\
+    \"egress\\\", source_namespace=~\\\"$namespace\\\", source=~\\\"$workload\\\"\
+    , destination_namespace=~\\\"$other_namespace|\\\", destination=~\\\"$other_workload\\\
+    \"}[$__rate_interval])) * 60\",\n          \"format\": \"table\",\n          \"\
+    instant\": true,\n          \"legendFormat\": \"destination: {{destination_namespace}}/{{destination}}\
+    \ source:  {{source_namespace}}/{{source}} match: {{match}} action: {{action}}\"\
+    ,\n          \"range\": false,\n          \"refId\": \"A\"\n        }\n      ],\n\
+    \      \"title\": \"Current Egress Policy Verdict Rate Per Minute\",\n      \"\
+    transformations\": [\n        {\n          \"id\": \"filterByValue\",\n      \
+    \    \"options\": {\n            \"filters\": [\n              {\n           \
+    \     \"config\": {\n                  \"id\": \"equal\",\n                  \"\
+    options\": {\n                    \"value\": \"\"\n                  }\n     \
+    \           },\n                \"fieldName\": \"Value\"\n              }\n  \
+    \          ],\n            \"match\": \"all\",\n            \"type\": \"exclude\"\
+    \n          }\n        },\n        {\n          \"id\": \"organize\",\n      \
+    \    \"options\": {\n            \"excludeByName\": {\n              \"Time\"\
+    : true,\n              \"container\": true,\n              \"destination\": false,\n\
+    \              \"direction\": true,\n              \"endpoint\": true,\n     \
+    \         \"instance\": true,\n              \"job\": true,\n              \"\
+    namespace\": true,\n              \"node\": true,\n              \"pod\": true,\n\
+    \              \"service\": true,\n              \"source\": false\n         \
+    \   },\n            \"indexByName\": {\n              \"Time\": 0,\n         \
+    \     \"Value\": 7,\n              \"action\": 6,\n              \"destination\"\
+    : 2,\n              \"destination_namespace\": 1,\n              \"match\": 5,\n\
+    \              \"source\": 4,\n              \"source_namespace\": 3\n       \
+    \     },\n            \"renameByName\": {\n              \"Time\": \"\",\n   \
+    \           \"destination_namespace\": \"destination namespace\",\n          \
+    \    \"source_namespace\": \"source namespace\"\n            }\n          }\n\
+    \        }\n      ],\n      \"type\": \"table\"\n    }\n  ],\n  \"refresh\": \"\
+    5s\",\n  \"schemaVersion\": 37,\n  \"style\": \"dark\",\n  \"tags\": [],\n  \"\
+    templating\": {\n    \"list\": [\n      {\n        \"current\": {},\n        \"\
+    datasource\": {\n          \"type\": \"prometheus\",\n          \"uid\": \"${DS_PROMETHEUS}\"\
+    \n        },\n        \"definition\": \"query_result(hubble_policy_verdicts_total)\"\
+    ,\n        \"description\": \"The Kubernetes namespace the Network Policies apply\
+    \ to\",\n        \"hide\": 0,\n        \"includeAll\": true,\n        \"multi\"\
+    : true,\n        \"name\": \"namespace\",\n        \"options\": [],\n        \"\
+    query\": {\n          \"query\": \"query_result(hubble_policy_verdicts_total)\"\
+    ,\n          \"refId\": \"StandardVariableQuery\"\n        },\n        \"refresh\"\
+    : 2,\n        \"regex\": \"/.*namespace=\\\"([^\\\"]+)\\\".*/\",\n        \"skipUrlSync\"\
+    : false,\n        \"sort\": 1,\n        \"type\": \"query\"\n      },\n      {\n\
+    \        \"current\": {},\n        \"datasource\": {\n          \"type\": \"prometheus\"\
+    ,\n          \"uid\": \"${DS_PROMETHEUS}\"\n        },\n        \"definition\"\
+    : \"query_result(label_replace(hubble_policy_verdicts_total{direction=\\\"ingress\\\
+    \", destination_namespace=~\\\"$namespace\\\"}, \\\"workload\\\", \\\"$1\\\",\
+    \ \\\"destination\\\", \\\"(.+)\\\") OR label_replace(hubble_policy_verdicts_total{direction=\\\
+    \"egress\\\", source_namespace=~\\\"$namespace\\\"}, \\\"workload\\\", \\\"$1\\\
+    \", \\\"source\\\", \\\"(.+)\\\"))\",\n        \"description\": \"The Kubernetes\
+    \ workload the Network Policies apply to\",\n        \"hide\": 0,\n        \"\
+    includeAll\": true,\n        \"multi\": true,\n        \"name\": \"workload\"\
+    ,\n        \"options\": [],\n        \"query\": {\n          \"query\": \"query_result(label_replace(hubble_policy_verdicts_total{direction=\\\
+    \"ingress\\\", destination_namespace=~\\\"$namespace\\\"}, \\\"workload\\\", \\\
+    \"$1\\\", \\\"destination\\\", \\\"(.+)\\\") OR label_replace(hubble_policy_verdicts_total{direction=\\\
+    \"egress\\\", source_namespace=~\\\"$namespace\\\"}, \\\"workload\\\", \\\"$1\\\
+    \", \\\"source\\\", \\\"(.+)\\\"))\",\n          \"refId\": \"StandardVariableQuery\"\
+    \n        },\n        \"refresh\": 2,\n        \"regex\": \"/.*workload=\\\"([^\\\
+    \"]+)\\\".*/\",\n        \"skipUrlSync\": false,\n        \"sort\": 1,\n     \
+    \   \"type\": \"query\"\n      },\n      {\n        \"current\": {},\n       \
+    \ \"datasource\": {\n          \"type\": \"prometheus\",\n          \"uid\": \"\
+    ${DS_PROMETHEUS}\"\n        },\n        \"definition\": \"query_result(label_replace(hubble_policy_verdicts_total{direction=\\\
+    \"ingress\\\", destination_namespace=~\\\"$namespace\\\", destination=~\\\"$workload\\\
+    \"}, \\\"other_namespace\\\", \\\"$1\\\", \\\"source_namespace\\\", \\\"(.+)\\\
+    \") OR label_replace(hubble_policy_verdicts_total{direction=\\\"egress\\\", source_namespace=~\\\
+    \"$namespace\\\", source=~\\\"$workload\\\"}, \\\"other_namespace\\\", \\\"$1\\\
+    \", \\\"destination_namespace\\\", \\\"(.+)\\\"))\",\n        \"description\"\
+    : \"The non-targeted Kubernetes namespace (source for Ingress, destination for\
+    \ Egress)\",\n        \"hide\": 0,\n        \"includeAll\": true,\n        \"\
+    label\": \"other namespace\",\n        \"multi\": true,\n        \"name\": \"\
+    other_namespace\",\n        \"options\": [],\n        \"query\": {\n         \
+    \ \"query\": \"query_result(label_replace(hubble_policy_verdicts_total{direction=\\\
+    \"ingress\\\", destination_namespace=~\\\"$namespace\\\", destination=~\\\"$workload\\\
+    \"}, \\\"other_namespace\\\", \\\"$1\\\", \\\"source_namespace\\\", \\\"(.+)\\\
+    \") OR label_replace(hubble_policy_verdicts_total{direction=\\\"egress\\\", source_namespace=~\\\
+    \"$namespace\\\", source=~\\\"$workload\\\"}, \\\"other_namespace\\\", \\\"$1\\\
+    \", \\\"destination_namespace\\\", \\\"(.+)\\\"))\",\n          \"refId\": \"\
+    StandardVariableQuery\"\n        },\n        \"refresh\": 2,\n        \"regex\"\
+    : \"/.*other_namespace=\\\"([^\\\"]+)\\\".*/\",\n        \"skipUrlSync\": false,\n\
+    \        \"sort\": 1,\n        \"type\": \"query\"\n      },\n      {\n      \
+    \  \"current\": {},\n        \"datasource\": {\n          \"type\": \"prometheus\"\
+    ,\n          \"uid\": \"${DS_PROMETHEUS}\"\n        },\n        \"definition\"\
+    : \"query_result(label_replace(hubble_policy_verdicts_total{direction=\\\"ingress\\\
+    \", destination_namespace=~\\\"$namespace\\\",  destination=~\\\"$workload\\\"\
+    , source_namespace=~\\\"$other_namespace|\\\"}, \\\"workload\\\", \\\"$1\\\",\
+    \ \\\"source\\\", \\\"(.+)\\\") OR label_replace(hubble_policy_verdicts_total{direction=\\\
+    \"egress\\\", source_namespace=~\\\"$namespace\\\",  source=~\\\"$workload\\\"\
+    , destination_namespace=~\\\"$other_namespace|\\\"}, \\\"workload\\\", \\\"$1\\\
+    \", \\\"destination\\\", \\\"(.+)\\\"))\",\n        \"description\": \"The non-targeted\
+    \ Kubernetes workload (source for Ingress, destination for Egress)\",\n      \
+    \  \"hide\": 0,\n        \"includeAll\": true,\n        \"label\": \"other workload\"\
+    ,\n        \"multi\": true,\n        \"name\": \"other_workload\",\n        \"\
+    options\": [],\n        \"query\": {\n          \"query\": \"query_result(label_replace(hubble_policy_verdicts_total{direction=\\\
+    \"ingress\\\", destination_namespace=~\\\"$namespace\\\",  destination=~\\\"$workload\\\
+    \", source_namespace=~\\\"$other_namespace|\\\"}, \\\"workload\\\", \\\"$1\\\"\
+    , \\\"source\\\", \\\"(.+)\\\") OR label_replace(hubble_policy_verdicts_total{direction=\\\
+    \"egress\\\", source_namespace=~\\\"$namespace\\\",  source=~\\\"$workload\\\"\
+    , destination_namespace=~\\\"$other_namespace|\\\"}, \\\"workload\\\", \\\"$1\\\
+    \", \\\"destination\\\", \\\"(.+)\\\"))\",\n          \"refId\": \"StandardVariableQuery\"\
+    \n        },\n        \"refresh\": 2,\n        \"regex\": \"/.*workload=\\\"([^\\\
+    \"]+)\\\".*/\",\n        \"skipUrlSync\": false,\n        \"sort\": 1,\n     \
+    \   \"type\": \"query\"\n      }\n    ]\n  },\n  \"time\": {\n    \"from\": \"\
+    now-6h\",\n    \"to\": \"now\"\n  },\n  \"timepicker\": {},\n  \"timezone\": \"\
+    \",\n  \"title\": \"Cilium Policy Verdicts\",\n  \"uid\": \"nLIA2E37k\",\n  \"\
+    version\": 1,\n  \"weekStart\": \"\",\n  \"gnetId\": 18015,\n  \"tz\": {}\n}"

@@ -1,0 +1,1111 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-10016
+  namespace: kube-prometheus
+  labels:
+    grafana_dashboard: '1'
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: observability
+data:
+  dashboard.json: "{\n  \"__inputs\": [\n    {\n      \"name\": \"DS_PROMETHEUS\"\
+    ,\n      \"label\": \"Prometheus\",\n      \"description\": \"\",\n      \"type\"\
+    : \"datasource\",\n      \"pluginId\": \"prometheus\",\n      \"pluginName\":\
+    \ \"Prometheus\"\n    }\n  ],\n  \"__requires\": [\n    {\n      \"type\": \"\
+    grafana\",\n      \"id\": \"grafana\",\n      \"name\": \"Grafana\",\n      \"\
+    version\": \"5.1.3\"\n    },\n    {\n      \"type\": \"panel\",\n      \"id\"\
+    : \"graph\",\n      \"name\": \"Graph\",\n      \"version\": \"5.0.0\"\n    },\n\
+    \    {\n      \"type\": \"datasource\",\n      \"id\": \"prometheus\",\n     \
+    \ \"name\": \"Prometheus\",\n      \"version\": \"5.0.0\"\n    },\n    {\n   \
+    \   \"type\": \"panel\",\n      \"id\": \"text\",\n      \"name\": \"Text\",\n\
+    \      \"version\": \"5.0.0\"\n    }\n  ],\n  \"annotations\": {\n    \"list\"\
+    : [\n      {\n        \"builtIn\": 1,\n        \"datasource\": \"-- Grafana --\"\
+    ,\n        \"enable\": true,\n        \"hide\": false,\n        \"iconColor\"\
+    : \"#e0752d\",\n        \"limit\": 100,\n        \"name\": \"PMM Annotations\"\
+    ,\n        \"showIn\": 0,\n        \"tags\": [\n          \"pmm_annotation\"\n\
+    \        ],\n        \"type\": \"tags\"\n      }\n    ]\n  },\n  \"editable\"\
+    : true,\n  \"gnetId\": 10016,\n  \"graphTooltip\": 1,\n  \"id\": null,\n  \"iteration\"\
+    : 1554789731189,\n  \"links\": [\n    {\n      \"icon\": \"dashboard\",\n    \
+    \  \"includeVars\": true,\n      \"keepTime\": true,\n      \"tags\": [\n    \
+    \    \"QAN\"\n      ],\n      \"targetBlank\": false,\n      \"title\": \"Query\
+    \ Analytics\",\n      \"type\": \"link\",\n      \"url\": \"/graph/dashboard/db/_pmm-query-analytics\"\
+    \n    },\n    {\n      \"asDropdown\": true,\n      \"includeVars\": true,\n \
+    \     \"keepTime\": true,\n      \"tags\": [\n        \"OS\"\n      ],\n     \
+    \ \"targetBlank\": false,\n      \"title\": \"OS\",\n      \"type\": \"dashboards\"\
+    \n    },\n    {\n      \"asDropdown\": true,\n      \"includeVars\": true,\n \
+    \     \"keepTime\": true,\n      \"tags\": [\n        \"MySQL\"\n      ],\n  \
+    \    \"targetBlank\": false,\n      \"title\": \"MySQL\",\n      \"type\": \"\
+    dashboards\"\n    },\n    {\n      \"asDropdown\": true,\n      \"includeVars\"\
+    : true,\n      \"keepTime\": true,\n      \"tags\": [\n        \"MongoDB\"\n \
+    \     ],\n      \"targetBlank\": false,\n      \"title\": \"MongoDB\",\n     \
+    \ \"type\": \"dashboards\"\n    },\n    {\n      \"asDropdown\": true,\n     \
+    \ \"includeVars\": true,\n      \"keepTime\": true,\n      \"tags\": [\n     \
+    \   \"PostgreSQL\"\n      ],\n      \"targetBlank\": false,\n      \"title\":\
+    \ \"PostgreSQL\",\n      \"type\": \"dashboards\"\n    },\n    {\n      \"asDropdown\"\
+    : true,\n      \"includeVars\": true,\n      \"keepTime\": true,\n      \"tags\"\
+    : [\n        \"HA\"\n      ],\n      \"targetBlank\": false,\n      \"title\"\
+    : \"HA\",\n      \"type\": \"dashboards\"\n    },\n    {\n      \"asDropdown\"\
+    : true,\n      \"includeVars\": true,\n      \"keepTime\": true,\n      \"tags\"\
+    : [\n        \"Cloud\"\n      ],\n      \"targetBlank\": false,\n      \"title\"\
+    : \"Cloud\",\n      \"type\": \"dashboards\"\n    },\n    {\n      \"asDropdown\"\
+    : true,\n      \"includeVars\": true,\n      \"keepTime\": true,\n      \"tags\"\
+    : [\n        \"Insight\"\n      ],\n      \"targetBlank\": false,\n      \"title\"\
+    : \"Insight\",\n      \"type\": \"dashboards\"\n    },\n    {\n      \"asDropdown\"\
+    : true,\n      \"includeVars\": true,\n      \"keepTime\": true,\n      \"tags\"\
+    : [\n        \"PMM\"\n      ],\n      \"targetBlank\": false,\n      \"title\"\
+    : \"PMM\",\n      \"type\": \"dashboards\"\n    }\n  ],\n  \"panels\": [\n   \
+    \ {\n      \"content\": \"<h1><i><font color=#5991A7><b><center>Data for </font><font\
+    \ color=#e68a00>$host</font> <font color=#5991A7> with</font> </font><font color=#e68a00>$interval</font>\
+    \ <font color=#5991A7>resolution</center></b></font></i></h1><br>\",\n      \"\
+    gridPos\": {\n        \"h\": 3,\n        \"w\": 24,\n        \"x\": 0,\n     \
+    \   \"y\": 0\n      },\n      \"id\": 51,\n      \"links\": [],\n      \"mode\"\
+    : \"html\",\n      \"title\": \"\",\n      \"type\": \"text\"\n    },\n    {\n\
+    \      \"collapsed\": false,\n      \"gridPos\": {\n        \"h\": 1,\n      \
+    \  \"w\": 24,\n        \"x\": 0,\n        \"y\": 3\n      },\n      \"id\": 18,\n\
+    \      \"panels\": [],\n      \"repeat\": null,\n      \"title\": \"$host Statistic\"\
+    ,\n      \"type\": \"row\"\n    },\n    {\n      \"aliasColors\": {},\n      \"\
+    bars\": false,\n      \"dashLength\": 10,\n      \"dashes\": false,\n      \"\
+    datasource\": \"${DS_PROMETHEUS}\",\n      \"decimals\": 2,\n      \"editable\"\
+    : true,\n      \"error\": false,\n      \"fill\": 0,\n      \"grid\": {},\n  \
+    \    \"gridPos\": {\n        \"h\": 7,\n        \"w\": 24,\n        \"x\": 0,\n\
+    \        \"y\": 4\n      },\n      \"height\": \"400px\",\n      \"id\": 16,\n\
+    \      \"legend\": {\n        \"alignAsTable\": true,\n        \"avg\": true,\n\
+    \        \"current\": false,\n        \"hideEmpty\": true,\n        \"hideZero\"\
+    : true,\n        \"max\": true,\n        \"min\": true,\n        \"rightSide\"\
+    : true,\n        \"show\": true,\n        \"sort\": \"avg\",\n        \"sortDesc\"\
+    : true,\n        \"total\": false,\n        \"values\": true\n      },\n     \
+    \ \"lines\": true,\n      \"linewidth\": 2,\n      \"links\": [],\n      \"minSpan\"\
+    : null,\n      \"nullPointMode\": \"null\",\n      \"percentage\": false,\n  \
+    \    \"pointradius\": 5,\n      \"points\": false,\n      \"renderer\": \"flot\"\
+    ,\n      \"seriesOverrides\": [],\n      \"spaceLength\": 10,\n      \"stack\"\
+    : false,\n      \"steppedLine\": false,\n      \"targets\": [\n        {\n   \
+    \       \"dsType\": \"influxdb\",\n          \"expr\": \"rate(pg_stat_database_tup_deleted{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[$interval]) or\\nirate(pg_stat_database_tup_deleted{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[5m])\",\n          \"format\": \"time_series\"\
+    ,\n          \"groupBy\": [\n            {\n              \"params\": [\n    \
+    \            \"$interval\"\n              ],\n              \"type\": \"time\"\
+    \n            },\n            {\n              \"params\": [\n               \
+    \ \"null\"\n              ],\n              \"type\": \"fill\"\n            }\n\
+    \          ],\n          \"interval\": \"$interval\",\n          \"intervalFactor\"\
+    : 1,\n          \"legendFormat\": \"{{datname}} - Deletes\",\n          \"metric\"\
+    : \"\",\n          \"policy\": \"default\",\n          \"refId\": \"A\",\n   \
+    \       \"resultFormat\": \"time_series\",\n          \"select\": [\n        \
+    \    [\n              {\n                \"params\": [\n                  \"value\"\
+    \n                ],\n                \"type\": \"field\"\n              },\n\
+    \              {\n                \"params\": [],\n                \"type\": \"\
+    mean\"\n              }\n            ]\n          ],\n          \"step\": 60,\n\
+    \          \"tags\": []\n        },\n        {\n          \"expr\": \"rate(pg_stat_database_tup_inserted{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[$interval]) or\\nirate(pg_stat_database_tup_inserted{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[5m])\",\n          \"format\": \"time_series\"\
+    ,\n          \"interval\": \"$interval\",\n          \"intervalFactor\": 1,\n\
+    \          \"legendFormat\": \"{{datname}} - Inserts\",\n          \"refId\":\
+    \ \"B\",\n          \"step\": 60\n        },\n        {\n          \"expr\": \"\
+    rate(pg_stat_database_tup_updated{instance=\\\"$host\\\",datname=~\\\"$db\\\"\
+    }[$interval]) or\\nirate(pg_stat_database_tup_updated{instance=\\\"$host\\\",datname=~\\\
+    \"$db\\\"}[5m])\",\n          \"format\": \"time_series\",\n          \"interval\"\
+    : \"$interval\",\n          \"intervalFactor\": 1,\n          \"legendFormat\"\
+    : \"{{datname}} - Updates\",\n          \"refId\": \"D\",\n          \"step\"\
+    : 60\n        },\n        {\n          \"expr\": \"rate(pg_stat_database_tup_fetched{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[$interval]) or\\nirate(pg_stat_database_tup_fetched{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[5m])\",\n          \"format\": \"time_series\"\
+    ,\n          \"interval\": \"$interval\",\n          \"intervalFactor\": 1,\n\
+    \          \"legendFormat\": \"{{datname}} - Reads\",\n          \"refId\": \"\
+    C\"\n        },\n        {\n          \"expr\": \"rate(pg_stat_database_tup_returned{datname=~\\\
+    \"$db\\\",instance=\\\"$host\\\"}[$interval]) or\\nirate(pg_stat_database_tup_returned{datname=~\\\
+    \"$db\\\",instance=\\\"$host\\\"}[5m])\",\n          \"format\": \"time_series\"\
+    ,\n          \"interval\": \"$interval\",\n          \"intervalFactor\": 1,\n\
+    \          \"legendFormat\": \"{{datname}} - Returns\",\n          \"refId\":\
+    \ \"E\"\n        }\n      ],\n      \"thresholds\": [],\n      \"timeFrom\": null,\n\
+    \      \"timeRegions\": [],\n      \"timeShift\": null,\n      \"title\": \"Total\
+    \ Tuple Operations\",\n      \"tooltip\": {\n        \"msResolution\": false,\n\
+    \        \"shared\": true,\n        \"sort\": 0,\n        \"value_type\": \"cumulative\"\
+    \n      },\n      \"transparent\": false,\n      \"type\": \"graph\",\n      \"\
+    xaxis\": {\n        \"buckets\": null,\n        \"mode\": \"time\",\n        \"\
+    name\": null,\n        \"show\": true,\n        \"values\": []\n      },\n   \
+    \   \"yaxes\": [\n        {\n          \"decimals\": 2,\n          \"format\"\
+    : \"ops\",\n          \"label\": null,\n          \"logBase\": 2,\n          \"\
+    max\": null,\n          \"min\": null,\n          \"show\": true\n        },\n\
+    \        {\n          \"format\": \"short\",\n          \"label\": null,\n   \
+    \       \"logBase\": 1,\n          \"max\": null,\n          \"min\": null,\n\
+    \          \"show\": false\n        }\n      ],\n      \"yaxis\": {\n        \"\
+    align\": false,\n        \"alignLevel\": null\n      }\n    },\n    {\n      \"\
+    collapsed\": true,\n      \"gridPos\": {\n        \"h\": 1,\n        \"w\": 24,\n\
+    \        \"x\": 0,\n        \"y\": 11\n      },\n      \"id\": 19,\n      \"panels\"\
+    : [\n        {\n          \"aliasColors\": {},\n          \"bars\": false,\n \
+    \         \"dashLength\": 10,\n          \"dashes\": false,\n          \"datasource\"\
+    : \"Prometheus\",\n          \"decimals\": 2,\n          \"editable\": true,\n\
+    \          \"error\": false,\n          \"fill\": 2,\n          \"grid\": {},\n\
+    \          \"gridPos\": {\n            \"h\": 7,\n            \"w\": 24,\n   \
+    \         \"x\": 0,\n            \"y\": 12\n          },\n          \"height\"\
+    : \"400px\",\n          \"id\": 9,\n          \"legend\": {\n            \"alignAsTable\"\
+    : true,\n            \"avg\": true,\n            \"current\": false,\n       \
+    \     \"hideEmpty\": false,\n            \"hideZero\": false,\n            \"\
+    max\": true,\n            \"min\": true,\n            \"rightSide\": true,\n \
+    \           \"show\": true,\n            \"sort\": \"avg\",\n            \"sortDesc\"\
+    : true,\n            \"total\": false,\n            \"values\": true\n       \
+    \   },\n          \"lines\": true,\n          \"linewidth\": 2,\n          \"\
+    links\": [],\n          \"nullPointMode\": \"null\",\n          \"percentage\"\
+    : false,\n          \"pointradius\": 5,\n          \"points\": false,\n      \
+    \    \"renderer\": \"flot\",\n          \"seriesOverrides\": [],\n          \"\
+    spaceLength\": 10,\n          \"stack\": false,\n          \"steppedLine\": false,\n\
+    \          \"targets\": [\n            {\n              \"dsType\": \"influxdb\"\
+    ,\n              \"expr\": \"rate(pg_stat_user_tables_idx_tup_fetch{instance=\\\
+    \"$host\\\", datname=~\\\"$db\\\"}[$interval]) or\\nirate(pg_stat_user_tables_idx_tup_fetch{instance=\\\
+    \"$host\\\", datname=~\\\"$db\\\"}[5m])\",\n              \"format\": \"time_series\"\
+    ,\n              \"groupBy\": [\n                {\n                  \"params\"\
+    : [\n                    \"$interval\"\n                  ],\n               \
+    \   \"type\": \"time\"\n                },\n                {\n              \
+    \    \"params\": [\n                    \"null\"\n                  ],\n     \
+    \             \"type\": \"fill\"\n                }\n              ],\n      \
+    \        \"interval\": \"$interval\",\n              \"intervalFactor\": 1,\n\
+    \              \"legendFormat\": \"{{datname}} - {{relname}}\",\n            \
+    \  \"metric\": \"\",\n              \"policy\": \"default\",\n              \"\
+    refId\": \"B\",\n              \"resultFormat\": \"time_series\",\n          \
+    \    \"select\": [\n                [\n                  {\n                 \
+    \   \"params\": [\n                      \"value\"\n                    ],\n \
+    \                   \"type\": \"field\"\n                  },\n              \
+    \    {\n                    \"params\": [],\n                    \"type\": \"\
+    mean\"\n                  }\n                ]\n              ],\n           \
+    \   \"step\": 60,\n              \"tags\": []\n            }\n          ],\n \
+    \         \"thresholds\": [],\n          \"timeFrom\": null,\n          \"timeRegions\"\
+    : [],\n          \"timeShift\": null,\n          \"title\": \"Index Reads\",\n\
+    \          \"tooltip\": {\n            \"msResolution\": false,\n            \"\
+    shared\": false,\n            \"sort\": 2,\n            \"value_type\": \"cumulative\"\
+    \n          },\n          \"type\": \"graph\",\n          \"xaxis\": {\n     \
+    \       \"buckets\": null,\n            \"mode\": \"time\",\n            \"name\"\
+    : null,\n            \"show\": true,\n            \"values\": []\n          },\n\
+    \          \"yaxes\": [\n            {\n              \"decimals\": 2,\n     \
+    \         \"format\": \"short\",\n              \"label\": \"Amount\",\n     \
+    \         \"logBase\": 1,\n              \"max\": null,\n              \"min\"\
+    : \"0\",\n              \"show\": true\n            },\n            {\n      \
+    \        \"format\": \"short\",\n              \"label\": null,\n            \
+    \  \"logBase\": 1,\n              \"max\": null,\n              \"min\": null,\n\
+    \              \"show\": false\n            }\n          ],\n          \"yaxis\"\
+    : {\n            \"align\": false,\n            \"alignLevel\": null\n       \
+    \   }\n        },\n        {\n          \"aliasColors\": {},\n          \"bars\"\
+    : false,\n          \"dashLength\": 10,\n          \"dashes\": false,\n      \
+    \    \"datasource\": \"Prometheus\",\n          \"decimals\": null,\n        \
+    \  \"editable\": true,\n          \"error\": false,\n          \"fill\": 0,\n\
+    \          \"grid\": {},\n          \"gridPos\": {\n            \"h\": 7,\n  \
+    \          \"w\": 24,\n            \"x\": 0,\n            \"y\": 19\n        \
+    \  },\n          \"height\": \"400px\",\n          \"id\": 8,\n          \"legend\"\
+    : {\n            \"alignAsTable\": true,\n            \"avg\": true,\n       \
+    \     \"current\": false,\n            \"hideEmpty\": false,\n            \"hideZero\"\
+    : false,\n            \"max\": true,\n            \"min\": true,\n           \
+    \ \"rightSide\": true,\n            \"show\": true,\n            \"sort\": \"\
+    avg\",\n            \"sortDesc\": true,\n            \"total\": false,\n     \
+    \       \"values\": true\n          },\n          \"lines\": true,\n         \
+    \ \"linewidth\": 1,\n          \"links\": [],\n          \"nullPointMode\": \"\
+    connected\",\n          \"percentage\": false,\n          \"pointradius\": 5,\n\
+    \          \"points\": false,\n          \"renderer\": \"flot\",\n          \"\
+    seriesOverrides\": [],\n          \"spaceLength\": 10,\n          \"stack\": false,\n\
+    \          \"steppedLine\": false,\n          \"targets\": [\n            {\n\
+    \              \"dsType\": \"influxdb\",\n              \"expr\": \"rate(pg_stat_user_tables_seq_tup_read{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[$interval]) or\\nirate(pg_stat_user_tables_seq_tup_read{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[5m])\",\n              \"format\": \"time_series\"\
+    ,\n              \"groupBy\": [\n                {\n                  \"params\"\
+    : [\n                    \"$interval\"\n                  ],\n               \
+    \   \"type\": \"time\"\n                },\n                {\n              \
+    \    \"params\": [\n                    \"null\"\n                  ],\n     \
+    \             \"type\": \"fill\"\n                }\n              ],\n      \
+    \        \"hide\": false,\n              \"interval\": \"$interval\",\n      \
+    \        \"intervalFactor\": 1,\n              \"legendFormat\": \"{{datname}}\
+    \ - {{relname}}\",\n              \"metric\": \"\",\n              \"policy\"\
+    : \"default\",\n              \"refId\": \"A\",\n              \"resultFormat\"\
+    : \"time_series\",\n              \"select\": [\n                [\n         \
+    \         {\n                    \"params\": [\n                      \"value\"\
+    \n                    ],\n                    \"type\": \"field\"\n          \
+    \        },\n                  {\n                    \"params\": [],\n      \
+    \              \"type\": \"mean\"\n                  }\n                ]\n  \
+    \            ],\n              \"step\": 60,\n              \"tags\": []\n   \
+    \         }\n          ],\n          \"thresholds\": [],\n          \"timeFrom\"\
+    : null,\n          \"timeRegions\": [],\n          \"timeShift\": null,\n    \
+    \      \"title\": \"Sequential Reads\",\n          \"tooltip\": {\n          \
+    \  \"msResolution\": false,\n            \"shared\": false,\n            \"sort\"\
+    : 2,\n            \"value_type\": \"cumulative\"\n          },\n          \"type\"\
+    : \"graph\",\n          \"xaxis\": {\n            \"buckets\": null,\n       \
+    \     \"mode\": \"time\",\n            \"name\": null,\n            \"show\":\
+    \ true,\n            \"values\": []\n          },\n          \"yaxes\": [\n  \
+    \          {\n              \"decimals\": 2,\n              \"format\": \"short\"\
+    ,\n              \"label\": \"Amount\",\n              \"logBase\": 1,\n     \
+    \         \"max\": null,\n              \"min\": \"0\",\n              \"show\"\
+    : true\n            },\n            {\n              \"format\": \"short\",\n\
+    \              \"label\": null,\n              \"logBase\": 1,\n             \
+    \ \"max\": null,\n              \"min\": null,\n              \"show\": false\n\
+    \            }\n          ],\n          \"yaxis\": {\n            \"align\": false,\n\
+    \            \"alignLevel\": null\n          }\n        },\n        {\n      \
+    \    \"aliasColors\": {},\n          \"bars\": false,\n          \"dashLength\"\
+    : 10,\n          \"dashes\": false,\n          \"datasource\": \"Prometheus\"\
+    ,\n          \"decimals\": 0,\n          \"editable\": true,\n          \"error\"\
+    : false,\n          \"fill\": 2,\n          \"grid\": {},\n          \"gridPos\"\
+    : {\n            \"h\": 7,\n            \"w\": 24,\n            \"x\": 0,\n  \
+    \          \"y\": 26\n          },\n          \"height\": \"400px\",\n       \
+    \   \"id\": 10,\n          \"legend\": {\n            \"alignAsTable\": true,\n\
+    \            \"avg\": true,\n            \"current\": false,\n            \"hideEmpty\"\
+    : false,\n            \"hideZero\": false,\n            \"max\": true,\n     \
+    \       \"min\": true,\n            \"rightSide\": true,\n            \"show\"\
+    : true,\n            \"sort\": \"avg\",\n            \"sortDesc\": true,\n   \
+    \         \"total\": false,\n            \"values\": true\n          },\n    \
+    \      \"lines\": true,\n          \"linewidth\": 2,\n          \"links\": [],\n\
+    \          \"nullPointMode\": \"connected\",\n          \"percentage\": false,\n\
+    \          \"pointradius\": 5,\n          \"points\": false,\n          \"renderer\"\
+    : \"flot\",\n          \"seriesOverrides\": [],\n          \"spaceLength\": 10,\n\
+    \          \"stack\": false,\n          \"steppedLine\": false,\n          \"\
+    targets\": [\n            {\n              \"dsType\": \"influxdb\",\n       \
+    \       \"expr\": \"rate(pg_stat_user_tables_n_tup_ins{instance=\\\"$host\\\"\
+    ,datname=~\\\"$db\\\"}[$interval]) or \\nirate(pg_stat_user_tables_n_tup_ins{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[5m])\",\n              \"format\": \"time_series\"\
+    ,\n              \"groupBy\": [\n                {\n                  \"params\"\
+    : [\n                    \"$interval\"\n                  ],\n               \
+    \   \"type\": \"time\"\n                },\n                {\n              \
+    \    \"params\": [\n                    \"null\"\n                  ],\n     \
+    \             \"type\": \"fill\"\n                }\n              ],\n      \
+    \        \"interval\": \"$interval\",\n              \"intervalFactor\": 1,\n\
+    \              \"legendFormat\": \"{{datname}} - {{relname}}\",\n            \
+    \  \"metric\": \"\",\n              \"policy\": \"default\",\n              \"\
+    refId\": \"C\",\n              \"resultFormat\": \"time_series\",\n          \
+    \    \"select\": [\n                [\n                  {\n                 \
+    \   \"params\": [\n                      \"value\"\n                    ],\n \
+    \                   \"type\": \"field\"\n                  },\n              \
+    \    {\n                    \"params\": [],\n                    \"type\": \"\
+    mean\"\n                  }\n                ]\n              ],\n           \
+    \   \"step\": 60,\n              \"tags\": []\n            }\n          ],\n \
+    \         \"thresholds\": [],\n          \"timeFrom\": null,\n          \"timeRegions\"\
+    : [],\n          \"timeShift\": null,\n          \"title\": \"Inserts\",\n   \
+    \       \"tooltip\": {\n            \"msResolution\": false,\n            \"shared\"\
+    : true,\n            \"sort\": 2,\n            \"value_type\": \"cumulative\"\n\
+    \          },\n          \"type\": \"graph\",\n          \"xaxis\": {\n      \
+    \      \"buckets\": null,\n            \"mode\": \"time\",\n            \"name\"\
+    : null,\n            \"show\": true,\n            \"values\": []\n          },\n\
+    \          \"yaxes\": [\n            {\n              \"decimals\": null,\n  \
+    \            \"format\": \"ops\",\n              \"label\": \"Amount\",\n    \
+    \          \"logBase\": 1,\n              \"max\": null,\n              \"min\"\
+    : \"0\",\n              \"show\": true\n            },\n            {\n      \
+    \        \"format\": \"short\",\n              \"label\": null,\n            \
+    \  \"logBase\": 1,\n              \"max\": null,\n              \"min\": null,\n\
+    \              \"show\": false\n            }\n          ],\n          \"yaxis\"\
+    : {\n            \"align\": false,\n            \"alignLevel\": null\n       \
+    \   }\n        },\n        {\n          \"aliasColors\": {},\n          \"bars\"\
+    : false,\n          \"dashLength\": 10,\n          \"dashes\": false,\n      \
+    \    \"datasource\": \"Prometheus\",\n          \"decimals\": 0,\n          \"\
+    editable\": true,\n          \"error\": false,\n          \"fill\": 2,\n     \
+    \     \"grid\": {},\n          \"gridPos\": {\n            \"h\": 7,\n       \
+    \     \"w\": 24,\n            \"x\": 0,\n            \"y\": 33\n          },\n\
+    \          \"height\": \"400px\",\n          \"id\": 11,\n          \"legend\"\
+    : {\n            \"alignAsTable\": true,\n            \"avg\": true,\n       \
+    \     \"current\": false,\n            \"hideEmpty\": true,\n            \"hideZero\"\
+    : true,\n            \"max\": true,\n            \"min\": true,\n            \"\
+    rightSide\": true,\n            \"show\": true,\n            \"sort\": \"avg\"\
+    ,\n            \"sortDesc\": true,\n            \"total\": false,\n          \
+    \  \"values\": true\n          },\n          \"lines\": true,\n          \"linewidth\"\
+    : 2,\n          \"links\": [],\n          \"nullPointMode\": \"connected\",\n\
+    \          \"percentage\": false,\n          \"pointradius\": 5,\n          \"\
+    points\": false,\n          \"renderer\": \"flot\",\n          \"seriesOverrides\"\
+    : [],\n          \"spaceLength\": 10,\n          \"stack\": false,\n         \
+    \ \"steppedLine\": false,\n          \"targets\": [\n            {\n         \
+    \     \"dsType\": \"influxdb\",\n              \"expr\": \"rate(pg_stat_user_tables_n_tup_upd{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[$interval]) or\\nirate(pg_stat_user_tables_n_tup_upd{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[5m])\",\n              \"format\": \"time_series\"\
+    ,\n              \"groupBy\": [\n                {\n                  \"params\"\
+    : [\n                    \"$interval\"\n                  ],\n               \
+    \   \"type\": \"time\"\n                },\n                {\n              \
+    \    \"params\": [\n                    \"null\"\n                  ],\n     \
+    \             \"type\": \"fill\"\n                }\n              ],\n      \
+    \        \"interval\": \"$interval\",\n              \"intervalFactor\": 1,\n\
+    \              \"legendFormat\": \"{{datname}} - {{relname}}\",\n            \
+    \  \"metric\": \"\",\n              \"policy\": \"default\",\n              \"\
+    refId\": \"D\",\n              \"resultFormat\": \"time_series\",\n          \
+    \    \"select\": [\n                [\n                  {\n                 \
+    \   \"params\": [\n                      \"value\"\n                    ],\n \
+    \                   \"type\": \"field\"\n                  },\n              \
+    \    {\n                    \"params\": [],\n                    \"type\": \"\
+    mean\"\n                  }\n                ]\n              ],\n           \
+    \   \"step\": 60,\n              \"tags\": []\n            }\n          ],\n \
+    \         \"thresholds\": [],\n          \"timeFrom\": null,\n          \"timeRegions\"\
+    : [],\n          \"timeShift\": null,\n          \"title\": \"Updates\",\n   \
+    \       \"tooltip\": {\n            \"msResolution\": false,\n            \"shared\"\
+    : false,\n            \"sort\": 2,\n            \"value_type\": \"cumulative\"\
+    \n          },\n          \"type\": \"graph\",\n          \"xaxis\": {\n     \
+    \       \"buckets\": null,\n            \"mode\": \"time\",\n            \"name\"\
+    : null,\n            \"show\": true,\n            \"values\": []\n          },\n\
+    \          \"yaxes\": [\n            {\n              \"format\": \"ops\",\n \
+    \             \"label\": \"Amount\",\n              \"logBase\": 1,\n        \
+    \      \"max\": null,\n              \"min\": \"0\",\n              \"show\":\
+    \ true\n            },\n            {\n              \"format\": \"short\",\n\
+    \              \"label\": null,\n              \"logBase\": 1,\n             \
+    \ \"max\": null,\n              \"min\": null,\n              \"show\": false\n\
+    \            }\n          ],\n          \"yaxis\": {\n            \"align\": false,\n\
+    \            \"alignLevel\": null\n          }\n        },\n        {\n      \
+    \    \"aliasColors\": {},\n          \"bars\": false,\n          \"dashLength\"\
+    : 10,\n          \"dashes\": false,\n          \"datasource\": \"Prometheus\"\
+    ,\n          \"decimals\": 0,\n          \"editable\": true,\n          \"error\"\
+    : false,\n          \"fill\": 2,\n          \"grid\": {},\n          \"gridPos\"\
+    : {\n            \"h\": 7,\n            \"w\": 24,\n            \"x\": 0,\n  \
+    \          \"y\": 40\n          },\n          \"height\": \"400px\",\n       \
+    \   \"id\": 13,\n          \"legend\": {\n            \"alignAsTable\": true,\n\
+    \            \"avg\": true,\n            \"current\": false,\n            \"hideEmpty\"\
+    : true,\n            \"hideZero\": true,\n            \"max\": true,\n       \
+    \     \"min\": true,\n            \"rightSide\": true,\n            \"show\":\
+    \ true,\n            \"sort\": \"avg\",\n            \"sortDesc\": true,\n   \
+    \         \"total\": false,\n            \"values\": true\n          },\n    \
+    \      \"lines\": true,\n          \"linewidth\": 2,\n          \"links\": [],\n\
+    \          \"nullPointMode\": \"connected\",\n          \"percentage\": false,\n\
+    \          \"pointradius\": 5,\n          \"points\": false,\n          \"renderer\"\
+    : \"flot\",\n          \"seriesOverrides\": [],\n          \"spaceLength\": 10,\n\
+    \          \"stack\": false,\n          \"steppedLine\": false,\n          \"\
+    targets\": [\n            {\n              \"dsType\": \"influxdb\",\n       \
+    \       \"expr\": \"rate(pg_stat_user_tables_n_tup_hot_upd{instance=\\\"$host\\\
+    \", datname=~\\\"$db\\\"}[$interval])\",\n              \"format\": \"time_series\"\
+    ,\n              \"groupBy\": [\n                {\n                  \"params\"\
+    : [\n                    \"$interval\"\n                  ],\n               \
+    \   \"type\": \"time\"\n                },\n                {\n              \
+    \    \"params\": [\n                    \"null\"\n                  ],\n     \
+    \             \"type\": \"fill\"\n                }\n              ],\n      \
+    \        \"interval\": \"$interval\",\n              \"intervalFactor\": 1,\n\
+    \              \"legendFormat\": \"{{datname}} - {{relname}}\",\n            \
+    \  \"metric\": \"\",\n              \"policy\": \"default\",\n              \"\
+    refId\": \"D\",\n              \"resultFormat\": \"time_series\",\n          \
+    \    \"select\": [\n                [\n                  {\n                 \
+    \   \"params\": [\n                      \"value\"\n                    ],\n \
+    \                   \"type\": \"field\"\n                  },\n              \
+    \    {\n                    \"params\": [],\n                    \"type\": \"\
+    mean\"\n                  }\n                ]\n              ],\n           \
+    \   \"step\": 60,\n              \"tags\": []\n            }\n          ],\n \
+    \         \"thresholds\": [],\n          \"timeFrom\": null,\n          \"timeRegions\"\
+    : [],\n          \"timeShift\": null,\n          \"title\": \"HOT Updates\",\n\
+    \          \"tooltip\": {\n            \"msResolution\": false,\n            \"\
+    shared\": false,\n            \"sort\": 2,\n            \"value_type\": \"cumulative\"\
+    \n          },\n          \"type\": \"graph\",\n          \"xaxis\": {\n     \
+    \       \"buckets\": null,\n            \"mode\": \"time\",\n            \"name\"\
+    : null,\n            \"show\": true,\n            \"values\": []\n          },\n\
+    \          \"yaxes\": [\n            {\n              \"format\": \"ops\",\n \
+    \             \"label\": \"Amount\",\n              \"logBase\": 1,\n        \
+    \      \"max\": null,\n              \"min\": \"0\",\n              \"show\":\
+    \ true\n            },\n            {\n              \"format\": \"short\",\n\
+    \              \"label\": null,\n              \"logBase\": 1,\n             \
+    \ \"max\": null,\n              \"min\": null,\n              \"show\": false\n\
+    \            }\n          ],\n          \"yaxis\": {\n            \"align\": false,\n\
+    \            \"alignLevel\": null\n          }\n        },\n        {\n      \
+    \    \"aliasColors\": {},\n          \"bars\": false,\n          \"dashLength\"\
+    : 10,\n          \"dashes\": false,\n          \"datasource\": \"Prometheus\"\
+    ,\n          \"decimals\": null,\n          \"editable\": true,\n          \"\
+    error\": false,\n          \"fill\": 2,\n          \"grid\": {},\n          \"\
+    gridPos\": {\n            \"h\": 7,\n            \"w\": 24,\n            \"x\"\
+    : 0,\n            \"y\": 47\n          },\n          \"height\": \"400px\",\n\
+    \          \"id\": 12,\n          \"legend\": {\n            \"alignAsTable\"\
+    : true,\n            \"avg\": true,\n            \"current\": false,\n       \
+    \     \"hideEmpty\": true,\n            \"hideZero\": true,\n            \"max\"\
+    : true,\n            \"min\": true,\n            \"rightSide\": true,\n      \
+    \      \"show\": true,\n            \"sort\": \"avg\",\n            \"sortDesc\"\
+    : true,\n            \"total\": false,\n            \"values\": true\n       \
+    \   },\n          \"lines\": true,\n          \"linewidth\": 2,\n          \"\
+    links\": [],\n          \"nullPointMode\": \"connected\",\n          \"percentage\"\
+    : false,\n          \"pointradius\": 5,\n          \"points\": false,\n      \
+    \    \"renderer\": \"flot\",\n          \"seriesOverrides\": [],\n          \"\
+    spaceLength\": 10,\n          \"stack\": false,\n          \"steppedLine\": false,\n\
+    \          \"targets\": [\n            {\n              \"dsType\": \"influxdb\"\
+    ,\n              \"expr\": \"rate(pg_stat_user_tables_n_tup_del{instance=\\\"\
+    $host\\\", datname=~\\\"$db\\\"}[$interval]) or\\nirate(pg_stat_user_tables_n_tup_del{instance=\\\
+    \"$host\\\", datname=~\\\"$db\\\"}[5m])\",\n              \"format\": \"time_series\"\
+    ,\n              \"groupBy\": [\n                {\n                  \"params\"\
+    : [\n                    \"$interval\"\n                  ],\n               \
+    \   \"type\": \"time\"\n                },\n                {\n              \
+    \    \"params\": [\n                    \"null\"\n                  ],\n     \
+    \             \"type\": \"fill\"\n                }\n              ],\n      \
+    \        \"interval\": \"$interval\",\n              \"intervalFactor\": 1,\n\
+    \              \"legendFormat\": \"{{datname}} - {{relname}}\",\n            \
+    \  \"metric\": \"\",\n              \"policy\": \"default\",\n              \"\
+    refId\": \"D\",\n              \"resultFormat\": \"time_series\",\n          \
+    \    \"select\": [\n                [\n                  {\n                 \
+    \   \"params\": [\n                      \"value\"\n                    ],\n \
+    \                   \"type\": \"field\"\n                  },\n              \
+    \    {\n                    \"params\": [],\n                    \"type\": \"\
+    mean\"\n                  }\n                ]\n              ],\n           \
+    \   \"step\": 60,\n              \"tags\": []\n            }\n          ],\n \
+    \         \"thresholds\": [],\n          \"timeFrom\": null,\n          \"timeRegions\"\
+    : [],\n          \"timeShift\": null,\n          \"title\": \"Deletes\",\n   \
+    \       \"tooltip\": {\n            \"msResolution\": false,\n            \"shared\"\
+    : false,\n            \"sort\": 2,\n            \"value_type\": \"cumulative\"\
+    \n          },\n          \"type\": \"graph\",\n          \"xaxis\": {\n     \
+    \       \"buckets\": null,\n            \"mode\": \"time\",\n            \"name\"\
+    : null,\n            \"show\": true,\n            \"values\": []\n          },\n\
+    \          \"yaxes\": [\n            {\n              \"format\": \"ops\",\n \
+    \             \"label\": \"Amount\",\n              \"logBase\": 1,\n        \
+    \      \"max\": null,\n              \"min\": \"0\",\n              \"show\":\
+    \ true\n            },\n            {\n              \"format\": \"short\",\n\
+    \              \"label\": null,\n              \"logBase\": 1,\n             \
+    \ \"max\": null,\n              \"min\": null,\n              \"show\": false\n\
+    \            }\n          ],\n          \"yaxis\": {\n            \"align\": false,\n\
+    \            \"alignLevel\": null\n          }\n        }\n      ],\n      \"\
+    repeat\": null,\n      \"title\": \"$host Statistic per Table\",\n      \"type\"\
+    : \"row\"\n    },\n    {\n      \"collapsed\": true,\n      \"gridPos\": {\n \
+    \       \"h\": 1,\n        \"w\": 24,\n        \"x\": 0,\n        \"y\": 12\n\
+    \      },\n      \"id\": 23,\n      \"panels\": [\n        {\n          \"aliasColors\"\
+    : {\n            \"Dead Tuples\": \"#BF1B00\"\n          },\n          \"bars\"\
+    : false,\n          \"dashLength\": 10,\n          \"dashes\": false,\n      \
+    \    \"datasource\": \"Prometheus\",\n          \"decimals\": 0,\n          \"\
+    editable\": true,\n          \"error\": false,\n          \"fill\": 2,\n     \
+    \     \"grid\": {},\n          \"gridPos\": {\n            \"h\": 7,\n       \
+    \     \"w\": 12,\n            \"x\": 0,\n            \"y\": 13\n          },\n\
+    \          \"height\": \"400px\",\n          \"id\": 7,\n          \"legend\"\
+    : {\n            \"alignAsTable\": true,\n            \"avg\": true,\n       \
+    \     \"current\": false,\n            \"max\": true,\n            \"min\": true,\n\
+    \            \"rightSide\": false,\n            \"show\": true,\n            \"\
+    sort\": \"avg\",\n            \"sortDesc\": true,\n            \"total\": false,\n\
+    \            \"values\": true\n          },\n          \"lines\": true,\n    \
+    \      \"linewidth\": 2,\n          \"links\": [],\n          \"nullPointMode\"\
+    : \"null as zero\",\n          \"percentage\": false,\n          \"pointradius\"\
+    : 5,\n          \"points\": false,\n          \"renderer\": \"flot\",\n      \
+    \    \"seriesOverrides\": [],\n          \"spaceLength\": 10,\n          \"stack\"\
+    : true,\n          \"steppedLine\": false,\n          \"targets\": [\n       \
+    \     {\n              \"dsType\": \"influxdb\",\n              \"expr\": \"max_over_time(pg_stat_user_tables_n_dead_tup{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[$interval]) or\\nmax_over_time(pg_stat_user_tables_n_dead_tup{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[5m])\",\n              \"format\": \"time_series\"\
+    ,\n              \"groupBy\": [\n                {\n                  \"params\"\
+    : [\n                    \"$interval\"\n                  ],\n               \
+    \   \"type\": \"time\"\n                },\n                {\n              \
+    \    \"params\": [\n                    \"null\"\n                  ],\n     \
+    \             \"type\": \"fill\"\n                }\n              ],\n      \
+    \        \"interval\": \"$interval\",\n              \"intervalFactor\": 1,\n\
+    \              \"legendFormat\": \"{{datname}} - {{relname}}\",\n            \
+    \  \"metric\": \"\",\n              \"policy\": \"default\",\n              \"\
+    refId\": \"A\",\n              \"resultFormat\": \"time_series\",\n          \
+    \    \"select\": [\n                [\n                  {\n                 \
+    \   \"params\": [\n                      \"value\"\n                    ],\n \
+    \                   \"type\": \"field\"\n                  },\n              \
+    \    {\n                    \"params\": [],\n                    \"type\": \"\
+    mean\"\n                  }\n                ]\n              ],\n           \
+    \   \"step\": 60,\n              \"tags\": []\n            }\n          ],\n \
+    \         \"thresholds\": [],\n          \"timeFrom\": null,\n          \"timeRegions\"\
+    : [],\n          \"timeShift\": null,\n          \"title\": \"Dead Tuples\",\n\
+    \          \"tooltip\": {\n            \"msResolution\": false,\n            \"\
+    shared\": false,\n            \"sort\": 0,\n            \"value_type\": \"cumulative\"\
+    \n          },\n          \"type\": \"graph\",\n          \"xaxis\": {\n     \
+    \       \"buckets\": null,\n            \"mode\": \"time\",\n            \"name\"\
+    : null,\n            \"show\": true,\n            \"values\": []\n          },\n\
+    \          \"yaxes\": [\n            {\n              \"decimals\": 2,\n     \
+    \         \"format\": \"short\",\n              \"label\": null,\n           \
+    \   \"logBase\": 1,\n              \"max\": null,\n              \"min\": \"0\"\
+    ,\n              \"show\": true\n            },\n            {\n             \
+    \ \"format\": \"short\",\n              \"label\": null,\n              \"logBase\"\
+    : 1,\n              \"max\": null,\n              \"min\": null,\n           \
+    \   \"show\": false\n            }\n          ],\n          \"yaxis\": {\n   \
+    \         \"align\": false,\n            \"alignLevel\": null\n          }\n \
+    \       },\n        {\n          \"aliasColors\": {\n            \"Dead Tuples\"\
+    : \"#BF1B00\"\n          },\n          \"bars\": false,\n          \"dashLength\"\
+    : 10,\n          \"dashes\": false,\n          \"datasource\": \"Prometheus\"\
+    ,\n          \"decimals\": 1,\n          \"editable\": true,\n          \"error\"\
+    : false,\n          \"fill\": 2,\n          \"grid\": {},\n          \"gridPos\"\
+    : {\n            \"h\": 7,\n            \"w\": 12,\n            \"x\": 12,\n \
+    \           \"y\": 13\n          },\n          \"height\": \"400px\",\n      \
+    \    \"id\": 17,\n          \"legend\": {\n            \"alignAsTable\": true,\n\
+    \            \"avg\": true,\n            \"current\": false,\n            \"hideZero\"\
+    : true,\n            \"max\": true,\n            \"min\": true,\n            \"\
+    show\": true,\n            \"sort\": \"avg\",\n            \"sortDesc\": true,\n\
+    \            \"total\": false,\n            \"values\": true\n          },\n \
+    \         \"lines\": true,\n          \"linewidth\": 2,\n          \"links\":\
+    \ [],\n          \"nullPointMode\": \"null as zero\",\n          \"percentage\"\
+    : false,\n          \"pointradius\": 5,\n          \"points\": false,\n      \
+    \    \"renderer\": \"flot\",\n          \"seriesOverrides\": [],\n          \"\
+    spaceLength\": 10,\n          \"stack\": true,\n          \"steppedLine\": false,\n\
+    \          \"targets\": [\n            {\n              \"dsType\": \"influxdb\"\
+    ,\n              \"expr\": \"(pg_stat_user_tables_n_dead_tup{instance=\\\"$host\\\
+    \",datname=~\\\"$db\\\"}>10000) / \\n(pg_stat_user_tables_n_live_tup{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"} + \\npg_stat_user_tables_n_dead_tup{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"} >1000)\",\n              \"format\": \"time_series\"\
+    ,\n              \"groupBy\": [\n                {\n                  \"params\"\
+    : [\n                    \"$interval\"\n                  ],\n               \
+    \   \"type\": \"time\"\n                },\n                {\n              \
+    \    \"params\": [\n                    \"null\"\n                  ],\n     \
+    \             \"type\": \"fill\"\n                }\n              ],\n      \
+    \        \"hide\": true,\n              \"interval\": \"$interval\",\n       \
+    \       \"intervalFactor\": 1,\n              \"legendFormat\": \"{{datname}}\
+    \ - {{relname}}\",\n              \"metric\": \"\",\n              \"policy\"\
+    : \"default\",\n              \"refId\": \"A\",\n              \"resultFormat\"\
+    : \"time_series\",\n              \"select\": [\n                [\n         \
+    \         {\n                    \"params\": [\n                      \"value\"\
+    \n                    ],\n                    \"type\": \"field\"\n          \
+    \        },\n                  {\n                    \"params\": [],\n      \
+    \              \"type\": \"mean\"\n                  }\n                ]\n  \
+    \            ],\n              \"step\": 60,\n              \"tags\": []\n   \
+    \         },\n            {\n              \"expr\": \"(pg_stat_user_tables_n_dead_tup{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}) / \\n(pg_stat_user_tables_n_dead_tup{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"} \\n+ pg_stat_user_tables_n_live_tup{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"})\",\n              \"format\": \"time_series\"\
+    ,\n              \"hide\": false,\n              \"interval\": \"$interval\",\n\
+    \              \"intervalFactor\": 1,\n              \"legendFormat\": \"{{datname}}\
+    \ - {{relname}}\",\n              \"refId\": \"B\"\n            }\n          ],\n\
+    \          \"thresholds\": [],\n          \"timeFrom\": null,\n          \"timeRegions\"\
+    : [],\n          \"timeShift\": null,\n          \"title\": \"Dead Tuples Percentage\"\
+    ,\n          \"tooltip\": {\n            \"msResolution\": false,\n          \
+    \  \"shared\": false,\n            \"sort\": 0,\n            \"value_type\": \"\
+    cumulative\"\n          },\n          \"type\": \"graph\",\n          \"xaxis\"\
+    : {\n            \"buckets\": null,\n            \"mode\": \"time\",\n       \
+    \     \"name\": null,\n            \"show\": true,\n            \"values\": []\n\
+    \          },\n          \"yaxes\": [\n            {\n              \"decimals\"\
+    : null,\n              \"format\": \"percentunit\",\n              \"label\":\
+    \ \"\",\n              \"logBase\": 1,\n              \"max\": null,\n       \
+    \       \"min\": \"0\",\n              \"show\": true\n            },\n      \
+    \      {\n              \"format\": \"short\",\n              \"label\": null,\n\
+    \              \"logBase\": 1,\n              \"max\": null,\n              \"\
+    min\": null,\n              \"show\": false\n            }\n          ],\n   \
+    \       \"yaxis\": {\n            \"align\": false,\n            \"alignLevel\"\
+    : null\n          }\n        },\n        {\n          \"aliasColors\": {},\n \
+    \         \"bars\": false,\n          \"dashLength\": 10,\n          \"dashes\"\
+    : false,\n          \"decimals\": 2,\n          \"fill\": 2,\n          \"gridPos\"\
+    : {\n            \"h\": 7,\n            \"w\": 24,\n            \"x\": 0,\n  \
+    \          \"y\": 20\n          },\n          \"id\": 102,\n          \"legend\"\
+    : {\n            \"alignAsTable\": true,\n            \"avg\": true,\n       \
+    \     \"current\": false,\n            \"max\": true,\n            \"min\": true,\n\
+    \            \"rightSide\": true,\n            \"show\": true,\n            \"\
+    sort\": \"avg\",\n            \"sortDesc\": true,\n            \"total\": false,\n\
+    \            \"values\": true\n          },\n          \"lines\": true,\n    \
+    \      \"linewidth\": 2,\n          \"links\": [],\n          \"nullPointMode\"\
+    : \"null\",\n          \"percentage\": false,\n          \"pointradius\": 5,\n\
+    \          \"points\": false,\n          \"renderer\": \"flot\",\n          \"\
+    seriesOverrides\": [],\n          \"spaceLength\": 10,\n          \"stack\": true,\n\
+    \          \"steppedLine\": false,\n          \"targets\": [\n            {\n\
+    \              \"expr\": \"max_over_time(pg_stat_user_tables_n_live_tup{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[$interval]) or\\nmax_over_time(pg_stat_user_tables_n_live_tup{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[5m])\",\n              \"format\": \"time_series\"\
+    ,\n              \"interval\": \"$interval\",\n              \"intervalFactor\"\
+    : 1,\n              \"legendFormat\": \"{{datname}} - {{relname}}\",\n       \
+    \       \"refId\": \"A\"\n            }\n          ],\n          \"thresholds\"\
+    : [],\n          \"timeFrom\": null,\n          \"timeRegions\": [],\n       \
+    \   \"timeShift\": null,\n          \"title\": \"Live Tuples\",\n          \"\
+    tooltip\": {\n            \"shared\": true,\n            \"sort\": 0,\n      \
+    \      \"value_type\": \"individual\"\n          },\n          \"type\": \"graph\"\
+    ,\n          \"xaxis\": {\n            \"buckets\": null,\n            \"mode\"\
+    : \"time\",\n            \"name\": null,\n            \"show\": true,\n      \
+    \      \"values\": []\n          },\n          \"yaxes\": [\n            {\n \
+    \             \"decimals\": null,\n              \"format\": \"short\",\n    \
+    \          \"label\": \"\",\n              \"logBase\": 1,\n              \"max\"\
+    : null,\n              \"min\": null,\n              \"show\": true\n        \
+    \    },\n            {\n              \"format\": \"short\",\n              \"\
+    label\": null,\n              \"logBase\": 1,\n              \"max\": null,\n\
+    \              \"min\": null,\n              \"show\": false\n            }\n\
+    \          ],\n          \"yaxis\": {\n            \"align\": false,\n       \
+    \     \"alignLevel\": null\n          }\n        }\n      ],\n      \"repeat\"\
+    : null,\n      \"title\": \"$host Dead Tuples per Table\",\n      \"type\": \"\
+    row\"\n    },\n    {\n      \"collapsed\": true,\n      \"gridPos\": {\n     \
+    \   \"h\": 1,\n        \"w\": 24,\n        \"x\": 0,\n        \"y\": 13\n    \
+    \  },\n      \"id\": 24,\n      \"panels\": [\n        {\n          \"aliasColors\"\
+    : {\n            \"Dead Tuples\": \"#BF1B00\"\n          },\n          \"bars\"\
+    : true,\n          \"dashLength\": 10,\n          \"dashes\": false,\n       \
+    \   \"datasource\": \"Prometheus\",\n          \"decimals\": 0,\n          \"\
+    editable\": true,\n          \"error\": false,\n          \"fill\": 2,\n     \
+    \     \"grid\": {},\n          \"gridPos\": {\n            \"h\": 7,\n       \
+    \     \"w\": 12,\n            \"x\": 0,\n            \"y\": 14\n          },\n\
+    \          \"height\": \"400px\",\n          \"id\": 84,\n          \"legend\"\
+    : {\n            \"alignAsTable\": true,\n            \"avg\": true,\n       \
+    \     \"current\": false,\n            \"max\": true,\n            \"min\": true,\n\
+    \            \"rightSide\": false,\n            \"show\": true,\n            \"\
+    sort\": \"avg\",\n            \"sortDesc\": true,\n            \"total\": false,\n\
+    \            \"values\": true\n          },\n          \"lines\": false,\n   \
+    \       \"linewidth\": 2,\n          \"links\": [],\n          \"nullPointMode\"\
+    : \"connected\",\n          \"percentage\": false,\n          \"pointradius\"\
+    : 5,\n          \"points\": false,\n          \"renderer\": \"flot\",\n      \
+    \    \"seriesOverrides\": [],\n          \"spaceLength\": 10,\n          \"stack\"\
+    : false,\n          \"steppedLine\": false,\n          \"targets\": [\n      \
+    \      {\n              \"dsType\": \"influxdb\",\n              \"expr\": \"\
+    increase(pg_stat_user_tables_autovacuum_count{datname=~\\\"$db\\\"}[$interval])\
+    \ or\\nirate(pg_stat_user_tables_autovacuum_count{datname=~\\\"$db\\\"}[5m])\"\
+    ,\n              \"format\": \"time_series\",\n              \"groupBy\": [\n\
+    \                {\n                  \"params\": [\n                    \"$interval\"\
+    \n                  ],\n                  \"type\": \"time\"\n               \
+    \ },\n                {\n                  \"params\": [\n                   \
+    \ \"null\"\n                  ],\n                  \"type\": \"fill\"\n     \
+    \           }\n              ],\n              \"interval\": \"$interval\",\n\
+    \              \"intervalFactor\": 1,\n              \"legendFormat\": \"{{datname}}\
+    \ - {{relname}}\",\n              \"metric\": \"\",\n              \"policy\"\
+    : \"default\",\n              \"refId\": \"A\",\n              \"resultFormat\"\
+    : \"time_series\",\n              \"select\": [\n                [\n         \
+    \         {\n                    \"params\": [\n                      \"value\"\
+    \n                    ],\n                    \"type\": \"field\"\n          \
+    \        },\n                  {\n                    \"params\": [],\n      \
+    \              \"type\": \"mean\"\n                  }\n                ]\n  \
+    \            ],\n              \"step\": 60,\n              \"tags\": []\n   \
+    \         }\n          ],\n          \"thresholds\": [],\n          \"timeFrom\"\
+    : null,\n          \"timeRegions\": [],\n          \"timeShift\": null,\n    \
+    \      \"title\": \"Autovacuum Per Table\",\n          \"tooltip\": {\n      \
+    \      \"msResolution\": false,\n            \"shared\": false,\n            \"\
+    sort\": 2,\n            \"value_type\": \"cumulative\"\n          },\n       \
+    \   \"type\": \"graph\",\n          \"xaxis\": {\n            \"buckets\": null,\n\
+    \            \"mode\": \"time\",\n            \"name\": null,\n            \"\
+    show\": true,\n            \"values\": []\n          },\n          \"yaxes\":\
+    \ [\n            {\n              \"decimals\": 2,\n              \"format\":\
+    \ \"ops\",\n              \"label\": null,\n              \"logBase\": 1,\n  \
+    \            \"max\": null,\n              \"min\": \"0\",\n              \"show\"\
+    : true\n            },\n            {\n              \"format\": \"short\",\n\
+    \              \"label\": null,\n              \"logBase\": 1,\n             \
+    \ \"max\": null,\n              \"min\": null,\n              \"show\": false\n\
+    \            }\n          ],\n          \"yaxis\": {\n            \"align\": false,\n\
+    \            \"alignLevel\": null\n          }\n        },\n        {\n      \
+    \    \"columns\": [],\n          \"fontSize\": \"100%\",\n          \"gridPos\"\
+    : {\n            \"h\": 7,\n            \"w\": 12,\n            \"x\": 12,\n \
+    \           \"y\": 14\n          },\n          \"id\": 97,\n          \"links\"\
+    : [],\n          \"pageSize\": null,\n          \"scroll\": true,\n          \"\
+    showHeader\": true,\n          \"sort\": {\n            \"col\": 1,\n        \
+    \    \"desc\": true\n          },\n          \"styles\": [\n            {\n  \
+    \            \"alias\": \"Time\",\n              \"dateFormat\": \"YYYY-MM-DD\
+    \ HH:mm:ss\",\n              \"pattern\": \"Time\",\n              \"type\": \"\
+    hidden\"\n            },\n            {\n              \"alias\": \"Operation\"\
+    ,\n              \"colorMode\": null,\n              \"colors\": [\n         \
+    \       \"rgba(245, 54, 54, 0.9)\",\n                \"rgba(237, 129, 40, 0.89)\"\
+    ,\n                \"rgba(50, 172, 45, 0.97)\"\n              ],\n           \
+    \   \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n              \"decimals\": 1,\n\
+    \              \"mappingType\": 1,\n              \"pattern\": \"Value\",\n  \
+    \            \"thresholds\": [],\n              \"type\": \"number\",\n      \
+    \        \"unit\": \"dtdurations\"\n            },\n            {\n          \
+    \    \"alias\": \"Database\",\n              \"colorMode\": null,\n          \
+    \    \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\",\n            \
+    \    \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172, 45, 0.97)\"\
+    \n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n \
+    \             \"decimals\": 2,\n              \"mappingType\": 1,\n          \
+    \    \"pattern\": \"datname\",\n              \"thresholds\": [],\n          \
+    \    \"type\": \"number\",\n              \"unit\": \"short\"\n            },\n\
+    \            {\n              \"alias\": \"\",\n              \"colorMode\": null,\n\
+    \              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\",\n  \
+    \              \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"instance\",\n              \"thresholds\": [],\n      \
+    \        \"type\": \"hidden\",\n              \"unit\": \"short\"\n          \
+    \  },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"job\",\n              \"thresholds\": [],\n           \
+    \   \"type\": \"hidden\",\n              \"unit\": \"short\"\n            },\n\
+    \            {\n              \"alias\": \"Table\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"relname\",\n              \"thresholds\": [],\n       \
+    \       \"type\": \"number\",\n              \"unit\": \"short\"\n           \
+    \ },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"schemaname\",\n              \"thresholds\": [],\n    \
+    \          \"type\": \"hidden\",\n              \"unit\": \"short\"\n        \
+    \    },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"decimals\": 2,\n            \
+    \  \"pattern\": \"/.*/\",\n              \"thresholds\": [],\n              \"\
+    type\": \"number\",\n              \"unit\": \"short\"\n            }\n      \
+    \    ],\n          \"targets\": [\n            {\n              \"expr\": \"time()\
+    \ - pg_stat_user_tables_last_autovacuum{instance=~\\\"$host\\\", datname=~\\\"\
+    $db\\\"}\",\n              \"format\": \"table\",\n              \"instant\":\
+    \ true,\n              \"interval\": \"$interval\",\n              \"intervalFactor\"\
+    : 1,\n              \"legendFormat\": \"\",\n              \"refId\": \"A\"\n\
+    \            }\n          ],\n          \"title\": \"Last Autovacuum\",\n    \
+    \      \"transform\": \"table\",\n          \"type\": \"table\"\n        },\n\
+    \        {\n          \"aliasColors\": {\n            \"Dead Tuples\": \"#BF1B00\"\
+    \n          },\n          \"bars\": true,\n          \"dashLength\": 10,\n   \
+    \       \"dashes\": false,\n          \"datasource\": \"Prometheus\",\n      \
+    \    \"decimals\": 0,\n          \"editable\": true,\n          \"error\": false,\n\
+    \          \"fill\": 2,\n          \"grid\": {},\n          \"gridPos\": {\n \
+    \           \"h\": 7,\n            \"w\": 12,\n            \"x\": 0,\n       \
+    \     \"y\": 21\n          },\n          \"height\": \"400px\",\n          \"\
+    id\": 14,\n          \"legend\": {\n            \"alignAsTable\": true,\n    \
+    \        \"avg\": true,\n            \"current\": false,\n            \"max\"\
+    : true,\n            \"min\": true,\n            \"rightSide\": false,\n     \
+    \       \"show\": true,\n            \"sort\": \"avg\",\n            \"sortDesc\"\
+    : true,\n            \"total\": false,\n            \"values\": true\n       \
+    \   },\n          \"lines\": false,\n          \"linewidth\": 2,\n          \"\
+    links\": [],\n          \"nullPointMode\": \"connected\",\n          \"percentage\"\
+    : false,\n          \"pointradius\": 5,\n          \"points\": false,\n      \
+    \    \"renderer\": \"flot\",\n          \"seriesOverrides\": [],\n          \"\
+    spaceLength\": 10,\n          \"stack\": false,\n          \"steppedLine\": false,\n\
+    \          \"targets\": [\n            {\n              \"dsType\": \"influxdb\"\
+    ,\n              \"expr\": \"increase(pg_stat_user_tables_vacuum_count{datname=~\\\
+    \"$db\\\"}[$interval]) or\\nirate(pg_stat_user_tables_vacuum_count{datname=~\\\
+    \"$db\\\"}[5m])\",\n              \"format\": \"time_series\",\n             \
+    \ \"groupBy\": [\n                {\n                  \"params\": [\n       \
+    \             \"$interval\"\n                  ],\n                  \"type\"\
+    : \"time\"\n                },\n                {\n                  \"params\"\
+    : [\n                    \"null\"\n                  ],\n                  \"\
+    type\": \"fill\"\n                }\n              ],\n              \"interval\"\
+    : \"$interval\",\n              \"intervalFactor\": 1,\n              \"legendFormat\"\
+    : \"{{datname}} - {{relname}}\",\n              \"metric\": \"\",\n          \
+    \    \"policy\": \"default\",\n              \"refId\": \"A\",\n             \
+    \ \"resultFormat\": \"time_series\",\n              \"select\": [\n          \
+    \      [\n                  {\n                    \"params\": [\n           \
+    \           \"value\"\n                    ],\n                    \"type\": \"\
+    field\"\n                  },\n                  {\n                    \"params\"\
+    : [],\n                    \"type\": \"mean\"\n                  }\n         \
+    \       ]\n              ],\n              \"step\": 60,\n              \"tags\"\
+    : []\n            }\n          ],\n          \"thresholds\": [],\n          \"\
+    timeFrom\": null,\n          \"timeRegions\": [],\n          \"timeShift\": null,\n\
+    \          \"title\": \"Vacuum Per Table\",\n          \"tooltip\": {\n      \
+    \      \"msResolution\": false,\n            \"shared\": false,\n            \"\
+    sort\": 2,\n            \"value_type\": \"cumulative\"\n          },\n       \
+    \   \"type\": \"graph\",\n          \"xaxis\": {\n            \"buckets\": null,\n\
+    \            \"mode\": \"time\",\n            \"name\": null,\n            \"\
+    show\": true,\n            \"values\": []\n          },\n          \"yaxes\":\
+    \ [\n            {\n              \"decimals\": 2,\n              \"format\":\
+    \ \"ops\",\n              \"label\": null,\n              \"logBase\": 1,\n  \
+    \            \"max\": null,\n              \"min\": \"0\",\n              \"show\"\
+    : true\n            },\n            {\n              \"format\": \"short\",\n\
+    \              \"label\": null,\n              \"logBase\": 1,\n             \
+    \ \"max\": null,\n              \"min\": null,\n              \"show\": false\n\
+    \            }\n          ],\n          \"yaxis\": {\n            \"align\": false,\n\
+    \            \"alignLevel\": null\n          }\n        },\n        {\n      \
+    \    \"columns\": [],\n          \"fontSize\": \"100%\",\n          \"gridPos\"\
+    : {\n            \"h\": 7,\n            \"w\": 12,\n            \"x\": 12,\n \
+    \           \"y\": 21\n          },\n          \"id\": 99,\n          \"links\"\
+    : [],\n          \"pageSize\": null,\n          \"scroll\": true,\n          \"\
+    showHeader\": true,\n          \"sort\": {\n            \"col\": 1,\n        \
+    \    \"desc\": true\n          },\n          \"styles\": [\n            {\n  \
+    \            \"alias\": \"Time\",\n              \"dateFormat\": \"YYYY-MM-DD\
+    \ HH:mm:ss\",\n              \"pattern\": \"Time\",\n              \"type\": \"\
+    hidden\"\n            },\n            {\n              \"alias\": \"Operation\"\
+    ,\n              \"colorMode\": null,\n              \"colors\": [\n         \
+    \       \"rgba(245, 54, 54, 0.9)\",\n                \"rgba(237, 129, 40, 0.89)\"\
+    ,\n                \"rgba(50, 172, 45, 0.97)\"\n              ],\n           \
+    \   \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n              \"decimals\": 0,\n\
+    \              \"link\": false,\n              \"mappingType\": 1,\n         \
+    \     \"pattern\": \"Value\",\n              \"thresholds\": [],\n           \
+    \   \"type\": \"number\",\n              \"unit\": \"dtdurations\"\n         \
+    \   },\n            {\n              \"alias\": \"Database\",\n              \"\
+    colorMode\": null,\n              \"colors\": [\n                \"rgba(245, 54,\
+    \ 54, 0.9)\",\n                \"rgba(237, 129, 40, 0.89)\",\n               \
+    \ \"rgba(50, 172, 45, 0.97)\"\n              ],\n              \"dateFormat\"\
+    : \"YYYY-MM-DD HH:mm:ss\",\n              \"decimals\": 2,\n              \"mappingType\"\
+    : 1,\n              \"pattern\": \"datname\",\n              \"thresholds\": [],\n\
+    \              \"type\": \"number\",\n              \"unit\": \"short\"\n    \
+    \        },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"instance\",\n              \"thresholds\": [],\n      \
+    \        \"type\": \"hidden\",\n              \"unit\": \"short\"\n          \
+    \  },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"job\",\n              \"thresholds\": [],\n           \
+    \   \"type\": \"hidden\",\n              \"unit\": \"short\"\n            },\n\
+    \            {\n              \"alias\": \"Table\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"relname\",\n              \"thresholds\": [],\n       \
+    \       \"type\": \"number\",\n              \"unit\": \"short\"\n           \
+    \ },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"schemaname\",\n              \"thresholds\": [],\n    \
+    \          \"type\": \"hidden\",\n              \"unit\": \"short\"\n        \
+    \    },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"decimals\": 2,\n            \
+    \  \"pattern\": \"/.*/\",\n              \"thresholds\": [],\n              \"\
+    type\": \"number\",\n              \"unit\": \"short\"\n            }\n      \
+    \    ],\n          \"targets\": [\n            {\n              \"expr\": \"time()\
+    \ - pg_stat_user_tables_last_vacuum{instance=~\\\"$host\\\", datname=~\\\"$db\\\
+    \"}\",\n              \"format\": \"table\",\n              \"instant\": true,\n\
+    \              \"interval\": \"$interval\",\n              \"intervalFactor\"\
+    : 1,\n              \"legendFormat\": \"\",\n              \"refId\": \"A\"\n\
+    \            }\n          ],\n          \"title\": \"Last Vacuum\",\n        \
+    \  \"transform\": \"table\",\n          \"type\": \"table\"\n        },\n    \
+    \    {\n          \"aliasColors\": {\n            \"Dead Tuples\": \"#BF1B00\"\
+    \n          },\n          \"bars\": true,\n          \"dashLength\": 10,\n   \
+    \       \"dashes\": false,\n          \"datasource\": \"Prometheus\",\n      \
+    \    \"decimals\": 0,\n          \"editable\": true,\n          \"error\": false,\n\
+    \          \"fill\": 2,\n          \"grid\": {},\n          \"gridPos\": {\n \
+    \           \"h\": 7,\n            \"w\": 12,\n            \"x\": 0,\n       \
+    \     \"y\": 28\n          },\n          \"height\": \"400px\",\n          \"\
+    id\": 85,\n          \"legend\": {\n            \"alignAsTable\": true,\n    \
+    \        \"avg\": true,\n            \"current\": false,\n            \"max\"\
+    : true,\n            \"min\": true,\n            \"rightSide\": false,\n     \
+    \       \"show\": true,\n            \"sort\": \"avg\",\n            \"sortDesc\"\
+    : true,\n            \"total\": false,\n            \"values\": true\n       \
+    \   },\n          \"lines\": false,\n          \"linewidth\": 2,\n          \"\
+    links\": [],\n          \"nullPointMode\": \"connected\",\n          \"percentage\"\
+    : false,\n          \"pointradius\": 5,\n          \"points\": false,\n      \
+    \    \"renderer\": \"flot\",\n          \"seriesOverrides\": [],\n          \"\
+    spaceLength\": 10,\n          \"stack\": false,\n          \"steppedLine\": false,\n\
+    \          \"targets\": [\n            {\n              \"dsType\": \"influxdb\"\
+    ,\n              \"expr\": \"increase(pg_stat_user_tables_autoanalyze_count{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[$interval]) or\\nirate(pg_stat_user_tables_autoanalyze_count{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[5m])\",\n              \"format\": \"time_series\"\
+    ,\n              \"groupBy\": [\n                {\n                  \"params\"\
+    : [\n                    \"$interval\"\n                  ],\n               \
+    \   \"type\": \"time\"\n                },\n                {\n              \
+    \    \"params\": [\n                    \"null\"\n                  ],\n     \
+    \             \"type\": \"fill\"\n                }\n              ],\n      \
+    \        \"interval\": \"$interval\",\n              \"intervalFactor\": 1,\n\
+    \              \"legendFormat\": \"{{datname}} - {{relname}}\",\n            \
+    \  \"metric\": \"\",\n              \"policy\": \"default\",\n              \"\
+    refId\": \"A\",\n              \"resultFormat\": \"time_series\",\n          \
+    \    \"select\": [\n                [\n                  {\n                 \
+    \   \"params\": [\n                      \"value\"\n                    ],\n \
+    \                   \"type\": \"field\"\n                  },\n              \
+    \    {\n                    \"params\": [],\n                    \"type\": \"\
+    mean\"\n                  }\n                ]\n              ],\n           \
+    \   \"step\": 60,\n              \"tags\": []\n            }\n          ],\n \
+    \         \"thresholds\": [],\n          \"timeFrom\": null,\n          \"timeRegions\"\
+    : [],\n          \"timeShift\": null,\n          \"title\": \"Autoanalyze Per\
+    \ Table\",\n          \"tooltip\": {\n            \"msResolution\": false,\n \
+    \           \"shared\": false,\n            \"sort\": 2,\n            \"value_type\"\
+    : \"cumulative\"\n          },\n          \"type\": \"graph\",\n          \"xaxis\"\
+    : {\n            \"buckets\": null,\n            \"mode\": \"time\",\n       \
+    \     \"name\": null,\n            \"show\": true,\n            \"values\": []\n\
+    \          },\n          \"yaxes\": [\n            {\n              \"decimals\"\
+    : 2,\n              \"format\": \"ops\",\n              \"label\": null,\n   \
+    \           \"logBase\": 1,\n              \"max\": null,\n              \"min\"\
+    : \"0\",\n              \"show\": true\n            },\n            {\n      \
+    \        \"format\": \"short\",\n              \"label\": null,\n            \
+    \  \"logBase\": 1,\n              \"max\": null,\n              \"min\": null,\n\
+    \              \"show\": false\n            }\n          ],\n          \"yaxis\"\
+    : {\n            \"align\": false,\n            \"alignLevel\": null\n       \
+    \   }\n        },\n        {\n          \"columns\": [],\n          \"fontSize\"\
+    : \"100%\",\n          \"gridPos\": {\n            \"h\": 7,\n            \"w\"\
+    : 12,\n            \"x\": 12,\n            \"y\": 28\n          },\n         \
+    \ \"id\": 98,\n          \"links\": [],\n          \"pageSize\": null,\n     \
+    \     \"scroll\": true,\n          \"showHeader\": true,\n          \"sort\":\
+    \ {\n            \"col\": 1,\n            \"desc\": true\n          },\n     \
+    \     \"styles\": [\n            {\n              \"alias\": \"Time\",\n     \
+    \         \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n              \"pattern\"\
+    : \"Time\",\n              \"type\": \"hidden\"\n            },\n            {\n\
+    \              \"alias\": \"Operation\",\n              \"colorMode\": null,\n\
+    \              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\",\n  \
+    \              \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 0,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"Value\",\n              \"thresholds\": [],\n         \
+    \     \"type\": \"number\",\n              \"unit\": \"dtdurations\"\n       \
+    \     },\n            {\n              \"alias\": \"Database\",\n            \
+    \  \"colorMode\": null,\n              \"colors\": [\n                \"rgba(245,\
+    \ 54, 54, 0.9)\",\n                \"rgba(237, 129, 40, 0.89)\",\n           \
+    \     \"rgba(50, 172, 45, 0.97)\"\n              ],\n              \"dateFormat\"\
+    : \"YYYY-MM-DD HH:mm:ss\",\n              \"decimals\": 2,\n              \"mappingType\"\
+    : 1,\n              \"pattern\": \"datname\",\n              \"thresholds\": [],\n\
+    \              \"type\": \"number\",\n              \"unit\": \"short\"\n    \
+    \        },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"instance\",\n              \"thresholds\": [],\n      \
+    \        \"type\": \"hidden\",\n              \"unit\": \"short\"\n          \
+    \  },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"job\",\n              \"thresholds\": [],\n           \
+    \   \"type\": \"hidden\",\n              \"unit\": \"short\"\n            },\n\
+    \            {\n              \"alias\": \"Table\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"relname\",\n              \"thresholds\": [],\n       \
+    \       \"type\": \"number\",\n              \"unit\": \"short\"\n           \
+    \ },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"schemaname\",\n              \"thresholds\": [],\n    \
+    \          \"type\": \"hidden\",\n              \"unit\": \"short\"\n        \
+    \    },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"decimals\": 2,\n            \
+    \  \"pattern\": \"/.*/\",\n              \"thresholds\": [],\n              \"\
+    type\": \"number\",\n              \"unit\": \"short\"\n            }\n      \
+    \    ],\n          \"targets\": [\n            {\n              \"expr\": \"time()\
+    \ - pg_stat_user_tables_last_autoanalyze{instance=~\\\"$host\\\", datname=~\\\"\
+    $db\\\"}\",\n              \"format\": \"table\",\n              \"instant\":\
+    \ true,\n              \"interval\": \"$interval\",\n              \"intervalFactor\"\
+    : 1,\n              \"legendFormat\": \"\",\n              \"refId\": \"A\"\n\
+    \            }\n          ],\n          \"title\": \"Last Autoanalyze\",\n   \
+    \       \"transform\": \"table\",\n          \"type\": \"table\"\n        },\n\
+    \        {\n          \"aliasColors\": {\n            \"Dead Tuples\": \"#BF1B00\"\
+    \n          },\n          \"bars\": true,\n          \"dashLength\": 10,\n   \
+    \       \"dashes\": false,\n          \"datasource\": \"Prometheus\",\n      \
+    \    \"decimals\": 0,\n          \"editable\": true,\n          \"error\": false,\n\
+    \          \"fill\": 2,\n          \"grid\": {},\n          \"gridPos\": {\n \
+    \           \"h\": 7,\n            \"w\": 12,\n            \"x\": 0,\n       \
+    \     \"y\": 35\n          },\n          \"height\": \"400px\",\n          \"\
+    id\": 15,\n          \"legend\": {\n            \"alignAsTable\": true,\n    \
+    \        \"avg\": true,\n            \"current\": false,\n            \"max\"\
+    : true,\n            \"min\": true,\n            \"rightSide\": false,\n     \
+    \       \"show\": true,\n            \"sort\": \"avg\",\n            \"sortDesc\"\
+    : true,\n            \"total\": false,\n            \"values\": true\n       \
+    \   },\n          \"lines\": false,\n          \"linewidth\": 2,\n          \"\
+    links\": [],\n          \"nullPointMode\": \"connected\",\n          \"percentage\"\
+    : false,\n          \"pointradius\": 5,\n          \"points\": false,\n      \
+    \    \"renderer\": \"flot\",\n          \"seriesOverrides\": [],\n          \"\
+    spaceLength\": 10,\n          \"stack\": false,\n          \"steppedLine\": false,\n\
+    \          \"targets\": [\n            {\n              \"dsType\": \"influxdb\"\
+    ,\n              \"expr\": \"increase(pg_stat_user_tables_analyze_count{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[$interval]) or\\nirate(pg_stat_user_tables_analyze_count{instance=\\\
+    \"$host\\\",datname=~\\\"$db\\\"}[5m])\",\n              \"format\": \"time_series\"\
+    ,\n              \"groupBy\": [\n                {\n                  \"params\"\
+    : [\n                    \"$interval\"\n                  ],\n               \
+    \   \"type\": \"time\"\n                },\n                {\n              \
+    \    \"params\": [\n                    \"null\"\n                  ],\n     \
+    \             \"type\": \"fill\"\n                }\n              ],\n      \
+    \        \"interval\": \"$interval\",\n              \"intervalFactor\": 1,\n\
+    \              \"legendFormat\": \"{{datname}} - {{relname}}\",\n            \
+    \  \"metric\": \"\",\n              \"policy\": \"default\",\n              \"\
+    refId\": \"A\",\n              \"resultFormat\": \"time_series\",\n          \
+    \    \"select\": [\n                [\n                  {\n                 \
+    \   \"params\": [\n                      \"value\"\n                    ],\n \
+    \                   \"type\": \"field\"\n                  },\n              \
+    \    {\n                    \"params\": [],\n                    \"type\": \"\
+    mean\"\n                  }\n                ]\n              ],\n           \
+    \   \"step\": 60,\n              \"tags\": []\n            }\n          ],\n \
+    \         \"thresholds\": [],\n          \"timeFrom\": null,\n          \"timeRegions\"\
+    : [],\n          \"timeShift\": null,\n          \"title\": \"Analyze Per Table\"\
+    ,\n          \"tooltip\": {\n            \"msResolution\": false,\n          \
+    \  \"shared\": false,\n            \"sort\": 2,\n            \"value_type\": \"\
+    cumulative\"\n          },\n          \"type\": \"graph\",\n          \"xaxis\"\
+    : {\n            \"buckets\": null,\n            \"mode\": \"time\",\n       \
+    \     \"name\": null,\n            \"show\": true,\n            \"values\": []\n\
+    \          },\n          \"yaxes\": [\n            {\n              \"decimals\"\
+    : 2,\n              \"format\": \"ops\",\n              \"label\": null,\n   \
+    \           \"logBase\": 1,\n              \"max\": null,\n              \"min\"\
+    : null,\n              \"show\": true\n            },\n            {\n       \
+    \       \"format\": \"short\",\n              \"label\": null,\n             \
+    \ \"logBase\": 1,\n              \"max\": null,\n              \"min\": null,\n\
+    \              \"show\": false\n            }\n          ],\n          \"yaxis\"\
+    : {\n            \"align\": false,\n            \"alignLevel\": null\n       \
+    \   }\n        },\n        {\n          \"columns\": [],\n          \"fontSize\"\
+    : \"100%\",\n          \"gridPos\": {\n            \"h\": 7,\n            \"w\"\
+    : 12,\n            \"x\": 12,\n            \"y\": 35\n          },\n         \
+    \ \"id\": 100,\n          \"links\": [],\n          \"pageSize\": null,\n    \
+    \      \"scroll\": true,\n          \"showHeader\": true,\n          \"sort\"\
+    : {\n            \"col\": 1,\n            \"desc\": true\n          },\n     \
+    \     \"styles\": [\n            {\n              \"alias\": \"Time\",\n     \
+    \         \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n              \"pattern\"\
+    : \"Time\",\n              \"type\": \"hidden\"\n            },\n            {\n\
+    \              \"alias\": \"Operation\",\n              \"colorMode\": null,\n\
+    \              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\",\n  \
+    \              \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 0,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"Value\",\n              \"thresholds\": [],\n         \
+    \     \"type\": \"number\",\n              \"unit\": \"dtdurations\"\n       \
+    \     },\n            {\n              \"alias\": \"Database\",\n            \
+    \  \"colorMode\": null,\n              \"colors\": [\n                \"rgba(245,\
+    \ 54, 54, 0.9)\",\n                \"rgba(237, 129, 40, 0.89)\",\n           \
+    \     \"rgba(50, 172, 45, 0.97)\"\n              ],\n              \"dateFormat\"\
+    : \"YYYY-MM-DD HH:mm:ss\",\n              \"decimals\": 2,\n              \"mappingType\"\
+    : 1,\n              \"pattern\": \"datname\",\n              \"thresholds\": [],\n\
+    \              \"type\": \"number\",\n              \"unit\": \"short\"\n    \
+    \        },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"instance\",\n              \"thresholds\": [],\n      \
+    \        \"type\": \"hidden\",\n              \"unit\": \"short\"\n          \
+    \  },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"job\",\n              \"thresholds\": [],\n           \
+    \   \"type\": \"hidden\",\n              \"unit\": \"short\"\n            },\n\
+    \            {\n              \"alias\": \"Table\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"relname\",\n              \"thresholds\": [],\n       \
+    \       \"type\": \"number\",\n              \"unit\": \"short\"\n           \
+    \ },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\"\
+    ,\n              \"decimals\": 2,\n              \"mappingType\": 1,\n       \
+    \       \"pattern\": \"schemaname\",\n              \"thresholds\": [],\n    \
+    \          \"type\": \"hidden\",\n              \"unit\": \"short\"\n        \
+    \    },\n            {\n              \"alias\": \"\",\n              \"colorMode\"\
+    : null,\n              \"colors\": [\n                \"rgba(245, 54, 54, 0.9)\"\
+    ,\n                \"rgba(237, 129, 40, 0.89)\",\n                \"rgba(50, 172,\
+    \ 45, 0.97)\"\n              ],\n              \"decimals\": 2,\n            \
+    \  \"pattern\": \"/.*/\",\n              \"thresholds\": [],\n              \"\
+    type\": \"number\",\n              \"unit\": \"short\"\n            }\n      \
+    \    ],\n          \"targets\": [\n            {\n              \"expr\": \"time()\
+    \ - pg_stat_user_tables_last_analyze{instance=~\\\"$host\\\", datname=~\\\"$db\\\
+    \"}\",\n              \"format\": \"table\",\n              \"instant\": true,\n\
+    \              \"interval\": \"$interval\",\n              \"intervalFactor\"\
+    : 1,\n              \"legendFormat\": \"\",\n              \"refId\": \"A\"\n\
+    \            }\n          ],\n          \"title\": \"Last Analyze\",\n       \
+    \   \"transform\": \"table\",\n          \"type\": \"table\"\n        }\n    \
+    \  ],\n      \"repeat\": null,\n      \"title\": \"$host Vacuum/Autovacuum & Analyze/Autoanalyze\
+    \ per Table\",\n      \"type\": \"row\"\n    }\n  ],\n  \"refresh\": \"1m\",\n\
+    \  \"schemaVersion\": 16,\n  \"style\": \"dark\",\n  \"tags\": [\n    \"postgresql\"\
+    \n  ],\n  \"templating\": {\n    \"list\": [\n      {\n        \"auto\": true,\n\
+    \        \"auto_count\": 200,\n        \"auto_min\": \"1s\",\n        \"current\"\
+    : {\n          \"text\": \"auto\",\n          \"value\": \"$__auto_interval_interval\"\
+    \n        },\n        \"hide\": 0,\n        \"label\": \"Interval\",\n       \
+    \ \"name\": \"interval\",\n        \"options\": [\n          {\n            \"\
+    selected\": true,\n            \"text\": \"auto\",\n            \"value\": \"\
+    $__auto_interval_interval\"\n          },\n          {\n            \"selected\"\
+    : false,\n            \"text\": \"1s\",\n            \"value\": \"1s\"\n     \
+    \     },\n          {\n            \"selected\": false,\n            \"text\"\
+    : \"5s\",\n            \"value\": \"5s\"\n          },\n          {\n        \
+    \    \"selected\": false,\n            \"text\": \"1m\",\n            \"value\"\
+    : \"1m\"\n          },\n          {\n            \"selected\": false,\n      \
+    \      \"text\": \"5m\",\n            \"value\": \"5m\"\n          },\n      \
+    \    {\n            \"selected\": false,\n            \"text\": \"1h\",\n    \
+    \        \"value\": \"1h\"\n          },\n          {\n            \"selected\"\
+    : false,\n            \"text\": \"6h\",\n            \"value\": \"6h\"\n     \
+    \     },\n          {\n            \"selected\": false,\n            \"text\"\
+    : \"1d\",\n            \"value\": \"1d\"\n          }\n        ],\n        \"\
+    query\": \"1s,5s,1m,5m,1h,6h,1d\",\n        \"refresh\": 2,\n        \"skipUrlSync\"\
+    : false,\n        \"type\": \"interval\"\n      },\n      {\n        \"allValue\"\
+    : null,\n        \"current\": {},\n        \"datasource\": \"${DS_PROMETHEUS}\"\
+    ,\n        \"definition\": \"label_values(pg_up,instance)\",\n        \"hide\"\
+    : 0,\n        \"includeAll\": false,\n        \"label\": \"Host\",\n        \"\
+    multi\": false,\n        \"name\": \"host\",\n        \"options\": [],\n     \
+    \   \"query\": \"label_values(pg_up,instance)\",\n        \"refresh\": 1,\n  \
+    \      \"regex\": \"\",\n        \"skipUrlSync\": false,\n        \"sort\": 0,\n\
+    \        \"tagValuesQuery\": \"\",\n        \"tags\": [],\n        \"tagsQuery\"\
+    : \"\",\n        \"type\": \"query\",\n        \"useTags\": false\n      },\n\
+    \      {\n        \"allValue\": null,\n        \"current\": {},\n        \"datasource\"\
+    : \"${DS_PROMETHEUS}\",\n        \"definition\": \"label_values(pg_stat_database_tup_fetched{instance=\\\
+    \"$host\\\",datname!~\\\"template.*|postgres\\\"},datname)\",\n        \"hide\"\
+    : 0,\n        \"includeAll\": true,\n        \"label\": \"Database\",\n      \
+    \  \"multi\": true,\n        \"name\": \"db\",\n        \"options\": [],\n   \
+    \     \"query\": \"label_values(pg_stat_database_tup_fetched{instance=\\\"$host\\\
+    \",datname!~\\\"template.*|postgres\\\"},datname)\",\n        \"refresh\": 1,\n\
+    \        \"regex\": \"\",\n        \"skipUrlSync\": false,\n        \"sort\":\
+    \ 0,\n        \"tagValuesQuery\": \"\",\n        \"tags\": [],\n        \"tagsQuery\"\
+    : \"\",\n        \"type\": \"query\",\n        \"useTags\": false\n      },\n\
+    \      {\n        \"allValue\": \"All\",\n        \"current\": {},\n        \"\
+    datasource\": \"${DS_PROMETHEUS}\",\n        \"definition\": \"label_values(pg_stat_user_tables_seq_tup_read{datname=~\\\
+    \"$db\\\"},relname)\",\n        \"hide\": 2,\n        \"includeAll\": true,\n\
+    \        \"label\": \"Table\",\n        \"multi\": true,\n        \"name\": \"\
+    relname\",\n        \"options\": [],\n        \"query\": \"label_values(pg_stat_user_tables_seq_tup_read{datname=~\\\
+    \"$db\\\"},relname)\",\n        \"refresh\": 1,\n        \"regex\": \"\",\n  \
+    \      \"skipUrlSync\": false,\n        \"sort\": 0,\n        \"tagValuesQuery\"\
+    : \"\",\n        \"tags\": [],\n        \"tagsQuery\": \"\",\n        \"type\"\
+    : \"query\",\n        \"useTags\": false\n      }\n    ]\n  },\n  \"time\": {\n\
+    \    \"from\": \"now-12h\",\n    \"to\": \"now\"\n  },\n  \"timepicker\": {\n\
+    \    \"hidden\": false,\n    \"refresh_intervals\": [\n      \"5s\",\n      \"\
+    10s\",\n      \"30s\",\n      \"1m\",\n      \"5m\",\n      \"15m\",\n      \"\
+    30m\",\n      \"1h\",\n      \"2h\",\n      \"1d\"\n    ],\n    \"time_options\"\
+    : [\n      \"5m\",\n      \"15m\",\n      \"1h\",\n      \"6h\",\n      \"12h\"\
+    ,\n      \"24h\",\n      \"2d\",\n      \"7d\",\n      \"30d\"\n    ]\n  },\n\
+    \  \"timezone\": \"browser\",\n  \"title\": \"PostgreSQL Tuple Statistics (Designed\
+    \ for PMM)\",\n  \"uid\": \"pmmPgsql3\",\n  \"version\": 1,\n  \"description\"\
+    : \"The PostgreSQL Tuple Statistics Dashboard\",\n  \"tz\": {}\n}"

@@ -1,0 +1,600 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-11575
+  namespace: kube-prometheus
+  labels:
+    grafana_dashboard: '1'
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: observability
+data:
+  dashboard.json: "{\n  \"__inputs\": [\n    {\n      \"name\": \"DS_PROMETHEUS\"\
+    ,\n      \"label\": \"Prometheus\",\n      \"description\": \"\",\n      \"type\"\
+    : \"datasource\",\n      \"pluginId\": \"prometheus\",\n      \"pluginName\":\
+    \ \"Prometheus\"\n    }\n  ],\n  \"__requires\": [\n    {\n      \"type\": \"\
+    grafana\",\n      \"id\": \"grafana\",\n      \"name\": \"Grafana\",\n      \"\
+    version\": \"6.5.1\"\n    },\n    {\n      \"type\": \"panel\",\n      \"id\"\
+    : \"graph\",\n      \"name\": \"Graph\",\n      \"version\": \"\"\n    },\n  \
+    \  {\n      \"type\": \"datasource\",\n      \"id\": \"prometheus\",\n      \"\
+    name\": \"Prometheus\",\n      \"version\": \"1.0.0\"\n    }\n  ],\n  \"annotations\"\
+    : {\n    \"list\": [\n      {\n        \"builtIn\": 1,\n        \"datasource\"\
+    : \"-- Grafana --\",\n        \"enable\": true,\n        \"hide\": true,\n   \
+    \     \"iconColor\": \"rgba(0, 211, 255, 1)\",\n        \"name\": \"Annotations\
+    \ & Alerts\",\n        \"type\": \"dashboard\"\n      }\n    ]\n  },\n  \"description\"\
+    : \"Provides information about the status of the OpenTelemetry Collector\",\n\
+    \  \"editable\": true,\n  \"gnetId\": 11575,\n  \"graphTooltip\": 0,\n  \"id\"\
+    : null,\n  \"iteration\": 1579218649499,\n  \"links\": [],\n  \"panels\": [\n\
+    \    {\n      \"collapsed\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\"\
+    ,\n      \"gridPos\": {\n        \"h\": 1,\n        \"w\": 24,\n        \"x\"\
+    : 0,\n        \"y\": 0\n      },\n      \"id\": 23,\n      \"panels\": [],\n \
+    \     \"title\": \"Receivers\",\n      \"type\": \"row\"\n    },\n    {\n    \
+    \  \"aliasColors\": {},\n      \"bars\": false,\n      \"dashLength\": 10,\n \
+    \     \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"\
+    description\": \"Rate of spans successfully received per second\",\n      \"fill\"\
+    : 1,\n      \"fillGradient\": 0,\n      \"gridPos\": {\n        \"h\": 9,\n  \
+    \      \"w\": 12,\n        \"x\": 0,\n        \"y\": 1\n      },\n      \"hiddenSeries\"\
+    : false,\n      \"id\": 28,\n      \"interval\": \"\",\n      \"legend\": {\n\
+    \        \"avg\": false,\n        \"current\": false,\n        \"max\": false,\n\
+    \        \"min\": false,\n        \"show\": true,\n        \"total\": false,\n\
+    \        \"values\": false\n      },\n      \"lines\": true,\n      \"linewidth\"\
+    : 1,\n      \"links\": [],\n      \"nullPointMode\": \"null\",\n      \"options\"\
+    : {\n        \"dataLinks\": []\n      },\n      \"percentage\": false,\n     \
+    \ \"pointradius\": 5,\n      \"points\": false,\n      \"renderer\": \"flot\"\
+    ,\n      \"seriesOverrides\": [],\n      \"spaceLength\": 10,\n      \"stack\"\
+    : false,\n      \"steppedLine\": false,\n      \"targets\": [\n        {\n   \
+    \       \"expr\": \"sum(rate(oc_collector_otelcol_receiver_received_spans{otelsvc_receiver=~\\\
+    \"$receiver\\\"}[1m])) by (otelsvc_receiver)\",\n          \"format\": \"time_series\"\
+    ,\n          \"intervalFactor\": 1,\n          \"legendFormat\": \"{{otelsvc_receiver}}\"\
+    ,\n          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Spans Received/Second\",\n      \"tooltip\": {\n        \"\
+    shared\": true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\n\
+    \      },\n      \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\"\
+    : null,\n        \"mode\": \"time\",\n        \"name\": null,\n        \"show\"\
+    : true,\n        \"values\": []\n      },\n      \"yaxes\": [\n        {\n   \
+    \       \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": \"0\",\n          \"show\"\
+    : true\n        },\n        {\n          \"format\": \"short\",\n          \"\
+    label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n        \
+    \  \"min\": null,\n          \"show\": true\n        }\n      ],\n      \"yaxis\"\
+    : {\n        \"align\": false,\n        \"alignLevel\": null\n      }\n    },\n\
+    \    {\n      \"aliasColors\": {},\n      \"bars\": false,\n      \"dashLength\"\
+    : 10,\n      \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\",\n\
+    \      \"description\": \"Rate of timeseries successfully received per second\"\
+    ,\n      \"fill\": 1,\n      \"fillGradient\": 0,\n      \"gridPos\": {\n    \
+    \    \"h\": 9,\n        \"w\": 12,\n        \"x\": 12,\n        \"y\": 1\n   \
+    \   },\n      \"hiddenSeries\": false,\n      \"id\": 19,\n      \"interval\"\
+    : \"\",\n      \"legend\": {\n        \"avg\": false,\n        \"current\": false,\n\
+    \        \"max\": false,\n        \"min\": false,\n        \"show\": true,\n \
+    \       \"total\": false,\n        \"values\": false\n      },\n      \"lines\"\
+    : true,\n      \"linewidth\": 1,\n      \"links\": [],\n      \"nullPointMode\"\
+    : \"null\",\n      \"options\": {\n        \"dataLinks\": []\n      },\n     \
+    \ \"percentage\": false,\n      \"pointradius\": 5,\n      \"points\": false,\n\
+    \      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\"\
+    : 10,\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"sum(rate(oc_collector_otelcol_receiver_received_timeseries{otelsvc_receiver=~\\\
+    \"$receiver\\\"}[1m])) by (otelsvc_receiver)\",\n          \"format\": \"time_series\"\
+    ,\n          \"intervalFactor\": 1,\n          \"legendFormat\": \"{{otelsvc_receiver}}\"\
+    ,\n          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Timeseries Received/Second\",\n      \"tooltip\": {\n    \
+    \    \"shared\": true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\
+    \n      },\n      \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\"\
+    : null,\n        \"mode\": \"time\",\n        \"name\": null,\n        \"show\"\
+    : true,\n        \"values\": []\n      },\n      \"yaxes\": [\n        {\n   \
+    \       \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": \"0\",\n          \"show\"\
+    : true\n        },\n        {\n          \"format\": \"short\",\n          \"\
+    label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n        \
+    \  \"min\": null,\n          \"show\": true\n        }\n      ],\n      \"yaxis\"\
+    : {\n        \"align\": false,\n        \"alignLevel\": null\n      }\n    },\n\
+    \    {\n      \"aliasColors\": {},\n      \"bars\": false,\n      \"dashLength\"\
+    : 10,\n      \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\",\n\
+    \      \"description\": \"Rate of spans dropped per second\",\n      \"fill\"\
+    : 1,\n      \"fillGradient\": 0,\n      \"gridPos\": {\n        \"h\": 9,\n  \
+    \      \"w\": 12,\n        \"x\": 0,\n        \"y\": 10\n      },\n      \"hiddenSeries\"\
+    : false,\n      \"id\": 18,\n      \"interval\": \"\",\n      \"legend\": {\n\
+    \        \"avg\": false,\n        \"current\": false,\n        \"max\": false,\n\
+    \        \"min\": false,\n        \"show\": true,\n        \"total\": false,\n\
+    \        \"values\": false\n      },\n      \"lines\": true,\n      \"linewidth\"\
+    : 1,\n      \"links\": [],\n      \"nullPointMode\": \"null\",\n      \"options\"\
+    : {\n        \"dataLinks\": []\n      },\n      \"percentage\": false,\n     \
+    \ \"pointradius\": 5,\n      \"points\": false,\n      \"renderer\": \"flot\"\
+    ,\n      \"seriesOverrides\": [],\n      \"spaceLength\": 10,\n      \"stack\"\
+    : false,\n      \"steppedLine\": false,\n      \"targets\": [\n        {\n   \
+    \       \"expr\": \"sum(rate(oc_collector_otelcol_receiver_dropped_spans{otelsvc_receiver=~\\\
+    \"$receiver\\\"}[1m])) by (otelsvc_receiver)\",\n          \"format\": \"time_series\"\
+    ,\n          \"intervalFactor\": 1,\n          \"legendFormat\": \"{{otelsvc_receiver}}\"\
+    ,\n          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Spans Dropped/Second\",\n      \"tooltip\": {\n        \"\
+    shared\": true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\n\
+    \      },\n      \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\"\
+    : null,\n        \"mode\": \"time\",\n        \"name\": null,\n        \"show\"\
+    : true,\n        \"values\": []\n      },\n      \"yaxes\": [\n        {\n   \
+    \       \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": \"0\",\n          \"show\"\
+    : true\n        },\n        {\n          \"format\": \"short\",\n          \"\
+    label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n        \
+    \  \"min\": null,\n          \"show\": true\n        }\n      ],\n      \"yaxis\"\
+    : {\n        \"align\": false,\n        \"alignLevel\": null\n      }\n    },\n\
+    \    {\n      \"aliasColors\": {},\n      \"bars\": false,\n      \"dashLength\"\
+    : 10,\n      \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\",\n\
+    \      \"description\": \"Rate of timeseries dropped per second.\",\n      \"\
+    fill\": 1,\n      \"fillGradient\": 0,\n      \"gridPos\": {\n        \"h\": 9,\n\
+    \        \"w\": 12,\n        \"x\": 12,\n        \"y\": 10\n      },\n      \"\
+    hiddenSeries\": false,\n      \"id\": 29,\n      \"interval\": \"\",\n      \"\
+    legend\": {\n        \"avg\": false,\n        \"current\": false,\n        \"\
+    max\": false,\n        \"min\": false,\n        \"show\": true,\n        \"total\"\
+    : false,\n        \"values\": false\n      },\n      \"lines\": true,\n      \"\
+    linewidth\": 1,\n      \"links\": [],\n      \"nullPointMode\": \"null\",\n  \
+    \    \"options\": {\n        \"dataLinks\": []\n      },\n      \"percentage\"\
+    : false,\n      \"pointradius\": 5,\n      \"points\": false,\n      \"renderer\"\
+    : \"flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\": 10,\n    \
+    \  \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\": [\n  \
+    \      {\n          \"expr\": \"sum(rate(oc_collector_otelcol_receiver_dropped_timeseries{otelsvc_receiver=~\\\
+    \"$receiver\\\"}[1m])) by (otelsvc_receiver)\",\n          \"format\": \"time_series\"\
+    ,\n          \"intervalFactor\": 1,\n          \"legendFormat\": \"{{otelsvc_receiver}}\"\
+    ,\n          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Timeseries Dropped/Second\",\n      \"tooltip\": {\n     \
+    \   \"shared\": true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\
+    \n      },\n      \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\"\
+    : null,\n        \"mode\": \"time\",\n        \"name\": null,\n        \"show\"\
+    : true,\n        \"values\": []\n      },\n      \"yaxes\": [\n        {\n   \
+    \       \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": \"0\",\n          \"show\"\
+    : true\n        },\n        {\n          \"format\": \"short\",\n          \"\
+    label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n        \
+    \  \"min\": null,\n          \"show\": true\n        }\n      ],\n      \"yaxis\"\
+    : {\n        \"align\": false,\n        \"alignLevel\": null\n      }\n    },\n\
+    \    {\n      \"collapsed\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\"\
+    ,\n      \"gridPos\": {\n        \"h\": 1,\n        \"w\": 24,\n        \"x\"\
+    : 0,\n        \"y\": 19\n      },\n      \"id\": 25,\n      \"panels\": [],\n\
+    \      \"title\": \"Exporters\",\n      \"type\": \"row\"\n    },\n    {\n   \
+    \   \"aliasColors\": {},\n      \"bars\": false,\n      \"dashLength\": 10,\n\
+    \      \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\",\n     \
+    \ \"description\": \"Rate of spans successfully exported per second\",\n     \
+    \ \"fill\": 1,\n      \"fillGradient\": 0,\n      \"gridPos\": {\n        \"h\"\
+    : 9,\n        \"w\": 12,\n        \"x\": 0,\n        \"y\": 20\n      },\n   \
+    \   \"hiddenSeries\": false,\n      \"id\": 30,\n      \"interval\": \"\",\n \
+    \     \"legend\": {\n        \"avg\": false,\n        \"current\": false,\n  \
+    \      \"max\": false,\n        \"min\": false,\n        \"show\": true,\n   \
+    \     \"total\": false,\n        \"values\": false\n      },\n      \"lines\"\
+    : true,\n      \"linewidth\": 1,\n      \"links\": [],\n      \"nullPointMode\"\
+    : \"null\",\n      \"options\": {\n        \"dataLinks\": []\n      },\n     \
+    \ \"percentage\": false,\n      \"pointradius\": 5,\n      \"points\": false,\n\
+    \      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\"\
+    : 10,\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"sum(rate(oc_collector_otelcol_exporter_received_spans{otelsvc_exporter=~\\\
+    \"$exporter\\\"}[1m])) by (otelsvc_exporter)\",\n          \"format\": \"time_series\"\
+    ,\n          \"intervalFactor\": 1,\n          \"legendFormat\": \"{{otelsvc_exporter}}\"\
+    ,\n          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Exported Spans/Second\",\n      \"tooltip\": {\n        \"\
+    shared\": true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\n\
+    \      },\n      \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\"\
+    : null,\n        \"mode\": \"time\",\n        \"name\": null,\n        \"show\"\
+    : true,\n        \"values\": []\n      },\n      \"yaxes\": [\n        {\n   \
+    \       \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": \"0\",\n          \"show\"\
+    : true\n        },\n        {\n          \"format\": \"short\",\n          \"\
+    label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n        \
+    \  \"min\": null,\n          \"show\": true\n        }\n      ],\n      \"yaxis\"\
+    : {\n        \"align\": false,\n        \"alignLevel\": null\n      }\n    },\n\
+    \    {\n      \"aliasColors\": {},\n      \"bars\": false,\n      \"dashLength\"\
+    : 10,\n      \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\",\n\
+    \      \"description\": \"Rate of timeseries successfully exported per second\"\
+    ,\n      \"fill\": 1,\n      \"fillGradient\": 0,\n      \"gridPos\": {\n    \
+    \    \"h\": 9,\n        \"w\": 12,\n        \"x\": 12,\n        \"y\": 20\n  \
+    \    },\n      \"hiddenSeries\": false,\n      \"id\": 31,\n      \"interval\"\
+    : \"\",\n      \"legend\": {\n        \"avg\": false,\n        \"current\": false,\n\
+    \        \"max\": false,\n        \"min\": false,\n        \"show\": true,\n \
+    \       \"total\": false,\n        \"values\": false\n      },\n      \"lines\"\
+    : true,\n      \"linewidth\": 1,\n      \"links\": [],\n      \"nullPointMode\"\
+    : \"null\",\n      \"options\": {\n        \"dataLinks\": []\n      },\n     \
+    \ \"percentage\": false,\n      \"pointradius\": 5,\n      \"points\": false,\n\
+    \      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\"\
+    : 10,\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"sum(rate(oc_collector_otelcol_exporter_received_timeseries{otelsvc_exporter=~\\\
+    \"$exporter\\\"}[1m])) by (otelsvc_exporter)\",\n          \"format\": \"time_series\"\
+    ,\n          \"intervalFactor\": 1,\n          \"legendFormat\": \"{{otelsvc_exporter}}\"\
+    ,\n          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Exported Timeseries/Second\",\n      \"tooltip\": {\n    \
+    \    \"shared\": true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\
+    \n      },\n      \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\"\
+    : null,\n        \"mode\": \"time\",\n        \"name\": null,\n        \"show\"\
+    : true,\n        \"values\": []\n      },\n      \"yaxes\": [\n        {\n   \
+    \       \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": \"0\",\n          \"show\"\
+    : true\n        },\n        {\n          \"format\": \"short\",\n          \"\
+    label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n        \
+    \  \"min\": null,\n          \"show\": true\n        }\n      ],\n      \"yaxis\"\
+    : {\n        \"align\": false,\n        \"alignLevel\": null\n      }\n    },\n\
+    \    {\n      \"collapsed\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\"\
+    ,\n      \"gridPos\": {\n        \"h\": 1,\n        \"w\": 24,\n        \"x\"\
+    : 0,\n        \"y\": 29\n      },\n      \"id\": 21,\n      \"panels\": [],\n\
+    \      \"repeat\": null,\n      \"title\": \"Queued Retry\",\n      \"type\":\
+    \ \"row\"\n    },\n    {\n      \"aliasColors\": {},\n      \"bars\": false,\n\
+    \      \"dashLength\": 10,\n      \"dashes\": false,\n      \"datasource\": \"\
+    ${DS_PROMETHEUS}\",\n      \"fill\": 1,\n      \"fillGradient\": 0,\n      \"\
+    gridPos\": {\n        \"h\": 9,\n        \"w\": 12,\n        \"x\": 0,\n     \
+    \   \"y\": 30\n      },\n      \"hiddenSeries\": false,\n      \"id\": 10,\n \
+    \     \"legend\": {\n        \"avg\": false,\n        \"current\": false,\n  \
+    \      \"max\": false,\n        \"min\": false,\n        \"show\": true,\n   \
+    \     \"total\": false,\n        \"values\": false\n      },\n      \"lines\"\
+    : true,\n      \"linewidth\": 1,\n      \"links\": [],\n      \"nullPointMode\"\
+    : \"null\",\n      \"options\": {\n        \"dataLinks\": []\n      },\n     \
+    \ \"percentage\": false,\n      \"pointradius\": 5,\n      \"points\": false,\n\
+    \      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\"\
+    : 10,\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"max(oc_collector_queue_length{processor=~\\\
+    \"$processor\\\"}) by (processor)\",\n          \"format\": \"time_series\",\n\
+    \          \"intervalFactor\": 1,\n          \"legendFormat\": \"{{processor}}\"\
+    ,\n          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Queue Length\",\n      \"tooltip\": {\n        \"shared\"\
+    : true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\n      },\n\
+    \      \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\": null,\n\
+    \        \"mode\": \"time\",\n        \"name\": null,\n        \"show\": true,\n\
+    \        \"values\": []\n      },\n      \"yaxes\": [\n        {\n          \"\
+    format\": \"short\",\n          \"label\": null,\n          \"logBase\": 1,\n\
+    \          \"max\": null,\n          \"min\": null,\n          \"show\": true\n\
+    \        },\n        {\n          \"format\": \"short\",\n          \"label\"\
+    : null,\n          \"logBase\": 1,\n          \"max\": null,\n          \"min\"\
+    : null,\n          \"show\": true\n        }\n      ],\n      \"yaxis\": {\n \
+    \       \"align\": false,\n        \"alignLevel\": null\n      }\n    },\n   \
+    \ {\n      \"aliasColors\": {},\n      \"bars\": false,\n      \"dashLength\"\
+    : 10,\n      \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\",\n\
+    \      \"fill\": 1,\n      \"fillGradient\": 0,\n      \"gridPos\": {\n      \
+    \  \"h\": 9,\n        \"w\": 12,\n        \"x\": 12,\n        \"y\": 30\n    \
+    \  },\n      \"hiddenSeries\": false,\n      \"id\": 11,\n      \"legend\": {\n\
+    \        \"avg\": false,\n        \"current\": false,\n        \"max\": false,\n\
+    \        \"min\": false,\n        \"show\": true,\n        \"total\": false,\n\
+    \        \"values\": false\n      },\n      \"lines\": true,\n      \"linewidth\"\
+    : 1,\n      \"links\": [],\n      \"nullPointMode\": \"null\",\n      \"options\"\
+    : {\n        \"dataLinks\": []\n      },\n      \"percentage\": false,\n     \
+    \ \"pointradius\": 5,\n      \"points\": false,\n      \"renderer\": \"flot\"\
+    ,\n      \"seriesOverrides\": [],\n      \"spaceLength\": 10,\n      \"stack\"\
+    : false,\n      \"steppedLine\": false,\n      \"targets\": [\n        {\n   \
+    \       \"expr\": \"sum(oc_collector_queue_latency_sum{processor=~\\\"$processor\\\
+    \"} / oc_collector_queue_latency_count{processor=~\\\"$processor\\\"}) by (processor)\"\
+    ,\n          \"format\": \"time_series\",\n          \"intervalFactor\": 1,\n\
+    \          \"legendFormat\": \"{{processor}}\",\n          \"refId\": \"A\"\n\
+    \        }\n      ],\n      \"thresholds\": [],\n      \"timeFrom\": null,\n \
+    \     \"timeRegions\": [],\n      \"timeShift\": null,\n      \"title\": \"In-queue\
+    \ Latency (ms)\",\n      \"tooltip\": {\n        \"shared\": true,\n        \"\
+    sort\": 0,\n        \"value_type\": \"individual\"\n      },\n      \"type\":\
+    \ \"graph\",\n      \"xaxis\": {\n        \"buckets\": null,\n        \"mode\"\
+    : \"time\",\n        \"name\": null,\n        \"show\": true,\n        \"values\"\
+    : []\n      },\n      \"yaxes\": [\n        {\n          \"format\": \"short\"\
+    ,\n          \"label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n\
+    \          \"min\": null,\n          \"show\": true\n        },\n        {\n \
+    \         \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": null,\n          \"show\":\
+    \ true\n        }\n      ],\n      \"yaxis\": {\n        \"align\": false,\n \
+    \       \"alignLevel\": null\n      }\n    },\n    {\n      \"aliasColors\": {},\n\
+    \      \"bars\": false,\n      \"dashLength\": 10,\n      \"dashes\": false,\n\
+    \      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"fill\": 1,\n      \"fillGradient\"\
+    : 0,\n      \"gridPos\": {\n        \"h\": 9,\n        \"w\": 12,\n        \"\
+    x\": 0,\n        \"y\": 39\n      },\n      \"hiddenSeries\": false,\n      \"\
+    id\": 15,\n      \"interval\": \"\",\n      \"legend\": {\n        \"avg\": false,\n\
+    \        \"current\": false,\n        \"max\": false,\n        \"min\": false,\n\
+    \        \"show\": true,\n        \"total\": false,\n        \"values\": false\n\
+    \      },\n      \"lines\": true,\n      \"linewidth\": 1,\n      \"links\": [],\n\
+    \      \"nullPointMode\": \"null\",\n      \"options\": {\n        \"dataLinks\"\
+    : []\n      },\n      \"percentage\": false,\n      \"pointradius\": 5,\n    \
+    \  \"points\": false,\n      \"renderer\": \"flot\",\n      \"seriesOverrides\"\
+    : [],\n      \"spaceLength\": 10,\n      \"stack\": false,\n      \"steppedLine\"\
+    : false,\n      \"targets\": [\n        {\n          \"expr\": \"sum(rate(oc_collector_spans_received[1m]))\
+    \ by (processor)\",\n          \"format\": \"time_series\",\n          \"intervalFactor\"\
+    : 1,\n          \"legendFormat\": \"{{processor}}\",\n          \"refId\": \"\
+    A\"\n        }\n      ],\n      \"thresholds\": [],\n      \"timeFrom\": null,\n\
+    \      \"timeRegions\": [],\n      \"timeShift\": null,\n      \"title\": \"Spans\
+    \ Enqueued/Second\",\n      \"tooltip\": {\n        \"shared\": true,\n      \
+    \  \"sort\": 0,\n        \"value_type\": \"individual\"\n      },\n      \"type\"\
+    : \"graph\",\n      \"xaxis\": {\n        \"buckets\": null,\n        \"mode\"\
+    : \"time\",\n        \"name\": null,\n        \"show\": true,\n        \"values\"\
+    : []\n      },\n      \"yaxes\": [\n        {\n          \"format\": \"short\"\
+    ,\n          \"label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n\
+    \          \"min\": null,\n          \"show\": true\n        },\n        {\n \
+    \         \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": null,\n          \"show\":\
+    \ true\n        }\n      ],\n      \"yaxis\": {\n        \"align\": false,\n \
+    \       \"alignLevel\": null\n      }\n    },\n    {\n      \"aliasColors\": {},\n\
+    \      \"bars\": false,\n      \"dashLength\": 10,\n      \"dashes\": false,\n\
+    \      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"fill\": 1,\n      \"fillGradient\"\
+    : 0,\n      \"gridPos\": {\n        \"h\": 9,\n        \"w\": 12,\n        \"\
+    x\": 12,\n        \"y\": 39\n      },\n      \"hiddenSeries\": false,\n      \"\
+    id\": 12,\n      \"interval\": \"\",\n      \"legend\": {\n        \"avg\": false,\n\
+    \        \"current\": false,\n        \"max\": false,\n        \"min\": false,\n\
+    \        \"show\": true,\n        \"total\": false,\n        \"values\": false\n\
+    \      },\n      \"lines\": true,\n      \"linewidth\": 1,\n      \"links\": [],\n\
+    \      \"nullPointMode\": \"null\",\n      \"options\": {\n        \"dataLinks\"\
+    : []\n      },\n      \"percentage\": false,\n      \"pointradius\": 5,\n    \
+    \  \"points\": false,\n      \"renderer\": \"flot\",\n      \"seriesOverrides\"\
+    : [],\n      \"spaceLength\": 10,\n      \"stack\": false,\n      \"steppedLine\"\
+    : false,\n      \"targets\": [\n        {\n          \"expr\": \"sum(rate(oc_collector_batches_received[1m]))\
+    \ by (processor)\",\n          \"format\": \"time_series\",\n          \"intervalFactor\"\
+    : 1,\n          \"legendFormat\": \"{{processor}}\",\n          \"refId\": \"\
+    A\"\n        }\n      ],\n      \"thresholds\": [],\n      \"timeFrom\": null,\n\
+    \      \"timeRegions\": [],\n      \"timeShift\": null,\n      \"title\": \"Batches\
+    \ Enqueued/Second\",\n      \"tooltip\": {\n        \"shared\": true,\n      \
+    \  \"sort\": 0,\n        \"value_type\": \"individual\"\n      },\n      \"type\"\
+    : \"graph\",\n      \"xaxis\": {\n        \"buckets\": null,\n        \"mode\"\
+    : \"time\",\n        \"name\": null,\n        \"show\": true,\n        \"values\"\
+    : []\n      },\n      \"yaxes\": [\n        {\n          \"format\": \"short\"\
+    ,\n          \"label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n\
+    \          \"min\": null,\n          \"show\": true\n        },\n        {\n \
+    \         \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": null,\n          \"show\":\
+    \ true\n        }\n      ],\n      \"yaxis\": {\n        \"align\": false,\n \
+    \       \"alignLevel\": null\n      }\n    },\n    {\n      \"aliasColors\": {},\n\
+    \      \"bars\": false,\n      \"dashLength\": 10,\n      \"dashes\": false,\n\
+    \      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"fill\": 1,\n      \"fillGradient\"\
+    : 0,\n      \"gridPos\": {\n        \"h\": 9,\n        \"w\": 12,\n        \"\
+    x\": 0,\n        \"y\": 48\n      },\n      \"hiddenSeries\": false,\n      \"\
+    id\": 2,\n      \"interval\": \"\",\n      \"legend\": {\n        \"avg\": false,\n\
+    \        \"current\": false,\n        \"max\": false,\n        \"min\": false,\n\
+    \        \"show\": true,\n        \"total\": false,\n        \"values\": false\n\
+    \      },\n      \"lines\": true,\n      \"linewidth\": 1,\n      \"links\": [],\n\
+    \      \"nullPointMode\": \"null\",\n      \"options\": {\n        \"dataLinks\"\
+    : []\n      },\n      \"percentage\": false,\n      \"pointradius\": 5,\n    \
+    \  \"points\": false,\n      \"renderer\": \"flot\",\n      \"seriesOverrides\"\
+    : [],\n      \"spaceLength\": 10,\n      \"stack\": false,\n      \"steppedLine\"\
+    : false,\n      \"targets\": [\n        {\n          \"expr\": \"sum(rate(oc_collector_spans_received{processor=~\\\
+    \"$processor\\\"}[1m]) / rate(oc_collector_batches_received{processor=~\\\"$processor\\\
+    \"}[1m])) by (processor)\",\n          \"format\": \"time_series\",\n        \
+    \  \"hide\": false,\n          \"intervalFactor\": 1,\n          \"legendFormat\"\
+    : \"{{processor}}\",\n          \"refId\": \"A\"\n        }\n      ],\n      \"\
+    thresholds\": [],\n      \"timeFrom\": null,\n      \"timeRegions\": [],\n   \
+    \   \"timeShift\": null,\n      \"title\": \"Spans per Batch (avg from rates)\"\
+    ,\n      \"tooltip\": {\n        \"shared\": true,\n        \"sort\": 0,\n   \
+    \     \"value_type\": \"individual\"\n      },\n      \"type\": \"graph\",\n \
+    \     \"xaxis\": {\n        \"buckets\": null,\n        \"mode\": \"time\",\n\
+    \        \"name\": null,\n        \"show\": true,\n        \"values\": []\n  \
+    \    },\n      \"yaxes\": [\n        {\n          \"format\": \"short\",\n   \
+    \       \"label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n\
+    \          \"min\": null,\n          \"show\": true\n        },\n        {\n \
+    \         \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": null,\n          \"show\":\
+    \ true\n        }\n      ],\n      \"yaxis\": {\n        \"align\": false,\n \
+    \       \"alignLevel\": null\n      }\n    },\n    {\n      \"aliasColors\": {},\n\
+    \      \"bars\": false,\n      \"dashLength\": 10,\n      \"dashes\": false,\n\
+    \      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"fill\": 1,\n      \"fillGradient\"\
+    : 0,\n      \"gridPos\": {\n        \"h\": 9,\n        \"w\": 12,\n        \"\
+    x\": 12,\n        \"y\": 48\n      },\n      \"hiddenSeries\": false,\n      \"\
+    id\": 14,\n      \"legend\": {\n        \"avg\": false,\n        \"current\":\
+    \ false,\n        \"max\": false,\n        \"min\": false,\n        \"show\":\
+    \ true,\n        \"total\": false,\n        \"values\": false\n      },\n    \
+    \  \"lines\": true,\n      \"linewidth\": 1,\n      \"links\": [],\n      \"nullPointMode\"\
+    : \"null\",\n      \"options\": {\n        \"dataLinks\": []\n      },\n     \
+    \ \"percentage\": false,\n      \"pointradius\": 5,\n      \"points\": false,\n\
+    \      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\"\
+    : 10,\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"sum(rate(oc_collector_success_send{processor=~\\\
+    \"$processor\\\"}[1m])) by (processor)\",\n          \"format\": \"time_series\"\
+    ,\n          \"hide\": false,\n          \"intervalFactor\": 1,\n          \"\
+    legendFormat\": \"{{processor}}\",\n          \"refId\": \"A\"\n        }\n  \
+    \    ],\n      \"thresholds\": [],\n      \"timeFrom\": null,\n      \"timeRegions\"\
+    : [],\n      \"timeShift\": null,\n      \"title\": \"Batches Successful Sent/Second\"\
+    ,\n      \"tooltip\": {\n        \"shared\": true,\n        \"sort\": 0,\n   \
+    \     \"value_type\": \"individual\"\n      },\n      \"type\": \"graph\",\n \
+    \     \"xaxis\": {\n        \"buckets\": null,\n        \"mode\": \"time\",\n\
+    \        \"name\": null,\n        \"show\": true,\n        \"values\": []\n  \
+    \    },\n      \"yaxes\": [\n        {\n          \"format\": \"short\",\n   \
+    \       \"label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n\
+    \          \"min\": null,\n          \"show\": true\n        },\n        {\n \
+    \         \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": null,\n          \"show\":\
+    \ true\n        }\n      ],\n      \"yaxis\": {\n        \"align\": false,\n \
+    \       \"alignLevel\": null\n      }\n    },\n    {\n      \"aliasColors\": {},\n\
+    \      \"bars\": false,\n      \"dashLength\": 10,\n      \"dashes\": false,\n\
+    \      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"fill\": 1,\n      \"fillGradient\"\
+    : 0,\n      \"gridPos\": {\n        \"h\": 9,\n        \"w\": 12,\n        \"\
+    x\": 0,\n        \"y\": 57\n      },\n      \"hiddenSeries\": false,\n      \"\
+    id\": 5,\n      \"legend\": {\n        \"avg\": false,\n        \"current\": false,\n\
+    \        \"max\": false,\n        \"min\": false,\n        \"show\": true,\n \
+    \       \"total\": false,\n        \"values\": false\n      },\n      \"lines\"\
+    : true,\n      \"linewidth\": 1,\n      \"links\": [],\n      \"nullPointMode\"\
+    : \"null\",\n      \"options\": {\n        \"dataLinks\": []\n      },\n     \
+    \ \"percentage\": false,\n      \"pointradius\": 5,\n      \"points\": false,\n\
+    \      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\"\
+    : 10,\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"sum(rate(oc_collector_spans_dropped{processor=~\\\
+    \"$processor\\\"}[1m])) by (processor)\",\n          \"format\": \"time_series\"\
+    ,\n          \"intervalFactor\": 1,\n          \"legendFormat\": \"{{processor}}\"\
+    ,\n          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Spans Dropped/Second\",\n      \"tooltip\": {\n        \"\
+    shared\": true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\n\
+    \      },\n      \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\"\
+    : null,\n        \"mode\": \"time\",\n        \"name\": null,\n        \"show\"\
+    : true,\n        \"values\": []\n      },\n      \"yaxes\": [\n        {\n   \
+    \       \"decimals\": null,\n          \"format\": \"short\",\n          \"label\"\
+    : null,\n          \"logBase\": 1,\n          \"max\": null,\n          \"min\"\
+    : \"0\",\n          \"show\": true\n        },\n        {\n          \"format\"\
+    : \"short\",\n          \"label\": null,\n          \"logBase\": 1,\n        \
+    \  \"max\": null,\n          \"min\": null,\n          \"show\": true\n      \
+    \  }\n      ],\n      \"yaxis\": {\n        \"align\": false,\n        \"alignLevel\"\
+    : null\n      }\n    },\n    {\n      \"aliasColors\": {},\n      \"bars\": false,\n\
+    \      \"dashLength\": 10,\n      \"dashes\": false,\n      \"datasource\": \"\
+    ${DS_PROMETHEUS}\",\n      \"fill\": 1,\n      \"fillGradient\": 0,\n      \"\
+    gridPos\": {\n        \"h\": 9,\n        \"w\": 12,\n        \"x\": 12,\n    \
+    \    \"y\": 57\n      },\n      \"hiddenSeries\": false,\n      \"id\": 16,\n\
+    \      \"legend\": {\n        \"avg\": false,\n        \"current\": false,\n \
+    \       \"max\": false,\n        \"min\": false,\n        \"show\": true,\n  \
+    \      \"total\": false,\n        \"values\": false\n      },\n      \"lines\"\
+    : true,\n      \"linewidth\": 1,\n      \"links\": [],\n      \"nullPointMode\"\
+    : \"null\",\n      \"options\": {\n        \"dataLinks\": []\n      },\n     \
+    \ \"percentage\": false,\n      \"pointradius\": 5,\n      \"points\": false,\n\
+    \      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\"\
+    : 10,\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"sum(rate(oc_collector_batches_dropped{processor=~\\\
+    \"$processor\\\"}[1m])) by (processor)\",\n          \"format\": \"time_series\"\
+    ,\n          \"intervalFactor\": 1,\n          \"legendFormat\": \"{{processor}}\"\
+    ,\n          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Batches Dropped/Second\",\n      \"tooltip\": {\n        \"\
+    shared\": true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\n\
+    \      },\n      \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\"\
+    : null,\n        \"mode\": \"time\",\n        \"name\": null,\n        \"show\"\
+    : true,\n        \"values\": []\n      },\n      \"yaxes\": [\n        {\n   \
+    \       \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": \"0\",\n          \"show\"\
+    : true\n        },\n        {\n          \"format\": \"short\",\n          \"\
+    label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n        \
+    \  \"min\": null,\n          \"show\": true\n        }\n      ],\n      \"yaxis\"\
+    : {\n        \"align\": false,\n        \"alignLevel\": null\n      }\n    },\n\
+    \    {\n      \"aliasColors\": {},\n      \"bars\": false,\n      \"dashLength\"\
+    : 10,\n      \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\",\n\
+    \      \"fill\": 1,\n      \"fillGradient\": 0,\n      \"gridPos\": {\n      \
+    \  \"h\": 9,\n        \"w\": 12,\n        \"x\": 0,\n        \"y\": 66\n     \
+    \ },\n      \"hiddenSeries\": false,\n      \"id\": 6,\n      \"interval\": \"\
+    \",\n      \"legend\": {\n        \"avg\": false,\n        \"current\": false,\n\
+    \        \"max\": false,\n        \"min\": false,\n        \"show\": true,\n \
+    \       \"total\": false,\n        \"values\": false\n      },\n      \"lines\"\
+    : true,\n      \"linewidth\": 1,\n      \"links\": [],\n      \"nullPointMode\"\
+    : \"null\",\n      \"options\": {\n        \"dataLinks\": []\n      },\n     \
+    \ \"percentage\": false,\n      \"pointradius\": 5,\n      \"points\": false,\n\
+    \      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\"\
+    : 10,\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"sum(oc_collector_success_send{processor=~\\\
+    \"$processor\\\"}) by (processor)\",\n          \"format\": \"time_series\",\n\
+    \          \"hide\": false,\n          \"intervalFactor\": 1,\n          \"legendFormat\"\
+    : \"{{processor}}\",\n          \"refId\": \"A\"\n        }\n      ],\n      \"\
+    thresholds\": [],\n      \"timeFrom\": null,\n      \"timeRegions\": [],\n   \
+    \   \"timeShift\": null,\n      \"title\": \"Successful Batches Sent Cumulative\"\
+    ,\n      \"tooltip\": {\n        \"shared\": true,\n        \"sort\": 0,\n   \
+    \     \"value_type\": \"individual\"\n      },\n      \"type\": \"graph\",\n \
+    \     \"xaxis\": {\n        \"buckets\": null,\n        \"mode\": \"time\",\n\
+    \        \"name\": null,\n        \"show\": true,\n        \"values\": []\n  \
+    \    },\n      \"yaxes\": [\n        {\n          \"format\": \"short\",\n   \
+    \       \"label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n\
+    \          \"min\": \"0\",\n          \"show\": true\n        },\n        {\n\
+    \          \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": null,\n          \"show\":\
+    \ true\n        }\n      ],\n      \"yaxis\": {\n        \"align\": false,\n \
+    \       \"alignLevel\": null\n      }\n    },\n    {\n      \"aliasColors\": {},\n\
+    \      \"bars\": false,\n      \"dashLength\": 10,\n      \"dashes\": false,\n\
+    \      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"fill\": 1,\n      \"fillGradient\"\
+    : 0,\n      \"gridPos\": {\n        \"h\": 9,\n        \"w\": 12,\n        \"\
+    x\": 12,\n        \"y\": 66\n      },\n      \"hiddenSeries\": false,\n      \"\
+    id\": 3,\n      \"legend\": {\n        \"avg\": false,\n        \"current\": false,\n\
+    \        \"max\": false,\n        \"min\": false,\n        \"show\": true,\n \
+    \       \"total\": false,\n        \"values\": false\n      },\n      \"lines\"\
+    : true,\n      \"linewidth\": 1,\n      \"links\": [],\n      \"nullPointMode\"\
+    : \"null\",\n      \"options\": {\n        \"dataLinks\": []\n      },\n     \
+    \ \"percentage\": false,\n      \"pointradius\": 5,\n      \"points\": false,\n\
+    \      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\"\
+    : 10,\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"sum(oc_collector_spans_received{exporter=~\\\
+    \"$exporter\\\"}) by (exporter)\",\n          \"format\": \"time_series\",\n \
+    \         \"hide\": false,\n          \"intervalFactor\": 1,\n          \"legendFormat\"\
+    : \"{{exporter}}\",\n          \"refId\": \"A\"\n        }\n      ],\n      \"\
+    thresholds\": [],\n      \"timeFrom\": null,\n      \"timeRegions\": [],\n   \
+    \   \"timeShift\": null,\n      \"title\": \"Enqueued Spans Cumulative\",\n  \
+    \    \"tooltip\": {\n        \"shared\": true,\n        \"sort\": 0,\n       \
+    \ \"value_type\": \"individual\"\n      },\n      \"type\": \"graph\",\n     \
+    \ \"xaxis\": {\n        \"buckets\": null,\n        \"mode\": \"time\",\n    \
+    \    \"name\": null,\n        \"show\": true,\n        \"values\": []\n      },\n\
+    \      \"yaxes\": [\n        {\n          \"format\": \"short\",\n          \"\
+    label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n        \
+    \  \"min\": null,\n          \"show\": true\n        },\n        {\n         \
+    \ \"format\": \"short\",\n          \"label\": null,\n          \"logBase\": 1,\n\
+    \          \"max\": null,\n          \"min\": null,\n          \"show\": true\n\
+    \        }\n      ],\n      \"yaxis\": {\n        \"align\": false,\n        \"\
+    alignLevel\": null\n      }\n    },\n    {\n      \"aliasColors\": {},\n     \
+    \ \"bars\": false,\n      \"dashLength\": 10,\n      \"dashes\": false,\n    \
+    \  \"datasource\": \"${DS_PROMETHEUS}\",\n      \"fill\": 1,\n      \"fillGradient\"\
+    : 0,\n      \"gridPos\": {\n        \"h\": 9,\n        \"w\": 12,\n        \"\
+    x\": 0,\n        \"y\": 75\n      },\n      \"hiddenSeries\": false,\n      \"\
+    id\": 7,\n      \"legend\": {\n        \"avg\": false,\n        \"current\": false,\n\
+    \        \"max\": false,\n        \"min\": false,\n        \"show\": true,\n \
+    \       \"total\": false,\n        \"values\": false\n      },\n      \"lines\"\
+    : true,\n      \"linewidth\": 1,\n      \"links\": [],\n      \"nullPointMode\"\
+    : \"null\",\n      \"options\": {\n        \"dataLinks\": []\n      },\n     \
+    \ \"percentage\": false,\n      \"pointradius\": 5,\n      \"points\": false,\n\
+    \      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\"\
+    : 10,\n      \"stack\": false,\n      \"steppedLine\": false,\n      \"targets\"\
+    : [\n        {\n          \"expr\": \"sum(rate(oc_collector_fail_send{processor=~\\\
+    \"$processor\\\"}[1m])) by (processor)\",\n          \"format\": \"time_series\"\
+    ,\n          \"intervalFactor\": 1,\n          \"legendFormat\": \"{{processor}}\"\
+    ,\n          \"refId\": \"B\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Batches Failed to Send/Second\",\n      \"tooltip\": {\n \
+    \       \"shared\": true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\
+    \n      },\n      \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\"\
+    : null,\n        \"mode\": \"time\",\n        \"name\": null,\n        \"show\"\
+    : true,\n        \"values\": []\n      },\n      \"yaxes\": [\n        {\n   \
+    \       \"format\": \"short\",\n          \"label\": null,\n          \"logBase\"\
+    : 1,\n          \"max\": null,\n          \"min\": \"0\",\n          \"show\"\
+    : true\n        },\n        {\n          \"format\": \"short\",\n          \"\
+    label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n        \
+    \  \"min\": null,\n          \"show\": true\n        }\n      ],\n      \"yaxis\"\
+    : {\n        \"align\": false,\n        \"alignLevel\": null\n      }\n    },\n\
+    \    {\n      \"aliasColors\": {},\n      \"bars\": false,\n      \"dashLength\"\
+    : 10,\n      \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\",\n\
+    \      \"fill\": 1,\n      \"fillGradient\": 0,\n      \"gridPos\": {\n      \
+    \  \"h\": 9,\n        \"w\": 12,\n        \"x\": 12,\n        \"y\": 75\n    \
+    \  },\n      \"hiddenSeries\": false,\n      \"id\": 8,\n      \"legend\": {\n\
+    \        \"avg\": false,\n        \"current\": false,\n        \"max\": false,\n\
+    \        \"min\": false,\n        \"show\": true,\n        \"total\": false,\n\
+    \        \"values\": false\n      },\n      \"lines\": true,\n      \"linewidth\"\
+    : 1,\n      \"links\": [],\n      \"nullPointMode\": \"null\",\n      \"options\"\
+    : {\n        \"dataLinks\": []\n      },\n      \"percentage\": false,\n     \
+    \ \"pointradius\": 5,\n      \"points\": false,\n      \"renderer\": \"flot\"\
+    ,\n      \"seriesOverrides\": [],\n      \"spaceLength\": 10,\n      \"stack\"\
+    : false,\n      \"steppedLine\": false,\n      \"targets\": [\n        {\n   \
+    \       \"expr\": \"sum(oc_collector_fail_send{processor=~\\\"$processor\\\"})\
+    \ by (processor)\",\n          \"format\": \"time_series\",\n          \"intervalFactor\"\
+    : 1,\n          \"legendFormat\": \"{{processor}}\",\n          \"refId\": \"\
+    B\"\n        }\n      ],\n      \"thresholds\": [],\n      \"timeFrom\": null,\n\
+    \      \"timeRegions\": [],\n      \"timeShift\": null,\n      \"title\": \"Batches\
+    \ Failed to Send Cumulative\",\n      \"tooltip\": {\n        \"shared\": true,\n\
+    \        \"sort\": 0,\n        \"value_type\": \"individual\"\n      },\n    \
+    \  \"type\": \"graph\",\n      \"xaxis\": {\n        \"buckets\": null,\n    \
+    \    \"mode\": \"time\",\n        \"name\": null,\n        \"show\": true,\n \
+    \       \"values\": []\n      },\n      \"yaxes\": [\n        {\n          \"\
+    format\": \"short\",\n          \"label\": null,\n          \"logBase\": 1,\n\
+    \          \"max\": null,\n          \"min\": \"0\",\n          \"show\": true\n\
+    \        },\n        {\n          \"format\": \"short\",\n          \"label\"\
+    : null,\n          \"logBase\": 1,\n          \"max\": null,\n          \"min\"\
+    : null,\n          \"show\": true\n        }\n      ],\n      \"yaxis\": {\n \
+    \       \"align\": false,\n        \"alignLevel\": null\n      }\n    }\n  ],\n\
+    \  \"refresh\": false,\n  \"schemaVersion\": 21,\n  \"style\": \"dark\",\n  \"\
+    tags\": [\n    \"opentelemetry\"\n  ],\n  \"templating\": {\n    \"list\": [\n\
+    \      {\n        \"allValue\": \".*\",\n        \"current\": {},\n        \"\
+    datasource\": \"${DS_PROMETHEUS}\",\n        \"definition\": \"label_values(otelsvc_receiver)\"\
+    ,\n        \"hide\": 0,\n        \"includeAll\": true,\n        \"label\": \"\
+    receiver\",\n        \"multi\": true,\n        \"name\": \"receiver\",\n     \
+    \   \"options\": [],\n        \"query\": \"label_values(otelsvc_receiver)\",\n\
+    \        \"refresh\": 2,\n        \"regex\": \"\",\n        \"skipUrlSync\": false,\n\
+    \        \"sort\": 0,\n        \"tagValuesQuery\": \"\",\n        \"tags\": [],\n\
+    \        \"tagsQuery\": \"\",\n        \"type\": \"query\",\n        \"useTags\"\
+    : false\n      },\n      {\n        \"allValue\": \".*\",\n        \"current\"\
+    : {},\n        \"datasource\": \"${DS_PROMETHEUS}\",\n        \"definition\":\
+    \ \"label_values(otelsvc_exporter)\",\n        \"hide\": 0,\n        \"includeAll\"\
+    : true,\n        \"label\": \"exporter\",\n        \"multi\": true,\n        \"\
+    name\": \"exporter\",\n        \"options\": [],\n        \"query\": \"label_values(otelsvc_exporter)\"\
+    ,\n        \"refresh\": 2,\n        \"regex\": \"\",\n        \"skipUrlSync\"\
+    : false,\n        \"sort\": 0,\n        \"tagValuesQuery\": \"\",\n        \"\
+    tags\": [],\n        \"tagsQuery\": \"\",\n        \"type\": \"query\",\n    \
+    \    \"useTags\": false\n      },\n      {\n        \"allValue\": null,\n    \
+    \    \"current\": {},\n        \"datasource\": \"${DS_PROMETHEUS}\",\n       \
+    \ \"definition\": \"label_values(processor)\",\n        \"hide\": 0,\n       \
+    \ \"includeAll\": true,\n        \"label\": \"processor\",\n        \"multi\"\
+    : true,\n        \"name\": \"processor\",\n        \"options\": [],\n        \"\
+    query\": \"label_values(processor)\",\n        \"refresh\": 2,\n        \"regex\"\
+    : \"\",\n        \"skipUrlSync\": false,\n        \"sort\": 1,\n        \"tagValuesQuery\"\
+    : \"\",\n        \"tags\": [],\n        \"tagsQuery\": \"\",\n        \"type\"\
+    : \"query\",\n        \"useTags\": false\n      }\n    ]\n  },\n  \"time\": {\n\
+    \    \"from\": \"now-30m\",\n    \"to\": \"now\"\n  },\n  \"timepicker\": {\n\
+    \    \"refresh_intervals\": [\n      \"5s\",\n      \"10s\",\n      \"30s\",\n\
+    \      \"1m\",\n      \"5m\",\n      \"15m\",\n      \"30m\",\n      \"1h\",\n\
+    \      \"2h\",\n      \"1d\"\n    ],\n    \"time_options\": [\n      \"5m\",\n\
+    \      \"15m\",\n      \"1h\",\n      \"6h\",\n      \"12h\",\n      \"24h\",\n\
+    \      \"2d\",\n      \"7d\",\n      \"30d\"\n    ]\n  },\n  \"timezone\": \"\"\
+    ,\n  \"title\": \"OpenTelemetry Collector\",\n  \"uid\": \"BKf2sowmj\",\n  \"\
+    version\": 4,\n  \"tz\": {}\n}"

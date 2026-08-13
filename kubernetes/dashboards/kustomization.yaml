@@ -1,7 +1,24 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: kube-prometheus
 resources:
-  - 15983.yaml
-  - 1860.yaml
-  - argocd.yaml
+- argocd-applications.yaml
+- argocd-operational.yaml
+- argocd.yaml
+- cilium.yaml
+- gitea.yaml
+- harbor.yaml
+- hubble-policy.yaml
+- hubble.yaml
+- keycloak.yaml
+- kubernetes-nodes.yaml
+- kubernetes-overview.yaml
+- kubernetes-pods.yaml
+- kyverno.yaml
+- loki-promtail.yaml
+- node-exporter-full.yaml
+- otel-collector.yaml
+- otel-tempo.yaml
+- postgresql.yaml
+- sonarqube-system.yaml
+- traefik.yaml
+- vault.yaml

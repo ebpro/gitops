@@ -1,0 +1,365 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-13192
+  namespace: kube-prometheus
+  labels:
+    grafana_dashboard: '1'
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: observability
+data:
+  dashboard.json: "{\n  \"__inputs\": [\n    {\n      \"name\": \"DS_PROMETHEUS\"\
+    ,\n      \"label\": \"Prometheus\",\n      \"description\": \"\",\n      \"type\"\
+    : \"datasource\",\n      \"pluginId\": \"prometheus\",\n      \"pluginName\":\
+    \ \"Prometheus\"\n    }\n  ],\n  \"__requires\": [\n    {\n      \"type\": \"\
+    grafana\",\n      \"id\": \"grafana\",\n      \"name\": \"Grafana\",\n      \"\
+    version\": \"6.7.3\"\n    },\n    {\n      \"type\": \"panel\",\n      \"id\"\
+    : \"graph\",\n      \"name\": \"Graph\",\n      \"version\": \"\"\n    },\n  \
+    \  {\n      \"type\": \"datasource\",\n      \"id\": \"prometheus\",\n      \"\
+    name\": \"Prometheus\",\n      \"version\": \"1.0.0\"\n    },\n    {\n      \"\
+    type\": \"panel\",\n      \"id\": \"stat\",\n      \"name\": \"Stat\",\n     \
+    \ \"version\": \"\"\n    }\n  ],\n  \"annotations\": {\n    \"list\": [\n    \
+    \  {\n        \"$$hashKey\": \"object:2075\",\n        \"builtIn\": 1,\n     \
+    \   \"datasource\": \"-- Grafana --\",\n        \"enable\": true,\n        \"\
+    hide\": true,\n        \"iconColor\": \"rgba(0, 211, 255, 1)\",\n        \"name\"\
+    : \"Annotations & Alerts\",\n        \"type\": \"dashboard\"\n      }\n    ]\n\
+    \  },\n  \"description\": \"Monitor Gitea server\",\n  \"editable\": true,\n \
+    \ \"gnetId\": 13192,\n  \"graphTooltip\": 0,\n  \"id\": null,\n  \"links\": [],\n\
+    \  \"panels\": [\n    {\n      \"aliasColors\": {},\n      \"bars\": false,\n\
+    \      \"dashLength\": 10,\n      \"dashes\": false,\n      \"datasource\": \"\
+    ${DS_PROMETHEUS}\",\n      \"fill\": 1,\n      \"fillGradient\": 5,\n      \"\
+    gridPos\": {\n        \"h\": 6,\n        \"w\": 8,\n        \"x\": 0,\n      \
+    \  \"y\": 0\n      },\n      \"hiddenSeries\": false,\n      \"id\": 31,\n   \
+    \   \"legend\": {\n        \"avg\": false,\n        \"current\": false,\n    \
+    \    \"max\": false,\n        \"min\": false,\n        \"show\": false,\n    \
+    \    \"total\": false,\n        \"values\": false\n      },\n      \"lines\":\
+    \ true,\n      \"linewidth\": 0,\n      \"nullPointMode\": \"null\",\n      \"\
+    options\": {\n        \"dataLinks\": []\n      },\n      \"percentage\": false,\n\
+    \      \"pluginVersion\": \"6.7.3\",\n      \"pointradius\": 2,\n      \"points\"\
+    : false,\n      \"renderer\": \"flot\",\n      \"seriesOverrides\": [],\n    \
+    \  \"spaceLength\": 10,\n      \"stack\": false,\n      \"steppedLine\": false,\n\
+    \      \"targets\": [\n        {\n          \"expr\": \"process_resident_memory_bytes{job=\\\
+    \"gitea\\\"}\",\n          \"interval\": \"\",\n          \"legendFormat\": \"\
+    \",\n          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Resident memory\",\n      \"tooltip\": {\n        \"shared\"\
+    : true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\n      },\n\
+    \      \"transparent\": true,\n      \"type\": \"graph\",\n      \"xaxis\": {\n\
+    \        \"buckets\": null,\n        \"mode\": \"time\",\n        \"name\": null,\n\
+    \        \"show\": true,\n        \"values\": []\n      },\n      \"yaxes\": [\n\
+    \        {\n          \"format\": \"short\",\n          \"label\": null,\n   \
+    \       \"logBase\": 1,\n          \"max\": null,\n          \"min\": null,\n\
+    \          \"show\": true\n        },\n        {\n          \"format\": \"short\"\
+    ,\n          \"label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n\
+    \          \"min\": null,\n          \"show\": true\n        }\n      ],\n   \
+    \   \"yaxis\": {\n        \"align\": false,\n        \"alignLevel\": null\n  \
+    \    }\n    },\n    {\n      \"aliasColors\": {},\n      \"bars\": false,\n  \
+    \    \"dashLength\": 10,\n      \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\"\
+    ,\n      \"fill\": 1,\n      \"fillGradient\": 5,\n      \"gridPos\": {\n    \
+    \    \"h\": 6,\n        \"w\": 8,\n        \"x\": 8,\n        \"y\": 0\n     \
+    \ },\n      \"hiddenSeries\": false,\n      \"id\": 32,\n      \"legend\": {\n\
+    \        \"avg\": false,\n        \"current\": false,\n        \"max\": false,\n\
+    \        \"min\": false,\n        \"show\": false,\n        \"total\": false,\n\
+    \        \"values\": false\n      },\n      \"lines\": true,\n      \"linewidth\"\
+    : 0,\n      \"nullPointMode\": \"null\",\n      \"options\": {\n        \"dataLinks\"\
+    : []\n      },\n      \"percentage\": false,\n      \"pluginVersion\": \"6.7.3\"\
+    ,\n      \"pointradius\": 2,\n      \"points\": false,\n      \"renderer\": \"\
+    flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\": 10,\n      \"\
+    stack\": false,\n      \"steppedLine\": false,\n      \"targets\": [\n       \
+    \ {\n          \"expr\": \"process_cpu_seconds_total{job=\\\"gitea\\\"}\",\n \
+    \         \"instant\": false,\n          \"interval\": \"\",\n          \"legendFormat\"\
+    : \"\",\n          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\"\
+    : [],\n      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\"\
+    : null,\n      \"title\": \"CPU time\",\n      \"tooltip\": {\n        \"shared\"\
+    : true,\n        \"sort\": 0,\n        \"value_type\": \"individual\"\n      },\n\
+    \      \"transparent\": true,\n      \"type\": \"graph\",\n      \"xaxis\": {\n\
+    \        \"buckets\": null,\n        \"mode\": \"time\",\n        \"name\": null,\n\
+    \        \"show\": true,\n        \"values\": []\n      },\n      \"yaxes\": [\n\
+    \        {\n          \"format\": \"short\",\n          \"label\": null,\n   \
+    \       \"logBase\": 1,\n          \"max\": null,\n          \"min\": null,\n\
+    \          \"show\": true\n        },\n        {\n          \"format\": \"short\"\
+    ,\n          \"label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n\
+    \          \"min\": null,\n          \"show\": true\n        }\n      ],\n   \
+    \   \"yaxis\": {\n        \"align\": false,\n        \"alignLevel\": null\n  \
+    \    }\n    },\n    {\n      \"aliasColors\": {},\n      \"bars\": false,\n  \
+    \    \"dashLength\": 10,\n      \"dashes\": false,\n      \"datasource\": \"${DS_PROMETHEUS}\"\
+    ,\n      \"fill\": 1,\n      \"fillGradient\": 5,\n      \"gridPos\": {\n    \
+    \    \"h\": 6,\n        \"w\": 8,\n        \"x\": 16,\n        \"y\": 0\n    \
+    \  },\n      \"hiddenSeries\": false,\n      \"id\": 33,\n      \"legend\": {\n\
+    \        \"avg\": false,\n        \"current\": false,\n        \"max\": false,\n\
+    \        \"min\": false,\n        \"show\": false,\n        \"total\": false,\n\
+    \        \"values\": false\n      },\n      \"lines\": true,\n      \"linewidth\"\
+    : 0,\n      \"nullPointMode\": \"null\",\n      \"options\": {\n        \"dataLinks\"\
+    : []\n      },\n      \"percentage\": false,\n      \"pluginVersion\": \"6.7.3\"\
+    ,\n      \"pointradius\": 2,\n      \"points\": false,\n      \"renderer\": \"\
+    flot\",\n      \"seriesOverrides\": [],\n      \"spaceLength\": 10,\n      \"\
+    stack\": false,\n      \"steppedLine\": false,\n      \"targets\": [\n       \
+    \ {\n          \"expr\": \"process_open_fds{job=\\\"gitea\\\"}\",\n          \"\
+    format\": \"time_series\",\n          \"instant\": false,\n          \"interval\"\
+    : \"\",\n          \"intervalFactor\": 1,\n          \"legendFormat\": \"\",\n\
+    \          \"refId\": \"A\"\n        }\n      ],\n      \"thresholds\": [],\n\
+    \      \"timeFrom\": null,\n      \"timeRegions\": [],\n      \"timeShift\": null,\n\
+    \      \"title\": \"Open FDS\",\n      \"tooltip\": {\n        \"shared\": true,\n\
+    \        \"sort\": 0,\n        \"value_type\": \"individual\"\n      },\n    \
+    \  \"transparent\": true,\n      \"type\": \"graph\",\n      \"xaxis\": {\n  \
+    \      \"buckets\": null,\n        \"mode\": \"time\",\n        \"name\": null,\n\
+    \        \"show\": true,\n        \"values\": []\n      },\n      \"yaxes\": [\n\
+    \        {\n          \"format\": \"short\",\n          \"label\": null,\n   \
+    \       \"logBase\": 1,\n          \"max\": null,\n          \"min\": null,\n\
+    \          \"show\": true\n        },\n        {\n          \"format\": \"short\"\
+    ,\n          \"label\": null,\n          \"logBase\": 1,\n          \"max\": null,\n\
+    \          \"min\": null,\n          \"show\": true\n        }\n      ],\n   \
+    \   \"yaxis\": {\n        \"align\": false,\n        \"alignLevel\": null\n  \
+    \    }\n    },\n    {\n      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"gridPos\"\
+    : {\n        \"h\": 4,\n        \"w\": 6,\n        \"x\": 0,\n        \"y\": 6\n\
+    \      },\n      \"id\": 2,\n      \"options\": {\n        \"colorMode\": \"value\"\
+    ,\n        \"fieldOptions\": {\n          \"calcs\": [\n            \"lastNotNull\"\
+    \n          ],\n          \"defaults\": {\n            \"mappings\": [],\n   \
+    \         \"thresholds\": {\n              \"mode\": \"absolute\",\n         \
+    \     \"steps\": [\n                {\n                  \"color\": \"dark-blue\"\
+    ,\n                  \"value\": null\n                }\n              ]\n   \
+    \         }\n          },\n          \"overrides\": [],\n          \"values\"\
+    : false\n        },\n        \"graphMode\": \"none\",\n        \"justifyMode\"\
+    : \"center\",\n        \"orientation\": \"auto\"\n      },\n      \"pluginVersion\"\
+    : \"6.7.3\",\n      \"targets\": [\n        {\n          \"expr\": \"gitea_accesses\"\
+    ,\n          \"interval\": \"\",\n          \"legendFormat\": \"\",\n        \
+    \  \"refId\": \"A\"\n        }\n      ],\n      \"timeFrom\": null,\n      \"\
+    timeShift\": null,\n      \"title\": \"Number of Accesses\",\n      \"type\":\
+    \ \"stat\"\n    },\n    {\n      \"datasource\": \"${DS_PROMETHEUS}\",\n     \
+    \ \"gridPos\": {\n        \"h\": 4,\n        \"w\": 6,\n        \"x\": 6,\n  \
+    \      \"y\": 6\n      },\n      \"id\": 18,\n      \"options\": {\n        \"\
+    colorMode\": \"value\",\n        \"fieldOptions\": {\n          \"calcs\": [\n\
+    \            \"lastNotNull\"\n          ],\n          \"defaults\": {\n      \
+    \      \"mappings\": [],\n            \"thresholds\": {\n              \"mode\"\
+    : \"absolute\",\n              \"steps\": [\n                {\n             \
+    \     \"color\": \"dark-blue\",\n                  \"value\": null\n         \
+    \       }\n              ]\n            }\n          },\n          \"overrides\"\
+    : [],\n          \"values\": false\n        },\n        \"graphMode\": \"none\"\
+    ,\n        \"justifyMode\": \"center\",\n        \"orientation\": \"auto\"\n \
+    \     },\n      \"pluginVersion\": \"6.7.3\",\n      \"targets\": [\n        {\n\
+    \          \"expr\": \"gitea_repositories\",\n          \"interval\": \"\",\n\
+    \          \"legendFormat\": \"\",\n          \"refId\": \"A\"\n        }\n  \
+    \    ],\n      \"timeFrom\": null,\n      \"timeShift\": null,\n      \"title\"\
+    : \"Number of Repositories\",\n      \"type\": \"stat\"\n    },\n    {\n     \
+    \ \"datasource\": \"${DS_PROMETHEUS}\",\n      \"gridPos\": {\n        \"h\":\
+    \ 4,\n        \"w\": 6,\n        \"x\": 12,\n        \"y\": 6\n      },\n    \
+    \  \"id\": 24,\n      \"options\": {\n        \"colorMode\": \"value\",\n    \
+    \    \"fieldOptions\": {\n          \"calcs\": [\n            \"lastNotNull\"\n\
+    \          ],\n          \"defaults\": {\n            \"mappings\": [],\n    \
+    \        \"thresholds\": {\n              \"mode\": \"absolute\",\n          \
+    \    \"steps\": [\n                {\n                  \"color\": \"dark-blue\"\
+    ,\n                  \"value\": null\n                }\n              ]\n   \
+    \         }\n          },\n          \"overrides\": [],\n          \"values\"\
+    : false\n        },\n        \"graphMode\": \"none\",\n        \"justifyMode\"\
+    : \"center\",\n        \"orientation\": \"auto\"\n      },\n      \"pluginVersion\"\
+    : \"6.7.3\",\n      \"targets\": [\n        {\n          \"expr\": \"gitea_users\"\
+    ,\n          \"interval\": \"\",\n          \"legendFormat\": \"\",\n        \
+    \  \"refId\": \"A\"\n        }\n      ],\n      \"timeFrom\": null,\n      \"\
+    timeShift\": null,\n      \"title\": \"Number of Users\",\n      \"type\": \"\
+    stat\"\n    },\n    {\n      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"gridPos\"\
+    : {\n        \"h\": 4,\n        \"w\": 6,\n        \"x\": 18,\n        \"y\":\
+    \ 6\n      },\n      \"id\": 5,\n      \"options\": {\n        \"colorMode\":\
+    \ \"value\",\n        \"fieldOptions\": {\n          \"calcs\": [\n          \
+    \  \"lastNotNull\"\n          ],\n          \"defaults\": {\n            \"mappings\"\
+    : [],\n            \"thresholds\": {\n              \"mode\": \"absolute\",\n\
+    \              \"steps\": [\n                {\n                  \"color\": \"\
+    dark-blue\",\n                  \"value\": null\n                }\n         \
+    \     ]\n            }\n          },\n          \"overrides\": [],\n         \
+    \ \"values\": false\n        },\n        \"graphMode\": \"none\",\n        \"\
+    justifyMode\": \"center\",\n        \"orientation\": \"auto\"\n      },\n    \
+    \  \"pluginVersion\": \"6.7.3\",\n      \"targets\": [\n        {\n          \"\
+    expr\": \"gitea_issues\",\n          \"interval\": \"\",\n          \"legendFormat\"\
+    : \"\",\n          \"refId\": \"A\"\n        }\n      ],\n      \"timeFrom\":\
+    \ null,\n      \"timeShift\": null,\n      \"title\": \"Number of Issues\",\n\
+    \      \"type\": \"stat\"\n    },\n    {\n      \"datasource\": \"${DS_PROMETHEUS}\"\
+    ,\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\": 4,\n        \"x\":\
+    \ 0,\n        \"y\": 10\n      },\n      \"id\": 11,\n      \"options\": {\n \
+    \       \"colorMode\": \"value\",\n        \"fieldOptions\": {\n          \"calcs\"\
+    : [\n            \"lastNotNull\"\n          ],\n          \"defaults\": {\n  \
+    \          \"mappings\": [],\n            \"thresholds\": {\n              \"\
+    mode\": \"absolute\",\n              \"steps\": [\n                {\n       \
+    \           \"color\": \"dark-yellow\",\n                  \"value\": null\n \
+    \               }\n              ]\n            }\n          },\n          \"\
+    overrides\": [],\n          \"values\": false\n        },\n        \"graphMode\"\
+    : \"none\",\n        \"justifyMode\": \"center\",\n        \"orientation\": \"\
+    auto\"\n      },\n      \"pluginVersion\": \"6.7.3\",\n      \"targets\": [\n\
+    \        {\n          \"expr\": \"gitea_actions\",\n          \"interval\": \"\
+    \",\n          \"legendFormat\": \"\",\n          \"refId\": \"A\"\n        }\n\
+    \      ],\n      \"timeFrom\": null,\n      \"timeShift\": null,\n      \"title\"\
+    : \"Number of Actions\",\n      \"type\": \"stat\"\n    },\n    {\n      \"datasource\"\
+    : \"${DS_PROMETHEUS}\",\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\"\
+    : 4,\n        \"x\": 4,\n        \"y\": 10\n      },\n      \"id\": 10,\n    \
+    \  \"options\": {\n        \"colorMode\": \"value\",\n        \"fieldOptions\"\
+    : {\n          \"calcs\": [\n            \"lastNotNull\"\n          ],\n     \
+    \     \"defaults\": {\n            \"mappings\": [],\n            \"thresholds\"\
+    : {\n              \"mode\": \"absolute\",\n              \"steps\": [\n     \
+    \           {\n                  \"color\": \"dark-yellow\",\n               \
+    \   \"value\": null\n                }\n              ]\n            }\n     \
+    \     },\n          \"overrides\": [],\n          \"values\": false\n        },\n\
+    \        \"graphMode\": \"none\",\n        \"justifyMode\": \"center\",\n    \
+    \    \"orientation\": \"auto\"\n      },\n      \"pluginVersion\": \"6.7.3\",\n\
+    \      \"targets\": [\n        {\n          \"expr\": \"gitea_labels\",\n    \
+    \      \"interval\": \"\",\n          \"legendFormat\": \"\",\n          \"refId\"\
+    : \"A\"\n        }\n      ],\n      \"timeFrom\": null,\n      \"timeShift\":\
+    \ null,\n      \"title\": \"Number of Labels\",\n      \"type\": \"stat\"\n  \
+    \  },\n    {\n      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"gridPos\":\
+    \ {\n        \"h\": 4,\n        \"w\": 4,\n        \"x\": 8,\n        \"y\": 10\n\
+    \      },\n      \"id\": 21,\n      \"options\": {\n        \"colorMode\": \"\
+    value\",\n        \"fieldOptions\": {\n          \"calcs\": [\n            \"\
+    lastNotNull\"\n          ],\n          \"defaults\": {\n            \"mappings\"\
+    : [],\n            \"thresholds\": {\n              \"mode\": \"absolute\",\n\
+    \              \"steps\": [\n                {\n                  \"color\": \"\
+    dark-yellow\",\n                  \"value\": null\n                }\n       \
+    \       ]\n            }\n          },\n          \"overrides\": [],\n       \
+    \   \"values\": false\n        },\n        \"graphMode\": \"none\",\n        \"\
+    justifyMode\": \"center\",\n        \"orientation\": \"auto\"\n      },\n    \
+    \  \"pluginVersion\": \"6.7.3\",\n      \"targets\": [\n        {\n          \"\
+    expr\": \"gitea_organizations\",\n          \"interval\": \"\",\n          \"\
+    legendFormat\": \"\",\n          \"refId\": \"A\"\n        }\n      ],\n     \
+    \ \"timeFrom\": null,\n      \"timeShift\": null,\n      \"title\": \"Number of\
+    \ Organizations\",\n      \"type\": \"stat\"\n    },\n    {\n      \"datasource\"\
+    : \"${DS_PROMETHEUS}\",\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\"\
+    : 4,\n        \"x\": 12,\n        \"y\": 10\n      },\n      \"id\": 16,\n   \
+    \   \"options\": {\n        \"colorMode\": \"value\",\n        \"fieldOptions\"\
+    : {\n          \"calcs\": [\n            \"lastNotNull\"\n          ],\n     \
+    \     \"defaults\": {\n            \"mappings\": [],\n            \"thresholds\"\
+    : {\n              \"mode\": \"absolute\",\n              \"steps\": [\n     \
+    \           {\n                  \"color\": \"dark-yellow\",\n               \
+    \   \"value\": null\n                }\n              ]\n            }\n     \
+    \     },\n          \"overrides\": [],\n          \"values\": false\n        },\n\
+    \        \"graphMode\": \"none\",\n        \"justifyMode\": \"center\",\n    \
+    \    \"orientation\": \"auto\"\n      },\n      \"pluginVersion\": \"6.7.3\",\n\
+    \      \"targets\": [\n        {\n          \"expr\": \"gitea_teams\",\n     \
+    \     \"interval\": \"\",\n          \"legendFormat\": \"\",\n          \"refId\"\
+    : \"A\"\n        }\n      ],\n      \"timeFrom\": null,\n      \"timeShift\":\
+    \ null,\n      \"title\": \"Number of Teams\",\n      \"type\": \"stat\"\n   \
+    \ },\n    {\n      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"gridPos\": {\n\
+    \        \"h\": 4,\n        \"w\": 4,\n        \"x\": 16,\n        \"y\": 10\n\
+    \      },\n      \"id\": 8,\n      \"options\": {\n        \"colorMode\": \"value\"\
+    ,\n        \"fieldOptions\": {\n          \"calcs\": [\n            \"lastNotNull\"\
+    \n          ],\n          \"defaults\": {\n            \"mappings\": [],\n   \
+    \         \"thresholds\": {\n              \"mode\": \"absolute\",\n         \
+    \     \"steps\": [\n                {\n                  \"color\": \"dark-yellow\"\
+    ,\n                  \"value\": null\n                }\n              ]\n   \
+    \         }\n          },\n          \"overrides\": [],\n          \"values\"\
+    : false\n        },\n        \"graphMode\": \"none\",\n        \"justifyMode\"\
+    : \"center\",\n        \"orientation\": \"auto\"\n      },\n      \"pluginVersion\"\
+    : \"6.7.3\",\n      \"targets\": [\n        {\n          \"expr\": \"gitea_follows\"\
+    ,\n          \"interval\": \"\",\n          \"legendFormat\": \"\",\n        \
+    \  \"refId\": \"A\"\n        }\n      ],\n      \"timeFrom\": null,\n      \"\
+    timeShift\": null,\n      \"title\": \"Number of Follows\",\n      \"type\": \"\
+    stat\"\n    },\n    {\n      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"gridPos\"\
+    : {\n        \"h\": 4,\n        \"w\": 4,\n        \"x\": 20,\n        \"y\":\
+    \ 10\n      },\n      \"id\": 20,\n      \"options\": {\n        \"colorMode\"\
+    : \"value\",\n        \"fieldOptions\": {\n          \"calcs\": [\n          \
+    \  \"lastNotNull\"\n          ],\n          \"defaults\": {\n            \"mappings\"\
+    : [],\n            \"thresholds\": {\n              \"mode\": \"absolute\",\n\
+    \              \"steps\": [\n                {\n                  \"color\": \"\
+    dark-yellow\",\n                  \"value\": null\n                }\n       \
+    \       ]\n            }\n          },\n          \"overrides\": [],\n       \
+    \   \"values\": false\n        },\n        \"graphMode\": \"none\",\n        \"\
+    justifyMode\": \"center\",\n        \"orientation\": \"auto\"\n      },\n    \
+    \  \"pluginVersion\": \"6.7.3\",\n      \"targets\": [\n        {\n          \"\
+    expr\": \"gitea_publickeys\",\n          \"interval\": \"\",\n          \"legendFormat\"\
+    : \"\",\n          \"refId\": \"A\"\n        }\n      ],\n      \"timeFrom\":\
+    \ null,\n      \"timeShift\": null,\n      \"title\": \"Number of PublicKeys\"\
+    ,\n      \"type\": \"stat\"\n    },\n    {\n      \"datasource\": \"${DS_PROMETHEUS}\"\
+    ,\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\": 4,\n        \"x\":\
+    \ 0,\n        \"y\": 14\n      },\n      \"id\": 17,\n      \"options\": {\n \
+    \       \"colorMode\": \"value\",\n        \"fieldOptions\": {\n          \"calcs\"\
+    : [\n            \"lastNotNull\"\n          ],\n          \"defaults\": {\n  \
+    \          \"mappings\": [],\n            \"thresholds\": {\n              \"\
+    mode\": \"absolute\",\n              \"steps\": [\n                {\n       \
+    \           \"color\": \"dark-purple\",\n                  \"value\": null\n \
+    \               }\n              ]\n            }\n          },\n          \"\
+    overrides\": [],\n          \"values\": false\n        },\n        \"graphMode\"\
+    : \"none\",\n        \"justifyMode\": \"center\",\n        \"orientation\": \"\
+    auto\"\n      },\n      \"pluginVersion\": \"6.7.3\",\n      \"targets\": [\n\
+    \        {\n          \"expr\": \"gitea_stars\",\n          \"interval\": \"\"\
+    ,\n          \"legendFormat\": \"\",\n          \"refId\": \"A\"\n        }\n\
+    \      ],\n      \"timeFrom\": null,\n      \"timeShift\": null,\n      \"title\"\
+    : \"Number of Stars\",\n      \"type\": \"stat\"\n    },\n    {\n      \"datasource\"\
+    : \"${DS_PROMETHEUS}\",\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\"\
+    : 4,\n        \"x\": 4,\n        \"y\": 14\n      },\n      \"id\": 14,\n    \
+    \  \"options\": {\n        \"colorMode\": \"value\",\n        \"fieldOptions\"\
+    : {\n          \"calcs\": [\n            \"lastNotNull\"\n          ],\n     \
+    \     \"defaults\": {\n            \"mappings\": [],\n            \"thresholds\"\
+    : {\n              \"mode\": \"absolute\",\n              \"steps\": [\n     \
+    \           {\n                  \"color\": \"dark-purple\",\n               \
+    \   \"value\": null\n                }\n              ]\n            }\n     \
+    \     },\n          \"overrides\": [],\n          \"values\": false\n        },\n\
+    \        \"graphMode\": \"none\",\n        \"justifyMode\": \"center\",\n    \
+    \    \"orientation\": \"auto\"\n      },\n      \"pluginVersion\": \"6.7.3\",\n\
+    \      \"targets\": [\n        {\n          \"expr\": \"gitea_webhooks\",\n  \
+    \        \"interval\": \"\",\n          \"legendFormat\": \"\",\n          \"\
+    refId\": \"A\"\n        }\n      ],\n      \"timeFrom\": null,\n      \"timeShift\"\
+    : null,\n      \"title\": \"Number of Webhooks\",\n      \"type\": \"stat\"\n\
+    \    },\n    {\n      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"gridPos\"\
+    : {\n        \"h\": 4,\n        \"w\": 4,\n        \"x\": 8,\n        \"y\": 14\n\
+    \      },\n      \"id\": 19,\n      \"options\": {\n        \"colorMode\": \"\
+    value\",\n        \"fieldOptions\": {\n          \"calcs\": [\n            \"\
+    lastNotNull\"\n          ],\n          \"defaults\": {\n            \"mappings\"\
+    : [],\n            \"thresholds\": {\n              \"mode\": \"absolute\",\n\
+    \              \"steps\": [\n                {\n                  \"color\": \"\
+    dark-purple\",\n                  \"value\": null\n                }\n       \
+    \       ]\n            }\n          },\n          \"overrides\": [],\n       \
+    \   \"values\": false\n        },\n        \"graphMode\": \"none\",\n        \"\
+    justifyMode\": \"center\",\n        \"orientation\": \"auto\"\n      },\n    \
+    \  \"pluginVersion\": \"6.7.3\",\n      \"targets\": [\n        {\n          \"\
+    expr\": \"gitea_releases\",\n          \"interval\": \"\",\n          \"legendFormat\"\
+    : \"\",\n          \"refId\": \"A\"\n        }\n      ],\n      \"timeFrom\":\
+    \ null,\n      \"timeShift\": null,\n      \"title\": \"Number of Releases\",\n\
+    \      \"type\": \"stat\"\n    },\n    {\n      \"datasource\": \"${DS_PROMETHEUS}\"\
+    ,\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\": 4,\n        \"x\":\
+    \ 12,\n        \"y\": 14\n      },\n      \"id\": 7,\n      \"options\": {\n \
+    \       \"colorMode\": \"value\",\n        \"fieldOptions\": {\n          \"calcs\"\
+    : [\n            \"lastNotNull\"\n          ],\n          \"defaults\": {\n  \
+    \          \"mappings\": [],\n            \"thresholds\": {\n              \"\
+    mode\": \"absolute\",\n              \"steps\": [\n                {\n       \
+    \           \"color\": \"dark-purple\",\n                  \"value\": null\n \
+    \               }\n              ]\n            }\n          },\n          \"\
+    overrides\": [],\n          \"values\": false\n        },\n        \"graphMode\"\
+    : \"none\",\n        \"justifyMode\": \"center\",\n        \"orientation\": \"\
+    auto\"\n      },\n      \"pluginVersion\": \"6.7.3\",\n      \"targets\": [\n\
+    \        {\n          \"expr\": \"gitea_comments\",\n          \"interval\": \"\
+    \",\n          \"legendFormat\": \"\",\n          \"refId\": \"A\"\n        }\n\
+    \      ],\n      \"timeFrom\": null,\n      \"timeShift\": null,\n      \"title\"\
+    : \"Number of Comments\",\n      \"type\": \"stat\"\n    },\n    {\n      \"datasource\"\
+    : \"${DS_PROMETHEUS}\",\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\"\
+    : 4,\n        \"x\": 16,\n        \"y\": 14\n      },\n      \"id\": 3,\n    \
+    \  \"options\": {\n        \"colorMode\": \"value\",\n        \"fieldOptions\"\
+    : {\n          \"calcs\": [\n            \"lastNotNull\"\n          ],\n     \
+    \     \"defaults\": {\n            \"mappings\": [],\n            \"thresholds\"\
+    : {\n              \"mode\": \"absolute\",\n              \"steps\": [\n     \
+    \           {\n                  \"color\": \"dark-purple\",\n               \
+    \   \"value\": null\n                }\n              ]\n            }\n     \
+    \     },\n          \"overrides\": [],\n          \"values\": false\n        },\n\
+    \        \"graphMode\": \"none\",\n        \"justifyMode\": \"center\",\n    \
+    \    \"orientation\": \"auto\"\n      },\n      \"pluginVersion\": \"6.7.3\",\n\
+    \      \"targets\": [\n        {\n          \"expr\": \"gitea_milestones\",\n\
+    \          \"interval\": \"\",\n          \"legendFormat\": \"\",\n          \"\
+    refId\": \"A\"\n        }\n      ],\n      \"timeFrom\": null,\n      \"timeShift\"\
+    : null,\n      \"title\": \"Number of Milestones\",\n      \"type\": \"stat\"\n\
+    \    },\n    {\n      \"datasource\": \"${DS_PROMETHEUS}\",\n      \"gridPos\"\
+    : {\n        \"h\": 4,\n        \"w\": 4,\n        \"x\": 20,\n        \"y\":\
+    \ 14\n      },\n      \"id\": 25,\n      \"options\": {\n        \"colorMode\"\
+    : \"value\",\n        \"fieldOptions\": {\n          \"calcs\": [\n          \
+    \  \"lastNotNull\"\n          ],\n          \"defaults\": {\n            \"mappings\"\
+    : [],\n            \"thresholds\": {\n              \"mode\": \"absolute\",\n\
+    \              \"steps\": [\n                {\n                  \"color\": \"\
+    dark-purple\",\n                  \"value\": null\n                }\n       \
+    \       ]\n            }\n          },\n          \"overrides\": [],\n       \
+    \   \"values\": false\n        },\n        \"graphMode\": \"none\",\n        \"\
+    justifyMode\": \"center\",\n        \"orientation\": \"auto\"\n      },\n    \
+    \  \"pluginVersion\": \"6.7.3\",\n      \"targets\": [\n        {\n          \"\
+    expr\": \"gitea_watches\",\n          \"interval\": \"\",\n          \"legendFormat\"\
+    : \"\",\n          \"refId\": \"A\"\n        }\n      ],\n      \"timeFrom\":\
+    \ null,\n      \"timeShift\": null,\n      \"title\": \"Number of Watches\",\n\
+    \      \"type\": \"stat\"\n    }\n  ],\n  \"refresh\": \"1m\",\n  \"schemaVersion\"\
+    : 22,\n  \"style\": \"dark\",\n  \"tags\": [],\n  \"templating\": {\n    \"list\"\
+    : []\n  },\n  \"time\": {\n    \"from\": \"now-1h\",\n    \"to\": \"now\"\n  },\n\
+    \  \"timepicker\": {\n    \"refresh_intervals\": [\n      \"30s\",\n      \"1m\"\
+    ,\n      \"5m\",\n      \"15m\",\n      \"30m\",\n      \"1h\",\n      \"2h\"\
+    ,\n      \"1d\"\n    ]\n  },\n  \"timezone\": \"browser\",\n  \"title\": \"Gitea\"\
+    ,\n  \"uid\": \"nNq1Iw5Gz\",\n  \"variables\": {\n    \"list\": []\n  },\n  \"\
+    version\": 7,\n  \"tz\": {}\n}"

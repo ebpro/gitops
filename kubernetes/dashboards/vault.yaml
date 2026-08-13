@@ -1,0 +1,810 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-25314
+  namespace: kube-prometheus
+  labels:
+    grafana_dashboard: '1'
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: observability
+data:
+  dashboard.json: "{\n  \"__inputs\": [],\n  \"__requires\": [],\n  \"annotations\"\
+    : {\n    \"list\": []\n  },\n  \"description\": \"A dashboard that monitors Vault.\
+    \ It is created using the [vault-mixin](https://github.com/adinhodovic/vault-mixin).\
+    \ For an in-depth view of Go runtime internals (CPU, memory, GC, scheduling, contention,\
+    \ file descriptor pressure), pair this dashboard with the [Go / Overview dashboard](https://grafana.com/grafana/dashboards/25063-go-overview/)\
+    \ from the [go-mixin](https://github.com/adinhodovic/go-mixin) project.\",\n \
+    \ \"editable\": false,\n  \"panels\": [\n    {\n      \"collapsed\": false,\n\
+    \      \"gridPos\": {\n        \"h\": 1,\n        \"w\": 24,\n        \"x\": 0,\n\
+    \        \"y\": 0\n      },\n      \"id\": 1,\n      \"title\": \"Summary\",\n\
+    \      \"type\": \"row\"\n    },\n    {\n      \"datasource\": {\n        \"type\"\
+    : \"prometheus\",\n        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\"\
+    : {\n        \"defaults\": {\n          \"mappings\": [],\n          \"thresholds\"\
+    : {\n            \"steps\": [\n              {\n                \"color\": \"\
+    red\",\n                \"value\": 0\n              },\n              {\n    \
+    \            \"color\": \"green\",\n                \"value\": 1\n           \
+    \   }\n            ]\n          },\n          \"unit\": \"short\"\n        }\n\
+    \      },\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\": 4,\n      \
+    \  \"x\": 0,\n        \"y\": 1\n      },\n      \"id\": 2,\n      \"options\"\
+    : {\n        \"graphMode\": \"area\",\n        \"percentChangeColorMode\": \"\
+    standard\",\n        \"showPercentChange\": false\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"${datasource}\"\
+    \n          },\n          \"expr\": \"sum(\\n  vault_core_unsealed{\\n    job=~\\\
+    \"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\
+    \"\\n\\n  }\\n)\\n\"\n        }\n      ],\n      \"title\": \"Unsealed Nodes\"\
+    ,\n      \"type\": \"stat\"\n    },\n    {\n      \"datasource\": {\n        \"\
+    type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n      },\n      \"\
+    fieldConfig\": {\n        \"defaults\": {\n          \"mappings\": [],\n     \
+    \     \"thresholds\": {\n            \"steps\": [\n              {\n         \
+    \       \"color\": \"green\",\n                \"value\": 0\n              }\n\
+    \            ]\n          },\n          \"unit\": \"short\"\n        }\n     \
+    \ },\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\": 4,\n        \"x\"\
+    : 4,\n        \"y\": 1\n      },\n      \"id\": 3,\n      \"options\": {\n   \
+    \     \"graphMode\": \"area\",\n        \"percentChangeColorMode\": \"standard\"\
+    ,\n        \"showPercentChange\": false\n      },\n      \"pluginVersion\": \"\
+    v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n   \
+    \         \"type\": \"prometheus\",\n            \"uid\": \"${datasource}\"\n\
+    \          },\n          \"expr\": \"count(\\n  vault_core_unsealed{\\n    job=~\\\
+    \"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\
+    \"\\n\\n  }\\n)\\n\"\n        }\n      ],\n      \"title\": \"Total Nodes\",\n\
+    \      \"type\": \"stat\"\n    },\n    {\n      \"datasource\": {\n        \"\
+    type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n      },\n      \"\
+    fieldConfig\": {\n        \"defaults\": {\n          \"mappings\": [],\n     \
+    \     \"thresholds\": {\n            \"steps\": [\n              {\n         \
+    \       \"color\": \"red\",\n                \"value\": 0\n              },\n\
+    \              {\n                \"color\": \"green\",\n                \"value\"\
+    : 1\n              }\n            ]\n          },\n          \"unit\": \"short\"\
+    \n        }\n      },\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\"\
+    : 4,\n        \"x\": 8,\n        \"y\": 1\n      },\n      \"id\": 4,\n      \"\
+    options\": {\n        \"graphMode\": \"area\",\n        \"percentChangeColorMode\"\
+    : \"standard\",\n        \"showPercentChange\": false\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"${datasource}\"\
+    \n          },\n          \"expr\": \"sum(\\n  up{\\n    job=~\\\"$job\\\",\\\
+    ninstance=~\\\"$instance\\\"\\n\\n\\n  }\\n)\\n\"\n        }\n      ],\n     \
+    \ \"title\": \"Scrape Up\",\n      \"type\": \"stat\"\n    },\n    {\n      \"\
+    datasource\": {\n        \"type\": \"prometheus\",\n        \"uid\": \"$datasource\"\
+    \n      },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"mappings\"\
+    : [],\n          \"thresholds\": {\n            \"steps\": [\n              {\n\
+    \                \"color\": \"green\",\n                \"value\": 0\n       \
+    \       }\n            ]\n          },\n          \"unit\": \"short\"\n      \
+    \  }\n      },\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\": 4,\n \
+    \       \"x\": 12,\n        \"y\": 1\n      },\n      \"id\": 5,\n      \"options\"\
+    : {\n        \"graphMode\": \"area\",\n        \"percentChangeColorMode\": \"\
+    standard\",\n        \"showPercentChange\": false\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"${datasource}\"\
+    \n          },\n          \"expr\": \"max(\\n  vault_expire_num_leases{\\n   \
+    \ job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n  }\\n)\\n\"\n    \
+    \    }\n      ],\n      \"title\": \"Active Leases\",\n      \"type\": \"stat\"\
+    \n    },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n\
+    \        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n      \
+    \  \"defaults\": {\n          \"mappings\": [],\n          \"thresholds\": {\n\
+    \            \"steps\": [\n              {\n                \"color\": \"green\"\
+    ,\n                \"value\": 0\n              },\n              {\n         \
+    \       \"color\": \"orange\",\n                \"value\": 1\n              },\n\
+    \              {\n                \"color\": \"red\",\n                \"value\"\
+    : 10\n              }\n            ]\n          },\n          \"unit\": \"short\"\
+    \n        }\n      },\n      \"gridPos\": {\n        \"h\": 4,\n        \"w\"\
+    : 4,\n        \"x\": 16,\n        \"y\": 1\n      },\n      \"id\": 6,\n     \
+    \ \"options\": {\n        \"graphMode\": \"area\",\n        \"percentChangeColorMode\"\
+    : \"standard\",\n        \"showPercentChange\": false\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"${datasource}\"\
+    \n          },\n          \"expr\": \"max(\\n  vault_expire_num_irrevocable_leases{\\\
+    n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n  }\\n)\\n\"\n \
+    \       }\n      ],\n      \"title\": \"Irrevocable Leases\",\n      \"type\"\
+    : \"stat\"\n    },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\"\
+    ,\n        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n    \
+    \    \"defaults\": {\n          \"mappings\": [],\n          \"thresholds\": {\n\
+    \            \"steps\": [\n              {\n                \"color\": \"green\"\
+    ,\n                \"value\": 0\n              }\n            ]\n          },\n\
+    \          \"unit\": \"short\"\n        }\n      },\n      \"gridPos\": {\n  \
+    \      \"h\": 4,\n        \"w\": 4,\n        \"x\": 20,\n        \"y\": 1\n  \
+    \    },\n      \"id\": 7,\n      \"options\": {\n        \"graphMode\": \"area\"\
+    ,\n        \"percentChangeColorMode\": \"standard\",\n        \"showPercentChange\"\
+    : false\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\": [\n\
+    \        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"${datasource}\"\n          },\n          \"expr\": \"\
+    sum(\\n  vault_core_in_flight_requests{\\n    job=~\\\"$job\\\",\\ninstance=~\\\
+    \"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\"\\n\\n  }\\n)\\n\"\n\
+    \        }\n      ],\n      \"title\": \"In-Flight Requests\",\n      \"type\"\
+    : \"stat\"\n    },\n    {\n      \"collapsed\": false,\n      \"gridPos\": {\n\
+    \        \"h\": 1,\n        \"w\": 24,\n        \"x\": 0,\n        \"y\": 5\n\
+    \      },\n      \"id\": 8,\n      \"title\": \"Responses\",\n      \"type\":\
+    \ \"row\"\n    },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\"\
+    ,\n        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n    \
+    \    \"defaults\": {\n          \"unit\": \"reqps\"\n        },\n        \"overrides\"\
+    : []\n      },\n      \"gridPos\": {\n        \"h\": 6,\n        \"w\": 8,\n \
+    \       \"x\": 0,\n        \"y\": 6\n      },\n      \"id\": 9,\n      \"options\"\
+    : {\n        \"displayLabels\": [\n          \"percent\"\n        ],\n       \
+    \ \"legend\": {\n          \"displayMode\": \"table\",\n          \"placement\"\
+    : \"right\",\n          \"showLegend\": true,\n          \"values\": [\n     \
+    \       \"percent\"\n          ]\n        },\n        \"tooltip\": {\n       \
+    \   \"mode\": \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n\
+    \      \"pluginVersion\": \"v11.4.0\",\n      \"targets\": [\n        {\n    \
+    \      \"datasource\": {\n            \"type\": \"prometheus\",\n            \"\
+    uid\": \"$datasource\"\n          },\n          \"expr\": \"sum by (type) (\\\
+    n  rate(\\n    vault_core_response_status_code{\\n      job=~\\\"$job\\\",\\ninstance=~\\\
+    \"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\n  )\\n)\\n\",\n          \"\
+    instant\": true,\n          \"legendFormat\": \"{{ type }}\"\n        }\n    \
+    \  ],\n      \"title\": \"Response Rate by Type\",\n      \"type\": \"piechart\"\
+    \n    },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n\
+    \        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n      \
+    \  \"defaults\": {\n          \"custom\": {\n            \"axisSoftMin\": 0,\n\
+    \            \"fillOpacity\": 100,\n            \"lineWidth\": 1,\n          \
+    \  \"stacking\": {\n              \"mode\": \"normal\"\n            }\n      \
+    \    },\n          \"unit\": \"reqps\"\n        }\n      },\n      \"gridPos\"\
+    : {\n        \"h\": 6,\n        \"w\": 8,\n        \"x\": 8,\n        \"y\": 6\n\
+    \      },\n      \"id\": 10,\n      \"options\": {\n        \"legend\": {\n  \
+    \        \"calcs\": [\n            \"mean\",\n            \"max\"\n          ],\n\
+    \          \"displayMode\": \"table\",\n          \"placement\": \"right\",\n\
+    \          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n          \"\
+    sortDesc\": true\n        },\n        \"tooltip\": {\n          \"mode\": \"multi\"\
+    ,\n          \"sort\": \"desc\"\n        }\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"sum by (type)\
+    \ (\\n  rate(\\n    vault_core_response_status_code{\\n      job=~\\\"$job\\\"\
+    ,\\ninstance=~\\\"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\n  )\\n)\\n\"\
+    ,\n          \"legendFormat\": \"{{ type }}\"\n        }\n      ],\n      \"title\"\
+    : \"Response Rate by Type\",\n      \"type\": \"timeseries\"\n    },\n    {\n\
+    \      \"datasource\": {\n        \"type\": \"prometheus\",\n        \"uid\":\
+    \ \"$datasource\"\n      },\n      \"fieldConfig\": {\n        \"defaults\": {\n\
+    \          \"custom\": {\n            \"axisSoftMax\": 100,\n            \"axisSoftMin\"\
+    : 0,\n            \"fillOpacity\": 10\n          },\n          \"unit\": \"percent\"\
+    \n        }\n      },\n      \"gridPos\": {\n        \"h\": 6,\n        \"w\"\
+    : 8,\n        \"x\": 16,\n        \"y\": 6\n      },\n      \"id\": 11,\n    \
+    \  \"options\": {\n        \"legend\": {\n          \"calcs\": [\n           \
+    \ \"mean\",\n            \"max\"\n          ],\n          \"displayMode\": \"\
+    table\",\n          \"placement\": \"right\",\n          \"showLegend\": true,\n\
+    \          \"sortBy\": \"mean\",\n          \"sortDesc\": true\n        },\n \
+    \       \"tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"\
+    desc\"\n        }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"(\\n  1 -\\n  (\\n    sum(\\n      rate(\\n  \
+    \      vault_core_response_status_code{\\n          job=~\\\"$job\\\",\\ninstance=~\\\
+    \"$instance\\\"\\n\\n,\\n          type=\\\"5xx\\\"\\n        }[$__rate_interval]\\\
+    n      )\\n    )\\n    /\\n    sum(\\n      rate(\\n        vault_core_response_status_code{\\\
+    n          job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n        }[$__rate_interval]\\\
+    n      )\\n    )\\n  )\\n)\\n* 100\\n\",\n          \"legendFormat\": \"Success\
+    \ Rate\"\n        }\n      ],\n      \"title\": \"Response Success Rate\",\n \
+    \     \"type\": \"timeseries\"\n    },\n    {\n      \"collapsed\": false,\n \
+    \     \"gridPos\": {\n        \"h\": 1,\n        \"w\": 24,\n        \"x\": 0,\n\
+    \        \"y\": 12\n      },\n      \"id\": 12,\n      \"title\": \"Mounts\",\n\
+    \      \"type\": \"row\"\n    },\n    {\n      \"datasource\": {\n        \"type\"\
+    : \"prometheus\",\n        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\"\
+    : {\n        \"defaults\": {\n          \"unit\": \"short\"\n        },\n    \
+    \    \"overrides\": []\n      },\n      \"gridPos\": {\n        \"h\": 6,\n  \
+    \      \"w\": 12,\n        \"x\": 0,\n        \"y\": 13\n      },\n      \"id\"\
+    : 13,\n      \"options\": {\n        \"displayLabels\": [\n          \"percent\"\
+    \n        ],\n        \"legend\": {\n          \"displayMode\": \"table\",\n \
+    \         \"placement\": \"right\",\n          \"showLegend\": true,\n       \
+    \   \"values\": [\n            \"percent\"\n          ]\n        },\n        \"\
+    tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"desc\"\n \
+    \       }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"expr\": \"\
+    sum by (type, local) (\\n  vault_core_mount_table_num_entries{\\n    job=~\\\"\
+    $job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\
+    \"\\n\\n  }\\n)\\n\",\n          \"instant\": true,\n          \"legendFormat\"\
+    : \"{{ type }} local={{ local }}\"\n        }\n      ],\n      \"title\": \"Mount\
+    \ Entries by Type\",\n      \"type\": \"piechart\"\n    },\n    {\n      \"datasource\"\
+    : {\n        \"type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n   \
+    \   },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"unit\"\
+    : \"bytes\"\n        },\n        \"overrides\": []\n      },\n      \"gridPos\"\
+    : {\n        \"h\": 6,\n        \"w\": 12,\n        \"x\": 12,\n        \"y\"\
+    : 13\n      },\n      \"id\": 14,\n      \"options\": {\n        \"displayLabels\"\
+    : [\n          \"percent\"\n        ],\n        \"legend\": {\n          \"displayMode\"\
+    : \"table\",\n          \"placement\": \"right\",\n          \"showLegend\": true,\n\
+    \          \"values\": [\n            \"percent\"\n          ]\n        },\n \
+    \       \"tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"\
+    desc\"\n        }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"expr\": \"\
+    sum by (type, local) (\\n  vault_core_mount_table_size{\\n    job=~\\\"$job\\\"\
+    ,\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\"\\\
+    n\\n  }\\n)\\n\",\n          \"instant\": true,\n          \"legendFormat\": \"\
+    {{ type }} local={{ local }}\"\n        }\n      ],\n      \"title\": \"Mount\
+    \ Table Size by Type\",\n      \"type\": \"piechart\"\n    },\n    {\n      \"\
+    collapsed\": false,\n      \"gridPos\": {\n        \"h\": 1,\n        \"w\": 24,\n\
+    \        \"x\": 0,\n        \"y\": 19\n      },\n      \"id\": 15,\n      \"title\"\
+    : \"Cluster\",\n      \"type\": \"row\"\n    },\n    {\n      \"datasource\":\
+    \ {\n        \"type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n   \
+    \   },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"custom\"\
+    : {\n            \"fillOpacity\": 10\n          },\n          \"unit\": \"short\"\
+    \n        }\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\"\
+    : 12,\n        \"x\": 0,\n        \"y\": 20\n      },\n      \"id\": 16,\n   \
+    \   \"options\": {\n        \"legend\": {\n          \"calcs\": [\n          \
+    \  \"mean\",\n            \"max\"\n          ],\n          \"displayMode\": \"\
+    table\",\n          \"placement\": \"right\",\n          \"showLegend\": true,\n\
+    \          \"sortBy\": \"mean\",\n          \"sortDesc\": true\n        },\n \
+    \       \"tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"\
+    desc\"\n        }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"min(\\n  vault_autopilot_healthy{\\n    job=~\\\
+    \"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n  }\\n)\\n\",\n          \"\
+    legendFormat\": \"Healthy\"\n        }\n      ],\n      \"title\": \"Autopilot\
+    \ Healthy\",\n      \"type\": \"timeseries\"\n    },\n    {\n      \"datasource\"\
+    : {\n        \"type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n   \
+    \   },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"custom\"\
+    : {\n            \"fillOpacity\": 10\n          },\n          \"unit\": \"short\"\
+    \n        }\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\"\
+    : 12,\n        \"x\": 12,\n        \"y\": 20\n      },\n      \"id\": 17,\n  \
+    \    \"options\": {\n        \"legend\": {\n          \"calcs\": [\n         \
+    \   \"mean\",\n            \"max\"\n          ],\n          \"displayMode\": \"\
+    table\",\n          \"placement\": \"right\",\n          \"showLegend\": true,\n\
+    \          \"sortBy\": \"mean\",\n          \"sortDesc\": true\n        },\n \
+    \       \"tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"\
+    desc\"\n        }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"min(\\n  vault_autopilot_failure_tolerance{\\\
+    n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n  }\\n)\\n\",\n\
+    \          \"legendFormat\": \"Tolerance\"\n        }\n      ],\n      \"title\"\
+    : \"Autopilot Failure Tolerance\",\n      \"type\": \"timeseries\"\n    },\n \
+    \   {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n        \"\
+    uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n        \"defaults\"\
+    : {\n          \"custom\": {\n            \"fillOpacity\": 10\n          },\n\
+    \          \"unit\": \"short\"\n        }\n      },\n      \"gridPos\": {\n  \
+    \      \"h\": 8,\n        \"w\": 12,\n        \"x\": 0,\n        \"y\": 28\n \
+    \     },\n      \"id\": 18,\n      \"options\": {\n        \"legend\": {\n   \
+    \       \"calcs\": [\n            \"mean\",\n            \"max\"\n          ],\n\
+    \          \"displayMode\": \"table\",\n          \"placement\": \"right\",\n\
+    \          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n          \"\
+    sortDesc\": true\n        },\n        \"tooltip\": {\n          \"mode\": \"multi\"\
+    ,\n          \"sort\": \"desc\"\n        }\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"min by (node_id)\
+    \ (\\n  vault_autopilot_node_healthy{\\n    job=~\\\"$job\\\",\\ninstance=~\\\"\
+    $instance\\\"\\n\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"{{ node_id\
+    \ }}\"\n        }\n      ],\n      \"title\": \"Autopilot Node Healthy\",\n  \
+    \    \"type\": \"timeseries\"\n    },\n    {\n      \"datasource\": {\n      \
+    \  \"type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n      },\n   \
+    \   \"fieldConfig\": {\n        \"defaults\": {\n          \"custom\": {\n   \
+    \         \"fillOpacity\": 10\n          },\n          \"unit\": \"short\"\n \
+    \       }\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\": 12,\n\
+    \        \"x\": 12,\n        \"y\": 28\n      },\n      \"id\": 19,\n      \"\
+    options\": {\n        \"legend\": {\n          \"calcs\": [\n            \"mean\"\
+    ,\n            \"max\"\n          ],\n          \"displayMode\": \"table\",\n\
+    \          \"placement\": \"right\",\n          \"showLegend\": true,\n      \
+    \    \"sortBy\": \"mean\",\n          \"sortDesc\": true\n        },\n       \
+    \ \"tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"desc\"\
+    \n        }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"max(\\n  vault_core_replication_dr_primary{\\\
+    n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\
+    \"\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"DR Primary\"\n        },\n\
+    \        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"max(\\n  vault_core_replication_dr_secondary{\\\
+    n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\
+    \"\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"DR Secondary\"\n        },\n\
+    \        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"max(\\n  vault_core_replication_performance_primary{\\\
+    n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\
+    \"\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"Performance Primary\"\n \
+    \       },\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"max(\\n  vault_core_replication_performance_secondary{\\\
+    n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\
+    \"\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"Performance Secondary\"\n\
+    \        }\n      ],\n      \"title\": \"Replication Status\",\n      \"type\"\
+    : \"timeseries\"\n    },\n    {\n      \"datasource\": {\n        \"type\": \"\
+    prometheus\",\n        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\"\
+    : {\n        \"defaults\": {\n          \"custom\": {\n            \"fillOpacity\"\
+    : 10\n          },\n          \"unit\": \"short\"\n        }\n      },\n     \
+    \ \"gridPos\": {\n        \"h\": 8,\n        \"w\": 12,\n        \"x\": 0,\n \
+    \       \"y\": 36\n      },\n      \"id\": 20,\n      \"options\": {\n       \
+    \ \"legend\": {\n          \"calcs\": [\n            \"mean\",\n            \"\
+    max\"\n          ],\n          \"displayMode\": \"table\",\n          \"placement\"\
+    : \"right\",\n          \"showLegend\": true,\n          \"sortBy\": \"mean\"\
+    ,\n          \"sortDesc\": true\n        },\n        \"tooltip\": {\n        \
+    \  \"mode\": \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n \
+    \     \"pluginVersion\": \"v11.4.0\",\n      \"targets\": [\n        {\n     \
+    \     \"datasource\": {\n            \"type\": \"prometheus\",\n            \"\
+    uid\": \"$datasource\"\n          },\n          \"exemplar\": false,\n       \
+    \   \"expr\": \"vault_core_active{\\n  job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\
+    \"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\"\\n\\n}\\n\",\n          \"legendFormat\"\
+    : \"{{ instance }}\"\n        }\n      ],\n      \"title\": \"Active Node\",\n\
+    \      \"type\": \"timeseries\"\n    },\n    {\n      \"datasource\": {\n    \
+    \    \"type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n      },\n \
+    \     \"fieldConfig\": {\n        \"defaults\": {\n          \"custom\": {\n \
+    \           \"fillOpacity\": 10\n          },\n          \"unit\": \"short\"\n\
+    \        }\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\":\
+    \ 12,\n        \"x\": 12,\n        \"y\": 36\n      },\n      \"id\": 21,\n  \
+    \    \"options\": {\n        \"legend\": {\n          \"calcs\": [\n         \
+    \   \"mean\",\n            \"max\"\n          ],\n          \"displayMode\": \"\
+    table\",\n          \"placement\": \"right\",\n          \"showLegend\": true,\n\
+    \          \"sortBy\": \"mean\",\n          \"sortDesc\": true\n        },\n \
+    \       \"tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"\
+    desc\"\n        }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"sum(\\n  rate(\\n    vault_core_leadership_lost_count{\\\
+    n      job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\\
+    n  )\\n)\\n\",\n          \"legendFormat\": \"Leadership lost\"\n        },\n\
+    \        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"sum(\\n  rate(\\n    vault_core_step_down_count{\\\
+    n      job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\\
+    n  )\\n)\\n\",\n          \"legendFormat\": \"Step down\"\n        }\n      ],\n\
+    \      \"title\": \"Leadership Changes\",\n      \"type\": \"timeseries\"\n  \
+    \  },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n   \
+    \     \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n        \"\
+    defaults\": {\n          \"custom\": {\n            \"fillOpacity\": 10\n    \
+    \      },\n          \"unit\": \"ms\"\n        }\n      },\n      \"gridPos\"\
+    : {\n        \"h\": 8,\n        \"w\": 12,\n        \"x\": 0,\n        \"y\":\
+    \ 44\n      },\n      \"id\": 22,\n      \"options\": {\n        \"legend\": {\n\
+    \          \"calcs\": [\n            \"mean\",\n            \"max\"\n        \
+    \  ],\n          \"displayMode\": \"table\",\n          \"placement\": \"right\"\
+    ,\n          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n        \
+    \  \"sortDesc\": true\n        },\n        \"tooltip\": {\n          \"mode\"\
+    : \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"max(\\n \
+    \ vault_raft_commitTime{\\n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\
+    \\n\\n,\\n    quantile=\\\"0.99\\\"\\n  }\\n)\\n\",\n          \"legendFormat\"\
+    : \"p99\"\n        }\n      ],\n      \"title\": \"Raft Commit Time (p99)\",\n\
+    \      \"type\": \"timeseries\"\n    },\n    {\n      \"datasource\": {\n    \
+    \    \"type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n      },\n \
+    \     \"fieldConfig\": {\n        \"defaults\": {\n          \"custom\": {\n \
+    \           \"fillOpacity\": 10\n          },\n          \"unit\": \"ops\"\n \
+    \       }\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\": 12,\n\
+    \        \"x\": 12,\n        \"y\": 44\n      },\n      \"id\": 23,\n      \"\
+    options\": {\n        \"legend\": {\n          \"calcs\": [\n            \"mean\"\
+    ,\n            \"max\"\n          ],\n          \"displayMode\": \"table\",\n\
+    \          \"placement\": \"right\",\n          \"showLegend\": true,\n      \
+    \    \"sortBy\": \"mean\",\n          \"sortDesc\": true\n        },\n       \
+    \ \"tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"desc\"\
+    \n        }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"sum(\\n  rate(\\n    vault_raft_apply{\\n    \
+    \  job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\\
+    n  )\\n)\\n\",\n          \"legendFormat\": \"apply/s\"\n        }\n      ],\n\
+    \      \"title\": \"Raft Apply Rate\",\n      \"type\": \"timeseries\"\n    },\n\
+    \    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n        \"\
+    uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n        \"defaults\"\
+    : {\n          \"custom\": {\n            \"fillOpacity\": 10\n          },\n\
+    \          \"unit\": \"short\"\n        }\n      },\n      \"gridPos\": {\n  \
+    \      \"h\": 8,\n        \"w\": 12,\n        \"x\": 0,\n        \"y\": 52\n \
+    \     },\n      \"id\": 24,\n      \"options\": {\n        \"legend\": {\n   \
+    \       \"calcs\": [\n            \"mean\",\n            \"max\"\n          ],\n\
+    \          \"displayMode\": \"table\",\n          \"placement\": \"right\",\n\
+    \          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n          \"\
+    sortDesc\": true\n        },\n        \"tooltip\": {\n          \"mode\": \"multi\"\
+    ,\n          \"sort\": \"desc\"\n        }\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"max by (peer_id)\
+    \ (\\n  vault_raft_storage_stats_commit_index{\\n    job=~\\\"$job\\\",\\ninstance=~\\\
+    \"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\"\\n\\n  }\\n)\\n\"\
+    ,\n          \"legendFormat\": \"Commit {{ peer_id }}\"\n        },\n        {\n\
+    \          \"datasource\": {\n            \"type\": \"prometheus\",\n        \
+    \    \"uid\": \"$datasource\"\n          },\n          \"exemplar\": false,\n\
+    \          \"expr\": \"max by (peer_id) (\\n  vault_raft_storage_stats_applied_index{\\\
+    n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\
+    \"\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"Applied {{ peer_id }}\"\n\
+    \        }\n      ],\n      \"title\": \"Raft Peer Indexes\",\n      \"type\"\
+    : \"timeseries\"\n    },\n    {\n      \"datasource\": {\n        \"type\": \"\
+    prometheus\",\n        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\"\
+    : {\n        \"defaults\": {\n          \"custom\": {\n            \"fillOpacity\"\
+    : 10\n          },\n          \"unit\": \"short\"\n        }\n      },\n     \
+    \ \"gridPos\": {\n        \"h\": 8,\n        \"w\": 12,\n        \"x\": 12,\n\
+    \        \"y\": 52\n      },\n      \"id\": 25,\n      \"options\": {\n      \
+    \  \"legend\": {\n          \"calcs\": [\n            \"mean\",\n            \"\
+    max\"\n          ],\n          \"displayMode\": \"table\",\n          \"placement\"\
+    : \"right\",\n          \"showLegend\": true,\n          \"sortBy\": \"mean\"\
+    ,\n          \"sortDesc\": true\n        },\n        \"tooltip\": {\n        \
+    \  \"mode\": \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n \
+    \     \"pluginVersion\": \"v11.4.0\",\n      \"targets\": [\n        {\n     \
+    \     \"datasource\": {\n            \"type\": \"prometheus\",\n            \"\
+    uid\": \"$datasource\"\n          },\n          \"exemplar\": false,\n       \
+    \   \"expr\": \"max by (peer_id) (\\n  vault_raft_storage_stats_fsm_pending{\\\
+    n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\
+    \"\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"{{ peer_id }}\"\n       \
+    \ }\n      ],\n      \"title\": \"Raft FSM Pending\",\n      \"type\": \"timeseries\"\
+    \n    },\n    {\n      \"collapsed\": false,\n      \"gridPos\": {\n        \"\
+    h\": 1,\n        \"w\": 24,\n        \"x\": 0,\n        \"y\": 68\n      },\n\
+    \      \"id\": 26,\n      \"title\": \"Raft Storage\",\n      \"type\": \"row\"\
+    \n    },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n\
+    \        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n      \
+    \  \"defaults\": {\n          \"unit\": \"bytes\"\n        },\n        \"overrides\"\
+    : []\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\": 12,\n\
+    \        \"x\": 0,\n        \"y\": 69\n      },\n      \"id\": 27,\n      \"options\"\
+    : {\n        \"displayLabels\": [\n          \"percent\"\n        ],\n       \
+    \ \"legend\": {\n          \"displayMode\": \"table\",\n          \"placement\"\
+    : \"right\",\n          \"showLegend\": true,\n          \"values\": [\n     \
+    \       \"percent\"\n          ]\n        },\n        \"tooltip\": {\n       \
+    \   \"mode\": \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n\
+    \      \"pluginVersion\": \"v11.4.0\",\n      \"targets\": [\n        {\n    \
+    \      \"datasource\": {\n            \"type\": \"prometheus\",\n            \"\
+    uid\": \"$datasource\"\n          },\n          \"expr\": \"sum by (database)\
+    \ (\\n  vault_raft_storage_bolt_page_bytes_allocated{\\n    job=~\\\"$job\\\"\
+    ,\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\"\\\
+    n\\n  }\\n)\\n\",\n          \"instant\": true,\n          \"legendFormat\": \"\
+    {{ database }}\"\n        }\n      ],\n      \"title\": \"Raft Bolt Page Bytes\
+    \ by Database\",\n      \"type\": \"piechart\"\n    },\n    {\n      \"datasource\"\
+    : {\n        \"type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n   \
+    \   },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"custom\"\
+    : {\n            \"fillOpacity\": 10\n          },\n          \"unit\": \"short\"\
+    \n        }\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\"\
+    : 12,\n        \"x\": 12,\n        \"y\": 69\n      },\n      \"id\": 28,\n  \
+    \    \"options\": {\n        \"legend\": {\n          \"calcs\": [\n         \
+    \   \"mean\",\n            \"max\"\n          ],\n          \"displayMode\": \"\
+    table\",\n          \"placement\": \"right\",\n          \"showLegend\": true,\n\
+    \          \"sortBy\": \"mean\",\n          \"sortDesc\": true\n        },\n \
+    \       \"tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"\
+    desc\"\n        }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"sum by (database) (\\n  vault_raft_storage_bolt_freelist_free_pages{\\\
+    n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\
+    \"\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"{{ database }}\"\n      \
+    \  }\n      ],\n      \"title\": \"Raft Bolt Free Pages\",\n      \"type\": \"\
+    timeseries\"\n    },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\"\
+    ,\n        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n    \
+    \    \"defaults\": {\n          \"custom\": {\n            \"fillOpacity\": 10\n\
+    \          },\n          \"unit\": \"short\"\n        }\n      },\n      \"gridPos\"\
+    : {\n        \"h\": 8,\n        \"w\": 12,\n        \"x\": 0,\n        \"y\":\
+    \ 77\n      },\n      \"id\": 29,\n      \"options\": {\n        \"legend\": {\n\
+    \          \"calcs\": [\n            \"mean\",\n            \"max\"\n        \
+    \  ],\n          \"displayMode\": \"table\",\n          \"placement\": \"right\"\
+    ,\n          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n        \
+    \  \"sortDesc\": true\n        },\n        \"tooltip\": {\n          \"mode\"\
+    : \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"sum by (database)\
+    \ (\\n  vault_raft_storage_bolt_write_count{\\n    job=~\\\"$job\\\",\\ninstance=~\\\
+    \"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\"\\n\\n  }\\n)\\n\"\
+    ,\n          \"legendFormat\": \"{{ database }}\"\n        }\n      ],\n     \
+    \ \"title\": \"Raft Bolt Write Count\",\n      \"type\": \"timeseries\"\n    },\n\
+    \    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n        \"\
+    uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n        \"defaults\"\
+    : {\n          \"custom\": {\n            \"fillOpacity\": 10\n          },\n\
+    \          \"unit\": \"ms\"\n        }\n      },\n      \"gridPos\": {\n     \
+    \   \"h\": 8,\n        \"w\": 12,\n        \"x\": 12,\n        \"y\": 77\n   \
+    \   },\n      \"id\": 30,\n      \"options\": {\n        \"legend\": {\n     \
+    \     \"calcs\": [\n            \"mean\",\n            \"max\"\n          ],\n\
+    \          \"displayMode\": \"table\",\n          \"placement\": \"right\",\n\
+    \          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n          \"\
+    sortDesc\": true\n        },\n        \"tooltip\": {\n          \"mode\": \"multi\"\
+    ,\n          \"sort\": \"desc\"\n        }\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"sum by (database)\
+    \ (\\n  rate(\\n    vault_raft_storage_bolt_write_time{\\n      job=~\\\"$job\\\
+    \",\\ninstance=~\\\"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\"\\\
+    n\\n    }[$__rate_interval]\\n  )\\n)\\n\",\n          \"legendFormat\": \"{{\
+    \ database }}\"\n        }\n      ],\n      \"title\": \"Raft Bolt Write Time\
+    \ Rate\",\n      \"type\": \"timeseries\"\n    },\n    {\n      \"collapsed\"\
+    : false,\n      \"gridPos\": {\n        \"h\": 1,\n        \"w\": 24,\n      \
+    \  \"x\": 0,\n        \"y\": 85\n      },\n      \"id\": 31,\n      \"title\"\
+    : \"Requests\",\n      \"type\": \"row\"\n    },\n    {\n      \"datasource\"\
+    : {\n        \"type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n   \
+    \   },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"custom\"\
+    : {\n            \"fillOpacity\": 10\n          },\n          \"unit\": \"reqps\"\
+    \n        }\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\"\
+    : 12,\n        \"x\": 0,\n        \"y\": 86\n      },\n      \"id\": 32,\n   \
+    \   \"options\": {\n        \"legend\": {\n          \"calcs\": [\n          \
+    \  \"mean\",\n            \"max\"\n          ],\n          \"displayMode\": \"\
+    table\",\n          \"placement\": \"right\",\n          \"showLegend\": true,\n\
+    \          \"sortBy\": \"mean\",\n          \"sortDesc\": true\n        },\n \
+    \       \"tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"\
+    desc\"\n        }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"sum(\\n  rate(\\n    vault_core_handle_request_count{\\\
+    n      job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\\
+    n  )\\n)\\n\",\n          \"legendFormat\": \"Requests\"\n        },\n       \
+    \ {\n          \"datasource\": {\n            \"type\": \"prometheus\",\n    \
+    \        \"uid\": \"$datasource\"\n          },\n          \"exemplar\": false,\n\
+    \          \"expr\": \"sum(\\n  rate(\\n    vault_core_handle_login_request_count{\\\
+    n      job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\\
+    n  )\\n)\\n\",\n          \"legendFormat\": \"Login requests\"\n        }\n  \
+    \    ],\n      \"title\": \"Request Rate\",\n      \"type\": \"timeseries\"\n\
+    \    },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n \
+    \       \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n       \
+    \ \"defaults\": {\n          \"custom\": {\n            \"fillOpacity\": 10\n\
+    \          },\n          \"unit\": \"ms\"\n        }\n      },\n      \"gridPos\"\
+    : {\n        \"h\": 8,\n        \"w\": 12,\n        \"x\": 12,\n        \"y\"\
+    : 86\n      },\n      \"id\": 33,\n      \"options\": {\n        \"legend\": {\n\
+    \          \"calcs\": [\n            \"mean\",\n            \"max\"\n        \
+    \  ],\n          \"displayMode\": \"table\",\n          \"placement\": \"right\"\
+    ,\n          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n        \
+    \  \"sortDesc\": true\n        },\n        \"tooltip\": {\n          \"mode\"\
+    : \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"max(\\n \
+    \ vault_core_handle_request{\\n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\
+    \"\\n\\n,\\n    quantile=\\\"0.5\\\"\\n  }\\n)\\n\",\n          \"legendFormat\"\
+    : \"p50\"\n        },\n        {\n          \"datasource\": {\n            \"\
+    type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n          },\n\
+    \          \"exemplar\": false,\n          \"expr\": \"max(\\n  vault_core_handle_request{\\\
+    n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n,\\n    quantile=\\\
+    \"0.99\\\"\\n  }\\n)\\n\",\n          \"legendFormat\": \"p99\"\n        }\n \
+    \     ],\n      \"title\": \"Request Latency\",\n      \"type\": \"timeseries\"\
+    \n    },\n    {\n      \"collapsed\": false,\n      \"gridPos\": {\n        \"\
+    h\": 1,\n        \"w\": 24,\n        \"x\": 0,\n        \"y\": 94\n      },\n\
+    \      \"id\": 34,\n      \"title\": \"Tokens\",\n      \"type\": \"row\"\n  \
+    \  },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n   \
+    \     \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n        \"\
+    defaults\": {\n          \"custom\": {\n            \"axisSoftMin\": 0,\n    \
+    \        \"fillOpacity\": 100,\n            \"lineWidth\": 1,\n            \"\
+    stacking\": {\n              \"mode\": \"normal\"\n            }\n          },\n\
+    \          \"unit\": \"short\"\n        }\n      },\n      \"gridPos\": {\n  \
+    \      \"h\": 8,\n        \"w\": 12,\n        \"x\": 0,\n        \"y\": 95\n \
+    \     },\n      \"id\": 35,\n      \"options\": {\n        \"legend\": {\n   \
+    \       \"calcs\": [\n            \"mean\",\n            \"max\"\n          ],\n\
+    \          \"displayMode\": \"table\",\n          \"placement\": \"right\",\n\
+    \          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n          \"\
+    sortDesc\": true\n        },\n        \"tooltip\": {\n          \"mode\": \"multi\"\
+    ,\n          \"sort\": \"desc\"\n        }\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"sum(\\n \
+    \ vault_token_count_by_auth{\\n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\
+    \"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\"\\n,\\nnamespace=~\\\"$exported_namespace\\\
+    \"\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"Tokens\"\n        }\n   \
+    \   ],\n      \"title\": \"Available Tokens\",\n      \"type\": \"timeseries\"\
+    \n    },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n\
+    \        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n      \
+    \  \"defaults\": {\n          \"custom\": {\n            \"axisSoftMin\": 0,\n\
+    \            \"fillOpacity\": 100,\n            \"lineWidth\": 1,\n          \
+    \  \"stacking\": {\n              \"mode\": \"normal\"\n            }\n      \
+    \    },\n          \"unit\": \"short\"\n        }\n      },\n      \"gridPos\"\
+    : {\n        \"h\": 8,\n        \"w\": 12,\n        \"x\": 12,\n        \"y\"\
+    : 95\n      },\n      \"id\": 36,\n      \"options\": {\n        \"legend\": {\n\
+    \          \"calcs\": [\n            \"mean\",\n            \"max\"\n        \
+    \  ],\n          \"displayMode\": \"table\",\n          \"placement\": \"right\"\
+    ,\n          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n        \
+    \  \"sortDesc\": true\n        },\n        \"tooltip\": {\n          \"mode\"\
+    : \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"sum by (auth_method)\
+    \ (\\n  vault_token_count_by_auth{\\n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\
+    \"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\"\\n,\\nnamespace=~\\\"$exported_namespace\\\
+    \"\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"{{ auth_method }}\"\n   \
+    \     }\n      ],\n      \"title\": \"Tokens by Auth Method\",\n      \"type\"\
+    : \"timeseries\"\n    },\n    {\n      \"datasource\": {\n        \"type\": \"\
+    prometheus\",\n        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\"\
+    : {\n        \"defaults\": {\n          \"custom\": {\n            \"axisSoftMin\"\
+    : 0,\n            \"fillOpacity\": 100,\n            \"lineWidth\": 1,\n     \
+    \       \"stacking\": {\n              \"mode\": \"normal\"\n            }\n \
+    \         },\n          \"unit\": \"ops\"\n        }\n      },\n      \"gridPos\"\
+    : {\n        \"h\": 8,\n        \"w\": 12,\n        \"x\": 0,\n        \"y\":\
+    \ 103\n      },\n      \"id\": 37,\n      \"options\": {\n        \"legend\":\
+    \ {\n          \"calcs\": [\n            \"mean\",\n            \"max\"\n    \
+    \      ],\n          \"displayMode\": \"table\",\n          \"placement\": \"\
+    right\",\n          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n \
+    \         \"sortDesc\": true\n        },\n        \"tooltip\": {\n          \"\
+    mode\": \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n      \"\
+    pluginVersion\": \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\"\
+    : {\n            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\
+    \n          },\n          \"exemplar\": false,\n          \"expr\": \"sum(\\n\
+    \  rate(\\n    vault_token_creation{\\n      job=~\\\"$job\\\",\\ninstance=~\\\
+    \"$instance\\\"\\n\\n,\\ncluster=~\\\"$exported_cluster\\\"\\n,\\nnamespace=~\\\
+    \"$exported_namespace\\\"\\n\\n    }[$__rate_interval]\\n  )\\n)\\n\",\n     \
+    \     \"legendFormat\": \"Create\"\n        },\n        {\n          \"datasource\"\
+    : {\n            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\
+    \n          },\n          \"exemplar\": false,\n          \"expr\": \"sum(\\n\
+    \  rate(\\n    vault_token_store_count{\\n      job=~\\\"$job\\\",\\ninstance=~\\\
+    \"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\n  )\\n)\\n\",\n          \"\
+    legendFormat\": \"Store\"\n        },\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"sum(\\n \
+    \ rate(\\n    vault_token_lookup_count{\\n      job=~\\\"$job\\\",\\ninstance=~\\\
+    \"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\n  )\\n)\\n\",\n          \"\
+    legendFormat\": \"Lookup\"\n        }\n      ],\n      \"title\": \"Token Operations\"\
+    ,\n      \"type\": \"timeseries\"\n    },\n    {\n      \"collapsed\": false,\n\
+    \      \"gridPos\": {\n        \"h\": 1,\n        \"w\": 24,\n        \"x\": 0,\n\
+    \        \"y\": 111\n      },\n      \"id\": 38,\n      \"title\": \"Audit\",\n\
+    \      \"type\": \"row\"\n    },\n    {\n      \"datasource\": {\n        \"type\"\
+    : \"prometheus\",\n        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\"\
+    : {\n        \"defaults\": {\n          \"custom\": {\n            \"fillOpacity\"\
+    : 10\n          },\n          \"unit\": \"reqps\"\n        }\n      },\n     \
+    \ \"gridPos\": {\n        \"h\": 8,\n        \"w\": 12,\n        \"x\": 0,\n \
+    \       \"y\": 112\n      },\n      \"id\": 39,\n      \"options\": {\n      \
+    \  \"legend\": {\n          \"calcs\": [\n            \"mean\",\n            \"\
+    max\"\n          ],\n          \"displayMode\": \"table\",\n          \"placement\"\
+    : \"right\",\n          \"showLegend\": true,\n          \"sortBy\": \"mean\"\
+    ,\n          \"sortDesc\": true\n        },\n        \"tooltip\": {\n        \
+    \  \"mode\": \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n \
+    \     \"pluginVersion\": \"v11.4.0\",\n      \"targets\": [\n        {\n     \
+    \     \"datasource\": {\n            \"type\": \"prometheus\",\n            \"\
+    uid\": \"$datasource\"\n          },\n          \"exemplar\": false,\n       \
+    \   \"expr\": \"sum(\\n  rate(\\n    vault_audit_log_request_count{\\n      job=~\\\
+    \"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\n \
+    \ )\\n)\\n\",\n          \"legendFormat\": \"Request\"\n        },\n        {\n\
+    \          \"datasource\": {\n            \"type\": \"prometheus\",\n        \
+    \    \"uid\": \"$datasource\"\n          },\n          \"exemplar\": false,\n\
+    \          \"expr\": \"sum(\\n  rate(\\n    vault_audit_log_response_count{\\\
+    n      job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\\
+    n  )\\n)\\n\",\n          \"legendFormat\": \"Response\"\n        }\n      ],\n\
+    \      \"title\": \"Audit Log Requests\",\n      \"type\": \"timeseries\"\n  \
+    \  },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n   \
+    \     \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n        \"\
+    defaults\": {\n          \"custom\": {\n            \"fillOpacity\": 10\n    \
+    \      },\n          \"unit\": \"reqps\"\n        }\n      },\n      \"gridPos\"\
+    : {\n        \"h\": 8,\n        \"w\": 12,\n        \"x\": 12,\n        \"y\"\
+    : 112\n      },\n      \"id\": 40,\n      \"options\": {\n        \"legend\":\
+    \ {\n          \"calcs\": [\n            \"mean\",\n            \"max\"\n    \
+    \      ],\n          \"displayMode\": \"table\",\n          \"placement\": \"\
+    right\",\n          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n \
+    \         \"sortDesc\": true\n        },\n        \"tooltip\": {\n          \"\
+    mode\": \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n      \"\
+    pluginVersion\": \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\"\
+    : {\n            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\
+    \n          },\n          \"exemplar\": false,\n          \"expr\": \"sum(\\n\
+    \  rate(\\n    vault_audit_log_request_failure{\\n      job=~\\\"$job\\\",\\ninstance=~\\\
+    \"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\n  )\\n)\\n\",\n          \"\
+    legendFormat\": \"Request failure\"\n        },\n        {\n          \"datasource\"\
+    : {\n            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\
+    \n          },\n          \"exemplar\": false,\n          \"expr\": \"sum(\\n\
+    \  rate(\\n    vault_audit_log_response_failure{\\n      job=~\\\"$job\\\",\\\
+    ninstance=~\\\"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\n  )\\n)\\n\",\n\
+    \          \"legendFormat\": \"Response failure\"\n        }\n      ],\n     \
+    \ \"title\": \"Audit Log Failures\",\n      \"type\": \"timeseries\"\n    },\n\
+    \    {\n      \"collapsed\": false,\n      \"gridPos\": {\n        \"h\": 1,\n\
+    \        \"w\": 24,\n        \"x\": 0,\n        \"y\": 120\n      },\n      \"\
+    id\": 41,\n      \"title\": \"Runtime\",\n      \"type\": \"row\"\n    },\n  \
+    \  {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n        \"uid\"\
+    : \"$datasource\"\n      },\n      \"fieldConfig\": {\n        \"defaults\": {\n\
+    \          \"custom\": {\n            \"fillOpacity\": 10\n          },\n    \
+    \      \"unit\": \"decbytes\"\n        }\n      },\n      \"gridPos\": {\n   \
+    \     \"h\": 6,\n        \"w\": 8,\n        \"x\": 0,\n        \"y\": 121\n  \
+    \    },\n      \"id\": 42,\n      \"options\": {\n        \"legend\": {\n    \
+    \      \"calcs\": [\n            \"mean\",\n            \"max\"\n          ],\n\
+    \          \"displayMode\": \"table\",\n          \"placement\": \"right\",\n\
+    \          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n          \"\
+    sortDesc\": true\n        },\n        \"tooltip\": {\n          \"mode\": \"multi\"\
+    ,\n          \"sort\": \"desc\"\n        }\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"avg(\\n \
+    \ vault_runtime_alloc_bytes{\\n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\
+    \"\\n\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"Allocated\"\n        },\n\
+    \        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"avg(\\n  vault_runtime_sys_bytes{\\n    job=~\\\
+    \"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n  }\\n)\\n\",\n          \"\
+    legendFormat\": \"System\"\n        }\n      ],\n      \"title\": \"Memory\",\n\
+    \      \"type\": \"timeseries\"\n    },\n    {\n      \"datasource\": {\n    \
+    \    \"type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n      },\n \
+    \     \"fieldConfig\": {\n        \"defaults\": {\n          \"custom\": {\n \
+    \           \"fillOpacity\": 10\n          },\n          \"unit\": \"short\"\n\
+    \        }\n      },\n      \"gridPos\": {\n        \"h\": 6,\n        \"w\":\
+    \ 8,\n        \"x\": 8,\n        \"y\": 121\n      },\n      \"id\": 43,\n   \
+    \   \"options\": {\n        \"legend\": {\n          \"calcs\": [\n          \
+    \  \"mean\",\n            \"max\"\n          ],\n          \"displayMode\": \"\
+    table\",\n          \"placement\": \"right\",\n          \"showLegend\": true,\n\
+    \          \"sortBy\": \"mean\",\n          \"sortDesc\": true\n        },\n \
+    \       \"tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"\
+    desc\"\n        }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"avg(\\n  vault_runtime_num_goroutines{\\n    job=~\\\
+    \"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n  }\\n)\\n\",\n          \"\
+    legendFormat\": \"Goroutines\"\n        }\n      ],\n      \"title\": \"Goroutines\"\
+    ,\n      \"type\": \"timeseries\"\n    },\n    {\n      \"datasource\": {\n  \
+    \      \"type\": \"prometheus\",\n        \"uid\": \"$datasource\"\n      },\n\
+    \      \"fieldConfig\": {\n        \"defaults\": {\n          \"custom\": {\n\
+    \            \"fillOpacity\": 10\n          },\n          \"unit\": \"short\"\n\
+    \        }\n      },\n      \"gridPos\": {\n        \"h\": 6,\n        \"w\":\
+    \ 8,\n        \"x\": 16,\n        \"y\": 121\n      },\n      \"id\": 44,\n  \
+    \    \"options\": {\n        \"legend\": {\n          \"calcs\": [\n         \
+    \   \"mean\",\n            \"max\"\n          ],\n          \"displayMode\": \"\
+    table\",\n          \"placement\": \"right\",\n          \"showLegend\": true,\n\
+    \          \"sortBy\": \"mean\",\n          \"sortDesc\": true\n        },\n \
+    \       \"tooltip\": {\n          \"mode\": \"multi\",\n          \"sort\": \"\
+    desc\"\n        }\n      },\n      \"pluginVersion\": \"v11.4.0\",\n      \"targets\"\
+    : [\n        {\n          \"datasource\": {\n            \"type\": \"prometheus\"\
+    ,\n            \"uid\": \"$datasource\"\n          },\n          \"exemplar\"\
+    : false,\n          \"expr\": \"sum(\\n  rate(\\n    process_cpu_seconds_total{\\\
+    n      job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\n\\n    }[$__rate_interval]\\\
+    n  )\\n)\\n\",\n          \"legendFormat\": \"CPU seconds/s\"\n        }\n   \
+    \   ],\n      \"title\": \"Process CPU\",\n      \"type\": \"timeseries\"\n  \
+    \  },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n   \
+    \     \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n        \"\
+    defaults\": {\n          \"custom\": {\n            \"axisSoftMax\": 100,\n  \
+    \          \"axisSoftMin\": 0,\n            \"fillOpacity\": 10\n          },\n\
+    \          \"unit\": \"percent\"\n        }\n      },\n      \"gridPos\": {\n\
+    \        \"h\": 6,\n        \"w\": 8,\n        \"x\": 0,\n        \"y\": 127\n\
+    \      },\n      \"id\": 45,\n      \"options\": {\n        \"legend\": {\n  \
+    \        \"calcs\": [\n            \"mean\",\n            \"max\"\n          ],\n\
+    \          \"displayMode\": \"table\",\n          \"placement\": \"right\",\n\
+    \          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n          \"\
+    sortDesc\": true\n        },\n        \"tooltip\": {\n          \"mode\": \"multi\"\
+    ,\n          \"sort\": \"desc\"\n        }\n      },\n      \"pluginVersion\"\
+    : \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\": {\n\
+    \            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\n\
+    \          },\n          \"exemplar\": false,\n          \"expr\": \"max(\\n \
+    \ process_open_fds{\\n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\"\\n\\\
+    n\\n  }\\n  /\\n  process_max_fds{\\n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\
+    \"\\n\\n\\n  }\\n  * 100\\n)\\n\",\n          \"legendFormat\": \"Open FDs\"\n\
+    \        }\n      ],\n      \"title\": \"Open FD Usage\",\n      \"type\": \"\
+    timeseries\"\n    },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\"\
+    ,\n        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n    \
+    \    \"defaults\": {\n          \"custom\": {\n            \"fillOpacity\": 10\n\
+    \          },\n          \"unit\": \"decbytes\"\n        }\n      },\n      \"\
+    gridPos\": {\n        \"h\": 6,\n        \"w\": 8,\n        \"x\": 8,\n      \
+    \  \"y\": 127\n      },\n      \"id\": 46,\n      \"options\": {\n        \"legend\"\
+    : {\n          \"calcs\": [\n            \"mean\",\n            \"max\"\n    \
+    \      ],\n          \"displayMode\": \"table\",\n          \"placement\": \"\
+    right\",\n          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n \
+    \         \"sortDesc\": true\n        },\n        \"tooltip\": {\n          \"\
+    mode\": \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n      \"\
+    pluginVersion\": \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\"\
+    : {\n            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\
+    \n          },\n          \"exemplar\": false,\n          \"expr\": \"avg(\\n\
+    \  process_resident_memory_bytes{\\n    job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\
+    \"\\n\\n\\n  }\\n)\\n\",\n          \"legendFormat\": \"RSS\"\n        }\n   \
+    \   ],\n      \"title\": \"Process Resident Memory\",\n      \"type\": \"timeseries\"\
+    \n    },\n    {\n      \"datasource\": {\n        \"type\": \"prometheus\",\n\
+    \        \"uid\": \"$datasource\"\n      },\n      \"fieldConfig\": {\n      \
+    \  \"defaults\": {\n          \"custom\": {\n            \"fillOpacity\": 10\n\
+    \          },\n          \"unit\": \"ops\"\n        }\n      },\n      \"gridPos\"\
+    : {\n        \"h\": 6,\n        \"w\": 8,\n        \"x\": 16,\n        \"y\":\
+    \ 127\n      },\n      \"id\": 47,\n      \"options\": {\n        \"legend\":\
+    \ {\n          \"calcs\": [\n            \"mean\",\n            \"max\"\n    \
+    \      ],\n          \"displayMode\": \"table\",\n          \"placement\": \"\
+    right\",\n          \"showLegend\": true,\n          \"sortBy\": \"mean\",\n \
+    \         \"sortDesc\": true\n        },\n        \"tooltip\": {\n          \"\
+    mode\": \"multi\",\n          \"sort\": \"desc\"\n        }\n      },\n      \"\
+    pluginVersion\": \"v11.4.0\",\n      \"targets\": [\n        {\n          \"datasource\"\
+    : {\n            \"type\": \"prometheus\",\n            \"uid\": \"$datasource\"\
+    \n          },\n          \"exemplar\": false,\n          \"expr\": \"sum(\\n\
+    \  rate(\\n    vault_cache_hit{\\n      job=~\\\"$job\\\",\\ninstance=~\\\"$instance\\\
+    \"\\n\\n\\n    }[$__rate_interval]\\n  )\\n)\\n\",\n          \"legendFormat\"\
+    : \"Hits\"\n        }\n      ],\n      \"title\": \"Cache Hit Rate\",\n      \"\
+    type\": \"timeseries\"\n    }\n  ],\n  \"schemaVersion\": 39,\n  \"tags\": [\n\
+    \    \"vault\",\n    \"vault-mixin\"\n  ],\n  \"templating\": {\n    \"list\"\
+    : [\n      {\n        \"current\": {\n          \"selected\": true,\n        \
+    \  \"text\": \"default\",\n          \"value\": \"default\"\n        },\n    \
+    \    \"label\": \"Data source\",\n        \"name\": \"datasource\",\n        \"\
+    query\": \"prometheus\",\n        \"type\": \"datasource\"\n      },\n      {\n\
+    \        \"datasource\": {\n          \"type\": \"prometheus\",\n          \"\
+    uid\": \"${datasource}\"\n        },\n        \"hide\": 2,\n        \"label\"\
+    : \"Cluster\",\n        \"name\": \"cluster\",\n        \"query\": \"label_values(vault_core_unsealed{job=~\\\
+    \".*vault.*\\\"}, cluster)\",\n        \"refresh\": 2,\n        \"sort\": 1,\n\
+    \        \"type\": \"query\"\n      },\n      {\n        \"datasource\": {\n \
+    \         \"type\": \"prometheus\",\n          \"uid\": \"${datasource}\"\n  \
+    \      },\n        \"includeAll\": true,\n        \"label\": \"Namespace\",\n\
+    \        \"multi\": true,\n        \"name\": \"namespace\",\n        \"query\"\
+    : \"label_values(up{job=~\\\".*vault.*\\\"}, namespace)\",\n        \"refresh\"\
+    : 2,\n        \"sort\": 1,\n        \"type\": \"query\"\n      },\n      {\n \
+    \       \"datasource\": {\n          \"type\": \"prometheus\",\n          \"uid\"\
+    : \"${datasource}\"\n        },\n        \"includeAll\": true,\n        \"label\"\
+    : \"Job\",\n        \"multi\": true,\n        \"name\": \"job\",\n        \"query\"\
+    : \"label_values(up{job=~\\\".*vault.*\\\"}, job)\",\n        \"refresh\": 2,\n\
+    \        \"sort\": 1,\n        \"type\": \"query\"\n      },\n      {\n      \
+    \  \"datasource\": {\n          \"type\": \"prometheus\",\n          \"uid\":\
+    \ \"${datasource}\"\n        },\n        \"includeAll\": true,\n        \"label\"\
+    : \"Exported Cluster\",\n        \"multi\": true,\n        \"name\": \"exported_cluster\"\
+    ,\n        \"query\": \"label_values(vault_core_unsealed{job=~\\\"$job\\\"}, cluster)\"\
+    ,\n        \"refresh\": 2,\n        \"sort\": 1,\n        \"type\": \"query\"\n\
+    \      },\n      {\n        \"datasource\": {\n          \"type\": \"prometheus\"\
+    ,\n          \"uid\": \"${datasource}\"\n        },\n        \"includeAll\": true,\n\
+    \        \"label\": \"Exported Namespace\",\n        \"multi\": true,\n      \
+    \  \"name\": \"exported_namespace\",\n        \"query\": \"label_values(vault_token_count_by_auth{job=~\\\
+    \"$job\\\"}, namespace)\",\n        \"refresh\": 2,\n        \"sort\": 1,\n  \
+    \      \"type\": \"query\"\n      },\n      {\n        \"datasource\": {\n   \
+    \       \"type\": \"prometheus\",\n          \"uid\": \"${datasource}\"\n    \
+    \    },\n        \"includeAll\": true,\n        \"label\": \"Instance\",\n   \
+    \     \"multi\": true,\n        \"name\": \"instance\",\n        \"query\": \"\
+    label_values(up{job=~\\\"$job\\\"}, instance)\",\n        \"refresh\": 2,\n  \
+    \      \"sort\": 1,\n        \"type\": \"query\"\n      }\n    ]\n  },\n  \"time\"\
+    : {\n    \"from\": \"now-6h\",\n    \"to\": \"now\"\n  },\n  \"timezone\": \"\
+    utc\",\n  \"title\": \"Vault / Overview\",\n  \"uid\": \"vault-overview-skj2\"\
+    ,\n  \"gnetId\": 25314,\n  \"tz\": {},\n  \"version\": {}\n}"
