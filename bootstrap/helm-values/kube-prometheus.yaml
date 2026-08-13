@@ -92,9 +92,6 @@ prometheus:
 
 grafana:
   enabled: true
-  adminPassword: ""
-  existingSecret: grafana-admin-password
-  existingSecretKey: admin-password
   initChownData:
     enabled: false
   extraSecretMounts:
@@ -138,6 +135,10 @@ grafana:
     server:
       domain: grafana.ebruno.fr
       root_url: https://grafana.ebruno.fr
+    auth:
+      disable_login_form: false
+    auth.basic:
+      enabled: true
     log:
       mode: console
       level: warn

@@ -116,9 +116,6 @@ spec:
               prometheus.io/scrape: 'false'
         grafana:
           enabled: true
-          adminPassword: ''
-          existingSecret: grafana-admin-password
-          existingSecretKey: admin-password
           initChownData:
             enabled: false
           extraSecretMounts:
@@ -131,7 +128,7 @@ spec:
               allow_assign_grafana_admin: true
               allow_sign_up: true
               # allowed_groups disabled temporarily - add user to Keycloak group first
-              hide_login_form: true
+              hide_login_form: false
               api_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/userinfo
               auth_url: https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/auth
               client_id: grafana
@@ -167,6 +164,8 @@ spec:
             log:
               mode: console
               level: warn
+            auth.basic:
+              enabled: true
           ingress:
             enabled: false
           persistence:
