@@ -22,3 +22,6 @@ resources:
 - sonarqube-system.yaml
 - traefik.yaml
 - vault.yaml
+- backstage.yaml
+- woodpecker.yaml
+- microcks.yaml
