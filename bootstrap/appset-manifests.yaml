@@ -23,6 +23,7 @@ spec:
           - path: kubernetes/alertmanager/alertmanager-config
           - path: kubernetes/observability
           - path: kubernetes/argocd-image-updater
+          - path: kubernetes/dashboards
           - path: bootstrap/keycloak-reconciler
   template:
     metadata:
