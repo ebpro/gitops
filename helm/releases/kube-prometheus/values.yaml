@@ -206,10 +206,7 @@ grafana:
           editable: true
           options:
             path: /var/lib/grafana/dashboards/observability
-  dashboards:
-    default:
-      enabled: false
-  defaultDashboardsEnabled: false
+  dashboards: {}
   sidecar:
     dashboards:
       enabled: false
