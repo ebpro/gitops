@@ -234,6 +234,227 @@ spec:
                   path: /var/lib/grafana/dashboards/observability
           dashboards: {}
           defaultDashboardsEnabled: false
+          sidecar:
+            dashboards:
+              enabled: false
+          extraVolumes:
+          - name: dash-1860
+            configMap:
+              name: grafana-dashboard-1860
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-1860.json
+          - name: dash-10004
+            configMap:
+              name: grafana-dashboard-10004
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-10004.json
+          - name: dash-10016
+            configMap:
+              name: grafana-dashboard-10016
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-10016.json
+          - name: dash-10324
+            configMap:
+              name: grafana-dashboard-10324
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-10324.json
+          - name: dash-11575
+            configMap:
+              name: grafana-dashboard-11575
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-11575.json
+          - name: dash-13192
+            configMap:
+              name: grafana-dashboard-13192
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-13192.json
+          - name: dash-14152
+            configMap:
+              name: grafana-dashboard-14152
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-14152.json
+          - name: dash-14390
+            configMap:
+              name: grafana-dashboard-14390
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-14390.json
+          - name: dash-14584
+            configMap:
+              name: grafana-dashboard-14584
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-14584.json
+          - name: dash-15987
+            configMap:
+              name: grafana-dashboard-15987
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-15987.json
+          - name: dash-16003
+            configMap:
+              name: grafana-dashboard-16003
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-16003.json
+          - name: dash-16613
+            configMap:
+              name: grafana-dashboard-16613
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-16613.json
+          - name: dash-17346
+            configMap:
+              name: grafana-dashboard-17346
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-17346.json
+          - name: dash-18015
+            configMap:
+              name: grafana-dashboard-18015
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-18015.json
+          - name: dash-19974
+            configMap:
+              name: grafana-dashboard-19974
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-19974.json
+          - name: dash-19993
+            configMap:
+              name: grafana-dashboard-19993
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-19993.json
+          - name: dash-21410
+            configMap:
+              name: grafana-dashboard-21410
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-21410.json
+          - name: dash-21431
+            configMap:
+              name: grafana-dashboard-21431
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-21431.json
+          - name: dash-23242
+            configMap:
+              name: grafana-dashboard-23242
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-23242.json
+          - name: dash-25314
+            configMap:
+              name: grafana-dashboard-25314
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-25314.json
+          - name: dash-42001
+            configMap:
+              name: grafana-dashboard-42001
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-42001.json
+          - name: dash-42002
+            configMap:
+              name: grafana-dashboard-42002
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-42002.json
+          - name: dash-42003
+            configMap:
+              name: grafana-dashboard-42003
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-42003.json
+          - name: dash-5517
+            configMap:
+              name: grafana-dashboard-5517
+              items:
+              - key: dashboard.json
+                path: grafana-dashboard-5517.json
+          extraVolumeMounts:
+          - name: dash-1860
+            subPath: grafana-dashboard-1860.json
+            mountPath: /tmp/dashboards/grafana-dashboard-1860.json
+          - name: dash-10004
+            subPath: grafana-dashboard-10004.json
+            mountPath: /tmp/dashboards/grafana-dashboard-10004.json
+          - name: dash-10016
+            subPath: grafana-dashboard-10016.json
+            mountPath: /tmp/dashboards/grafana-dashboard-10016.json
+          - name: dash-10324
+            subPath: grafana-dashboard-10324.json
+            mountPath: /tmp/dashboards/grafana-dashboard-10324.json
+          - name: dash-11575
+            subPath: grafana-dashboard-11575.json
+            mountPath: /tmp/dashboards/grafana-dashboard-11575.json
+          - name: dash-13192
+            subPath: grafana-dashboard-13192.json
+            mountPath: /tmp/dashboards/grafana-dashboard-13192.json
+          - name: dash-14152
+            subPath: grafana-dashboard-14152.json
+            mountPath: /tmp/dashboards/grafana-dashboard-14152.json
+          - name: dash-14390
+            subPath: grafana-dashboard-14390.json
+            mountPath: /tmp/dashboards/grafana-dashboard-14390.json
+          - name: dash-14584
+            subPath: grafana-dashboard-14584.json
+            mountPath: /tmp/dashboards/grafana-dashboard-14584.json
+          - name: dash-15987
+            subPath: grafana-dashboard-15987.json
+            mountPath: /tmp/dashboards/grafana-dashboard-15987.json
+          - name: dash-16003
+            subPath: grafana-dashboard-16003.json
+            mountPath: /tmp/dashboards/grafana-dashboard-16003.json
+          - name: dash-16613
+            subPath: grafana-dashboard-16613.json
+            mountPath: /tmp/dashboards/grafana-dashboard-16613.json
+          - name: dash-17346
+            subPath: grafana-dashboard-17346.json
+            mountPath: /tmp/dashboards/grafana-dashboard-17346.json
+          - name: dash-18015
+            subPath: grafana-dashboard-18015.json
+            mountPath: /tmp/dashboards/grafana-dashboard-18015.json
+          - name: dash-19974
+            subPath: grafana-dashboard-19974.json
+            mountPath: /tmp/dashboards/grafana-dashboard-19974.json
+          - name: dash-19993
+            subPath: grafana-dashboard-19993.json
+            mountPath: /tmp/dashboards/grafana-dashboard-19993.json
+          - name: dash-21410
+            subPath: grafana-dashboard-21410.json
+            mountPath: /tmp/dashboards/grafana-dashboard-21410.json
+          - name: dash-21431
+            subPath: grafana-dashboard-21431.json
+            mountPath: /tmp/dashboards/grafana-dashboard-21431.json
+          - name: dash-23242
+            subPath: grafana-dashboard-23242.json
+            mountPath: /tmp/dashboards/grafana-dashboard-23242.json
+          - name: dash-25314
+            subPath: grafana-dashboard-25314.json
+            mountPath: /tmp/dashboards/grafana-dashboard-25314.json
+          - name: dash-42001
+            subPath: grafana-dashboard-42001.json
+            mountPath: /tmp/dashboards/grafana-dashboard-42001.json
+          - name: dash-42002
+            subPath: grafana-dashboard-42002.json
+            mountPath: /tmp/dashboards/grafana-dashboard-42002.json
+          - name: dash-42003
+            subPath: grafana-dashboard-42003.json
+            mountPath: /tmp/dashboards/grafana-dashboard-42003.json
+          - name: dash-5517
+            subPath: grafana-dashboard-5517.json
+            mountPath: /tmp/dashboards/grafana-dashboard-5517.json
           securityContext:
             fsGroup: 472
             runAsUser: 472
