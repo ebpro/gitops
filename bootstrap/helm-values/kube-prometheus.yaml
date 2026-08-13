@@ -93,10 +93,10 @@ prometheus:
 grafana:
   enabled: true
   initChownData:
+    enabled: false
   extraEnv:
     - name: GF_AUTH_BASIC_ENABLED
       value: "true"
-    enabled: false
   extraSecretMounts:
     - name: grafana-oidc-secrets
       mountPath: /etc/grafana/secrets
