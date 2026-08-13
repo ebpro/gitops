@@ -274,7 +274,7 @@ spec:
       - ci
   selector:
     matchLabels:
-      app: woodpecker-server
+      app.kubernetes.io/name: server
   endpoints:
     - port: http
       path: /metrics

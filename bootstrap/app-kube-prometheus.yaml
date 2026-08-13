@@ -49,7 +49,10 @@ spec:
                         - "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr"
                       send_resolved: true
                 - name: null
-            extraSecretMounts:
+          extraEnv:
+            - name: GF_AUTH_BASIC_ENABLED
+              value: "true"
+          extraSecretMounts:
             - name: alertmanager-matrix-credentials
               mountPath: /etc/alertmanager/secrets
               secretName: alertmanager-matrix-token
