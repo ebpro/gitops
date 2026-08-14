@@ -25,3 +25,9 @@ resources:
 - backstage.yaml
 - woodpecker.yaml
 - microcks.yaml
+- loki.yaml
+- loki-logs.yaml
+- external-secrets.yaml
+- cert-manager.yaml
+- vpa.yaml
+- prometheus-server.yaml

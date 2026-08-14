@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - alertmanager-token-writer-rbac.yaml
   - matrix-token-setup-job.yaml
-  - alertmanager-config/alertmanager-config.yaml
+  - alertmanager-config/
