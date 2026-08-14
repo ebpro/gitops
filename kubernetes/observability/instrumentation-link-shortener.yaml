@@ -6,8 +6,6 @@ metadata:
 spec:
   exporter:
     endpoint: http://tempo.tempo.svc.cluster.local:4317
-    tls:
-      insecure: true
   sampler:
     type: parentbased_traceidratio
     argument: "1"
@@ -15,7 +13,6 @@ spec:
     - tracecontext
     - baggage
   java:
-    libs: true
     resources:
       limits:
         cpu: 100m
