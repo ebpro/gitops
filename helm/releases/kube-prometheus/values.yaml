@@ -191,7 +191,7 @@ grafana:
       searchNamespace: ALL
       label: grafana_dashboard
       labelValue: "1"
-      folder: ""
+      folder: /tmp/dashboards
       folderAnnotation: grafana_folder
     datasources:
       enabled: true
