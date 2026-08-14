@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-alloy
+  namespace: kube-prometheus
+  labels:
+    grafana_dashboard: '1'
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: observability
+data:
+  dashboard.json: '{"code": "NotFound", "message": "dashboard not found", "requestId":
+    "a3bcee1b-77cd-4a20-90ce-32742122aac7", "title": "Grafana Alloy"}'
