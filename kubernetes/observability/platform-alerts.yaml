@@ -208,34 +208,32 @@ items:
               summary: "CNPG cluster {{ $labels.cluster }} has high replication lag"
               description: "Replication lag is {{ $value }}s for {{ $labels.cluster }}"
 
-       - name: platform/golden-signals
-         rules:
-           - alert: AppHighErrorRate
-             expr: sum by (app, namespace) (rate(http_server_requests_seconds_count{status=~"5.."}[5m])) / sum by (app, namespace) (rate(http_server_requests_seconds_count[5m])) > 0.05
-             for: 5m
-             labels:
-               severity: critical
-             annotations:
-               summary: "High error rate for app {{ $labels.app }}"
-               description: "App {{ $labels.app }} in {{ $labels.namespace }} has > 5% error rate (current: {{ $value | humanizePercentage }})"
+      - name: platform/golden-signals
+        rules:
+          - alert: AppHighErrorRate
+            expr: sum by (app, namespace) (rate(http_server_requests_seconds_count{status=~"5.."}[5m])) / sum by (app, namespace) (rate(http_server_requests_seconds_count[5m])) > 0.05
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "High error rate for app {{ $labels.app }}"
+              description: "App {{ $labels.app }} in {{ $labels.namespace }} has > 5% error rate (current: {{ $value | humanizePercentage }})"
 
-           - alert: AppHighLatency
-             expr: histogram_quantile(0.99, sum by (le, app, namespace) (rate(http_server_requests_seconds_bucket[5m]))) > 2
-             for: 10m
-             labels:
-               severity: warning
-             annotations:
-               summary: "High P99 latency for app {{ $labels.app }}"
-               description: "App {{ $labels.app }} in {{ $labels.namespace }} P99 latency is {{ $value }}s"
+          - alert: AppHighLatency
+            expr: histogram_quantile(0.99, sum by (le, app, namespace) (rate(http_server_requests_seconds_bucket[5m]))) > 2
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High P99 latency for app {{ $labels.app }}"
+              description: "App {{ $labels.app }} in {{ $labels.namespace }} P99 latency is {{ $value }}s"
 
+      - name: platform/recording
+        rules:
+          - record: instance:node_cpu_utilisation:rate5m
+            expr: 1 - avg without(cpu, mode)(node_cpu_seconds_total{mode="idle"})
 
-       - name: platform/recording
-         rules:
-           - record: instance:node_cpu_utilisation:rate5m
-             expr: 1 - avg without(cpu, mode)(node_cpu_seconds_total{mode="idle"})
-
-           - record: instance:node_memory_utilisation:ratio
-
+          - record: instance:node_memory_utilisation:ratio
             expr: 1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
 
           - record: instance:node_disk_utilisation:ratio

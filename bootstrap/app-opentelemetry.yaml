@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: opentelemetry
       valueFiles:
-       - helm/releases/opentelemetry/values.yaml
+        - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/opentelemetry/values.yaml?v=1
   destination:
     server: https://kubernetes.default.svc
     namespace: opentelemetry-operator-system
