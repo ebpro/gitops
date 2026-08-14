@@ -14,7 +14,6 @@ resources:
 - kubernetes-overview.yaml
 - kubernetes-pods.yaml
 - kyverno.yaml
-- loki-alloy.yaml
 - alloy.yaml
 - node-exporter-full.yaml
 - otel-collector.yaml
