@@ -177,12 +177,6 @@ grafana:
           datasourceUid: prometheus
         lokiSearch:
           datasourceUid: loki
-    - access: proxy
-      name: Alloy
-      type: prometheus
-      url: http://alloy.alloy.svc.cluster.local:12345
-      editable: true
-      isDefault: false
   sidecar:
     dashboards:
       enabled: true
