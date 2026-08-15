@@ -1,0 +1,13 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: linkshortener
+  namespace: link-shortener
+spec:
+  cluster:
+    name: link-shortener-db
+  name: linkshortener
+  ensure: present
+  login: true
+  passwordSecret:
+    name: link-shortener-db-credentials
