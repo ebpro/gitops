@@ -72,7 +72,7 @@ spec:
         repoURL: https://prometheus-community.github.io/helm-charts
         version: 80.6.0
         syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/kube-prometheus/values.yaml?v=5
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/kube-prometheus/values.yaml?v=6
       - app: kyverno
         chart: kyverno
         namespace: kyverno
