@@ -15,6 +15,7 @@ spec:
           - path: kubernetes/coredns
           - path: kubernetes/oauth2-proxy
           - path: kubernetes/ingress
+          - path: kubernetes/link-shortener
           - path: kubernetes/csi-snapshot-controller
           - path: kubernetes/keycloak-realm
           - path: kubernetes/matrix/element

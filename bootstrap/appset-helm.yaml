@@ -113,14 +113,6 @@ spec:
         version: 2026.1.0
         syncWave: '20'
         valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/sonarqube/values.yaml?v=1
-      - app: link-shortener
-        chart: quarkus-app
-        namespace: link-shortener
-        releaseName: link-shortener
-        repoURL: https://charts.bruno.fr
-        version: 1.0.0
-        syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/link-shortener/values.yaml?v=1
       - app: tempo
         chart: tempo
         namespace: tempo
