@@ -10,6 +10,7 @@ All database credentials and sensitive configuration are managed via External Se
 | `secret/data/postgresql/nexus` | `password` | Nexus, nexus-postgresql |
 | `secret/data/postgresql/keycloak` | `password` | Keycloak, keycloak-db |
 | `secret/data/postgresql/backstage` | `password` | Backstage, backstage-db |
+| `secret/data/postgresql/link-shortener` | `url` + `username` + `password` | link-shortener deployment, link-shortener-db (CNPG `linkshortener` app user) |
 | `secret/data/velero/s3` | `accessKeyId` + `secretAccessKey` | Velero |
 | `secret/data/grafana` | `adminPassword` | Kube-Prometheus-Stack |
 | `secret/data/sonarqube/monitoring` | `passcode` | SonarQube |
