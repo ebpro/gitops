@@ -186,7 +186,7 @@ alloy:
 controller:
   type: daemonset
   podAnnotations:
-    restartedAt: "2026-08-16T10:45:00Z"
+    restartedAt: "2026-08-16T11:35:00Z"
   updateStrategy:
     rollingUpdate:
       maxUnavailable: 1
