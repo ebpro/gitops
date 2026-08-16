@@ -5,7 +5,7 @@ metadata:
   namespace: microcks
 spec:
   exporter:
-    endpoint: http://tempo.tempo.svc.cluster.local:4317
+    endpoint: grpc://tempo.tempo.svc.cluster.local:4317
   sampler:
     type: parentbased_traceidratio
     argument: "1"
