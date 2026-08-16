@@ -6,6 +6,7 @@ metadata:
 spec:
   cluster:
     name: link-shortener-db
+  connectionLimit: -1
   name: linkshortener
   ensure: present
   login: true
