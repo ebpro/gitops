@@ -5,7 +5,7 @@ metadata:
   namespace: keycloak
 spec:
   exporter:
-    endpoint: grpc://tempo.tempo.svc.cluster.local:4317
+    endpoint: http://alloy.alloy.svc.cluster.local:4317
   sampler:
     type: parentbased_traceidratio
     argument: "1"
