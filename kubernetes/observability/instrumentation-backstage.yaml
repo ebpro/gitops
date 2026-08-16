@@ -18,3 +18,5 @@ spec:
       value: backstage
     - name: OTEL_RESOURCE_ATTRIBUTES
       value: namespace=backstage,cluster=compute-lsis-2
+    - name: OTEL_METRICS_EXPORTER
+      value: "none"

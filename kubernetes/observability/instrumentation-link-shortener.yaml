@@ -25,3 +25,5 @@ spec:
       value: link-shortener
     - name: OTEL_RESOURCE_ATTRIBUTES
       value: namespace=link-shortener,cluster=compute-lsis-2
+    - name: OTEL_METRICS_EXPORTER
+      value: "none"

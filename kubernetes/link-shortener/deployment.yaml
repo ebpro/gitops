@@ -17,7 +17,7 @@ spec:
         app.kubernetes.io/name: link-shortener
       annotations:
         instrumentation.opentelemetry.io/inject-java: link-shortener-otel
-        observability.link-shortener/restart: otel-endpoint-via-alloy
+        observability.link-shortener/restart: otel-add-opens-v1
     spec:
       containers:
         - name: link-shortener
@@ -39,6 +39,16 @@ spec:
                 secretKeyRef:
                   name: link-shortener-db-credentials
                   key: password
+            - name: JAVA_OPTS_APPEND
+              value: >-
+                -Dquarkus.http.host=0.0.0.0
+                -Djava.util.logging.manager=org.jboss.logmanager.LogManager
+                --add-opens java.base/java.lang=ALL-UNNAMED
+                --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                --add-opens java.base/java.util=ALL-UNNAMED
+                --add-opens java.base/java.net=ALL-UNNAMED
+                --add-opens java.base/java.text=ALL-UNNAMED
+                --add-opens java.base/java.util.concurrent=ALL-UNNAMED
           ports:
             - name: http
               containerPort: 8080
