@@ -5,6 +5,10 @@ manager:
   targetAllocatorImage:
     repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
     tag: "0.109.0"
+  autoInstrumentationImage:
+    java:
+      repository: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-java
+      tag: "2.30.0"
   resources:
     requests:
       cpu: 50m
