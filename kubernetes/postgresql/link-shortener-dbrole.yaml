@@ -6,6 +6,7 @@ metadata:
 spec:
   cluster:
     name: link-shortener-db
+  comment: link-shortener application role
   connectionLimit: -1
   name: linkshortener
   ensure: present
