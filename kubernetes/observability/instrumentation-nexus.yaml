@@ -27,3 +27,5 @@ spec:
       value: namespace=nexus,cluster=compute-lsis-2
     - name: OTEL_METRICS_EXPORTER
       value: "none"
+    - name: OTEL_LOGS_EXPORTER
+      value: "none"
