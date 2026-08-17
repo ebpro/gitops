@@ -83,6 +83,18 @@ data:
         except urllib.error.HTTPError as e:
             print(f"  [W] PUT {path} -> {e.code}")
             return False
+
+    def delete(path: str, token: str) -> bool:
+        url = path if path.startswith("http") else f"{KC_URL}{path}"
+        req = urllib.request.Request(url, headers=hdrs(token), method="DELETE")
+        try:
+            with urllib.request.urlopen(req):
+                return True
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return True
+            print(f"  [W] DELETE {path} -> {e.code}")
+            return False
     
     # ---------------------------------------------------------------------------
     # Auth
@@ -197,9 +209,14 @@ data:
         # Assign default client scopes (POST individual scope associations)
         if cli_id and cli.get("defaultClientScopes"):
             all_scopes = get(f"{BASE}/client-scopes", token) or []
+            opt_names = {s.get("name") for s in (get(f"{BASE}/clients/{cli_id}/optional-client-scopes", token) or [])}
             for scope_name in cli["defaultClientScopes"]:
                 scope_obj = next((s for s in all_scopes if s["name"] == scope_name), None)
                 if scope_obj:
+                    if scope_name in opt_names:
+                        # A scope already linked as optional makes the default
+                        # association PUT a silent no-op; unlink it first.
+                        delete(f"{BASE}/clients/{cli_id}/optional-client-scopes/{scope_obj['id']}", token)
                     res = put(f"{BASE}/clients/{cli_id}/default-client-scopes/{scope_obj['id']}", {}, token)
                     if res:
                         print(f"  assigned default scope: {scope_name}")
