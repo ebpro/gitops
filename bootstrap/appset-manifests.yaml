@@ -25,7 +25,6 @@ spec:
           - path: kubernetes/observability
           - path: kubernetes/argocd-image-updater
           - path: kubernetes/dashboards
-          - path: kubernetes/garage-crd
           - path: bootstrap/keycloak-reconciler
   template:
     metadata:
