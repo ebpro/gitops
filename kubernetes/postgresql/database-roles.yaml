@@ -1,0 +1,29 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: sonarqube-db-app
+  namespace: sonarqube
+spec:
+  cluster:
+    name: sonarqube-db
+  name: app
+  ensure: present
+  login: true
+  passwordSecret:
+    name: sonarqube-postgresql
+  databaseRoleReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: nexus-db-app
+  namespace: nexus
+spec:
+  cluster:
+    name: nexus-db
+  name: app
+  ensure: present
+  login: true
+  passwordSecret:
+    name: nexus-postgresql-auth
+  databaseRoleReclaimPolicy: retain

@@ -5,6 +5,14 @@ metadata:
   namespace: nexus
 spec:
   instances: 1
+  bootstrap:
+    initdb:
+      database: app
+      owner: app
+  backup:
+    volumeSnapshot:
+      className: test-snapshot-class
+      online: true
   storage:
     size: 20Gi
     storageClass: local-path
