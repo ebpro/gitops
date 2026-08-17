@@ -16,17 +16,21 @@ spec:
     parameters:
       max_connections: "300"
   enableSuperuserAccess: true
-  externalSecrets:
-    s3CredentialsSecret: harbor-backup-s3
   backup:
+    retentionPolicy: "14d"
     barmanObjectStore:
       destinationPath: s3://backups/harbor-db
-      s3Endpoint: http://garage.garage.svc:3900
-      s3Region: garage
-      s3ForcePathStyle: true
-  scheduledBackups:
-    - schedule: "0 3 * * *"
-      retentionPolicy: "14d"
+      endpointURL: http://garage.garage.svc:3900
+      s3Credentials:
+        accessKeyId:
+          name: harbor-backup-s3
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: harbor-backup-s3
+          key: AWS_SECRET_ACCESS_KEY
+        region:
+          name: harbor-backup-s3
+          key: AWS_REGION
   resources:
     requests:
       cpu: 250m

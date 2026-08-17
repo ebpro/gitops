@@ -1,0 +1,10 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: harbor-db-backup
+  namespace: harbor
+spec:
+  cluster:
+    name: harbor-db
+  schedule: "0 3 * * *"
+  immediate: true
