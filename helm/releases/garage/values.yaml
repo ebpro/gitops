@@ -17,13 +17,17 @@ garage:
     web:
       rootDomain: ".web.ebruno.fr"
 
+# NOTE: local-path (node-local disk) — LMDB does not support networked
+# filesystems (NFS): metadata store corrupted on first start with nfs-rwx.
+# Both storage classes live on the same physical host, so DR posture is
+# unchanged; off-site replication remains the real disaster-recovery story.
 persistence:
   enabled: true
   meta:
-    storageClass: nfs-rwx
+    storageClass: local-path
     size: 5Gi
   data:
-    storageClass: nfs-rwx
+    storageClass: local-path
     size: 20Gi
 
 deployment:
