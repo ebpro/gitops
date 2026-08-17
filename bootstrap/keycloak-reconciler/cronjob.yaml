@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: keycloak-reconciler
+  namespace: keycloak
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: keycloak-reconciler
+  namespace: keycloak
+  labels:
+    app: keycloak-reconciler
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      ttlSecondsAfterCompletion: 3600
+      template:
+        spec:
+          serviceAccountName: keycloak-reconciler
+          dnsPolicy: ClusterFirst
+          containers:
+            - name: reconciler
+              image: python:3.12-slim
+              command: ["python3", "/spec/reconciler.py"]
+              env:
+                - name: KEYCLOAK_ADMIN_URL
+                  value: "http://keycloak-admin.keycloak.svc.cluster.local:8080"
+                - name: KEYCLOAK_REALM
+                  value: "platform"
+                - name: KEYCLOAK_ADMIN_USER
+                  value: "admin"
+                - name: KEYCLOAK_ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: keycloak-secrets
+                      key: adminPassword
+                - name: VAULT_ADDR
+                  value: "http://vault-active.vault:8200"
+              volumeMounts:
+                - name: spec-vol
+                  mountPath: /spec
+          volumes:
+            - name: spec-vol
+              configMap:
+                name: keycloak-reconciler-spec
+          restartPolicy: Never

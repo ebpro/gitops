@@ -1288,7 +1288,8 @@ data:
             "https://oauth2proxy.ebruno.fr/*",
             "https://sonarqube.ebruno.fr/oauth2/callback",
             "https://nexus.ebruno.fr/oauth2/callback",
-            "https://pactbroker.ebruno.fr/oauth2/callback"
+            "https://pactbroker.ebruno.fr/oauth2/callback",
+            "https://plane.ebruno.fr/oauth2/callback"
           ],
           "webOrigins": [
             "*"
@@ -2303,8 +2304,8 @@ data:
       "smtpServer": {},
       "eventsEnabled": false,
       "enabledEventTypes": [],
-      "adminEventsEnabled": false,
-      "adminEventsDetailsEnabled": false,
+      "adminEventsEnabled": true,
+      "adminEventsDetailsEnabled": true,
       "identityProviders": [
         {
           "alias": "gitea",

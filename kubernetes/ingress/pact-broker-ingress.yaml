@@ -19,6 +19,7 @@ spec:
       priority: 10
       middlewares:
         - name: fwd-auth
+        - name: fwd-auth-headers
       services:
         - name: pact-broker
           port: http

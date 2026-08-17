@@ -11,11 +11,16 @@ spec:
       - X-Forwarded-User
       - X-Forwarded-Email
       - X-Forwarded-Access-Token
-    authRequestHeaders:
-      - X-Forwarded-User
-      - X-Forwarded-Email
-      - X-Forwarded-Access-Token
-      - Host
-      - X-Forwarded-Host
-      - X-Forwarded-Proto
-      - Cookie
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: fwd-auth-headers
+  namespace: pact-broker
+spec:
+  headers:
+    sslRedirect: true
+    sslHost: pactbroker.ebruno.fr
+    stsSeconds: 63072000
+    stsIncludeSubdomains: true
+    stsPreload: true

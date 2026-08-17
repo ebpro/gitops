@@ -5,15 +5,16 @@ data:
     """
     Keycloak Reconciler
     Reads declarative spec.json, calls Keycloak Admin REST API to ensure
-    groups, clients, and mappers exist. Pushes non-public client secrets to Vault.
+    groups, and clients exist (keeps them enabled), and enables admin events.
+    Pushes non-public client secrets to Vault.
     """
-
+    
     import json
     import os
     import urllib.error
     import urllib.parse
     import urllib.request
-
+    
     # ---------------------------------------------------------------------------
     # Environment
     # ---------------------------------------------------------------------------
@@ -23,16 +24,16 @@ data:
     KC_ADMIN_PASS = os.environ["KEYCLOAK_ADMIN_PASSWORD"]
     VAULT_ADDR = os.environ.get("VAULT_ADDR", "http://vault-active.vault:8200")
     VAULT_TOKEN = os.environ.get("VAULT_ADMIN_TOKEN", "")
-
+    
     BASE = f"{KC_URL}/admin/realms/{KC_REALM}"
-
+    
     # ---------------------------------------------------------------------------
     # HTTP
     # ---------------------------------------------------------------------------
-
+    
     def hdrs(token: str) -> dict:
         return {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
-
+    
     def get(path: str, token: str):
         url = path if path.startswith("http") else f"{KC_URL}{path}"
         req = urllib.request.Request(url, headers=hdrs(token))
@@ -44,7 +45,7 @@ data:
                 return None
             print(f"  [W] GET {path} -> {e.code}")
             return None
-
+    
     def post(path: str, body: dict | list, token: str) -> str | None:
         url = path if path.startswith("http") else f"{KC_URL}{path}"
         req = urllib.request.Request(
@@ -57,7 +58,7 @@ data:
         except urllib.error.HTTPError as e:
             print(f"  [W] POST {path} -> {e.code}")
             return None
-
+    
     def post_raw(path: str, body: dict | list, token: str) -> bytes | None:
         url = path if path.startswith("http") else f"{KC_URL}{path}"
         req = urllib.request.Request(
@@ -69,7 +70,7 @@ data:
         except urllib.error.HTTPError as e:
             print(f"  [W] POST_raw {path} -> {e.code}")
             return None
-
+    
     def put(path: str, body: list | dict, token: str) -> bool:
         url = path if path.startswith("http") else f"{KC_URL}{path}"
         req = urllib.request.Request(
@@ -81,11 +82,11 @@ data:
         except urllib.error.HTTPError as e:
             print(f"  [W] PUT {path} -> {e.code}")
             return False
-
+    
     # ---------------------------------------------------------------------------
     # Auth
     # ---------------------------------------------------------------------------
-
+    
     def get_token() -> str:
         url = f"{KC_URL}/realms/master/protocol/openid-connect/token"
         payload = (
@@ -100,11 +101,11 @@ data:
         )
         with urllib.request.urlopen(req) as r:
             return json.loads(r.read())["access_token"]
-
+    
     # ---------------------------------------------------------------------------
     # Groups
     # ---------------------------------------------------------------------------
-
+    
     def find_group(token: str, name: str, parent_id: str | None = None) -> str | None:
         """Find group by name. If parent_id set, only match under that parent."""
         if parent_id:
@@ -121,7 +122,7 @@ data:
                 if g["name"] == name:
                     return g["id"]
             return None
-
+    
     def ensure_group(token: str, grp: dict, parent_id: str | None = None) -> str | None:
         name = grp["name"]
         gid = find_group(token, name, parent_id)
@@ -144,7 +145,7 @@ data:
             for sg in grp.get("subGroups", []):
                 ensure_group(token, sg, gid)
         return gid
-
+    
     def assign_group_roles(token: str, group_id: str, desired: list[str]):
         assigned = get(f"{BASE}/groups/{group_id}/roles/realm-mapping/assigned", token) or []
         assigned_names = {r["name"] for r in assigned}
@@ -155,31 +156,31 @@ data:
                 if role_obj:
                     post_raw(f"{BASE}/groups/{group_id}/roles/realm-mapping", [role_obj], token)
                     print(f"  assigned role {role}")
-
+    
     # ---------------------------------------------------------------------------
     # Clients
     # ---------------------------------------------------------------------------
-
+    
     def find_client(token: str, client_id: str) -> str | None:
         clients = get(f"{BASE}/clients", token) or []
         for c in clients:
             if c["clientId"] == client_id:
                 return c["id"]
         return None
-
+    
     def ensure_client(token: str, cli: dict) -> tuple[str | None, bool]:
         """Returns (client_id, was_created)."""
         cid = cli["clientId"]
         existing_id = find_client(token, cid)
         body = {
             "clientId": cid,
+            "enabled": True,
             "publicClient": cli.get("publicClient", True),
             "standardFlowEnabled": cli.get("standardFlowEnabled", True),
             "directAccessGrantsEnabled": cli.get("directAccessGrantsEnabled", False),
             "serviceAccountsEnabled": cli.get("serviceAccountsEnabled", False),
             "redirectUris": cli.get("redirectUris", []),
             "webOrigins": cli.get("webOrigins", ["*"]),
-            "frontchannelLogout": cli.get("frontchannelLogout", False),
         }
         if existing_id:
             print(f"[CLIENT] {cid} exists (id={existing_id[:8]}...)")
@@ -203,11 +204,31 @@ data:
                     else:
                         print(f"  [W] scope {scope_name} already assigned or failed")
         return cli_id, was_created
-
+    
+    # ---------------------------------------------------------------------------
+    # Realm settings
+    # ---------------------------------------------------------------------------
+    
+    def ensure_realm_settings(token: str):
+        realm = get(f"{KC_URL}/admin/realms/{KC_REALM}", token)
+        if not realm:
+            print("  [W] cannot GET realm, skipping realm settings")
+            return
+        if realm.get("adminEventsEnabled") is True and realm.get("adminEventsDetailsEnabled") is True:
+            print("[REALM] admin events already enabled")
+            return
+        body = dict(realm)
+        body["adminEventsEnabled"] = True
+        body["adminEventsDetailsEnabled"] = True
+        if put(f"{KC_URL}/admin/realms/{KC_REALM}", body, token):
+            print("[REALM] admin events enabled")
+        else:
+            print("[W] [REALM] failed to enable admin events")
+    
     # ---------------------------------------------------------------------------
     # Vault
     # ---------------------------------------------------------------------------
-
+    
     def push_to_vault(key: str, value: str):
         """Push a key-value pair to Vault KVv2."""
         if not VAULT_TOKEN:
@@ -226,7 +247,7 @@ data:
         except urllib.error.HTTPError as e:
             # If conflict (no cas), retry without cas
             print(f"  [VAULT] error pushing {key}: {e.code}")
-
+    
     def push_client_secret(token: str, cli_id: str, vault_key: str, was_created: bool):
         if not was_created:
             print(f"  [VAULT] skip existing client (no rotation)")
@@ -236,28 +257,30 @@ data:
             secret_val = json.loads(raw).get("value", "")
             if secret_val:
                 push_to_vault(vault_key, secret_val)
-
+    
     # ---------------------------------------------------------------------------
     # Main
     # ---------------------------------------------------------------------------
-
+    
     def main():
         with open("/spec/spec.json") as f:
             spec = json.load(f)
-
+    
         token = get_token()
         print(f"[OK] Authenticated to Keycloak ({KC_REALM})")
-
+    
+        ensure_realm_settings(token)
+    
         for grp in spec.get("groups", []):
             ensure_group(token, grp)
-
+    
         for cli in spec.get("clients", []):
             cli_id, was_created = ensure_client(token, cli)
             if cli_id and not cli.get("publicClient", True) and cli.get("vaultSecretKey"):
                 push_client_secret(token, cli_id, cli["vaultSecretKey"], was_created)
-
+    
         print("[OK] Reconciliation complete")
-
+    
     if __name__ == "__main__":
         main()
   spec.json: |
@@ -273,7 +296,7 @@ data:
         },
         {"name": "readonly", "path": "/readonly", "realmRoles": ["readonly"]}
       ],
-
+    
       "clients": [
         {
           "clientId": "argocd",
@@ -283,19 +306,16 @@ data:
           "serviceAccountsEnabled": false,
           "redirectUris": ["https://argocd.ebruno.fr/*"],
           "webOrigins": ["*"],
-          "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "groups", "email"],
           "vaultSecretKey": "clientSecretArgoCD"
         },
         {
           "clientId": "backstage",
           "publicClient": false,
           "standardFlowEnabled": true,
-          "directAccessGrantsEnabled": false,
+          "directAccessGrantsEnabled": true,
           "serviceAccountsEnabled": false,
           "redirectUris": ["https://backstage.ebruno.fr/*"],
-          "webOrigins": ["https://backstage.ebruno.fr"],
-          "frontchannelLogout": true,
-          "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "groups", "email"],
+          "webOrigins": ["*"],
           "vaultSecretKey": "clientSecretBackstage"
         },
         {
@@ -317,7 +337,6 @@ data:
           "serviceAccountsEnabled": false,
           "redirectUris": ["https://grafana.ebruno.fr/*"],
           "webOrigins": ["*"],
-          "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "groups", "email", "offline_access"],
           "vaultSecretKey": "clientSecretGrafana"
         },
         {
@@ -376,7 +395,7 @@ data:
           "standardFlowEnabled": true,
           "directAccessGrantsEnabled": true,
           "serviceAccountsEnabled": false,
-          "redirectUris": ["https://plane.ebruno.fr/*"],
+          "redirectUris": ["https://plane.ebruno.fr/*", "http://plane.ebruno.fr/*", "https://plane.ebruno.fr/oauth2/callback", "https://plane.ebruno.fr/auth/oidc/callback", "https://plane.ebruno.fr/api/auth/callback/oidc", "https://plane.ebruno.fr/auth/complete/oidc/"],
           "webOrigins": ["*"],
           "vaultSecretKey": "clientSecretPlane"
         },
@@ -390,7 +409,8 @@ data:
             "https://oauth2proxy.ebruno.fr/*",
             "https://sonarqube.ebruno.fr/oauth2/callback",
             "https://nexus.ebruno.fr/oauth2/callback",
-            "https://pactbroker.ebruno.fr/oauth2/callback"
+            "https://pactbroker.ebruno.fr/oauth2/callback",
+            "https://plane.ebruno.fr/oauth2/callback"
           ],
           "webOrigins": ["*"],
           "vaultSecretKey": "clientSecretProxy"
@@ -417,7 +437,6 @@ data:
         }
       ]
     }
-kind: ConfigMap
 metadata:
   name: keycloak-reconciler-spec
   namespace: keycloak
