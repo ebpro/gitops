@@ -1,0 +1,281 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: platform
+  description: Internal GitOps developer platform (K3s + ArgoCD + Keycloak SSO)
+spec:
+  domain: ebruno.fr
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: platform
+  description: Platform engineering team
+spec:
+  type: team
+  children:
+    - component/argocd
+    - component/vault
+    - component/keycloak
+    - component/harbor
+    - component/gitea
+    - component/nexus
+    - component/woodpecker
+    - component/sonarqube
+    - component/grafana
+    - component/kyverno
+    - component/cloudnative-pg
+    - component/external-secrets
+    - component/traefik
+    - component/backstage
+    - component/gitops
+    - resource/backstage-db
+    - resource/keycloak-db
+    - resource/sonarqube-db
+    - resource/nexus-db
+    - api/argocd
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: argocd
+  description: GitOps continuous deployment, auto-sync with prune/selfHeal
+  links:
+    - title: UI
+      url: https://argocd.ebruno.fr
+      icon: dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  providesApi: api/argocd
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: argocd
+  description: ArgoCD REST API
+spec:
+  type: http
+  lifecycle: production
+  owner: group/platform
+  definition: |
+    openapi: 3.0.0
+    info:
+      title: ArgoCD API
+      version: "2.14"
+    paths: {}
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: vault
+  description: HashiCorp Vault, single source of secrets (ExternalSecrets backend)
+  links:
+    - title: UI
+      url: https://vault.ebruno.fr
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: keycloak
+  description: Central identity provider (OIDC SSO for all platform apps)
+  links:
+    - title: UI
+      url: https://keycloak.ebruno.fr
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: harbor
+  description: OCI image registry (private), Trivy scanning
+  links:
+    - title: UI
+      url: https://harbor.ebruno.fr
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: gitea
+  description: Source code hosting, Woodpecker CI forge
+  links:
+    - title: UI
+      url: https://gitea.ebruno.fr
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: nexus
+  description: Maven/npm generic artifact repository (OSS)
+  links:
+    - title: UI
+      url: https://nexus.ebruno.fr
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: woodpecker
+  description: CI pipelines (Kaniko builds, Trivy scans, ArgoCD webhooks)
+  links:
+    - title: UI
+      url: https://woodpecker.ebruno.fr
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: sonarqube
+  description: Code quality and security analysis
+  links:
+    - title: UI
+      url: https://sonarqube.ebruno.fr
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: grafana
+  description: Monitoring dashboards, Prometheus metrics exploration
+  links:
+    - title: UI
+      url: https://grafana.ebruno.fr
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: kyverno
+  description: K8s policy-as-code enforcement
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cloudnative-pg
+  description: PostgreSQL clusters lifecycle (CloudNativePG operator)
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: external-secrets
+  description: Vault -> Kubernetes Secret synchronization
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: traefik
+  description: Edge ingress + ForwardAuth middleware (with oauth2-proxy)
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: backstage
+  description: This developer portal
+  links:
+    - title: UI
+      url: https://backstage.ebruno.fr
+      icon: dashboard
+spec:
+  type: website
+  lifecycle: production
+  owner: group/platform
+  consumesApi: api/argocd
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: gitops
+  description: GitOps repository, single source of truth for the cluster
+  links:
+    - title: Gitea
+      url: https://gitea.ebruno.fr/ebpro/gitops
+spec:
+  type: library
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: backstage-db
+  description: PostgreSQL for Backstage (CloudNativePG, 10Gi local-path)
+spec:
+  type: database
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: keycloak-db
+  description: PostgreSQL for Keycloak (CloudNativePG, 20Gi local-path)
+spec:
+  type: database
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: sonarqube-db
+  description: PostgreSQL for SonarQube (CloudNativePG, 20Gi local-path)
+spec:
+  type: database
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: nexus-db
+  description: PostgreSQL for Nexus (CloudNativePG, 20Gi local-path)
+spec:
+  type: database
+  lifecycle: production
+  owner: group/platform

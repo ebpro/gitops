@@ -4,6 +4,7 @@ metadata:
   name: backstage-db
   namespace: backstage
 spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie
   instances: 1
   storage:
     size: 10Gi
@@ -11,6 +12,15 @@ spec:
   postgresql:
     parameters:
       max_connections: "200"
+      shared_buffers: "256MB"
+      effective_cache_size: "512MB"
+      work_mem: "16MB"
+      maintenance_work_mem: "128MB"
+  backup:
+    volumeSnapshot:
+      className: test-snapshot-class
+      online: true
+    target: prefer-standby
   enableSuperuserAccess: true
   resources:
     requests:

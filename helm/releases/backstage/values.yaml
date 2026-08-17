@@ -3,18 +3,15 @@ serviceAccount:
   create: true
   automountServiceAccountToken: true
 
-podAnnotations:
-  instrumentation.opentelemetry.io/inject-nodejs: "true"
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "7007"
-  prometheus.io/path: "/metrics2"
-
 backstage:
   image:
     registry: ghcr.io
     repository: backstage/backstage
-    tag: latest
-    pullPolicy: Always
+    tag: "1.53.1"
+    pullPolicy: IfNotPresent
+
+  podAnnotations:
+    instrumentation.opentelemetry.io/inject-nodejs: "true"
 
   resources:
     requests:
@@ -33,17 +30,17 @@ backstage:
       port: 7007
       scheme: HTTP
     initialDelaySeconds: 60
-    periodSeconds: 15
-    failureThreshold: 30
+    periodSeconds: 5
+    failureThreshold: 120
 
   readinessProbe:
     httpGet:
       path: /.backstage/health/v1/readiness
       port: 7007
       scheme: HTTP
-    initialDelaySeconds: 60
+    initialDelaySeconds: 30
     periodSeconds: 10
-    failureThreshold: 10
+    failureThreshold: 3
 
   livenessProbe:
     httpGet:
@@ -55,15 +52,16 @@ backstage:
     failureThreshold: 5
 
   extraEnvVars:
-    - name: LOG_LEVEL
-      value: info
-
     - name: BACKSTAGE_JWT
       valueFrom:
         secretKeyRef:
           name: backstage-secrets
           key: BACKSTAGE_JWT
 
+    # DB user stays superuser until the Phase 2 cutover:
+    # pluginDivisionMode: schema + dedicated least-priv owner role + data
+    # migration of the ~15 per-plugin databases happen atomically with the
+    # custom image / OIDC switch.
     - name: APP_CONFIG_backend_database_connection_user
       valueFrom:
         secretKeyRef:
@@ -91,127 +89,115 @@ backstage:
   extraEnvVarsSecrets:
     - backstage-secrets
 
-  extraAppConfig:
-    - filename: app-config.production.yaml
-      configMapRef: backstage-custom-config
+  # Inline appConfig (chart renders it to a ConfigMap and checksums it, so
+  # config changes roll the pod). Keycloak provider config is intentionally
+  # NOT here: it ships in the custom image (community module) at the OIDC
+  # cutover. Guest provider stays enabled until that cutover.
+  appConfig:
+    app:
+      title: Platform Developer Portal
+      baseUrl: https://backstage.ebruno.fr
 
-extraDeploy:
-  - apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: backstage-custom-config
-      namespace: backstage
-      annotations:
-        updated: "2026-07-26-guest-dangerously-allow-2"
-    data:
-      app-config.production.yaml: |
-        app:
-          title: Platform Developer Portal
-          baseUrl: https://backstage.ebruno.fr
+    backend:
+      baseUrl: https://backstage.ebruno.fr
+      listen:
+        port: 7007
+      reading:
+        allow:
+          - host: raw.githubusercontent.com
+      auth:
+        options:
+          debug: false
+        keys:
+          - secret: ${BACKSTAGE_JWT}
+      database:
+        client: pg
+        connection:
+          host: backstage-db-rw.backstage.svc.cluster.local
+          port: 5432
+          database: backstage
+          user: ${APP_CONFIG_backend_database_connection_user}
+          password: ${APP_CONFIG_backend_database_connection_password}
+          ssl:
+            rejectUnauthorized: false
+      cors:
+        origin: https://backstage.ebruno.fr
+        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+        credentials: true
+      csp:
+        connect-src: ["'self'", "https:"]
+        frame-ancestors: ["'self'"]
+        img-src: ["'self'", "data:"]
+        script-src: ["'self'", "'unsafe-inline'"]
+        style-src: ["'self'", "'unsafe-inline'"]
+      logger:
+        logLevel: info
 
-        backend:
-          baseUrl: https://backstage.ebruno.fr
-          listen:
-            port: 7007
-          reading:
-            allow:
-              - host: raw.githubusercontent.com
-          auth:
-            options:
-              debug: false
-            keys:
-              - secret: ${BACKSTAGE_JWT}
-          database:
-            client: pg
-            connection:
-              host: backstage-db-rw.backstage.svc.cluster.local
-              port: 5432
-              database: backstage
-              user: ${APP_CONFIG_backend_database_connection_user}
-              password: ${APP_CONFIG_backend_database_connection_password}
-              ssl:
-                rejectUnauthorized: false
-          cors:
-            origin: https://backstage.ebruno.fr
-            methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
-            credentials: true
-          csp:
-            connect-src: ["'self'", 'http:', 'https:']
-            frame-ancestors: ["'self'"]
-            img-src: ["'self'", 'data:']
-            script-src: ["'self'", "'unsafe-inline'"]
-            style-src: ["'self'", "'unsafe-inline'"]
-          logger:
-            logLevel: info
-
-        integrations:
-          sonarqube:
-            - host: sonarqube.ebruno.fr
-              baseUrl: https://sonarqube.ebruno.fr
-
-        frontend:
-          baseUrl: https://backstage.ebruno.fr
-
-        catalog:
-          import:
-            entityFilename: backstage.yaml
-            pullRequestBranchName: backstage-integration
-          rules:
-            - allow:
-                - kind: Component
-                - kind: API
-                - kind: Resource
-                - kind: System
-                - kind: Domain
-                - kind: Group
-                - kind: Template
-                - kind: User
-          locations:
-            - type: url
-              target: https://raw.githubusercontent.com/ebpro/gitops/main/kubernetes/backstage-catalog/entities.yaml
-
-        scaffolder:
-          backend:
-            database:
-              type: pg
-            defaultRemote: origin
-
-        auth:
-          dangerouslyAllowExternalLoginByDefault: true
-          providers:
-            guest:
-              dangerouslyAllowOutsideDevelopment: true
-              enabled: true
-
-        sonarqube:
+    integrations:
+      sonarqube:
+        - host: sonarqube.ebruno.fr
           baseUrl: https://sonarqube.ebruno.fr
 
-        grafana:
-          dashboards:
-            - name: Backstage Dashboard
-              url: https://grafana.ebruno.fr
+    frontend:
+      baseUrl: https://backstage.ebruno.fr
 
-        argocd:
-          ui:
-            baseUrl: https://argocd.ebruno.fr
-          backend:
-            baseUrl: https://argocd.ebruno.fr/api/v1
+    catalog:
+      rules:
+        - allow:
+            - kind: Component
+            - kind: API
+            - kind: Resource
+            - kind: System
+            - kind: Domain
+            - kind: Group
+            - kind: Template
+            - kind: User
+      locations:
+        - type: url
+          target: https://raw.githubusercontent.com/ebpro/gitops/main/kubernetes/backstage-catalog/entities.yaml
 
-        kubernetes:
-          serviceLocatorMethod:
-            type: multiTenant
-          clusterLocatorMethods:
-            - type: config
-              clusters:
-                - url: https://kubernetes.default.svc
-                  name: local-cluster
-                  authProvider: serviceAccount
-                  skipTLSVerify: true
-          skipConfigValidate: true
+    auth:
+      dangerouslyAllowExternalLoginByDefault: true
+      providers:
+        guest:
+          dangerouslyAllowOutsideDevelopment: true
+          enabled: true
 
-        techdocs:
-          builder: local
-          generator:
-            runIn: local
-          publisher:
-            type: local
+    scaffolder:
+      backend:
+        database:
+          type: pg
+        defaultRemote: origin
+
+    sonarqube:
+      baseUrl: https://sonarqube.ebruno.fr
+
+    grafana:
+      dashboards:
+        - name: Backstage Dashboard
+          url: https://grafana.ebruno.fr
+
+    argocd:
+      ui:
+        baseUrl: https://argocd.ebruno.fr
+      backend:
+        baseUrl: https://argocd.ebruno.fr/api/v1
+
+    kubernetes:
+      serviceLocatorMethod:
+        type: multiTenant
+      clusterLocatorMethods:
+        - type: config
+          clusters:
+            - url: https://kubernetes.default.svc
+              name: local-cluster
+              authProvider: serviceAccount
+              skipTLSVerify: false
+      skipConfigValidate: true
+
+    techdocs:
+      builder: local
+      generator:
+        runIn: local
+      publisher:
+        type: local
