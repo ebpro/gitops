@@ -5,7 +5,7 @@ metadata:
   namespace: pact-broker
 spec:
   forwardAuth:
-    address: http://oauth2-proxy.oauth2-proxy.svc.cluster.local:4180/oauth2/start?rd=https://pactbroker.ebruno.fr/
+    address: http://oauth2-proxy.oauth2-proxy.svc.cluster.local:4180/oauth2/auth
     trustForwardHeader: true
     authResponseHeaders:
       - X-Forwarded-User
