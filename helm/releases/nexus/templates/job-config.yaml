@@ -52,7 +52,16 @@ spec:
                   key: {{ .Values.rootPassword.key }}
             - name: CONFIG_DIR
               value: /opt/sonatype/nexus/config
+          {{- with .Values.config.job.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.config.job.args }}
+          args:
+            {{- toYaml .Values.config.job.args | nindent 12 }}
+          {{- else }}
           args: ["/scripts/configure.sh"]
+          {{- end }}
           volumeMounts:
             - mountPath: /tmp
               name: temp

@@ -11,6 +11,7 @@ spec:
     repoURL: https://github.com/ebpro/gitops.git
     targetRevision: main
     path: helm/releases/nexus
+    type: helm
   destination:
     server: https://kubernetes.default.svc
     namespace: nexus

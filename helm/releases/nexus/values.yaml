@@ -1,11 +1,27 @@
-# Nexus3 custom values for PostgreSQL-backed datastore
-# Clean reinstall - PostgreSQL JDBC driver downloaded via init container
-
-# Nothing here - JDBC configured via init container writing nexus-store.properties
+# Nexus3 custom values - PostgreSQL-backed datastore (SOTA 2026)
+#
+# Datastore is configured via environment variables (Sonatype's recommended
+# method for containers). A single connection mechanism is used:
+#   - NEXUS_DATASTORE_NEXUS_JDBCURL  (literal value)
+#   - NEXUS_DATASTORE_NEXUS_USERNAME / _PASSWORD (secret nexus-postgresql-auth)
+# The PG driver (postgresql-42.x.jar) is bundled in the image, so no
+# extra init step is required for the driver itself.
+#
+# Fresh datastore bootstrap: prepare-nexus-data wipes the stale H2 artefacts
+# (/nexus-data/db, /nexus-data/blobs, /nexus-data/etc/fabric) before Nexus
+# boots and creates/migrates its schema in the PostgreSQL `app` database
+# (owner: nexus role, pg_trgm extension pre-created).
+#
+# First boot: the built-in config Job (scripts/configure.sh) applies the
+# declarative config below - anonymous browse role plus maven-central
+# (proxy), maven-releases (hosted) and the maven-public group.
+# NOTE: after a successful run, changing this config requires a new Helm
+# release revision (the Job name is revision-scoped; old Jobs are pruned).
 
 image:
+  # tag intentionally omitted: the main container image renders as
+  # <Chart.AppVersion>-ubi (templates/statefulset.yaml).
   repository: docker.io/sonatype/nexus3
-  tag: 3.93.2
   pullPolicy: IfNotPresent
 
 bashImage:
@@ -26,6 +42,22 @@ ingress:
   enabled: false
 
 install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m"
+
+# External PostgreSQL datastore (CNPG cluster nexus-db in the nexus namespace,
+# compat service nexus-postgresql -> nexus-db-1 primary)
+env:
+  - name: NEXUS_DATASTORE_NEXUS_JDBCURL
+    value: jdbc:postgresql://nexus-postgresql.nexus.svc.cluster.local:5432/app
+  - name: NEXUS_DATASTORE_NEXUS_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: nexus-postgresql-auth
+        key: username
+  - name: NEXUS_DATASTORE_NEXUS_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: nexus-postgresql-auth
+        key: password
 
 persistence:
   enabled: true
@@ -72,6 +104,27 @@ initRootSecurityContext:
 
 initResources: {}
 
+# Wipes the previous (H2) datastore so Nexus bootstraps cleanly against
+# PostgreSQL, and (re)creates the log files the tail-* sidecars watch.
+# Runs as root (pod allows it) then chowns everything to nexus (uid 200).
+extraInitContainers:
+  - name: prepare-nexus-data
+    image: docker.io/library/bash:latest
+    imagePullPolicy: IfNotPresent
+    command:
+      - /bin/sh
+      - -c
+      - |
+        rm -rf /nexus-data/db /nexus-data/blobs /nexus-data/etc/fabric /nexus-data/etc/nexus.properties /nexus-data/javaprefs
+        mkdir -p /nexus-data/etc/fabric /nexus-data/etc/logback /nexus-data/log/tasks /nexus-data/log/audit
+        touch /nexus-data/log/tasks/allTasks.log
+        touch /nexus-data/log/audit/audit.log
+        touch /nexus-data/log/request.log
+        chown -R 200:200 /nexus-data
+    volumeMounts:
+      - name: data
+        mountPath: /nexus-data
+
 resources:
   limits:
     cpu: 4
@@ -86,8 +139,98 @@ license:
 caCerts:
   enabled: false
 
+# Declarative first-boot configuration applied by scripts/configure.sh (Job)
 config:
-  enabled: false
+  enabled: true
+  anonymous:
+    enabled: true
+    roles:
+      - nx-anonymous
+  realms:
+    enabled: false
+  ldap:
+    enabled: false
+  repoCredentials:
+    enabled: false
+  privileges:
+    - id: maven-public-browse
+      name: maven-public-browse
+      description: Browse access to the maven-public group
+      type: n3_repository_view
+      domain: repository
+      repositoryPattern: maven-public
+      action: browse
+  roles:
+    - id: nx-anonymous
+      name: nx-anonymous
+      description: Anonymous read-through access to maven-public
+      privileges:
+        - maven-public-browse
+      roles: []
+  users: []
+  blobStores: []
+  cleanup: []
+  repos:
+    - name: maven-central
+      format: maven
+      type: proxy
+      online: true
+      remote:
+        url: https://repo1.maven.org/maven2
+      blobStoreName: default
+      httpClient:
+        blocked: false
+      negativeCache:
+        enabled: true
+        timeToLive: 1440
+      maven:
+        versionPolicy: RELEASE
+        layoutPolicy: STRICT
+    - name: maven-releases
+      format: maven
+      type: hosted
+      online: true
+      writePolicy: ALLOW_UPLOAD
+      blobStoreName: default
+      maven:
+        versionPolicy: RELEASE
+        layoutPolicy: STRICT
+    - name: maven-public
+      format: maven
+      type: group
+      online: true
+      blobStoreName: default
+      members:
+        - maven-central
+        - maven-releases
+      maven:
+        versionPolicy: RELEASE
+        layoutPolicy: PERMISSIVE
+  tasks: []
+  job:
+    # Job reuses the Nexus image (already cached on the node). The base is
+    # Alpine without bash, so the wrapper installs bash+jq+GNU sed at runtime
+    # - configure.sh requires bash, jq and GNU sed.
+    image:
+      repository: docker.io/sonatype/nexus3
+      tag: "3.95.1-ubi"
+      pullPolicy: IfNotPresent
+    podSecurityContext:
+      runAsNonRoot: false
+      runAsUser: 0
+      runAsGroup: 0
+    command:
+      - /bin/sh
+      - -c
+    args:
+      - apk add --no-cache --quiet bash jq sed >/dev/null 2>&1 && exec bash /scripts/configure.sh
+    ttlSecondsAfterFinished: 600
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
 
 plugins: []
 
@@ -121,9 +264,32 @@ minReadySeconds:
 podLabels: {}
 podAnnotations:
   instrumentation.opentelemetry.io/inject-java: "true"
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "8081"
-  prometheus.io/path: "/service/metrics/prometheus"
+
+# Nexus startup with PG schema bootstrap is long; the startup probe gets a
+# 20 minute window (10s x 120). Liveness only kicks in after startup
+# succeeds; readiness gates endpoint availability.
+startupProbe:
+  httpGet:
+    path: /service/rest/v1/status
+    port: http
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 120
+livenessProbe:
+  httpGet:
+    path: /service/rest/v1/status
+    port: http
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 5
+readinessProbe:
+  httpGet:
+    path: /service/rest/v1/status
+    port: http
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
 podDisruptionBudget:
   enabled: false
 nodeSelector: {}
@@ -147,28 +313,3 @@ manualMaintenanceMode:
 
 httpRoute:
   enabled: false
-
-# NOTE: Data store descriptor types for Nexus 3.94.0:
-# h2-embedded = Embedded H2 database (default)
-# javax.sql.DataSource = External database
-
-# Configure Nexus 3.94.0 embedded H2 datastore reader
-install4jAddVmParams: "-Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=4096m"
-
-# Configure Nexus 3.94.0 embedded H2 datastore/resolv-and-read-vm-only-bearing
-extraInitContainers:
-  - name: setup-nix-data-dir
-    image: docker.io/library/bash:latest
-    imagePullPolicy: IfNotPresent
-    command:
-      - /bin/sh
-      - -c
-      - |
-        mkdir -p /nexus-data/etc/fabric /nexus-data/etc/logback /nexus-data/log/tasks /nexus-data/log/audit
-        touch /nexus-data/log/tasks/allTasks.log
-        touch /nexus-data/log/audit/audit.log
-        touch /nexus-data/log/request.log
-        chown -R 200:200 /nexus-data
-    volumeMounts:
-      - name: data
-        mountPath: /nexus-data
