@@ -5,6 +5,25 @@ metadata:
   namespace: sonarqube
 spec:
   instances: 1
+  database: sonardb
+  bootstrap:
+    initdb:
+      database: app
+      owner: app
+  roles:
+    - name: app
+      ensure: present
+      login: true
+      passwordSecretRef:
+        name: sonarqube-postgresql
+        key: postgresql-password
+  backup:
+    volumeSnapshot:
+      snapshotClass: test-snapshot-class
+      onlineConfiguration:
+        process:
+          preBackup: "select pg_start_backup('cnpg');"
+          postBackup: "select pg_stop_backup();"
   storage:
     size: 20Gi
     storageClass: local-path

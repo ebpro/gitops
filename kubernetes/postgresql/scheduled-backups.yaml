@@ -1,0 +1,25 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackups
+metadata:
+  name: sonarqube-db-backup
+  namespace: sonarqube
+spec:
+  cluster:
+    name: sonarqube-db
+  method: volumeSnapshot
+  online: true
+  target: primary
+  schedule: "0 0 3 * * *"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackups
+metadata:
+  name: nexus-db-backup
+  namespace: nexus
+spec:
+  cluster:
+    name: nexus-db
+  method: volumeSnapshot
+  online: true
+  target: primary
+  schedule: "0 30 2 * * *"
