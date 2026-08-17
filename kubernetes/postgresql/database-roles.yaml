@@ -16,12 +16,12 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: DatabaseRole
 metadata:
-  name: nexus-db-app
+  name: nexus-db-nexus
   namespace: nexus
 spec:
   cluster:
     name: nexus-db
-  name: app
+  name: nexus
   ensure: present
   login: true
   passwordSecret:
