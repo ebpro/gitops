@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: garage
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '20'
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/deuxfleurs-org/garage
+    targetRevision: v2.3.0
+    path: script/helm/garage
+    helm:
+      releaseName: garage
+      valueFiles:
+        - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/garage/values.yaml?v=1
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: garage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

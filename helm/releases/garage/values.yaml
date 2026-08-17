@@ -1,26 +1,98 @@
-deployment:
-  replicaCount: 1
+# Garage — S3-compatible object storage (single node, replication factor 1)
+# Target: CNPG backups (harbor-db) + future S3 consumers.
+# Docs: https://garagehq.deuxfleurs.fr/
+#
+# Bootstrap (chart v2.3.0): env GARAGE_DEFAULT_ACCESS_KEY / GARAGE_DEFAULT_SECRET_KEY
+# (secret garage-bootstrap-creds, created out-of-band) + GARAGE_DEFAULT_BUCKET
+# auto-create the first S3 user and the "backups" bucket at first start.
+
 garage:
-  replicationFactor: 1
+  replicationFactor: "1"
+  consistencyMode: "consistent"
+  compressionLevel: "1"
+  metadataAutoSnapshotInterval: "10s"
+  s3:
+    api:
+      region: "garage"
+    web:
+      rootDomain: ".web.ebruno.fr"
+
+persistence:
+  enabled: true
+  meta:
+    storageClass: nfs-rwx
+    size: 5Gi
+  data:
+    storageClass: nfs-rwx
+    size: 20Gi
+
+deployment:
+  kind: StatefulSet
+  replicaCount: 1
+
+image:
+  repository: dxflrs/amd64_garage
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+
 ingress:
   s3:
     api:
       enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+        traefik.ingress.kubernetes.io/router.tls: "true"
+        traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
       hosts:
         - host: garage.ebruno.fr
           paths:
             - path: /
               pathType: Prefix
-      tls: []
-  web:
-    enabled: false
-persistence:
-  data:
-    size: 200Mi
-  meta:
-    size: 100Mi
+    web:
+      enabled: false
+
+environment:
+  - name: GARAGE_DEFAULT_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: garage-bootstrap-creds
+        key: GARAGE_DEFAULT_ACCESS_KEY
+  - name: GARAGE_DEFAULT_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: garage-bootstrap-creds
+        key: GARAGE_DEFAULT_SECRET_KEY
+  - name: GARAGE_DEFAULT_BUCKET
+    value: "backups"
+
 resources:
-  limits: {}
-  requests: {}
-service:
-  type: ClusterIP
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 2Gi
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 3903
+  initialDelaySeconds: 10
+  periodSeconds: 20
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 3903
+  initialDelaySeconds: 60
+  periodSeconds: 60
+
+monitoring:
+  metrics:
+    serviceMonitor:
+      enabled: true
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
