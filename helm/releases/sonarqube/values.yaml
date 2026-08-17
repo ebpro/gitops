@@ -2,7 +2,7 @@ community:
   enabled: true
 extraInitContainers:
   - args:
-      - wget -O /tmp/sonarqube-webapp.zip https://github.com/mc1arke/sonarqube-community-branch-plugin/releases/download/26.1.0/sonarqube-webapp.zip && unzip -o /tmp/sonarqube-webapp.zip -d /web && chmod -R 755 /web && chown -R 1000:0 /web && rm -f /tmp/sonarqube-webapp.zip
+      - wget -O /tmp/sonarqube-webapp.zip https://github.com/mc1arke/sonarqube-community-branch-plugin/releases/download/26.5.0/sonarqube-webapp.zip && unzip -o /tmp/sonarqube-webapp.zip -d /web && chmod -R 755 /web && chown -R 1000:0 /web && rm -f /tmp/sonarqube-webapp.zip
     command:
       - sh
       - -c
@@ -27,17 +27,21 @@ jdbcOverwrite:
 # OTEL instrumentation annotation - OTel operator auto-injects Java agent
 podAnnotations:
   instrumentation.opentelemetry.io/inject-java: "true"
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "9000"
-  prometheus.io/path: "/metrics"
-
-jvmCeOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=ce
-jvmOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=web
+mcp:
+  enabled: true
 monitoringPasscodeSecretName: sonarqube-monitoring-password
 monitoringPasscodeSecretKey: monitoring-passcode
+persistence:
+  enabled: true
+  size: 20Gi
+  storageClass: local-path
 plugins:
   install:
-    - https://github.com/mc1arke/sonarqube-community-branch-plugin/releases/download/26.1.0/sonarqube-community-branch-plugin-26.1.0.jar
+    - https://github.com/mc1arke/sonarqube-community-branch-plugin/releases/download/26.5.0/sonarqube-community-branch-plugin-26.5.0.jar
+prometheusMonitoring:
+  podMonitor:
+    enabled: true
+    interval: 30s
 resources:
   limits:
     cpu: 800m
@@ -46,10 +50,12 @@ resources:
     cpu: 500m
     memory: 2Gi
 sonarProperties:
-  sonar.ce.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=ce
-  sonar.web.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.0.jar=web
-  sonar.core.cryptoSecret: fixedkey1234567890123456789012
-  sonar.security.textblock.cipherType: None
+  sonar.ce.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.5.0.jar=ce
+  sonar.security.textblock.cipherType: AES256
+  sonar.web.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.5.0.jar=web
+sonarSecretKey: sonarqube-credentials
 startupProbe:
   failureThreshold: 60
   periodSeconds: 10
+account:
+  adminPasswordSecretName: sonarqube-credentials

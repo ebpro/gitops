@@ -110,9 +110,9 @@ spec:
         namespace: sonarqube
         releaseName: sonarqube
         repoURL: https://SonarSource.github.io/helm-chart-sonarqube
-        version: 2026.1.0
+        version: 2026.4.1
         syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/sonarqube/values.yaml?v=1
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/sonarqube/values.yaml?v=2
       - app: tempo
         chart: tempo
         namespace: tempo
