@@ -153,20 +153,21 @@ config:
   repoCredentials:
     enabled: false
   privileges:
+    # 3.95 permission model: repository-view replaces the legacy
+    # n3_repository_* types (POST on old types 405). Model verified via
+    # live API probes on 3.95.1.
     - id: maven-public-browse
       name: maven-public-browse
       description: Browse access to the maven-public group
-      type: n3_repository_view
-      domain: repository
-      repositoryPattern: maven-public
-      action: browse
-  roles:
-    - id: nx-anonymous
-      name: nx-anonymous
-      description: Anonymous read-through access to maven-public
-      privileges:
-        - maven-public-browse
-      roles: []
+      type: repository-view
+      actions:
+        - BROWSE
+      format: maven2
+      repository: maven-public
+  # NOTE: no role entries - the built-in nx-anonymous role is internal/readOnly
+  # in 3.95 (PUT 400s) and already grants nx-repository-view-*-*-browse plus
+  # read/search to the anonymous user, which covers the maven-public intent.
+  roles: []
   users: []
   blobStores: []
   cleanup: []
