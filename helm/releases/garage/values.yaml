@@ -2,9 +2,13 @@
 # Target: CNPG backups (harbor-db) + future S3 consumers.
 # Docs: https://garagehq.deuxfleurs.fr/
 #
-# Bootstrap (chart v2.3.0): env GARAGE_DEFAULT_ACCESS_KEY / GARAGE_DEFAULT_SECRET_KEY
-# (secret garage-bootstrap-creds, created out-of-band) + GARAGE_DEFAULT_BUCKET
-# auto-create the first S3 user and the "backups" bucket at first start.
+# Bootstrap (chart v2.3.0): the GARAGE_DEFAULT_* env vars only take effect in
+# `--single-node` mode (unreachable via this chart) — so the S3 key and the
+# "backups" bucket were created out-of-band via the CLI
+# (`garage key import` + `garage bucket create` + `garage bucket allow
+# --read --write --owner`), using the creds from secret
+# garage-bootstrap-creds. If the meta PVC is ever wiped, repeat the layout
+# (assign/apply) and these commands.
 
 garage:
   replicationFactor: "1"
@@ -44,6 +48,7 @@ ingress:
   s3:
     api:
       enabled: true
+      className: traefik
       annotations:
         traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
         traefik.ingress.kubernetes.io/router.tls: "true"
@@ -56,19 +61,7 @@ ingress:
     web:
       enabled: false
 
-environment:
-  - name: GARAGE_DEFAULT_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: garage-bootstrap-creds
-        key: GARAGE_DEFAULT_ACCESS_KEY
-  - name: GARAGE_DEFAULT_SECRET_KEY
-    valueFrom:
-      secretKeyRef:
-        name: garage-bootstrap-creds
-        key: GARAGE_DEFAULT_SECRET_KEY
-  - name: GARAGE_DEFAULT_BUCKET
-    value: "backups"
+# (no container env: default-key bootstrap is single-node-mode only, see above)
 
 resources:
   requests:
