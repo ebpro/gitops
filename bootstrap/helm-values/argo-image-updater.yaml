@@ -17,7 +17,7 @@ config:
     - name: Harbor
       api_url: https://harbor.ebruno.fr
       ping: no
-      insecure: yes
+      insecure: no
       prefix: harbor.ebruno.fr
       credentials: secret:argocd/image-updater-creds#.dockerconfigjson
 

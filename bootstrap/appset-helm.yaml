@@ -24,7 +24,7 @@ spec:
         repoURL: https://argoproj.github.io/argo-helm
         version: 1.2.4
         syncWave: '25'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/argo-image-updater/values.yaml?v=1
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/argo-image-updater/values.yaml?v=2
       - app: cert-manager
         chart: cert-manager
         namespace: cert-manager
