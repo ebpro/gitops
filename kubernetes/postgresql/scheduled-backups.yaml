@@ -1,5 +1,5 @@
 apiVersion: postgresql.cnpg.io/v1
-kind: ScheduledBackups
+kind: ScheduledBackup
 metadata:
   name: sonarqube-db-backup
   namespace: sonarqube
@@ -12,7 +12,7 @@ spec:
   schedule: "0 0 3 * * *"
 ---
 apiVersion: postgresql.cnpg.io/v1
-kind: ScheduledBackups
+kind: ScheduledBackup
 metadata:
   name: nexus-db-backup
   namespace: nexus
