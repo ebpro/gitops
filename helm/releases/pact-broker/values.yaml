@@ -19,7 +19,7 @@ database:
     existingSecretPasswordKey: user-password
     username: pactbroker
   databaseName: pact_broker
-  host: pact-broker-db-primary.pact-broker.svc.cluster.local
+  host: pact-broker-db-rw.pact-broker.svc.cluster.local
   port: "5432"
 ingress:
   enabled: false

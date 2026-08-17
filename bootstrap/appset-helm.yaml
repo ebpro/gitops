@@ -104,7 +104,7 @@ spec:
         repoURL: https://pact-foundation.github.io/pact-broker-chart
         version: 6.1.0
         syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/pact-broker/values.yaml?v=2
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/pact-broker/values.yaml?v=3
       - app: sonarqube
         chart: sonarqube
         namespace: sonarqube
