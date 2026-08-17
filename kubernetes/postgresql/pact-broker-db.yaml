@@ -1,0 +1,29 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pact-broker-db
+  namespace: pact-broker
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: pact_broker
+      owner: pactbroker
+  backup:
+    volumeSnapshot:
+      className: test-snapshot-class
+      online: true
+  storage:
+    size: 5Gi
+    storageClass: local-path
+  postgresql:
+    parameters:
+      max_connections: "200"
+  enableSuperuserAccess: true
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi

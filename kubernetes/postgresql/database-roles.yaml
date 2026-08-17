@@ -27,3 +27,18 @@ spec:
   passwordSecret:
     name: nexus-postgresql-auth
   databaseRoleReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: pact-broker-db-pactbroker
+  namespace: pact-broker
+spec:
+  cluster:
+    name: pact-broker-db
+  name: pactbroker
+  ensure: present
+  login: true
+  passwordSecret:
+    name: pact-broker-db
+  databaseRoleReclaimPolicy: retain
