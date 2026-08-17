@@ -206,11 +206,14 @@ app.kubernetes.io/component: config-job
 
 {{/*
 Define config Job name.
-Job specs are immutable; derive a deterministic suffix from the job inputs so
-any relevant change (image/wrapper) prunes the old Job and creates a new one
-(ArgoCD does not reliably increment .Release.Revision).
+Job pod specs are immutable; derive a deterministic suffix from everything the
+Job executes (wrapper+image) and everything it applies (config/scripts CMs) so
+any input change prunes the old Job and creates a fresh one. ArgoCD does not
+reliably increment .Release.Revision, so this is the restart trigger.
 */}}
 {{- define "nexus3.configJob.name" -}}
-{{- $inputs := (list .Values.config.job.image .Values.config.job.command .Values.config.job.args) | toYaml | sha256sum -}}
-{{- printf "%s-config-%s" ((include "nexus3.fullname" .) | trunc 44 | trimSuffix "-") ($inputs | trunc 8) -}}
+{{- $config := include (print $.Template.BasePath "/configmap-config.yaml") . | sha256sum | trunc 8 -}}
+{{- $scripts := include (print $.Template.BasePath "/configmap-scripts.yaml") . | sha256sum | trunc 8 -}}
+{{- $runner := (list .Values.config.job.image .Values.config.job.command .Values.config.job.args) | toYaml | sha256sum | trunc 8 -}}
+{{- printf "%s-config-%s" ((include "nexus3.fullname" .) | trunc 44 | trimSuffix "-") (printf "%s%s%s" $config $scripts $runner) -}}
 {{- end -}}

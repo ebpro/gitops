@@ -171,18 +171,27 @@ config:
   blobStores: []
   cleanup: []
   repos:
+    # Nexus 3.9x repository API model: PUT is a full replacement, so every
+    # repo must carry its complete model (storage + type-specific object).
+    # Shapes verified against GET /service/rest/v1/repositories on 3.95.1.
     - name: maven-central
       format: maven
       type: proxy
       online: true
-      remote:
-        url: https://repo1.maven.org/maven2
-      blobStoreName: default
-      httpClient:
-        blocked: false
+      storage:
+        blobStoreName: default
+        strictContentTypeValidation: false
+      proxy:
+        remoteUrl: https://repo1.maven.org/maven2
+        contentMaxAge: -1
+        metadataMaxAge: 1440
+        preserveEncodedCharacters: false
       negativeCache:
         enabled: true
         timeToLive: 1440
+      httpClient:
+        blocked: false
+        autoBlock: false
       maven:
         versionPolicy: RELEASE
         layoutPolicy: STRICT
@@ -190,8 +199,10 @@ config:
       format: maven
       type: hosted
       online: true
-      writePolicy: ALLOW_UPLOAD
-      blobStoreName: default
+      storage:
+        blobStoreName: default
+        strictContentTypeValidation: false
+        writePolicy: ALLOW_UPLOAD
       maven:
         versionPolicy: RELEASE
         layoutPolicy: STRICT
@@ -199,13 +210,13 @@ config:
       format: maven
       type: group
       online: true
-      blobStoreName: default
-      members:
-        - maven-central
-        - maven-releases
-      maven:
-        versionPolicy: RELEASE
-        layoutPolicy: PERMISSIVE
+      storage:
+        blobStoreName: default
+        strictContentTypeValidation: false
+      group:
+        memberNames:
+          - maven-releases
+          - maven-central
   tasks: []
   job:
     # The -ubi variant is UBI9-based (no apk/curl) - the job needs the explicit
