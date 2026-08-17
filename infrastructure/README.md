@@ -10,6 +10,7 @@ All database credentials and sensitive configuration are managed via External Se
 | `secret/data/postgresql/nexus` | `password` | Nexus, nexus-postgresql |
 | `secret/data/postgresql/keycloak` | `password` | Keycloak, keycloak-db |
 | `secret/data/postgresql/backstage` | `password` | Backstage, backstage-db |
+| `secret/data/postgresql/pact-broker` | `password` | Pact Broker, pact-broker-db (CNPG `pactbroker` app user) |
 | `secret/data/postgresql/link-shortener` | `url` + `username` + `password` | link-shortener deployment, link-shortener-db (CNPG `linkshortener` app user) |
 | `secret/data/velero/s3` | `accessKeyId` + `secretAccessKey` | Velero |
 | `secret/data/grafana` | `adminPassword` | Kube-Prometheus-Stack |
@@ -19,7 +20,7 @@ All database credentials and sensitive configuration are managed via External Se
 
 ## CloudNativePG Clusters
 
-PostgreSQL instances are deployed via **CloudNativePG (CNPG)** operator as `Cluster` resources. DNS resolution: `<cluster-name>-primary.<namespace>.svc.cluster.local:5432`
+PostgreSQL instances are deployed via **CloudNativePG (CNPG)** operator as `Cluster` resources. DNS resolution: `<cluster-name>-rw.<namespace>.svc.cluster.local:5432` (read-write/primary; a read-only `<cluster-name>-ro` variant is also created by the operator)
 
 ### Cluster Specifications
 
@@ -27,25 +28,31 @@ PostgreSQL instances are deployed via **CloudNativePG (CNPG)** operator as `Clus
 - 20Gi PVC with `local-path` storage
 - 400 max connections
 - CPU: 250m/500m (req/limit), Memory: 512Mi/1Gi
-- Service: `sonarqube-db-primary`
+- Service: `sonarqube-db-rw`
 
 **nexus-db** (`nexus` namespace)
 - 20Gi PVC with `local-path` storage
 - 300 max connections
 - CPU: 250m/500m (req/limit), Memory: 512Mi/1Gi
-- Service: `nexus-db-primary`
+- Service: `nexus-db-rw`
 
 **backstage-db** (`backstage` namespace)
 - 10Gi PVC with `local-path` storage
 - 200 max connections
 - CPU: 250m/500m (req/limit), Memory: 512Mi/1Gi
-- Service: `backstage-db-primary`
+- Service: `backstage-db-rw`
 
 **keycloak-db** (`keycloak` namespace)
 - 20Gi PVC with `local-path` storage
 - 500 max connections
 - CPU: 500m/1000m (req/limit), Memory: 1Gi/2Gi
-- Service: `keycloak-db-primary`
+- Service: `keycloak-db-rw`
+
+**pact-broker-db** (`pact-broker` namespace)
+- 5Gi PVC with `local-path` storage
+- 200 max connections
+- CPU: 250m/500m (req/limit), Memory: 512Mi/1Gi
+- Service: `pact-broker-db-rw`
 
 ### CNPG Management
 - Managed via raw K8s manifests in `kubernetes/postgresql/`, synced by ArgoCD

@@ -56,10 +56,11 @@
 4. ArgoCD pull requests — verify status with `kubectl argocd app <app> sync`
 
 ## CloudNativePG Clusters
-DNS pattern: `<cluster-name>-primary.<namespace>.svc.cluster.local:5432`
+DNS pattern: `<cluster-name>-rw.<namespace>.svc.cluster.local:5432` (read-write/primary; a read-only `<cluster-name>-ro` variant is also created)
 
 | CNPG Cluster | Namespace | Storage | Max Conns |
 |---|---|---|---|
+| `pact-broker-db` | `pact-broker` | 5Gi | 200 |
 | `sonarqube-db` | `sonarqube` | 20Gi | 400 |
 | `nexus-db` | `nexus` | 20Gi | 300 |
 | `backstage-db` | `backstage` | 10Gi | 200 |
@@ -106,7 +107,7 @@ We delegate operations to controllers (operators). Never manage `Deployment`, `S
 
 ## CNPG Strategy
 **One dedicated cluster per critical app.** Isolates upgrades, tuning, and failover.
-- DNS: `<cluster-name>-primary.<namespace>.svc.cluster.local:5432`
+- DNS: `<cluster-name>-rw.<namespace>.svc.cluster.local:5432` (read-write/primary; `-ro` read-only variant also created)
 - Storage class: `local-path` or `nfs-client` (tuned per-app)
 - Managed via: `kubernetes/postgresql/<name>/*.yaml` synced by `bootstrap/appset-manifests.yaml`
 - Debug: `kubectl exec -it <cluster>-1 -n <ns> -- psql -U postgres -d <dbname>`
