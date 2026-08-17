@@ -206,7 +206,11 @@ app.kubernetes.io/component: config-job
 
 {{/*
 Define config Job name.
+Job specs are immutable; derive a deterministic suffix from the job inputs so
+any relevant change (image/wrapper) prunes the old Job and creates a new one
+(ArgoCD does not reliably increment .Release.Revision).
 */}}
 {{- define "nexus3.configJob.name" -}}
-{{- printf "%s-config-%s" ((include "nexus3.fullname" .) | trunc 52 | trimSuffix "-") (toString .Release.Revision) }}
+{{- $inputs := (list .Values.config.job.image .Values.config.job.command .Values.config.job.args) | toYaml | sha256sum -}}
+{{- printf "%s-config-%s" ((include "nexus3.fullname" .) | trunc 44 | trimSuffix "-") ($inputs | trunc 8) -}}
 {{- end -}}

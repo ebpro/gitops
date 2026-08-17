@@ -208,12 +208,12 @@ config:
         layoutPolicy: PERMISSIVE
   tasks: []
   job:
-    # Job reuses the Nexus image (already cached on the node). The base is
-    # Alpine without bash, so the wrapper installs bash+jq+GNU sed at runtime
-    # - configure.sh requires bash, jq and GNU sed.
+    # The -ubi variant is UBI9-based (no apk/curl) - the job needs the explicit
+    # Alpine variant so the wrapper can install bash+jq+GNU sed+curl at runtime
+    # - configure.sh requires bash, jq, GNU sed and curl.
     image:
       repository: docker.io/sonatype/nexus3
-      tag: "3.95.1-ubi"
+      tag: "3.95.1-alpine"
       pullPolicy: IfNotPresent
     podSecurityContext:
       runAsNonRoot: false
@@ -223,7 +223,7 @@ config:
       - /bin/sh
       - -c
     args:
-      - apk add --no-cache --quiet bash jq sed >/dev/null 2>&1 && exec bash /scripts/configure.sh
+      - apk update && apk add --no-cache --quiet bash jq sed curl && exec bash /scripts/configure.sh
     ttlSecondsAfterFinished: 600
     resources:
       requests:
