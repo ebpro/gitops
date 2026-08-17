@@ -202,7 +202,8 @@ config:
       storage:
         blobStoreName: default
         strictContentTypeValidation: false
-        writePolicy: ALLOW_UPLOAD
+        # 3.95 renamed legacy ALLOW_UPLOAD to ALLOW_ONCE (no redeploy)
+        writePolicy: ALLOW_ONCE
       maven:
         versionPolicy: RELEASE
         layoutPolicy: STRICT
