@@ -19,7 +19,6 @@ spec:
   failedJobsHistoryLimit: 2
   jobTemplate:
     spec:
-      ttlSecondsAfterCompletion: 3600
       template:
         spec:
           serviceAccountName: keycloak-reconciler
