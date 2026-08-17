@@ -71,7 +71,7 @@ prometheus:
     retentionSize: 45GB
     enableCompression: true
     walCompression: true
-    webEnableRemoteWriteReceiver: true
+    enableRemoteWriteReceiver: true
     resources:
       limits:
         cpu: 2

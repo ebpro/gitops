@@ -179,6 +179,7 @@ data:
             "serviceAccountsEnabled": cli.get("serviceAccountsEnabled", False),
             "redirectUris": cli.get("redirectUris", []),
             "webOrigins": cli.get("webOrigins", ["*"]),
+            "frontchannelLogout": cli.get("frontchannelLogout", False),
         }
         if existing_id:
             print(f"[CLIENT] {cid} exists (id={existing_id[:8]}...)")
@@ -289,10 +290,12 @@ data:
           "clientId": "backstage",
           "publicClient": false,
           "standardFlowEnabled": true,
-          "directAccessGrantsEnabled": true,
+          "directAccessGrantsEnabled": false,
           "serviceAccountsEnabled": false,
           "redirectUris": ["https://backstage.ebruno.fr/*"],
-          "webOrigins": ["*"],
+          "webOrigins": ["https://backstage.ebruno.fr"],
+          "frontchannelLogout": true,
+          "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "groups", "email"],
           "vaultSecretKey": "clientSecretBackstage"
         },
         {

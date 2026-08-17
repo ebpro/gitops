@@ -8,7 +8,7 @@ spec:
     endpoint: http://alloy.alloy.svc.cluster.local:4318
   sampler:
     type: parentbased_traceidratio
-    argument: "1"
+    argument: "0.25"
   propagators:
     - tracecontext
     - baggage

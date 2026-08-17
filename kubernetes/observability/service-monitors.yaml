@@ -41,7 +41,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: backstage
   endpoints:
-    - port: http
+    - port: http-backend
       path: /.backstage/health/v1/metrics
       interval: 30s
       scrapeTimeout: 10s

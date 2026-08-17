@@ -8,7 +8,7 @@ metadata:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-reconciler
+  name: keycloak-reconciler-2
   namespace: keycloak
   labels:
     app: keycloak-reconciler

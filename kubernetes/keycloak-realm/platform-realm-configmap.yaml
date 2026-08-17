@@ -841,17 +841,17 @@ data:
             "https://backstage.ebruno.fr/*"
           ],
           "webOrigins": [
-            "*"
+            "https://backstage.ebruno.fr"
           ],
           "notBefore": 0,
           "bearerOnly": false,
           "consentRequired": false,
           "standardFlowEnabled": true,
           "implicitFlowEnabled": false,
-          "directAccessGrantsEnabled": true,
+          "directAccessGrantsEnabled": false,
           "serviceAccountsEnabled": false,
           "publicClient": false,
-          "frontchannelLogout": false,
+          "frontchannelLogout": true,
           "protocol": "openid-connect",
           "attributes": {
             "realm_client": "false"
@@ -865,7 +865,8 @@ data:
             "roles",
             "profile",
             "basic",
-            "email"
+            "email",
+            "groups"
           ],
           "optionalClientScopes": [
             "address",
