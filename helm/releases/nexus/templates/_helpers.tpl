@@ -213,7 +213,7 @@ reliably increment .Release.Revision, so this is the restart trigger.
 */}}
 {{- define "nexus3.configJob.name" -}}
 {{- $config := include (print $.Template.BasePath "/configmap-config.yaml") . | sha256sum | trunc 8 -}}
-{{- $scripts := include (print $.Template.BasePath "/configmap-scripts.yaml") . | sha256sum | trunc 8 -}}
+{{- $scripts := include (print $.Template.BasePath "/configmap-config-scripts.yaml") . | sha256sum | trunc 8 -}}
 {{- $runner := (list .Values.config.job.image .Values.config.job.command .Values.config.job.args) | toYaml | sha256sum | trunc 8 -}}
 {{- printf "%s-config-%s" ((include "nexus3.fullname" .) | trunc 44 | trimSuffix "-") (printf "%s%s%s" $config $scripts $runner) -}}
 {{- end -}}

@@ -41,6 +41,23 @@ if [[ -f "${json_file}" ]]; then
   echo "Anonymous access configured."
 fi
 
+# 3.95+ blocks all content (and UI) access until the CE EULA is accepted.
+# The POST must echo back the exact disclaimer returned by the GET, so we
+# mutate the GET response instead of crafting a static body.
+echo "Configuring EULA acceptance..."
+eula_file="${tmp_dir}/eula.json"
+curl -sS -H 'Content-Type: application/json' -u "${NEXUS_USER}:${password}" "${NEXUS_HOST}/service/rest/v1/system/eula" -o "${eula_file}"
+if [[ "$(jq -r '.accepted' "${eula_file}")" != "true" ]]; then
+  jq '.accepted = true' "${eula_file}" >"${tmp_file}"
+  status_code="$(curl -sS -o /dev/null -w "%{http_code}" -X POST -H 'Content-Type: application/json' -u "${NEXUS_USER}:${password}" -d "@${tmp_file}" "${NEXUS_HOST}/service/rest/v1/system/eula")"
+  if [[ "${status_code}" -ne 204 ]]; then
+    error "Could not accept the EULA (status code ${status_code})."
+  fi
+  echo "EULA accepted."
+else
+  echo "EULA already accepted."
+fi
+
 json_file="${CONFIG_DIR}/conf/realms.json"
 if [[ -f "${json_file}" ]]; then
   echo "Configuring realms..."
