@@ -10,7 +10,6 @@ garage:
   replicationFactor: "1"
   consistencyMode: "consistent"
   compressionLevel: "1"
-  metadataAutoSnapshotInterval: "10s"
   s3:
     api:
       region: "garage"
