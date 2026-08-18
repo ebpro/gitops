@@ -23,12 +23,12 @@ spec:
           restartPolicy: Never
           serviceAccountName: {{ include "nexus3.serviceAccountName" . }}
           automountServiceAccountToken: false
+          # The nexus3 image entrypoint needs root (log dir creation) even
+          # when we override the command - same convention as the config Job.
+          {{- with .Values.config.job.podSecurityContext }}
           securityContext:
-            runAsNonRoot: true
-            runAsUser: 65532
-            runAsGroup: 65532
-            seccompProfile:
-              type: RuntimeDefault
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           containers:
             - name: sso-sync
               image: {{ include "nexus3.image" .Values.config.job.image }}
