@@ -9,8 +9,7 @@ spec:
   project: platform
   source:
     repoURL: https://github.com/ebpro/gitops.git
-    path: helm/vendor
-    chart: microcks
+    path: helm/vendor/microcks
     targetRevision: main
     helm:
       releaseName: microcks
