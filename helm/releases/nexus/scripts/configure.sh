@@ -67,12 +67,16 @@ for json_file in "${CONFIG_DIR}"/conf/*-capability.json; do
 
     out_file="$(mktemp -p "${tmp_dir}")"
     status_code=$(curl -sS -o "${out_file}" -w "%{http_code}" -X GET -H 'Content-Type: application/json' -u "${NEXUS_USER}:${password}" "${NEXUS_HOST}/service/rest/v1/capabilities")
-    capId=""
+    cap_entry=""
     if [[ "${status_code}" -eq 200 ]]; then
-      capId="$(jq -r --arg t "${type}" '.[] | select(.type == $t) | .id' "${out_file}" || true)"
+      cap_entry="$(jq -c --arg t "${type}" '.[] | select(.type == $t)' "${out_file}")"
     fi
-    if [[ -n "${capId}" && "${capId}" != "null" ]]; then
-      status_code="$(curl -sS -o /dev/null -w "%{http_code}" -X PUT -H 'Content-Type: application/json' -u "${NEXUS_USER}:${password}" -d "@${json_file}" "${NEXUS_HOST}/service/rest/v1/capabilities/${capId}")"
+    if [[ -n "${cap_entry}" && "${cap_entry}" != "null" ]]; then
+      # PUT requires the full server model (id + version are authoritative;
+      # the endpoint 405s on GET-by-id, so merge from the list response).
+      capId="$(jq -r '.id' <<<"${cap_entry}")"
+      payload="$(jq -c --argjson desired "$(cat "${json_file}")" '. as $cur | $desired + {id: $cur.id, version: $cur.version}' <<<"${cap_entry}")"
+      status_code="$(curl -sS -o /dev/null -w "%{http_code}" -X PUT -H 'Content-Type: application/json' -u "${NEXUS_USER}:${password}" -d "${payload}" "${NEXUS_HOST}/service/rest/v1/capabilities/${capId}")"
       if [[ "${status_code}" -ne 200 && "${status_code}" -ne 204 ]]; then
         error "Could not update capability '${type}' (status code ${status_code})."
       fi

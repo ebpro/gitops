@@ -64,7 +64,8 @@ declare -A MEMBER_ROLES=()
 declare -A MEMBER_NAMES=()
 scanned=0
 
-for entry in ${GROUP_ROLES}; do
+while IFS= read -r entry; do
+  [[ -z "${entry}" ]] && continue
   group_name="${entry%%:*}"
   role_name="${entry#*:}"
   gid="$(jq -r --arg n "${group_name}" '.[] | select(.name == $n) | .id' <<<"${groups_json}" | head -n1)"
