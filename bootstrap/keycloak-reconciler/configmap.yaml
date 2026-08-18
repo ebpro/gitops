@@ -413,6 +413,17 @@ data:
           "webOrigins": ["https://microcks.ebruno.fr", "https://*"]
         },
         {
+          "clientId": "microcks-ci",
+          "publicClient": false,
+          "standardFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "serviceAccountsEnabled": true,
+          "redirectUris": [],
+          "webOrigins": ["none"],
+          "defaultClientScopes": ["web-origins", "service_account", "acr", "roles", "profile", "groups"],
+          "vaultSecretKey": "clientSecretMicrocksCi"
+        },
+        {
           "clientId": "plane",
           "publicClient": false,
           "standardFlowEnabled": true,

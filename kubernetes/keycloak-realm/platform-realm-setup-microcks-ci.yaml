@@ -1,0 +1,129 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-realm-microcks-ci-setup-20260818
+  namespace: keycloak
+  annotations: {}
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: kcadm-setup
+          image: quay.io/keycloak/keycloak:26.7.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              KCADM=/opt/keycloak/bin/kcadm.sh
+              KC_SERVER=http://keycloak-http.keycloak.svc.cluster.local:80
+              KCHOST=keycloak-http.keycloak.svc.cluster.local
+              KCPORT=80
+              REALM="platform"
+
+              echo "=== microcks-ci service account role setup ==="
+
+              # --- Login (with retry, same pattern as platform realm setup job) ---
+              LOGIN_RETRIES=15
+              for attempt in $(seq 1 $LOGIN_RETRIES); do
+                printf "  Login attempt %d/%d... " "$attempt" "$LOGIN_RETRIES"
+                if "$KCADM" config credentials \
+                  --server "$KC_SERVER" \
+                  --realm master \
+                  --user admin \
+                  --password "$KEYCLOAK_ADMIN_PASSWORD" 2>/dev/null; then
+                  echo "OK"
+                  break
+                fi
+                if [ "$attempt" -eq "$LOGIN_RETRIES" ]; then
+                  echo "FATAL: Authentication failed after $LOGIN_RETRIES attempts"
+                  exit 1
+                fi
+                echo "retrying..."
+                sleep 10
+              done
+
+              ADMIN_TOKEN=$(grep -oP '"token"\s*:\s*"\K[^"]+' /opt/keycloak/.keycloak/kcadm.config 2>/dev/null || true)
+              if [ -z "$ADMIN_TOKEN" ]; then
+                echo "FATAL: Could not extract admin token from kcadm session"
+                exit 1
+              fi
+
+              # --- Minimal HTTP PUT (empty body) via /dev/tcp ---
+              http_put() {
+                local path="$1"
+                { exec 5<>/dev/tcp/$KCHOST/$KCPORT; \
+                  printf "PUT %s HTTP/1.1\r\n" "$path" >&5; \
+                  printf "Host: %s\r\n" "$KCHOST" >&5; \
+                  printf "Authorization: Bearer %s\r\n" "$ADMIN_TOKEN" >&5; \
+                  printf "Content-Length: 0\r\n" >&5; \
+                  printf "Connection: close\r\n" >&5; \
+                  printf "\r\n" >&5; \
+                  head -1 <&5; \
+                  exec 5>&-; \
+                  } 2>/dev/null || echo "CONN_FAILED"
+              }
+
+              id_of() { grep -oP '"id"\s*:\s*"\K[^"]+' | head -1; }
+
+              # --- Wait for microcks-ci client (created by keycloak-reconciler cron) ---
+              CI_UUID=""
+              for attempt in $(seq 1 20); do
+                CI_UUID=$("$KCADM" get clients -r "$REALM" -q clientId=microcks-ci 2>/dev/null | id_of || true)
+                if [ -n "$CI_UUID" ]; then
+                  echo "  microcks-ci client found (uuid=${CI_UUID:0:8}...)"
+                  break
+                fi
+                if [ "$attempt" -eq 20 ]; then
+                  echo "FATAL: microcks-ci client not found after 5m (was the reconciler spec pushed?)"
+                  exit 1
+                fi
+                sleep 15
+              done
+
+              SVC_USER=$("$KCADM" get users -r "$REALM" -q username=service-account-microcks-ci 2>/dev/null | id_of || true)
+              if [ -z "$SVC_USER" ]; then
+                echo "FATAL: service-account-microcks-ci user not found (serviceAccountsEnabled not effective?)"
+                exit 1
+              fi
+              echo "  service account user found (uuid=${SVC_USER:0:8}...)"
+
+              APP_UUID=$("$KCADM" get clients -r "$REALM" -q clientId=microcks-app 2>/dev/null | id_of || true)
+              if [ -z "$APP_UUID" ]; then
+                echo "FATAL: microcks-app client not found"
+                exit 1
+              fi
+              echo "  microcks-app client found (uuid=${APP_UUID:0:8}...)"
+
+              # --- Assign microcks-app:admin client role to the service account user ---
+              STATUS=$(http_put "/admin/realms/$REALM/clients/$APP_UUID/roles/admin/users/$SVC_USER")
+              echo "  role mapping PUT -> $STATUS"
+              if ! echo "$STATUS" | grep -qE '^HTTP/1\.1 (200|204)'; then
+                echo "FATAL: role mapping failed"
+                exit 1
+              fi
+
+              # --- Verify ---
+              MAPS=$("$KCADM" get "users/$SVC_USER/role-mappings/clients/$APP_UUID" -r "$REALM" 2>/dev/null || true)
+              echo "$MAPS" | grep -q '"admin"' && echo "  [OK] service-account-microcks-ci -> microcks-app:admin verified" || {
+                echo "FATAL: mapping not visible after PUT"
+                echo "$MAPS"
+                exit 1
+              }
+
+              echo "=== microcks-ci role setup complete ==="
+          env:
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: adminPassword
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
