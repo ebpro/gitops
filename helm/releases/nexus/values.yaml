@@ -147,7 +147,22 @@ config:
     roles:
       - nx-anonymous
   realms:
-    enabled: false
+    # RUT first, then the default realm as local fallback: RUT covers
+    # Keycloak SSO (Gap-Auth), NexusAuthenticatingRealm keeps local
+    # Basic auth alive (break-glass admin + CI machine accounts).
+    enabled: true
+    values:
+      - rutauth-realm
+      - NexusAuthenticatingRealm
+  capabilities:
+    # Resource User Token: authenticates by userId only (no header trust
+    # from the network - oauth2-proxy rewrites Gap-Auth at the ingress).
+    # Payload shape verified via live POST /capabilities on 3.95.1.
+    - type: rutauth
+      enabled: true
+      notes: Keycloak SSO via Resource User Tokens (oauth2-proxy emits Gap-Auth)
+      properties:
+        httpHeader: Gap-Auth
   ldap:
     enabled: false
   repoCredentials:
@@ -164,11 +179,74 @@ config:
         - BROWSE
       format: maven2
       repository: maven-public
-  # NOTE: no role entries - the built-in nx-anonymous role is internal/readOnly
-  # in 3.95 (PUT 400s) and already grants nx-repository-view-*-*-browse plus
-  # read/search to the anonymous user, which covers the maven-public intent.
-  roles: []
-  users: []
+  # NOTE: no role entries reference nx-anonymous - the built-in role is
+  # internal/readOnly in 3.95 (PUT 400s) and already grants
+  # nx-repository-view-*-*-browse plus read/search to the anonymous user,
+  # which covers the maven-public intent.
+  #
+  # Local roles backing the Keycloak group mapping (applied idempotently by
+  # scripts/sso-sync.sh, which mirrors realm group membership onto users):
+  #   platform-admins    -> nx-admin (built-in, never defined here)
+  #   platform-engineers -> nexus-engineers (deploy)
+  #   developers         -> nexus-developers (read/browse)
+  #   readonly           -> (unmapped, nx-anonymous covers it)
+  roles:
+    - id: nexus-engineers
+      source: default
+      name: nexus-engineers
+      description: Build/CI accounts - deploy to hosted maven/nuget repositories
+      privileges:
+        - nx-search-read
+        - nx-repository-view-*-*-read
+        - nx-repository-view-*-*-browse
+        - nx-repository-view-maven2-maven-releases-edit
+        - nx-repository-view-maven2-maven-snapshots-edit
+        - nx-repository-view-nuget-nuget-hosted-edit
+        - nx-repository-admin-*-*-read
+        - nx-repository-admin-*-*-browse
+        - nx-repository-admin-*-*-edit
+        - nx-repository-admin-*-*-add
+      roles: []
+    - id: nexus-developers
+      source: default
+      name: nexus-developers
+      description: Developer accounts - read and browse hosted repositories
+      privileges:
+        - nx-search-read
+        - nx-repository-view-*-*-read
+        - nx-repository-view-*-*-browse
+      roles: []
+  # Machine accounts for CI (Woodpecker / gitops-bot). userIds reuse the
+  # Keycloak user emails so the RUT Gap-Auth (email) resolves to the same
+  # local account used for in-cluster Basic auth (deploys bypass the proxy).
+  # Passwords come from Vault via the nexus-ci-credentials ExternalSecret -
+  # never stored in git, never touched by sso-sync (protected from prune).
+  users:
+    - userId: ci-runner@gitops.lan
+      firstName: CI
+      lastName: Runner
+      emailAddress: ci-runner@gitops.lan
+      source: default
+      status: active
+      roles:
+        - nexus-developers
+        - nexus-engineers
+      password:
+        secret: nexus-ci-credentials
+        key: ci-runner
+        volume: user-ci-runner-gitops-lan
+    - userId: gitops-bot@platform.local
+      firstName: GitOps
+      lastName: User
+      emailAddress: gitops-bot@platform.local
+      source: default
+      status: active
+      roles:
+        - nexus-engineers
+      password:
+        secret: nexus-ci-credentials
+        key: gitops-user
+        volume: user-gitops-bot-platform-local
   blobStores: []
   cleanup: []
   repos:
@@ -258,6 +336,37 @@ tailLogs:
 rootPassword:
   secret: nexus-root-password
   key: password
+
+# Keycloak -> Nexus membership sync (CronJob, templates/cronjob-sso-sync.yaml).
+# Mirrors realm group membership into local Nexus users/roles every 15 min:
+# create/update the users of mapped groups, prune local users that have
+# left every mapped group (protectedUsers are exempt and keep their roles).
+# Passwords are never written by this sync - machine accounts are created
+# once by the config Job with Vault-backed secrets, human accounts get a
+# random local password (they log in via RUT only).
+ssoSync:
+  enabled: true
+  schedule: "*/15 * * * *"
+  keycloakUrl: http://keycloak-http.keycloak.svc.cluster.local:80
+  keycloakRealm: platform
+  groups:
+    - group: platform-admins
+      role: nx-admin
+    - group: platform-engineers
+      role: nexus-engineers
+    - group: developers
+      role: nexus-developers
+  protectedUsers:
+    - admin
+    - anonymous
+    - ci-runner@gitops.lan
+    - gitops-bot@platform.local
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
 
 commonLabels: {}
 

@@ -13,6 +13,10 @@ data:
   realms.json: |
     {{- .Values.config.realms.values | toJson | nindent 4 }}
 {{- end }}
+{{- range $index, $capability := .Values.config.capabilities }}
+  {{ $index | add 1000 | toString | substr 1 -1 }}-capability.json: |
+    {{- $capability | toJson | nindent 4 }}
+{{- end }}
   nx-metrics-role.json: |
     {"id":"nx-metrics","source":"default","name":"nx-metrics","description":"Metrics Role","privileges":["nx-metrics-all"],"roles":[]}
 {{- range $index, $role := .Values.config.roles }}

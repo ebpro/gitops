@@ -58,6 +58,35 @@ else
   echo "EULA already accepted."
 fi
 
+# Capabilities must be configured before realms: enabling the rutauth
+# capability auto-adds its realm, which realms.json then references.
+echo "Configuring capabilities..."
+for json_file in "${CONFIG_DIR}"/conf/*-capability.json; do
+  if [[ -f "${json_file}" ]]; then
+    type="$(jq -r '.type' "${json_file}")"
+
+    out_file="$(mktemp -p "${tmp_dir}")"
+    status_code=$(curl -sS -o "${out_file}" -w "%{http_code}" -X GET -H 'Content-Type: application/json' -u "${NEXUS_USER}:${password}" "${NEXUS_HOST}/service/rest/v1/capabilities")
+    capId=""
+    if [[ "${status_code}" -eq 200 ]]; then
+      capId="$(jq -r --arg t "${type}" '.[] | select(.type == $t) | .id' "${out_file}" || true)"
+    fi
+    if [[ -n "${capId}" && "${capId}" != "null" ]]; then
+      status_code="$(curl -sS -o /dev/null -w "%{http_code}" -X PUT -H 'Content-Type: application/json' -u "${NEXUS_USER}:${password}" -d "@${json_file}" "${NEXUS_HOST}/service/rest/v1/capabilities/${capId}")"
+      if [[ "${status_code}" -ne 200 && "${status_code}" -ne 204 ]]; then
+        error "Could not update capability '${type}' (status code ${status_code})."
+      fi
+    else
+      status_code="$(curl -sS -o /dev/null -w "%{http_code}" -X POST -H 'Content-Type: application/json' -u "${NEXUS_USER}:${password}" -d "@${json_file}" "${NEXUS_HOST}/service/rest/v1/capabilities")"
+      if [[ "${status_code}" -ne 200 && "${status_code}" -ne 201 ]]; then
+        error "Could not create capability '${type}' (status code ${status_code})."
+      fi
+    fi
+
+    echo "Capability '${type}' configured."
+  fi
+done
+
 json_file="${CONFIG_DIR}/conf/realms.json"
 if [[ -f "${json_file}" ]]; then
   echo "Configuring realms..."

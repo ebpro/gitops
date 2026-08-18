@@ -94,7 +94,7 @@ spec:
           {{- range .Values.config.users }}
           {{- if dig "password" "secret" nil . }}
             - mountPath: {{ printf "/opt/sonatype/nexus/config/secret/user-%s.password" .userId }}
-              name: {{ printf "user-%s" .userId }}
+              name: {{ default (printf "user-%s" .userId) .password.volume }}
               subPath: {{ default "password" .password.key }}
           {{- end }}
           {{- end }}
@@ -143,7 +143,7 @@ spec:
       {{- end }}
       {{- range .Values.config.users }}
       {{- if dig "password" "secret" nil . }}
-        - name: {{ printf "user-%s" .userId }}
+        - name: {{ default (printf "user-%s" .userId) .password.volume }}
           secret:
             secretName: {{ .password.secret }}
       {{- end }}

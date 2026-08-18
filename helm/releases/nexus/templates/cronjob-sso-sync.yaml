@@ -1,0 +1,76 @@
+{{- if and .Values.ssoSync.enabled .Values.config.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "nexus3.fullname" . }}-sso-sync
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nexus3.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.ssoSync.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            {{- include "nexus3.labels" . | nindent 12 }}
+        spec:
+          restartPolicy: Never
+          serviceAccountName: {{ include "nexus3.serviceAccountName" . }}
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: sso-sync
+              image: {{ include "nexus3.image" .Values.config.job.image }}
+              imagePullPolicy: {{ .Values.config.job.image.pullPolicy }}
+              command:
+                - /bin/sh
+                - -c
+              args:
+                - apk update && apk add --no-cache --quiet bash jq curl && exec bash /scripts/sso-sync.sh
+              env:
+                - name: NEXUS_HOST
+                  value: http://{{ include "nexus3.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+                - name: NEXUS_USER
+                  value: admin
+                - name: NEXUS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.rootPassword.secret }}
+                      key: {{ .Values.rootPassword.key }}
+                - name: KEYCLOAK_URL
+                  value: {{ .Values.ssoSync.keycloakUrl }}
+                - name: KEYCLOAK_REALM
+                  value: {{ .Values.ssoSync.keycloakRealm }}
+                - name: KEYCLOAK_ADMIN_USER
+                  value: admin
+                - name: KEYCLOAK_ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: keycloak-admin-creds
+                      key: adminPassword
+                - name: GROUP_ROLES
+                  value: {{ range .Values.ssoSync.groups }}{{ .group }}:{{ .role }};{{ end }}
+                - name: PROTECTED_USERS
+                  value: {{ .Values.ssoSync.protectedUsers | join "," }}
+              volumeMounts:
+                - name: conf-scripts
+                  mountPath: /scripts
+              resources:
+                {{- toYaml .Values.ssoSync.resources | nindent 16 }}
+          volumes:
+            - name: conf-scripts
+              configMap:
+                name: {{ include "nexus3.configScriptsConfigMapName" . }}
+                defaultMode: 0555
+{{- end }}
