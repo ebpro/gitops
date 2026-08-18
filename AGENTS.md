@@ -103,7 +103,7 @@ We delegate operations to controllers (operators). Never manage `Deployment`, `S
 | Velero            | ❌ Planned  | velero                         | Backup & restore               |
 | KEDA              | ❌ Planned  | keda-system                    | Event-driven autoscaling       |
 | Descheduler       | ❌ Planned  | kubesphere                     | Pod placement optimization     |
-| Keycloak          | 🚧 Planned  | keycloak                       | Central SSO / Identity Provider |
+| Keycloak          | ✅ Deployed | keycloak                       | Central SSO / Identity Provider |
 
 ## CNPG Strategy
 **One dedicated cluster per critical app.** Isolates upgrades, tuning, and failover.
@@ -163,6 +163,10 @@ Users → Groups → Roles → Application permissions
 Groups: `platform-admins`, `platform-engineers`, `developers`, `security-team`, `qa-team`, `readonly`
 
 ### Known SSO Limitations
+
+**Keycloak 26+ user profile** — the default profile requires `firstName`/`lastName` on every user. Users without them get a pending `VERIFY_PROFILE` required action and password grants fail with `400 invalid_grant: Account is not fully set up` (code flow is unaffected). Bot users created via API must set both fields.
+
+**Keycloak realm import is `IGNORE_EXISTING`** — `kc.sh start --import-realm` only loads realms that do not exist yet (log: `KC-SERVICES0030 ... Strategy: IGNORE_EXISTING`). Rebooting the pod never re-syncs an existing realm from git; applying file changes to a live realm requires admin API/kcadm or a deliberate rebuild. The file is still fully parsed at startup, so invalid JSON always crash-loops the pod.
 
 **Woodpecker CI** does not support native OIDC. Uses Gitea OAuth (indirect chain: Woodpecker → Gitea → Keycloak).
 

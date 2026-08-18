@@ -30,12 +30,23 @@
 - Plane pods now scheduling after stuck pods cleanup (Too many pods limit no longer hit)
 - Legacy cleanup: 24 stuck pods force-deleted (backstage, ci, default, gitea, keycloak, microcks, plane), 20 old microcks-mongodb legacy RS deleted
 
+### Completed (2026-08-18)
+- Keycloak crash loop fixed (commits b34fed6, ea51148): removed invalid `subComponents`/devops import field that broke `--import-realm` JSON parsing on KC 26.7; `keycloak-0` Running, import clean.
+- `IGNORE_EXISTING` import confirmed: existing `platform` realm is skipped on startup — live realm data is never touched by re-imports; startup still parses the file, so import-validity fixes are mandatory.
+- C1 group RBAC activated live and verified end-to-end:
+  - Created missing realm roles (`platform-admin`, `platform-engineer`, `developer`, `qa-team`, `security-team`, `readonly`) and group→realm-role mappings.
+  - Created `microcks-app` client roles (`admin`, `manager`, `user`) and group→client-role mappings (platform-admins→admin, platform-engineers/developers→manager, readonly→user).
+  - Token verification: bruno → `realm_access:['platform-admin']`, `resource_access.microcks-app:['admin']`; ci-runner → `developer`+`platform-engineer`, `microcks-app:['manager']`; gitops-user → `platform-engineer`, `microcks-app:['manager']`.
+- Root-caused KC 26 "Account is not fully set up" (invalid_grant on password login): default user profile requires `firstName`/`lastName`; missing values trigger `VERIFY_PROFILE`. Fixed `ci-runner`/`gitops-user` live and in the realm file (commit aa09067).
+- Setup job `keycloak-platform-realm-setup-20260818` completed (passwords + groups). GitOps source of truth (`platform-realm-configmap.yaml`) is now complete for future rebuilds: realm roles, client roles (`roles.client` map), groups with mappings, user names.
+- Devops realm confirmed absent from live Keycloak (404); Nexus/SonarQube auth is via Traefik ForwardAuth, unaffected. Devops realm/SAML assets are dormant (orphan `devops-realm` CM in keycloak ns).
+
 ### In Progress
-- Helm values: `helm/releases/microcks/values.yaml` still has hardcoded MongoDB admin credentials — should be replaced with Vault-backed ExternalSecret once `secret/data/microcks` path created
-- old pod 54445cb879 is the current active RS for microcks (should rollback once MongoDB secret synced)
+- Microcks MongoDB H3: staged image upgrade 4.4.29 → 5.0 → 6.0 → 7.0 via `mongodb.image.tag` + `?v` bump per step (pending)
+- Microcks M1: document Vault 1h token refresh vs long-lived MongoDB user (rotation requires one-off `alterUser`) — report-only
 
 ### Blocked
-- Keycloak service: HTTPS via Traefik unreachable internally (realm signing cert needs manual fetch for SonarQube SAML)
+- (none)
 
 ## Key Decisions
 - Vault KV v2 base path is `secret` → ExternalSecret `key` only needs `keycloak` (not `secret/data/keycloak`).
