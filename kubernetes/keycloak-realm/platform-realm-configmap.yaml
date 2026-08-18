@@ -1287,7 +1287,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "tZsTeHhDFfJUsaUDsBDt85IVL2u8eVLYAMHBVAcV5GyoZPTv2LbY7NamsShjrT70Uh3oanKCDTx3fonl5Y7zXM"
         },
         {
           "clientId": "microcks-app-js",
