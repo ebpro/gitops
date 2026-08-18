@@ -617,7 +617,7 @@ data:
         },
         {
           "username": "ci-runner",
-          "email": "ci-runner@ebruno.fr",
+          "email": "ci-runner@gitops.lan",
           "emailVerified": true,
           "enabled": true,
           "totp": false,
@@ -648,7 +648,7 @@ data:
         },
         {
           "username": "gitops-user",
-          "email": "gitops-user@ebruno.fr",
+          "email": "gitops-bot@platform.local",
           "emailVerified": true,
           "enabled": true,
           "totp": false,
@@ -694,7 +694,8 @@ data:
           "alwaysDisplayInConsole": false,
           "clientAuthenticatorType": "client-secret",
           "redirectUris": [
-            "/realms/platform/account/*"
+            "/realms/platform/account/*",
+            "/realms/master/account/*"
           ],
           "webOrigins": [],
           "notBefore": 0,
@@ -740,7 +741,8 @@ data:
           "alwaysDisplayInConsole": false,
           "clientAuthenticatorType": "client-secret",
           "redirectUris": [
-            "/realms/platform/account/*"
+            "/realms/platform/account/*",
+            "/realms/master/account/*"
           ],
           "webOrigins": [],
           "notBefore": 0,
@@ -870,7 +872,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "p1Dej1lAXISNK0iqkLtNPsVU3LoKRMQfLmGRkwp7hXwZn1yyTVM6zXf0cuTOmBSkdASGGN5Gw5TIARVCGkTWjp"
         },
         {
           "clientId": "backstage",
@@ -915,7 +918,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "7gt2Ike3xlUMnYXJ0hrA558LlTzCdcjfbBR8jhZNpZyTRfPi2q4jmApzmpKDSl3QpmYNLZGsVC8pUlSWa0tRL5"
         },
         {
           "clientId": "broker",
@@ -1001,7 +1005,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "Y0u2Al0rlSEv0JfkDR9TNgmRXywaO7Woaxh0ctnErCs4Dl5M7rWFDZF3omTw5WN80jQ9SEaalbFYhJnugKAwSb"
         },
         {
           "clientId": "grafana",
@@ -1045,7 +1050,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "CX3LfbU2fgCnfgnhTezAhrXxyTsIcv5hGbjdTmf4AKyVSVAUNHPqgiWvWH0dgQpRj2XY9VMjOqVDL7D2FytjTr"
         },
         {
           "clientId": "harbor",
@@ -1089,7 +1095,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "IjuYTYj6UwcW3NSDx7mMiBJLPnlNlXH69AuKMDt0ZFkWwGdIwIfYU5EddnVyDlPB9EogikK4l9wWustDZEQkcm"
         },
         {
           "clientId": "woodpecker",
@@ -1134,7 +1141,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "hqcZP9wOat7gsILAdeU7g6tkUMaBQ9OSjItIr7uLc5s2L4VkiqJoPIYTE9rvHSX0it4qpLmmfPkK8LBQAZci8p"
         },
         {
           "clientId": "microcks",
@@ -1178,7 +1186,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "oM4utJpLQ3LfEYfXaOngPOSmbflNv77UzhVVbj7bNROPoXu00Nx25yPbfFAjrgSo6eftwV2SQQh3ruRtLHhRUr"
         },
         {
           "clientId": "microcks-app",
@@ -1227,7 +1236,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "bR2pnrJfkcFRinTQ0cCdX3iBaUw1SMcJrSABhWYeMQ17mhE98y2iQ2rizSpXqDutTir52NLSy66JdXccT1pecy"
         },
         {
           "clientId": "microcks-app-js",
@@ -1282,7 +1292,12 @@ data:
           "alwaysDisplayInConsole": false,
           "clientAuthenticatorType": "client-secret",
           "redirectUris": [
-            "https://plane.ebruno.fr/*"
+            "https://plane.ebruno.fr/*",
+            "https://plane.ebruno.fr/oauth2/callback",
+            "https://plane.ebruno.fr/auth/complete/oidc/",
+            "http://plane.ebruno.fr/*",
+            "https://plane.ebruno.fr/auth/oidc/callback",
+            "https://plane.ebruno.fr/api/auth/callback/oidc"
           ],
           "webOrigins": [
             "*"
@@ -1317,7 +1332,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "zTYEoaOAw6MaGAMcAQkfcbxygllzaMXmmPjt2CbMI0oVJxaNZP2u9HghXdRUauwv56ec1HVgAbkdSbeoSTyaQ1"
         },
         {
           "clientId": "proxy",
@@ -1365,7 +1381,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "AhH5tr3y0XDlNp9ZeU9vRHeR0l6ljTU2VVb2LJFYadDogtQyqSmeTD0BKg1Mk1XppvcJOZc3InhnqMPTIoCCop"
         },
         {
           "clientId": "realm-management",
@@ -1418,7 +1435,8 @@ data:
           "alwaysDisplayInConsole": false,
           "clientAuthenticatorType": "client-secret",
           "redirectUris": [
-            "/admin/platform/console/*"
+            "/admin/platform/console/*",
+            "/admin/master/console/*"
           ],
           "webOrigins": [
             "+"
@@ -1594,7 +1612,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "J7plVgIQ0IGEFWDGbmGfBJluFp4gGTqDSGt4KUJcV5piAQLfzJnSTORCUhWC0ynnOJcCEQUfrCe1h0QlYOdJcQ"
         },
         {
           "clientId": "vault",
@@ -1638,7 +1657,8 @@ data:
             "offline_access",
             "organization",
             "microprofile-jwt"
-          ]
+          ],
+          "secret": "ljQHijUru8BrOd5T6Ru6SAe3pDI267ecmjn097tMj8tMP8ljatG1xxarJSAjk5YM85VgrkhoqW7hIm3qHWslx5"
         }
       ],
       "clientScopes": [
@@ -2407,28 +2427,24 @@ data:
             "name": "Consent Required",
             "providerId": "consent-required",
             "subType": "anonymous",
-            "subComponents": {},
             "config": {}
           },
           {
             "name": "Allowed Registration Web Origins",
             "providerId": "registration-web-origins",
             "subType": "anonymous",
-            "subComponents": {},
             "config": {}
           },
           {
             "name": "Full Scope Disabled",
             "providerId": "scope",
             "subType": "anonymous",
-            "subComponents": {},
             "config": {}
           },
           {
             "name": "Allowed Protocol Mapper Types",
             "providerId": "allowed-protocol-mappers",
             "subType": "authenticated",
-            "subComponents": {},
             "config": {
               "allowed-protocol-mapper-types": [
                 "oidc-address-mapper",
@@ -2446,14 +2462,12 @@ data:
             "name": "Allowed Registration Web Origins",
             "providerId": "registration-web-origins",
             "subType": "authenticated",
-            "subComponents": {},
             "config": {}
           },
           {
             "name": "Allowed Client Scopes",
             "providerId": "allowed-client-templates",
             "subType": "authenticated",
-            "subComponents": {},
             "config": {
               "allow-default-scopes": [
                 "true"
@@ -2464,7 +2478,6 @@ data:
             "name": "Trusted Hosts",
             "providerId": "trusted-hosts",
             "subType": "anonymous",
-            "subComponents": {},
             "config": {
               "host-sending-registration-request-must-match": [
                 "true"
@@ -2478,7 +2491,6 @@ data:
             "name": "Allowed Protocol Mapper Types",
             "providerId": "allowed-protocol-mappers",
             "subType": "anonymous",
-            "subComponents": {},
             "config": {
               "allowed-protocol-mapper-types": [
                 "saml-user-attribute-mapper",
@@ -2496,7 +2508,6 @@ data:
             "name": "Max Clients Limit",
             "providerId": "max-clients",
             "subType": "anonymous",
-            "subComponents": {},
             "config": {
               "max-clients": [
                 "200"
@@ -2507,7 +2518,6 @@ data:
             "name": "Allowed Client Scopes",
             "providerId": "allowed-client-templates",
             "subType": "anonymous",
-            "subComponents": {},
             "config": {
               "allow-default-scopes": [
                 "true"
@@ -2519,7 +2529,6 @@ data:
           {
             "name": "rsa-generated",
             "providerId": "rsa-generated",
-            "subComponents": {},
             "config": {
               "privateKey": [
                 "MIIEowIBAAKCAQEAqqeqkYTlzwo4JnceDypPIT2dwoB7geW7SGrW+Nos6qHySnzWKJ1BqKZwFYXFUyPU4s/GF1MectQfZudaJIEs8QRiTPTfLpDFORQdRN+xKgb6OmiaQPfhw+voXUNL70qzMyig4AdndFHGwtnczTC9pKyLJF6Th8jVRlsJEwZ7i9jTBMgG+f76iAblbiIiHJXpfr4E7vcMcZ3OvM5Yv6Hdb3b5F8vRLvehSnWONzhD90dhK/o2JoOltrnZqlyj3DGQDTwjqXcLpEzSww4lt/VvRZiacq+HMB2MCUov+3qDpuB197UKkcaBZwdsuVGIpLesrfCGBt6mbXuB+q920WrtqQIDAQABAoIBAAOXQZSMSlWf7myIxx4kksOtSzuDfpXOIrG0Zc+Yr6dEPxfoJo12OaJ11hft16gXMeyP2Kg2/IYIBp0gsxnfifWMVREved699xhrXu5LEqxCt1MxTkWdsadwuFP2DYv8c2bZLQFpxniBHACPmwDKTMNBSjA6uTn7NNmlIry+vyzDG1kaaDP3Amq+kMd38nx3cRlCNnYaYHwQewx5c7Q+KjdoWrpKWjGVKe+tOnE+YKZBfoT11sKBfcqystqsBpbTX0n0ML/7Aejjb1RjmQeYOIwiNBWIfuk+ILglviDv9yDP5e2TnwmVqTRZ0dUQdqn3YEwbJ5g0N2hr2or1IR5oc/0CgYEA7AqeZkQkmeIyBfc+9eT3PykWbUF1YGpHP8Q481v5shErG+q+P4dhPZGWz4QIzV56Sy+xFJIoKgVm/rYwDB2U3yrRuKUBCSkvktCbl5HaGpuzyUr7liNq8vnJGFBa74FdQI2TsI0znJ6N2iEcskkB30wXROmBI5COddP2QE+YP0cCgYEAuRWu3JqGNf7xXVK88F0h/qvrluBnBCBn/OEZijP4pxXKQsm4RP8k3bfpTe2Cpo9+C1HMzZr+a+DBxDyYxf84+uUcgOQ0UBk3kgiNZUWejZcBLgZdiSOGPI9TX5I62xpef/RU2JZbzBcuuZnSf2Xpu6gfe4Z5Pm2tkIyEGu6wQ48CgYBAeSINEv3gXo2FXaR/69uxD9sFWsTh4gW2IDXiGzRX9CKPTI5MsgDYnWTRJ+JzniPPV6aJ1OZNnA4m8sKq/IWGc563TbK7utk4w+xL+VXWwMLZ77ZKqz/yQFIyZvh/xRkgocs+hUMcu55Jf5PkCtcNFC6i7xkMCtcuzgfMRzFxzwKBgFRhFEUylXlMb1FyhPy4GOV4D4HLcGurMn1RSkl9hCD4iCuGt2GNSItkaxLB80xoIriaZFpgDRm1b+E9FxE9WAbaKPKCF29k77a9+2huIui+LSWEdWQuM+asGQB7NCXrkaWYCI5tjhAviXfILvUxyytobGHuXpwdeIFr7lYw9171AoGBAJQCJwfQUZTNnEjpad/CyQZL/UiVsxyulRyGxV+NHXtHSIUbw9P/08+iRLO/kTL4vm4SaLu3nSIV5ZMBaH+UPYyoMC89DDv54QHmgjRnq2rBcvGXEMlCSYVEbbQCh1sTnUsgcfpEqmwgL97o8qi6ZnnSvr+Aw+fnXBttTOVZkuTk"
@@ -2538,7 +2547,6 @@ data:
           {
             "name": "aes-generated",
             "providerId": "aes-generated",
-            "subComponents": {},
             "config": {
               "kid": [
                 "25e2d475-5c94-4bf5-b766-9541f7935978"
@@ -2554,7 +2562,6 @@ data:
           {
             "name": "hmac-generated-hs512",
             "providerId": "hmac-generated",
-            "subComponents": {},
             "config": {
               "kid": [
                 "d94dd0ad-548d-4131-9212-1055ae326638"
@@ -2573,7 +2580,6 @@ data:
           {
             "name": "rsa-enc-generated",
             "providerId": "rsa-enc-generated",
-            "subComponents": {},
             "config": {
               "privateKey": [
                 "MIIEowIBAAKCAQEA0jUMFQ6gjuANZRqvvEmlFXxED70lX0betWHOZ/z/r2reKqvFIfpVG5l8z5heerDFG8QnilXH9Ym6imTE1SMctGZI4j02djln18Cls6TqFmmY8wMmMHfUEo0t90tQL0igwEJv/2S4qCYQ7/gssk8ExRZiN9g3JFecfoUfMcyli/rtC4choCY0YAhWKBkbCFyoTTnsnwY3sVGZO6QinsnAj+c6HQ4rsqhFd5qK8S7ATyygB9XfOSlinvNN1N3Bv92D2zotzoM78Rrg2jJUd4aQqga7iFMiDjWS0wWda+fiS2N3p1Mvr3zXrVlUcHND9Olv+CdZN2c76tXkxt/8st8gMQIDAQABAoIBACuD/cdSKtzI9xzqBF1HJZyoB/L2JgluQ2ZrI+6VCl1HE0zkGEArcXjwMk1LbquZcoSH++OAVI+4/lvt9m1lAmk6D3Z+U4rv4VZhtCvXRPp0y8vq5/n6pHVesphSB/xx3Y1Pc538PNnaX4E98ArNnuAp/RUwdmHYnTX32vhVNCQg4n3g5XjnRWNr+1OTgFFIbCBJ5dLxxwGNBZfIeS1bQXMl5dneVtBXEqSiCqa96lypaYoPmq1+aozye0UAor7xqvqW+Yv5xYLrZVN2l0yAc/W3whi2nXgXY7rGoOJ8+lzFsCHbQpkfvVHDg3OfQLlfXLiDv6Zbt+GnGTZoXwgfpZECgYEA/vuqQ/wAWUPhFhcA0jGCmqhNlzHYHbQgHq43Q5sRC/Kh8RfIGf12La8m0atsph4OYei2SOSojrFH4uJWUB/k4bUWw8hD7KcJ7C+k2eIkrFFrzGUlcW6ir2Gb6Di/rgjB3LUOb6BzNdC2dzHzf/B4zRTy/zokgVtwcFS54FfwX80CgYEA0wuqnDTJOI5+kDaNv35cDh8VKi5Ve5MvWAGj4D6HbCrcA2qF2nu9ob38S2G2O0ca6vl1IHOd8T6Uo27Xh6wT2Cq+SnnQ28IiKO/Xo8YDZ5Q3/KhmunqJNj0LN3ismBVrYGwegy3YR9iByEJHTVr0RFEcAcrHPlFMOqiTaZP2NfUCgYBl7Yh0wMoK5P2XbP6hB7WjyV+q7vvrc9PbL91boyM/WXCvBcixywZw4LFt4079YMpzDSnBHdbbo7aO1deXFAjUySUegnHUqjlnNux5RNNQJwQmotBC9e0GmshOHlFRaqLEbYQlz0f+3T3zi/5AyIohwRwaNs3dAAaEgPoE2mJ2iQKBgC1P6O6m6rko5wWhoOeHgs5JYCrxTcs9e8HCgGPqKPtRbHGTUm/pd3qdpuisbwrlJmNi8gHosPWWASXh64amrJASBU9KPkygruLpM/xmzF5V1Xt60KujGYi6rIjZcP0qRCassBRsKG6sjpjnmhWCvMVaQNAlsIexvtMtVJErgoZtAoGBAJfQVKvU+hMm3O8oyG0BQbp2kmxH6pErAXrtPlzujfISF2y8NFQTl5Jh0WEw0CiJsJWTdRK6PW86th2o/jUKdaB0JJ1fC9smQcmFtwgLStI311LnILtidu+8WT+LajMZFVfb1ySxhFO8M2EIWtwIaH/fAJwLxhRa16p9/f/X7O6b"
@@ -3427,5 +3433,3 @@ data:
         "policies": []
       }
     }
-
-# Auto-trigger ArgoCD re-sync 2026-07-27

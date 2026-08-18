@@ -108,7 +108,7 @@ tolerations: []
 podLabels: {}
 
 podAnnotations:
-  secret/restartedAt: "2026-08-18T07:50:00Z"
+  secret/restartedAt: "2026-08-18T08:58:00Z"
   instrumentation.opentelemetry.io/inject-java: "true"
   prometheus.io/scrape: "true"
   prometheus.io/port: "9000"
@@ -155,17 +155,11 @@ extraVolumes: |
   - name: realm-import
     configMap:
       name: platform-realm
-  - name: devops-realm-import
-    configMap:
-      name: devops-realm
 
 extraVolumeMounts: |
   - name: realm-import
     mountPath: /opt/keycloak/data/import/platform.json
     subPath: platform.json
-  - name: devops-realm-import
-    mountPath: /opt/keycloak/data/import/devops.json
-    subPath: devops.json
 
 extraPorts: []
 

@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-platform-realm-setup
+  name: keycloak-platform-realm-setup-20260818
   namespace: keycloak
   annotations: {}
 spec:
@@ -107,6 +107,19 @@ spec:
               echo "  Assigning to /platform-engineers..."
               add_to_group "platform-engineers" "$UID_CI"
 
+              # --- User: gitops-user ---
+              echo "Setting up user gitops-user..."
+              UID_GITOPS=$("$KCADM" get users -r "$REALM" -q username=gitops-user 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
+              if [ -z "$UID_GITOPS" ]; then
+                echo "  Creating user gitops-user..."
+                "$KCADM" create users -r "$REALM" -s username=gitops-user -s enabled=true -s emailVerified=true -s email=gitops-bot@platform.local
+                UID_GITOPS=$("$KCADM" get users -r "$REALM" -q username=gitops-user 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1)
+              fi
+              echo "  Setting password..."
+              "$KCADM" set-password --username gitops-user --new-password "$GITOPS_USER_PASSWORD" -r "$REALM"
+              echo "  Assigning to /platform-engineers..."
+              add_to_group "platform-engineers" "$UID_GITOPS"
+
               echo "=== Platform realm setup complete ==="
           env:
             - name: KEYCLOAK_ADMIN_PASSWORD
@@ -124,6 +137,11 @@ spec:
                 secretKeyRef:
                   name: keycloak-secrets
                   key: userPasswordCiRunner
+            - name: GITOPS_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: gitopsUserPassword
           resources:
             requests:
               cpu: 100m
