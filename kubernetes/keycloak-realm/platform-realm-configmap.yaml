@@ -338,7 +338,32 @@ data:
               "attributes": {}
             }
           ],
-          "microcks-app": [],
+          "microcks-app": [
+            {
+              "name": "admin",
+              "description": "Microcks global administrator",
+              "composite": false,
+              "clientRole": true,
+              "containerId": "microcks-app",
+              "attributes": {}
+            },
+            {
+              "name": "manager",
+              "description": "Microcks service manager (create/edit services, run jobs)",
+              "composite": false,
+              "clientRole": true,
+              "containerId": "microcks-app",
+              "attributes": {}
+            },
+            {
+              "name": "user",
+              "description": "Microcks user (view services, run API tests)",
+              "composite": false,
+              "clientRole": true,
+              "containerId": "microcks-app",
+              "attributes": {}
+            }
+          ],
           "security-admin-console": [],
           "argocd": [],
           "harbor": [],
@@ -469,7 +494,11 @@ data:
           "realmRoles": [
             "developer"
           ],
-          "clientRoles": {}
+          "clientRoles": {
+            "microcks-app": [
+              "manager"
+            ]
+          }
         },
         {
           "name": "platform-admins",
@@ -479,7 +508,11 @@ data:
           "realmRoles": [
             "platform-admin"
           ],
-          "clientRoles": {}
+          "clientRoles": {
+            "microcks-app": [
+              "admin"
+            ]
+          }
         },
         {
           "name": "platform-engineers",
@@ -489,7 +522,11 @@ data:
           "realmRoles": [
             "platform-engineer"
           ],
-          "clientRoles": {}
+          "clientRoles": {
+            "microcks-app": [
+              "manager"
+            ]
+          }
         },
         {
           "name": "readonly",
@@ -499,7 +536,11 @@ data:
           "realmRoles": [
             "readonly"
           ],
-          "clientRoles": {}
+          "clientRoles": {
+            "microcks-app": [
+              "user"
+            ]
+          }
         }
       ],
       "defaultRole": {
@@ -3386,4 +3427,5 @@ data:
         "policies": []
       }
     }
+
 # Auto-trigger ArgoCD re-sync 2026-07-27

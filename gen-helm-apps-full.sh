@@ -23,7 +23,6 @@ charts=(
   alloy
   garage
   harbor
-  microcks
   nexus
   nfs-client
   pact-broker

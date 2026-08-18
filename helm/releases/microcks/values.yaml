@@ -1,8 +1,6 @@
 appName: microcks
-podAnnotations:
+commonAnnotations:
   instrumentation.opentelemetry.io/inject-java: "true"
-  prometheus.io/scrape: "true"
-  prometheus.io/path: "/q/health"
 features:
   async:
     enabled: false
@@ -23,8 +21,17 @@ microcks:
   url: microcks.ebruno.fr
   grpcIngressClassName: traefik
   grpcIngressAnnotations:
+    ingress.traefik.io/router.grpc: "true"
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt-ovh
+  env:
+    - name: MANAGEMENT_SERVER_PORT
+      value: "9091"
+    - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+      value: "health,prometheus"
 mongodb:
-  existingSecret: microcks-mongodb-connection
+  secretRef:
+    secret: microcks-mongodb-connection
+    usernameKey: username
+    passwordKey: password

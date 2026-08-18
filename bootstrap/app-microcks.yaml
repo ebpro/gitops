@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: microcks
       valueFiles:
-      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/microcks/values.yaml?v=2
+      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/microcks/values.yaml?v=3
   destination:
     server: https://kubernetes.default.svc
     namespace: microcks
@@ -24,15 +24,6 @@ spec:
     name: microcks-microcks-grpc-secret
     jsonPointers:
     - /data
-  - group: ""
-    kind: Secret
-    name: microcks-mongodb-connection
-    jsonPointers:
-    - /data
-    - /metadata/annotations
-    - /metadata/ownerReferences
-    - /metadata/labels
-    - /type
   syncPolicy:
     automated:
       prune: true
