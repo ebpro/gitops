@@ -8,33 +8,14 @@ metadata:
 spec:
   project: platform
   source:
-    repoURL: https://microcks.io/helm
-    targetRevision: 1.13.2
+    repoURL: https://github.com/ebpro/gitops.git
+    path: helm/vendor
     chart: microcks
+    targetRevision: main
     helm:
       releaseName: microcks
       valueFiles:
-      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/microcks/values.yaml?v=5
-  postRender:
-    kustomize:
-      patches: |
-        - target:
-            kind: Deployment
-            name: microcks-mongodb
-          patch: |-
-            - op: replace
-              path: /spec/template/spec/containers/0/readinessProbe
-              value:
-                timeoutSeconds: 5
-                initialDelaySeconds: 3
-                periodSeconds: 10
-                failureThreshold: 3
-                exec:
-                  command:
-                    - /bin/sh
-                    - -i
-                    - -c
-                    - mongosh --quiet 127.0.0.1:27017 -u $MONGODB_USER -p $MONGODB_PASSWORD --eval "1"
+      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/microcks/values.yaml?v=6
   destination:
     server: https://kubernetes.default.svc
     namespace: microcks

@@ -1,0 +1,20 @@
+apiVersion: v2
+appVersion: 1.13.2
+description: Microcks - API Mocking and Testing
+home: https://microcks.io
+icon: https://microcks.io/images/microcks-big.png
+keywords:
+- mocks
+- microservice
+- api
+- test
+kubeVersion: '>=1.17.0-0'
+maintainers:
+- email: laurent.broudoux@gmail.com
+  name: Laurent Broudoux
+name: microcks
+sources:
+- http://github.com/microcks/microcks/
+- https://microcks.io
+type: application
+version: 1.13.2
