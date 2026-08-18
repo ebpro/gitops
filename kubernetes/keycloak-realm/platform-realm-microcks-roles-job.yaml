@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-microcks-roles-cumulative-20260818-r6
+  name: keycloak-microcks-roles-cumulative-20260818-r7
   namespace: keycloak
 spec:
   backoffLimit: 4
@@ -57,6 +57,23 @@ spec:
               fi
               printf "  admin token extracted (%d chars)\n" "${#ADMIN_TOKEN}"
 
+              # --- Re-login + re-extract token (admin token has a short lifespan;
+              #     called before the service-account grants to avoid 401) ---
+              refresh_admin_token() {
+                if "$KCADM" config credentials \
+                  --server "$KC_SERVER" \
+                  --realm master \
+                  --user admin \
+                  --password "$KEYCLOAK_ADMIN_PASSWORD" >/dev/null 2>&1; then
+                  ADMIN_TOKEN=$(grep -oP '"token"\s*:\s*"\K[^"]+' /opt/keycloak/.keycloak/kcadm.config 2>/dev/null || true)
+                  if [ -n "$ADMIN_TOKEN" ]; then
+                    echo "  admin token refreshed (${#ADMIN_TOKEN} chars)"
+                    return 0
+                  fi
+                fi
+                return 1
+              }
+
               # --- Resolve microcks-app client ---
               APP_UUID=$("$KCADM" get clients -r "$REALM" -q clientId=microcks-app 2>/dev/null | id_of || true)
               if [ -z "$APP_UUID" ]; then
@@ -109,7 +126,7 @@ spec:
                 payload='[{"id":"'"$rid"'","name":"'"$rname"'","clientRole":true,"composite":false,"containerId":"'"$APP_UUID"'"}]'
                 http_code=$(post_role_mapping "$kind" "$uuid" "$payload")
                 if echo "$http_code" | grep -qE ' 20[14]'; then
-                  echo "    granted $kind/$(echo "$uuid" | cut -c1-8)... -> microcks-app:$rname (HTTP $(echo "$http_code" | awk '{print $2}'))"
+                  echo "    granted $kind/$(echo "$uuid" | cut -c1-8)... -> microcks-app:$rname (HTTP $(echo "$http_code" | cut -d' ' -f2))"
                 else
                   echo "  WARNING: grant $kind -> $rname returned: ${http_code:-no-response}"
                 fi
@@ -143,6 +160,9 @@ spec:
               done
 
               # --- microcks-ci service account -> full role set ---
+              # The kcadm admin token is short-lived; the group grants above
+              # consumed most of its lifespan, so refresh before the user grants.
+              refresh_admin_token || echo "  WARNING: token refresh failed; SA grants may 401"
               SVC_USER=$("$KCADM" get users -r "$REALM" -q username=service-account-microcks-ci 2>/dev/null | id_of || true)
               if [ -z "$SVC_USER" ]; then
                 echo "FATAL: service-account-microcks-ci user not found"
