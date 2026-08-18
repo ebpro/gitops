@@ -89,4 +89,4 @@ Central authentication via Keycloak (CodeCentric Operator) → GitOps-managed.
 | `readonly` | `role:readonly` | `Viewer` |
 
 ### Authentication Fallback
-Apps without native SSO (SonarQube CE, Nexus OSS) use **Traefik ForwardAuth** middleware backed by **oauth2-proxy** → Keycloak OIDC. Headers: `X-Forwarded-User`, `X-Forwarded-Groups`.
+Apps without OAuth2 native SSO front **Traefik ForwardAuth** middleware backed by **oauth2-proxy** → Keycloak OIDC. oauth2-proxy v7 emits a `GAP-Auth` response header (user email), copied to the upstream by `authResponseHeaders`: SonarQube CE reads it natively (`sonar.web.sso.*Header=Gap-Auth`, CE 26+), Nexus OSS via the custom `rutauth` capability (see AGENTS.md).

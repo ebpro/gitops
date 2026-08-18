@@ -152,8 +152,8 @@ Platform is migrating to **Keycloak as single source of identity**. Central auth
 | Backstage | OIDC | ✅ | — |
 | Plane | OIDC/SAML | ✅ | — |
 | Microcks | Keycloak | ✅ | — |
-| Nexus OSS | — | ❌ | Traefik ForwardAuth |
-| SonarQube CE | — | ❌ (Commercial only) | Traefik ForwardAuth |
+| Nexus OSS | RUT (`Gap-Auth`) | ✅ (RUT + sso-sync) | Local Basic for CI/break-glass |
+| SonarQube CE | HTTP header (`Gap-Auth`) | ✅ (native CE 26+ header SSO) | Manual permissions (Phase 1) |
 | Woodpecker CI | Gitea OAuth | ❌ | Gitea OAuth (indirect SSO via Keycloak) |
 
 ### Identity Model
@@ -173,6 +173,22 @@ Groups: `platform-admins`, `platform-engineers`, `developers`, `security-team`, 
 - `WOODPECKER_GITEA_URL` serves **both** OAuth redirects and API calls — Woodpecker v3+ ignores `WOODPECKER_GITEA_OAUTH`
 - Always set `WOODPECKER_GITEA_URL` to the **public** Gitea URL — never an internal ClusterIP
 - The Woodpecker helm chart `server-3.0.1` does not propagate top-level `hostAliases` to the pod spec — do not rely on it
+
+### Nexus OSS SSO (RUT)
+Nexus has no native OIDC. SSO is achieved with a custom `rutauth` capability: oauth2-proxy emits a `Gap-Auth` header (Keycloak user email) which Nexus authenticates as a local user; authorization comes from local roles.
+- Realms active order: `["rutauth-realm", "NexusAuthenticatingRealm"]` — local Basic is kept for in-cluster CI/machines and break-glass.
+- `nexus-nexus3-sso-sync` CronJob (every 15 min in `helm/releases/nexus/values.yaml` → `ssoSync`): mirrors `platform` realm group membership into local Nexus users + roles (`ssoSync.groups` mapping `group:role`), creates missing users with a random unusable password, prunes local users no longer in any mapped group. It never touches passwords; `ssoSync.protectedUsers` (admin, anonymous, machine accounts) are never pruned.
+- Capability PUT through the REST API requires the server-side `id` + `version` in the payload (otherwise 500 NPE); GET-by-id is 405 — merge from the `GET /capabilities` list (see `scripts/configure.sh`).
+- Residual risk: in-cluster clients can still bypass oauth2-proxy and hit Nexus with a forged `Gap-Auth` header or local Basic. No public `skip-auth-regex` exists for machines; a Cilium NetworkPolicy restricting in-cluster access is the planned mitigation.
+
+### SonarQube SSO (HTTP Header)
+SonarQube **Community Build 26+** has native header authentication (documented for CE on docs.sonarsource.com, `authentication/http-header`) — no Commercial edition, no OIDC plugin. It reuses the same oauth2-proxy `Gap-Auth` flow as Nexus, natively.
+- SonarQube props (`helm/releases/sonarqube/values.yaml` → `sonarProperties`): `sonar.web.sso.enable=true` + `sonar.web.sso.loginHeader/nameHeader/emailHeader=Gap-Auth`. A fourth prop `sonar.web.sso.groupsHeader` (default `X-Forwarded-Groups`) exists for future group sync.
+- oauth2-proxy v7.6.0 `addHeadersForProxying` sets the **response** header `GAP-Auth` (session email; `GAP-Auth` only, no other identity headers) on both `/checkauth` (catch-all → `static://200`) and `/oauth2/auth` (AuthOnly → 202). Traefik middleware `fwd-auth` (`kubernetes/ingress/sonarqube-middleware.yaml`) copies it to the upstream request via `authResponseHeaders: [Gap-Auth]`.
+- Provisioning is JIT: SonarQube auto-creates the user on first login (DB `sonardb`, table `users`: `user_local=f`, `external_identity_provider=sonarqube`); email comes from the header.
+- Authorization is **manual (Phase 1)**: groups + project/global permissions are granted via the SonarQube Admin UI/API. Group sync (`groupsHeader`) is future work and needs a Keycloak `groups` claim + groups header emission (v7.6.0 emits only `GAP-Auth`; the OIDC scope is `openid email profile`).
+- Debug: `/api/users/who_am_i` is **removed in 26.x** — probe auth with `GET /api/ce/activity` (401 anon vs 200 auth) or `/api/system/health` (403 vs 200).
+- Residual risk identical to Nexus: in-cluster clients can forge `Gap-Auth` directly; Cilium NetworkPolicy is the planned mitigation.
 
 ### Keycloak Deployment
 - **Deployment**: Keycloak Quarkus via CodeCentric Helm chart
