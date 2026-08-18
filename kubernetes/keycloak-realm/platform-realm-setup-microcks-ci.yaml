@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-realm-microcks-ci-setup-20260818-r3
+  name: keycloak-realm-microcks-ci-setup-20260818-r4
   namespace: keycloak
 spec:
   backoffLimit: 6
@@ -87,12 +87,12 @@ spec:
               if "$KCADM" add "users/$SVC_USER/role-mappings/clients/$APP_UUID" -r "$REALM" --payload "$PAYLOAD" 2>/dev/null; then
                 echo "  role mapping applied"
               else
-                echo "  role mapping PUT returned non-zero (may already be applied); verifying..."
+                echo "  role mapping POST returned non-zero (may already be applied); verifying..."
               fi
 
-              # --- Verify ---
+              # --- Verify (kcadm prints Jackson-style spaced JSON) ---
               MAPS=$("$KCADM" get "users/$SVC_USER/role-mappings/clients/$APP_UUID" -r "$REALM" 2>/dev/null || true)
-              if echo "$MAPS" | grep -q '"name": *"admin"'; then
+              if echo "$MAPS" | grep -Eq '"name" *: *"admin"'; then
                 echo "  [OK] service-account-microcks-ci -> microcks-app:admin verified"
                 echo "=== microcks-ci role setup complete ==="
               else
