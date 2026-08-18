@@ -1,10 +1,10 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-realm-microcks-ci-setup-20260818-r2
+  name: keycloak-realm-microcks-ci-setup-20260818-r3
   namespace: keycloak
 spec:
-  backoffLimit: 5
+  backoffLimit: 6
   template:
     spec:
       restartPolicy: Never
@@ -19,14 +19,12 @@ spec:
               set -euo pipefail
               KCADM=/opt/keycloak/bin/kcadm.sh
               KC_SERVER=http://keycloak-http.keycloak.svc.cluster.local:80
-              KCHOST=keycloak-http.keycloak.svc.cluster.local
-              KCPORT=80
               REALM="platform"
 
               echo "=== microcks-ci service account role setup ==="
 
               # --- Login (with retry) ---
-              LOGIN_RETRIES=15
+              LOGIN_RETRIES=20
               for attempt in $(seq 1 $LOGIN_RETRIES); do
                 printf "  Login attempt %d/%d... " "$attempt" "$LOGIN_RETRIES"
                 if "$KCADM" config credentials \
@@ -42,43 +40,20 @@ spec:
                   exit 1
                 fi
                 echo "retrying..."
-                sleep 10
+                sleep 15
               done
-
-              ADMIN_TOKEN=$(grep -oP '"token"\s*:\s*"\K[^"]+' /opt/keycloak/.keycloak/kcadm.config 2>/dev/null || true)
-              if [ -z "$ADMIN_TOKEN" ]; then
-                echo "FATAL: Could not extract admin token from kcadm session"
-                exit 1
-              fi
-
-              # --- Minimal HTTP request with JSON body via /dev/tcp ---
-              http_put_json() {
-                local path="$1" body="$2"
-                { exec 5<>/dev/tcp/$KCHOST/$KCPORT; \
-                  printf "PUT %s HTTP/1.1\r\n" "$path" >&5; \
-                  printf "Host: %s\r\n" "$KCHOST" >&5; \
-                  printf "Authorization: Bearer %s\r\n" "$ADMIN_TOKEN" >&5; \
-                  printf "Content-Type: application/json\r\n" >&5; \
-                  printf "Content-Length: %s\r\n" "${#body}" >&5; \
-                  printf "Connection: close\r\n\r\n" >&5; \
-                  printf '%s' "$body" >&5; \
-                  head -1 <&5; \
-                  exec 5>&-; \
-                  } 2>/dev/null || echo "CONN_FAILED"
-              }
 
               id_of() { grep -oP '"id"\s*:\s*"\K[^"]+' | head -1; }
 
               # --- Wait for microcks-ci client (created by keycloak-reconciler cron) ---
-              CI_UUID=""
-              for attempt in $(seq 1 20); do
+              for attempt in $(seq 1 24); do
                 CI_UUID=$("$KCADM" get clients -r "$REALM" -q clientId=microcks-ci 2>/dev/null | id_of || true)
                 if [ -n "$CI_UUID" ]; then
                   echo "  microcks-ci client found (uuid=${CI_UUID:0:8}...)"
                   break
                 fi
-                if [ "$attempt" -eq 20 ]; then
-                  echo "FATAL: microcks-ci client not found after 5m (was the reconciler spec pushed?)"
+                if [ "$attempt" -eq 24 ]; then
+                  echo "FATAL: microcks-ci client not found after 6m (was the reconciler spec pushed?)"
                   exit 1
                 fi
                 sleep 15
@@ -98,25 +73,33 @@ spec:
               fi
               echo "  microcks-app client found (uuid=${APP_UUID:0:8}...)"
 
-              # --- Assign microcks-app:admin client role to the service account user ---
-              # Correct user-facing endpoint: PUT /users/{user}/role-mappings/clients/{client}
-              BODY='[{"name":"admin","clientRole":true,"containerId":"'"$APP_UUID"'"}]'
-              STATUS=$(http_put_json "/admin/realms/$REALM/users/$SVC_USER/role-mappings/clients/$APP_UUID" "$BODY")
-              echo "  role mapping PUT -> $STATUS"
-              if ! echo "$STATUS" | grep -qE '^HTTP/1\.1 (200|204)'; then
-                echo "FATAL: role mapping failed"
+              # --- Resolve the 'admin' client role (id required in the mapping payload) ---
+              ROLE_DOC=$("$KCADM" get "clients/$APP_UUID/roles/admin" -r "$REALM" 2>/dev/null || true)
+              ROLE_ID=$(echo "$ROLE_DOC" | id_of || true)
+              if [ -z "$ROLE_ID" ]; then
+                echo "FATAL: 'admin' client role not found on microcks-app"
                 exit 1
+              fi
+              echo "  admin role resolved (id=${ROLE_ID:0:8}...)"
+
+              # --- Assign microcks-app:admin to the service account user (idempotent) ---
+              PAYLOAD='[{"id":"'"$ROLE_ID"'","name":"admin","clientRole":true,"composite":false,"containerId":"'"$APP_UUID"'"}]'
+              if "$KCADM" add "users/$SVC_USER/role-mappings/clients/$APP_UUID" -r "$REALM" --payload "$PAYLOAD" 2>/dev/null; then
+                echo "  role mapping applied"
+              else
+                echo "  role mapping PUT returned non-zero (may already be applied); verifying..."
               fi
 
               # --- Verify ---
               MAPS=$("$KCADM" get "users/$SVC_USER/role-mappings/clients/$APP_UUID" -r "$REALM" 2>/dev/null || true)
-              echo "$MAPS" | grep -q '"name": *"admin"' && echo "  [OK] service-account-microcks-ci -> microcks-app:admin verified" || {
-                echo "FATAL: mapping not visible after PUT"
+              if echo "$MAPS" | grep -q '"name": *"admin"'; then
+                echo "  [OK] service-account-microcks-ci -> microcks-app:admin verified"
+                echo "=== microcks-ci role setup complete ==="
+              else
+                echo "FATAL: mapping not visible after apply"
                 echo "$MAPS"
                 exit 1
-              }
-
-              echo "=== microcks-ci role setup complete ==="
+              fi
           env:
             - name: KEYCLOAK_ADMIN_PASSWORD
               valueFrom:
