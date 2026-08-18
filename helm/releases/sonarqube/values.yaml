@@ -53,6 +53,10 @@ sonarProperties:
   sonar.ce.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.5.0.jar=ce
   sonar.security.textblock.cipherType: AES256
   sonar.web.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.5.0.jar=web
+  sonar.web.sso.enable: "true"
+  sonar.web.sso.loginHeader: "Gap-Auth"
+  sonar.web.sso.nameHeader: "Gap-Auth"
+  sonar.web.sso.emailHeader: "Gap-Auth"
 sonarSecretKey: sonarqube-credentials
 startupProbe:
   failureThreshold: 60
