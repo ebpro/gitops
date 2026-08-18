@@ -119,7 +119,7 @@ log "local users: ${#NEXUS_USERS[@]}; mapped group members: ${#MEMBER_ROLES[@]} 
 created=0
 updated=0
 for email in "${!MEMBER_ROLES[@]}"; do
-  roles_json="$(tr ' ' '\n' <<<"${MEMBER_ROLES[${email}]}" | jq -R . | jq -c 'sort')"
+  roles_json="$(tr ' ' '\n' <<<"${MEMBER_ROLES[${email}]}" | jq -R . | jq -sc 'map(select(length > 0)) | sort')"
   name="${MEMBER_NAMES[${email}]}"
   first="${name%% *}"
   last="${name#* }"
