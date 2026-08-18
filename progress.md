@@ -40,10 +40,17 @@
 - Root-caused KC 26 "Account is not fully set up" (invalid_grant on password login): default user profile requires `firstName`/`lastName`; missing values trigger `VERIFY_PROFILE`. Fixed `ci-runner`/`gitops-user` live and in the realm file (commit aa09067).
 - Setup job `keycloak-platform-realm-setup-20260818` completed (passwords + groups). GitOps source of truth (`platform-realm-configmap.yaml`) is now complete for future rebuilds: realm roles, client roles (`roles.client` map), groups with mappings, user names.
 - Devops realm confirmed absent from live Keycloak (404); Nexus/SonarQube auth is via Traefik ForwardAuth, unaffected. Devops realm/SAML assets are dormant (orphan `devops-realm` CM in keycloak ns).
+- **Microcks H3 done: MongoDB 4.4.29 → 7.0.18**, FCV chain 4.4→5.0→6.0→7.0 (commits 4aadf9b, 2cd1e36, 963e73a, b76d969, 12d8685).
+  - Instance is empty: 1 collection `serviceState`, 0 documents, PVC 7 days old. Snapshot kept: `/tmp/opencode/backups/microcks-mongo-4.4.29-pre-H3-2026-08-18.gz` (346B, gzip-verified).
+  - **Direct 4.4→7.0 jump is impossible even with zero documents**: mongod refuses to boot on a `featureCompatibilityVersion: 4.4` document (7.0 only accepts 6.0/6.3/7.0). Mandatory path: 5.0.32 → setFCV 5.0 → 6.0.26 → setFCV 6.0 → 7.0.18 → setFCV 7.0 (`confirm: true` required for 7.0). FCV bumps run as root via pod env (`MONGO_INITDB_ROOT_USERNAME`/`PASSWORD`, `adminUsername`/`adminPassword` keys).
+  - Official mongo 6.0/7.0 images ship **mongosh only** (no legacy `mongo` shell — verified with one-shot pods on 5.0.32/6.0.26/7.0.18). Upstream chart 1.13.2 (and 1.14.0) readinessProbe hardcodes the legacy shell → 6.0+ pods would never go Ready.
+  - **ArgoCD `postRender` is unusable on this cluster**: `applications.argoproj.io` CRD (v1alpha1 only) has no `postRender` schema field; the API server silently prunes it from every Application object.
+  - Chart 1.13.2 vendored to `helm/vendor/microcks`; app source repointed to git (`path: helm/vendor/microcks`; note: adding a `chart:` field makes ArgoCD treat the source as a helm index repo → 404). Vendored probe is shell-agnostic (`mongosh … --eval ping` first, legacy `mongo` fallback) — works 4.4→7.0.
+  - Verified: 7.0.18 pod 1/1, FCV=7.0, `serviceState: 0` (data intact), app root=200 and `/api/services`=401 (auth enforced), zero mongo errors after cutover (only transient `InterruptedAtShutdown` in the 13:51–13:58 Recreate window), ArgoCD Synced/Healthy.
+- **Microcks M1 documented** (report-only, not executed): Vault↔MongoDB credential rotation runbook below — the 1h ExternalSecret refresh cannot re-credential a running MongoDB user.
 
 ### In Progress
-- Microcks MongoDB H3: staged image upgrade 4.4.29 → 5.0 → 6.0 → 7.0 via `mongodb.image.tag` + `?v` bump per step (pending)
-- Microcks M1: document Vault 1h token refresh vs long-lived MongoDB user (rotation requires one-off `alterUser`) — report-only
+- (none — Keycloak C1 and Microcks H3/M1 both complete)
 
 ### Blocked
 - (none)
@@ -60,6 +67,18 @@
 3. **Vault autoUnseal**: Configure raft/wal for resilience (backwards compatible with Shamir fallback)
 4. **Postgres cluster cleanup**: Remove deprecated manifest-synced postgres resources (now CNPG managed)
 5. **Update AGENTS.md**: Corrected ArGoCD app statuses
+
+## M1 — MongoDB Credential Rotation Runbook (Microcks, report-only)
+Chain: Vault KV-v2 `secret/data/microcks` (keys `username`/`password` = app user `userM` in db `microcks`; `adminUsername`/`adminPassword` = root user in db `admin`) → ClusterSecretStore `vault` (AppRole) → ExternalSecret `microcks/microcks-mongodb-connection` (`refreshInterval: 1h`) → K8s secret → pod env at container start.
+
+**The gap:** the 1h refresh only re-fetches from Vault. Rotating a password in Vault does NOT run `alterUser` in MongoDB — the running mongod keeps the old user password until it is changed in-DB, and running pods keep the old env until recreated. Rotating Vault first without the in-DB step means the **next** pod rollout boots with a password MongoDB rejects → crash-loop.
+
+**Safe procedure (one-off, maintenance window; DB is empty so risk is low):**
+1. Generate new password X.
+2. In-DB change first (one-off exec, no value printed): as root — `db.getSiblingDB("microcks").updateUser("userM", {pwd: "X"})` (and/or `db.getSiblingDB("admin").updateUser("<adminUsername>", {pwd: "X"})` if rotating admin).
+3. Update Vault `secret/data/microcks` (`password` / `adminPassword`). ExternalSecret syncs the K8s secret within ≤1h (or sooner on next refresh).
+4. Recreate both pods **via git only** (no `kubectl rollout restart`): flip a `commonAnnotations` value for app + mongodb in `helm/releases/microcks/values.yaml` (chart supports `commonAnnotations`), bump `?v`, push. Both workloads re-read env (X) and authenticate against mongod (X).
+5. Verify: mongo pod 1/1, app pod 1/1, `/api/services` = 401, no new `MongoNodeIsRecovering`/auth errors.
 
 ## Critical Context
 - **Vault Token Access**: `vault-init` secret in `vault` namespace stores `admin_token` (95-char `hvs.CAES...` full admin) and `root_token` (28 char) — this is key used by Helm init container and for all Vault CLI operations.
@@ -91,3 +110,7 @@
 - `bootstrap/helm-values/plane.yaml` — Plane Helm values (OIDC, ingress, etc.)
 - `bootstrap/helm-values/kube-prometheus.yaml` — Grafana/Alertmanager OIDC config
 - `bootstrap/k8s-apps/plane.yaml` — Deprecated (helm apps stored in bootstrap)
+- `bootstrap/app-microcks.yaml` — Microcks Application; git-hosted chart source (`path: helm/vendor/microcks`, no `chart` field), valueFiles `?v=7`
+- `helm/vendor/microcks/` — Vendored chart 1.13.2; only `templates/deployment.yaml` modified (dual-shell readinessProbe, `timeoutSeconds: 1→5`)
+- `helm/releases/microcks/values.yaml` — `mongodb.image.tag: 7.0.18`
+- `kubernetes/postgresql/microcks-mongodb-external-secret.yaml` — Vault→K8s MongoDB creds (M1 chain)
