@@ -1,0 +1,167 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-microcks-roles-cumulative-20260818-r5
+  namespace: keycloak
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: kcadm-setup
+          image: quay.io/keycloak/keycloak:26.7.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              KCADM=/opt/keycloak/bin/kcadm.sh
+              KC_SERVER=http://keycloak-http.keycloak.svc.cluster.local:80
+              REALM="platform"
+
+              echo "=== microcks-app cumulative role setup (user<manager<admin) ==="
+              echo "Microcks 1.13.2 Spring Security checks are strict per-path:"
+              echo "  GET /api/services/{id} and /api/services/search require ROLE_user,"
+              echo "  so higher roles must be granted together with lower ones."
+
+              # --- Login (with retry) ---
+              LOGIN_RETRIES=20
+              for attempt in $(seq 1 $LOGIN_RETRIES); do
+                printf "  Login attempt %d/%d... " "$attempt" "$LOGIN_RETRIES"
+                if "$KCADM" config credentials \
+                  --server "$KC_SERVER" \
+                  --realm master \
+                  --user admin \
+                  --password "$KEYCLOAK_ADMIN_PASSWORD" 2>/dev/null; then
+                  echo "OK"
+                  break
+                fi
+                if [ "$attempt" -eq "$LOGIN_RETRIES" ]; then
+                  echo "FATAL: Authentication failed after $LOGIN_RETRIES attempts"
+                  exit 1
+                fi
+                echo "retrying..."
+                sleep 10
+              done
+
+              id_of() { grep -oP '"id"\s*:\s*"\K[^"]+' | head -1; }
+
+              # --- Resolve microcks-app client ---
+              APP_UUID=$("$KCADM" get clients -r "$REALM" -q clientId=microcks-app 2>/dev/null | id_of || true)
+              if [ -z "$APP_UUID" ]; then
+                echo "FATAL: microcks-app client not found"
+                exit 1
+              fi
+              echo "  microcks-app client found (uuid=${APP_UUID:0:8}...)"
+
+              # --- Resolve the three client role ids (KC26 spaced JSON) ---
+              ROLE_DOC=$("$KCADM" get "clients/$APP_UUID/roles" -r "$REALM" 2>/dev/null)
+              role_id() {
+                echo "$ROLE_DOC" | tr -d ' \n' | \
+                  grep -oP "\"id\":\"[^\"]+\",\"name\":\"$1\"" | \
+                  grep -oP '(?<="id":")[^"]+' | head -1
+              }
+              ROLE_ADMIN=$(role_id admin || true)
+              ROLE_MANAGER=$(role_id manager || true)
+              ROLE_USER=$(role_id user || true)
+              for v in "admin=$ROLE_ADMIN" "manager=$ROLE_MANAGER" "user=$ROLE_USER"; do
+                if [ -z "${v#*=}" ]; then
+                  echo "FATAL: role ${v%%=*} not found on microcks-app (create from realm export first)"
+                  exit 1
+                fi
+              done
+              echo "  roles resolved: admin=${ROLE_ADMIN:0:8}... manager=${ROLE_MANAGER:0:8}... user=${ROLE_USER:0:8}..."
+
+              # --- Helper: idempotently grant one client role to a target (user|group) ---
+              grant() {
+                local kind="$1" uuid="$2" rname="$3" rid="$4"
+                local payload
+                payload='[{"id":"'"$rid"'","name":"'"$rname"'","clientRole":true,"composite":false,"containerId":"'"$APP_UUID"'"}]'
+                if "$KCADM" add "$kind/$uuid/role-mappings/clients/$APP_UUID" -r "$REALM" --payload "$payload" >/dev/null 2>&1; then
+                  echo "    granted $kind/$(echo "$uuid" | cut -c1-8)... -> microcks-app:$rname"
+                else
+                  echo "    add non-zero for $kind -> $rname (may be idempotent skip; verify will confirm)"
+                fi
+              }
+
+              # --- Group -> cumulative role mappings ---
+              group_uuid() {
+                "$KCADM" get groups -r "$REALM" -q search="$1" 2>/dev/null | id_of || true
+              }
+              declare -A GROUP_ROLES=(
+                ["platform-admins"]="admin manager user"
+                ["platform-engineers"]="manager user"
+                ["developers"]="manager user"
+                ["readonly"]="user"
+              )
+              for g in platform-admins platform-engineers developers readonly; do
+                GID=$(group_uuid "$g")
+                if [ -z "$GID" ]; then
+                  echo "FATAL: group $g not found"
+                  exit 1
+                fi
+                echo "  group $g (uuid=${GID:0:8}...): ${GROUP_ROLES[$g]}"
+                for r in ${GROUP_ROLES[$g]}; do
+                  case "$r" in
+                    admin) RID=$ROLE_ADMIN;;
+                    manager) RID=$ROLE_MANAGER;;
+                    user) RID=$ROLE_USER;;
+                  esac
+                  grant groups "$GID" "$r" "$RID"
+                done
+              done
+
+              # --- microcks-ci service account -> full role set ---
+              SVC_USER=$("$KCADM" get users -r "$REALM" -q username=service-account-microcks-ci 2>/dev/null | id_of || true)
+              if [ -z "$SVC_USER" ]; then
+                echo "FATAL: service-account-microcks-ci user not found"
+                exit 1
+              fi
+              echo "  service account user (uuid=${SVC_USER:0:8}...): admin manager user"
+              grant users "$SVC_USER" admin "$ROLE_ADMIN"
+              grant users "$SVC_USER" manager "$ROLE_MANAGER"
+              grant users "$SVC_USER" user "$ROLE_USER"
+
+              # --- Verification (KC26 prints Jackson-style spaced JSON) ---
+              echo "=== verifying mappings ==="
+              verify() {
+                local kind="$1" uuid="$2" label="$3"
+                shift 3
+                local maps
+                maps=$("$KCADM" get "$kind/$uuid/role-mappings/clients/$APP_UUID" -r "$REALM" 2>/dev/null || true)
+                local missing=0
+                for r in "$@"; do
+                  if echo "$maps" | grep -Eq '"name" *: *"'"$r"'"'; then
+                    echo "    [OK] $label -> microcks-app:$r"
+                  else
+                    echo "  MISSING: $label -> microcks-app:$r"
+                    missing=1
+                  fi
+                done
+                return $missing
+              }
+              FAIL=0
+              GID=$(group_uuid "platform-admins");    verify groups "$GID" "platform-admins" admin manager user || FAIL=1
+              GID=$(group_uuid "platform-engineers"); verify groups "$GID" "platform-engineers" manager user || FAIL=1
+              GID=$(group_uuid "developers");         verify groups "$GID" "developers" manager user || FAIL=1
+              GID=$(group_uuid "readonly");           verify groups "$GID" "readonly" user || FAIL=1
+              verify users "$SVC_USER" "service-account-microcks-ci" admin manager user || FAIL=1
+              if [ "$FAIL" -ne 0 ]; then
+                echo "FATAL: verification failed"
+                exit 1
+              fi
+              echo "=== microcks-app cumulative role setup complete ==="
+          env:
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: adminPassword
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
