@@ -32,7 +32,7 @@ microcks:
       value: "health,prometheus"
 mongodb:
   image:
-    tag: 7.0.18
+    tag: 5.0.32
   secretRef:
     secret: microcks-mongodb-connection
     usernameKey: username
