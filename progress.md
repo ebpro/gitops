@@ -49,11 +49,21 @@
   - Verified: 7.0.18 pod 1/1, FCV=7.0, `serviceState: 0` (data intact), app root=200 and `/api/services`=401 (auth enforced), zero mongo errors after cutover (only transient `InterruptedAtShutdown` in the 13:51–13:58 Recreate window), ArgoCD Synced/Healthy.
 - **Microcks M1 documented** (report-only, not executed): Vault↔MongoDB credential rotation runbook below — the 1h ExternalSecret refresh cannot re-credential a running MongoDB user.
 
+- **Microcks integration phase A (2026-08-18): `microcks-ci` CI identity live and verified.**
+  - Dedicated Keycloak client `microcks-ci` (confidential, no user flows, `serviceAccountsEnabled`) — reconciler `spec.json` (`bootstrap/keycloak-reconciler/configmap.yaml`) + realm export entry (generated secret backfilled, same pattern as other clients).
+  - Role: service-account-microcks-ci → `microcks-app:admin` (CI creates import jobs/tests; Microcks reads `resource_access["microcks-app"]` regardless of azp). Applied + verified by git Job `keycloak-realm-microcks-ci-setup-20260818-r4` (`kubernetes/keycloak-realm/platform-realm-setup-microcks-ci.yaml`).
+  - **KC 26 API gotcha**: `POST /users/{id}/role-mappings/clients/{client}` 404 "Role not found" unless the payload RoleRepresentation includes the role `id` (name+containerId alone is rejected). Payload used: `[{id,name,clientRole,composite,containerId}]`.
+  - Vault: `secret/data/oidc/microcks-ci` (`clientSecret`) written one-off with root token (reconciler has no `VAULT_ADMIN_TOKEN`, so its create-path Vault push is skipped).
+  - `keycloak-secrets` ExternalSecret: `clientSecretMicrocksCi` + template `CLIENT_SECRET_MICROCKS_CI` (syncs on its 1h refresh).
+  - Verified E2E: `client_credentials` grant → token `azp=microcks-ci`, `resource_access.microcks-app.roles=["admin"]`.
+  - Superseded jobs r1/r2/r3 (wrong endpoint/verify pattern) left for ArgoCD prune; mapping verified idempotent via r4.
+  - **Phase plan (features first, app 1.14.0 upgrade last, in a separate window)**: A ✅ identity → B: commit live OpenAPI (`openapi.yaml`, captured from `/q/openapi`, OpenAPI 3.1 YAML, 5 paths) to Gitea app repo + create Microcks API (`microcks-cli import` from Woodpecker) → C: mock + test scenario + MCP endpoint demo → D: Woodpecker contract step (test live `/q/openapi` vs spec pre/post-deploy, fail-the-pipe on drift) + Woodpecker secrets for CI identity → E: Backstage `resource:api` catalog entry (stock `backstage:1.53.1` image — Microcks **plugin** needs a custom image build first; decide then) → F: app 1.13.2→1.14.0 (re-vendor chart, re-apply dual-shell readinessProbe patch, values diff, `?v` bump).
+
 ### In Progress
-- (none — Keycloak C1 and Microcks H3/M1 both complete)
+- (A pending tail: r4 job going green + ArgoCD prune of r1–r3; everything else is waiting on Gitea access)
 
 ### Blocked
-- (none)
+- **Gitea access** (needed for phases B/D): `gitea-admin-secret` password is stale (basic auth 401; password sign-in is disabled, real admin password set at init), no local SSH key is authorized, no stored credentials. Need one of: Gitea admin PAT, fresh admin password, or user creates the Woodpecker org secrets manually. Also required: push access to `ebpro/link-shortener` (PAT with write:repository or a deploy key).
 
 ## Key Decisions
 - Vault KV v2 base path is `secret` → ExternalSecret `key` only needs `keycloak` (not `secret/data/keycloak`).
