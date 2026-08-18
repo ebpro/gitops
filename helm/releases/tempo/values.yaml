@@ -20,7 +20,11 @@ tempo:
       backend: local
       local:
         path: /var/tempo/traces
-  overrides: {}
+  overrides:
+    defaults:
+      metrics_generator:
+        processors:
+          - name: metrics-generator-default
   search:
     attributes:
       - app
