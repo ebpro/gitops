@@ -97,7 +97,7 @@ while IFS= read -r entry; do
     esac
   done < <(jq -c '.[]' <<<"${members_json}")
   log "group '${group_name}' -> role '${role_name}' processed"
-done
+done < <(tr ';' '\n' <<<"${GROUP_ROLES}")
 
 # --- existing local users ---------------------------------------------------
 declare -A NEXUS_USERS=()
