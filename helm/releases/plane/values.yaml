@@ -1,10 +1,17 @@
+# Plane Helm values — chart plane-ce (https://helm.plane.so)
+# Live app secrets (DATABASE_URL/REDIS_URL/AMQP_URL/SECRET_KEY/LIVE_SERVER_SECRET_KEY)
+# come from the plane-app-secrets ExternalSecret (Vault: secret/plane).
+# SSO env (Gitea OAuth: IS_GITEA_ENABLED/GITEA_HOST/GITEA_CLIENT_*/WEB_URL override)
+# is injected at pod admission by Kyverno policy plane-sso-env-patch.
 planeVersion: v1.2.0
 
 dockerRegistry:
   enabled: false
 
+# Public entrypoint is the Traefik IngressRoute in kubernetes/ingress/plane-ingress.yaml
 ingress:
   enabled: false
+  appHost: plane.ebruno.fr
 
 redis:
   local_setup: false
@@ -16,51 +23,37 @@ rabbitmq:
   local_setup: false
 
 env:
-  remote_redis_url: redis://plane-redis.plane.svc.cluster.local:6379/0
-  REDIS_URL: redis://plane-redis.plane.svc.cluster.local:6379/0
-  CELERY_BROKER_URL: redis://plane-redis.plane.svc.cluster.local:6379/1
-  CELERY_RESULT_BACKEND: redis://plane-redis.plane.svc.cluster.local:6379/2
-  CELERY_WORKER_QUEUE: celery
-  pgdb_remote_url: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
-  DATABASE_URL: postgresql://plane:plane2026Secure@plane-postgresql.plane.svc.cluster.local:5432/plane
-  PLANE_URL: https://plane.ebruno.fr
-  WEB_URL: https://plane.ebruno.fr
-  CORS_ALLOWED_ORIGINS: https://plane.ebruno.fr
-  SECRET_KEY: OMRmTHWzhCes4zp2R7cAl48JLM7+7u+xBNg/tX4NpSU=
-  GITEA_HOST: https://gitea.ebruno.fr
-  IS_GITEA_ENABLED: "1"
   docstore_bucket: uploads
 
 external_secrets:
-  pgdb_existingSecret: plane-postgresql-auth
-  gitea_existingSecret: plane-gitea-oauth
   app_env_existingSecret: plane-app-secrets
 
-
-ssl:
-  enabled: true
-  tls_secret_name: plane-tls
-
 worker:
-  memoryLimit: 4Gi
-  cpuLimit: 1000m
-  cpuRequest: 250m
-  memoryRequest: 1024Mi
+  replicas: 1
+  resources:
+    requests:
+      cpu: 25m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
 
 api:
-  memoryLimit: 4Gi
-  cpuLimit: 1000m
-  cpuRequest: 250m
-  memoryRequest: 1024Mi
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 4Gi
 
 beatworker:
-  memoryLimit: 4Gi
-  cpuLimit: 1000m
-  cpuRequest: 250m
-  memoryRequest: 1024Mi
   replicas: 1
-
-replicas: 1
-
-autoscaling:
-  enabled: false
+  resources:
+    requests:
+      cpu: 25m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
