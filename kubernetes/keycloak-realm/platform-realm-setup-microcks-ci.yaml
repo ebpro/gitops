@@ -1,9 +1,8 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-realm-microcks-ci-setup-20260818
+  name: keycloak-realm-microcks-ci-setup-20260818-r2
   namespace: keycloak
-  annotations: {}
 spec:
   backoffLimit: 5
   template:
@@ -11,6 +10,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: kcadm-setup
+          # shellcheck disable=SC2087
           image: quay.io/keycloak/keycloak:26.7.0
           command:
             - /bin/bash
@@ -25,7 +25,7 @@ spec:
 
               echo "=== microcks-ci service account role setup ==="
 
-              # --- Login (with retry, same pattern as platform realm setup job) ---
+              # --- Login (with retry) ---
               LOGIN_RETRIES=15
               for attempt in $(seq 1 $LOGIN_RETRIES); do
                 printf "  Login attempt %d/%d... " "$attempt" "$LOGIN_RETRIES"
@@ -51,16 +51,17 @@ spec:
                 exit 1
               fi
 
-              # --- Minimal HTTP PUT (empty body) via /dev/tcp ---
-              http_put() {
-                local path="$1"
+              # --- Minimal HTTP request with JSON body via /dev/tcp ---
+              http_put_json() {
+                local path="$1" body="$2"
                 { exec 5<>/dev/tcp/$KCHOST/$KCPORT; \
                   printf "PUT %s HTTP/1.1\r\n" "$path" >&5; \
                   printf "Host: %s\r\n" "$KCHOST" >&5; \
                   printf "Authorization: Bearer %s\r\n" "$ADMIN_TOKEN" >&5; \
-                  printf "Content-Length: 0\r\n" >&5; \
-                  printf "Connection: close\r\n" >&5; \
-                  printf "\r\n" >&5; \
+                  printf "Content-Type: application/json\r\n" >&5; \
+                  printf "Content-Length: %s\r\n" "${#body}" >&5; \
+                  printf "Connection: close\r\n\r\n" >&5; \
+                  printf '%s' "$body" >&5; \
                   head -1 <&5; \
                   exec 5>&-; \
                   } 2>/dev/null || echo "CONN_FAILED"
@@ -98,7 +99,9 @@ spec:
               echo "  microcks-app client found (uuid=${APP_UUID:0:8}...)"
 
               # --- Assign microcks-app:admin client role to the service account user ---
-              STATUS=$(http_put "/admin/realms/$REALM/clients/$APP_UUID/roles/admin/users/$SVC_USER")
+              # Correct user-facing endpoint: PUT /users/{user}/role-mappings/clients/{client}
+              BODY='[{"name":"admin","clientRole":true,"containerId":"'"$APP_UUID"'"}]'
+              STATUS=$(http_put_json "/admin/realms/$REALM/users/$SVC_USER/role-mappings/clients/$APP_UUID" "$BODY")
               echo "  role mapping PUT -> $STATUS"
               if ! echo "$STATUS" | grep -qE '^HTTP/1\.1 (200|204)'; then
                 echo "FATAL: role mapping failed"
@@ -107,7 +110,7 @@ spec:
 
               # --- Verify ---
               MAPS=$("$KCADM" get "users/$SVC_USER/role-mappings/clients/$APP_UUID" -r "$REALM" 2>/dev/null || true)
-              echo "$MAPS" | grep -q '"admin"' && echo "  [OK] service-account-microcks-ci -> microcks-app:admin verified" || {
+              echo "$MAPS" | grep -q '"name": *"admin"' && echo "  [OK] service-account-microcks-ci -> microcks-app:admin verified" || {
                 echo "FATAL: mapping not visible after PUT"
                 echo "$MAPS"
                 exit 1
