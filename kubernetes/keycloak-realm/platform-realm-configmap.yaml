@@ -617,6 +617,8 @@ data:
         },
         {
           "username": "ci-runner",
+          "firstName": "CI",
+          "lastName": "Runner",
           "email": "ci-runner@gitops.lan",
           "emailVerified": true,
           "enabled": true,
@@ -648,6 +650,8 @@ data:
         },
         {
           "username": "gitops-user",
+          "firstName": "GitOps",
+          "lastName": "User",
           "email": "gitops-bot@platform.local",
           "emailVerified": true,
           "enabled": true,
