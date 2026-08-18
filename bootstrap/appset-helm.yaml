@@ -120,7 +120,7 @@ spec:
         repoURL: https://grafana.github.io/helm-charts
         version: 1.24.4
         syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/tempo/values.yaml?v=2
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/tempo/values.yaml?v=3
       - app: trivyoperator
         chart: trivy-operator
         namespace: trivy-system

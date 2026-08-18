@@ -24,7 +24,8 @@ tempo:
     defaults:
       metrics_generator:
         processors:
-          - name: metrics-generator-default
+          - span-metrics
+          - local-blocks
   search:
     attributes:
       - app
