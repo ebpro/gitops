@@ -31,6 +31,8 @@ microcks:
     - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
       value: "health,prometheus"
 mongodb:
+  image:
+    tag: 7.0.18
   secretRef:
     secret: microcks-mongodb-connection
     usernameKey: username
