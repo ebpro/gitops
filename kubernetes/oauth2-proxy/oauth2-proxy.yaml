@@ -40,7 +40,7 @@ spec:
             - --profile-url=https://keycloak.ebruno.fr/realms/platform/protocol/openid-connect/userinfo
             - --scope=openid email profile
             - --email-domain=*
-            - --upstream=file:///dev/null
+            - --upstream=static://200
             - --http-address=0.0.0.0:4180
             - --cookie-secure=true
             - --cookie-samesite=none
