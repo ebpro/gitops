@@ -1,0 +1,153 @@
+---
+openapi: 3.1.0
+servers:
+- url: https://link.ebruno.fr
+components:
+  schemas:
+    Date:
+      type: string
+      format: date
+      examples:
+      - 2022-03-10
+    Link:
+      type: object
+      properties:
+        id:
+          type: string
+        shortcode:
+          type: string
+        targetUrl:
+          type: string
+        ownerSub:
+          type: string
+        hitCount:
+          type: integer
+          format: int64
+        createdAt:
+          $ref: "#/components/schemas/Date"
+    Stats:
+      type: object
+      properties:
+        totalLinks:
+          type: integer
+          format: int64
+        totalHits:
+          type: integer
+          format: int64
+  securitySchemes:
+    SecurityScheme:
+      type: openIdConnect
+      openIdConnectUrl: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
+      description: Authentication
+paths:
+  /api/links:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Link"
+      summary: List
+      tags:
+      - Link Resource
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Link"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Link"
+        "400":
+          description: Bad Request
+      summary: Create
+      tags:
+      - Link Resource
+  /api/links/me:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Link"
+      summary: My Links
+      tags:
+      - Link Resource
+  /api/links/me/stats:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+      summary: Stats
+      tags:
+      - Link Resource
+  /api/links/{code}:
+    get:
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Link"
+      summary: Get
+      tags:
+      - Link Resource
+    delete:
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Delete
+      tags:
+      - Link Resource
+  /api/links/{code}/redirect:
+    put:
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Link"
+      summary: Redirect
+      tags:
+      - Link Resource
+info:
+  title: link-shortener
+  version: 1.0.0-SNAPSHOT
