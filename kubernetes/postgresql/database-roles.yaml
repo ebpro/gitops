@@ -42,3 +42,18 @@ spec:
   passwordSecret:
     name: pact-broker-db
   databaseRoleReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: plane-db-plane
+  namespace: plane
+spec:
+  cluster:
+    name: plane-db
+  name: plane
+  ensure: present
+  login: true
+  passwordSecret:
+    name: plane-postgresql-auth
+  databaseRoleReclaimPolicy: retain

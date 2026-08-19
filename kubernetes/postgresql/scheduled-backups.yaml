@@ -36,3 +36,16 @@ spec:
   online: true
   target: primary
   schedule: "0 15 1 * * *"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: plane-db-backup
+  namespace: plane
+spec:
+  cluster:
+    name: plane-db
+  method: volumeSnapshot
+  online: true
+  target: primary
+  schedule: "0 45 0 * * *"
