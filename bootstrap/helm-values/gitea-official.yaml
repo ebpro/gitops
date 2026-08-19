@@ -52,6 +52,10 @@ deployment:
       value: private
     - name: GITEA__security__INSTALL_LOCK
       value: "true"
+    - name: GITEA__oauth2__ACCESS_TOKEN_EXPIRATION_TIME
+      value: "864000"
+    - name: GITEA__oauth2__REFRESH_TOKEN_EXPIRATION_TIME
+      value: "2160"
 
 gitea:
   admin:
@@ -95,6 +99,9 @@ gitea:
       OPENID_CONNECT_SCOPES: openid email profile
     repository:
       DEFAULT_PRIVATE: private
+    oauth2:
+      ACCESS_TOKEN_EXPIRATION_TIME: 864000
+      REFRESH_TOKEN_EXPIRATION_TIME: 2160
 
 postgresql:
   enabled: false
