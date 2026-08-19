@@ -236,6 +236,24 @@ spec:
               protocol: TCP
             - port: "443"
               protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: link-shortener-db
+            k8s:io.kubernetes.pod.namespace: link-shortener
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: pact-broker
+            k8s:io.kubernetes.pod.namespace: pact-broker
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "9292"
+              protocol: TCP
     - toFQDNs:
         - matchPattern: "gitea.ebruno.fr"
         - matchPattern: "*.github.com"
