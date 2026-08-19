@@ -24,7 +24,7 @@ spec:
         - name: plane-space
           port: 3000
     - kind: Rule
-      match: Host(`plane.ebruno.fr`) && PathPrefix(`/god-mode/`)
+      match: Host(`plane.ebruno.fr`) && PathPrefix(`/god-mode`)
       middlewares:
         - name: plane-body-limit
       services:
@@ -45,7 +45,7 @@ spec:
         - name: plane-api
           port: 8000
     - kind: Rule
-      match: Host(`plane.ebruno.fr`) && PathPrefix(`/live/`)
+      match: Host(`plane.ebruno.fr`) && PathPrefix(`/live`)
       middlewares:
         - name: plane-body-limit
       services:
@@ -63,7 +63,7 @@ spec:
       middlewares:
         - name: plane-body-limit
       services:
-        - name: plane-admin
+        - name: plane-web
           port: 3000
   tls:
     certResolver: letsencrypt-ovh
