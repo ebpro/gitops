@@ -1,0 +1,144 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: plane-sso-env-patch
+spec:
+  admission: true
+  background: true
+  emitWarning: false
+  validationFailureAction: Audit
+  rules:
+  - name: inject-gitea-oauth-env
+    match:
+      any:
+      - resources:
+          kinds:
+          - Deployment
+          names:
+          - plane-admin-wl
+          - plane-api-wl
+          - plane-beat-worker-wl
+          - plane-live-wl
+          - plane-space-wl
+          - plane-web-wl
+          - plane-worker-wl
+          namespaces:
+          - plane
+    mutate:
+      patchStrategicMerge:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: plane-admin
+                env:
+                - name: IS_GITEA_ENABLED
+                  value: "1"
+                - name: GITEA_HOST
+                  value: https://gitea.ebruno.fr
+                - name: GITEA_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: id
+                - name: GITEA_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: secret
+              - name: plane-api
+                env:
+                - name: IS_GITEA_ENABLED
+                  value: "1"
+                - name: GITEA_HOST
+                  value: https://gitea.ebruno.fr
+                - name: GITEA_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: id
+                - name: GITEA_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: secret
+              - name: plane-beat-worker
+                env:
+                - name: IS_GITEA_ENABLED
+                  value: "1"
+                - name: GITEA_HOST
+                  value: https://gitea.ebruno.fr
+                - name: GITEA_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: id
+                - name: GITEA_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: secret
+              - name: plane-live
+                env:
+                - name: IS_GITEA_ENABLED
+                  value: "1"
+                - name: GITEA_HOST
+                  value: https://gitea.ebruno.fr
+                - name: GITEA_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: id
+                - name: GITEA_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: secret
+              - name: plane-space
+                env:
+                - name: IS_GITEA_ENABLED
+                  value: "1"
+                - name: GITEA_HOST
+                  value: https://gitea.ebruno.fr
+                - name: GITEA_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: id
+                - name: GITEA_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: secret
+              - name: plane-web
+                env:
+                - name: IS_GITEA_ENABLED
+                  value: "1"
+                - name: GITEA_HOST
+                  value: https://gitea.ebruno.fr
+                - name: GITEA_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: id
+                - name: GITEA_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: secret
+              - name: plane-worker
+                env:
+                - name: IS_GITEA_ENABLED
+                  value: "1"
+                - name: GITEA_HOST
+                  value: https://gitea.ebruno.fr
+                - name: GITEA_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: id
+                - name: GITEA_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: plane-gitea-oauth
+                      key: secret

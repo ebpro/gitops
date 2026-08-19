@@ -2,7 +2,8 @@
 # Live app secrets (DATABASE_URL/REDIS_URL/AMQP_URL/SECRET_KEY) come from
 # the plane-app-secrets ExternalSecret (Vault: secret/plane).
 # SSO env (Gitea OAuth: IS_GITEA_ENABLED/GITEA_HOST/GITEA_CLIENT_*) is
-# injected at pod admission by Kyverno policy plane-sso-env-patch.
+# injected at pod admission by Kyverno ClusterPolicy plane-sso-env-patch
+# (kubernetes/ingress/plane-sso-kyverno-patch.yaml, synced by ArgoCD app "ingress").
 planeVersion: v1.2.0
 
 dockerRegistry:
