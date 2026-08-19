@@ -46,6 +46,8 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: DatabaseRole
 metadata:
+  annotations:
+    plane.ebruno.fr/dbrole-bump: "2026-08-19-1"
   name: plane-db-plane
   namespace: plane
 spec:
