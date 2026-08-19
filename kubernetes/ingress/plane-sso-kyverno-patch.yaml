@@ -9,6 +9,7 @@ spec:
   validationFailureAction: Audit
   rules:
   - name: inject-plane-admin
+    skipBackgroundRequests: true
     match:
       any:
       - resources:
@@ -39,6 +40,7 @@ spec:
                       name: plane-gitea-oauth
                       key: secret
   - name: inject-plane-api
+    skipBackgroundRequests: true
     match:
       any:
       - resources:
@@ -69,6 +71,7 @@ spec:
                       name: plane-gitea-oauth
                       key: secret
   - name: inject-plane-beat-worker
+    skipBackgroundRequests: true
     match:
       any:
       - resources:
@@ -99,6 +102,7 @@ spec:
                       name: plane-gitea-oauth
                       key: secret
   - name: inject-plane-live
+    skipBackgroundRequests: true
     match:
       any:
       - resources:
@@ -129,6 +133,7 @@ spec:
                       name: plane-gitea-oauth
                       key: secret
   - name: inject-plane-space
+    skipBackgroundRequests: true
     match:
       any:
       - resources:
@@ -159,6 +164,7 @@ spec:
                       name: plane-gitea-oauth
                       key: secret
   - name: inject-plane-web
+    skipBackgroundRequests: true
     match:
       any:
       - resources:
@@ -189,6 +195,7 @@ spec:
                       name: plane-gitea-oauth
                       key: secret
   - name: inject-plane-worker
+    skipBackgroundRequests: true
     match:
       any:
       - resources:
