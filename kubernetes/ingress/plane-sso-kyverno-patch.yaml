@@ -4,33 +4,25 @@ metadata:
   name: plane-sso-env-patch
 spec:
   admission: true
-  background: true
+  background: false
   emitWarning: false
   validationFailureAction: Audit
   rules:
-  - name: inject-gitea-oauth-env
+  - name: inject-plane-admin
     match:
       any:
       - resources:
           kinds:
-          - Deployment
+          - Pod
           names:
-          - plane-admin-wl
-          - plane-api-wl
-          - plane-beat-worker-wl
-          - plane-live-wl
-          - plane-space-wl
-          - plane-web-wl
-          - plane-worker-wl
+          - plane-admin-wl-*
           namespaces:
           - plane
     mutate:
       patchStrategicMerge:
         spec:
-          template:
-            spec:
-              containers:
-              - name: plane-admin
+          containers:
+          - name: plane-admin
                 env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
@@ -46,7 +38,21 @@ spec:
                     secretKeyRef:
                       name: plane-gitea-oauth
                       key: secret
-              - name: plane-api
+  - name: inject-plane-api
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          names:
+          - plane-api-wl-*
+          namespaces:
+          - plane
+    mutate:
+      patchStrategicMerge:
+        spec:
+          containers:
+          - name: plane-api
                 env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
@@ -62,7 +68,21 @@ spec:
                     secretKeyRef:
                       name: plane-gitea-oauth
                       key: secret
-              - name: plane-beat-worker
+  - name: inject-plane-beat-worker
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          names:
+          - plane-beat-worker-wl-*
+          namespaces:
+          - plane
+    mutate:
+      patchStrategicMerge:
+        spec:
+          containers:
+          - name: plane-beat-worker
                 env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
@@ -78,7 +98,21 @@ spec:
                     secretKeyRef:
                       name: plane-gitea-oauth
                       key: secret
-              - name: plane-live
+  - name: inject-plane-live
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          names:
+          - plane-live-wl-*
+          namespaces:
+          - plane
+    mutate:
+      patchStrategicMerge:
+        spec:
+          containers:
+          - name: plane-live
                 env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
@@ -94,7 +128,21 @@ spec:
                     secretKeyRef:
                       name: plane-gitea-oauth
                       key: secret
-              - name: plane-space
+  - name: inject-plane-space
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          names:
+          - plane-space-wl-*
+          namespaces:
+          - plane
+    mutate:
+      patchStrategicMerge:
+        spec:
+          containers:
+          - name: plane-space
                 env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
@@ -110,7 +158,21 @@ spec:
                     secretKeyRef:
                       name: plane-gitea-oauth
                       key: secret
-              - name: plane-web
+  - name: inject-plane-web
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          names:
+          - plane-web-wl-*
+          namespaces:
+          - plane
+    mutate:
+      patchStrategicMerge:
+        spec:
+          containers:
+          - name: plane-web
                 env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
@@ -126,7 +188,21 @@ spec:
                     secretKeyRef:
                       name: plane-gitea-oauth
                       key: secret
-              - name: plane-worker
+  - name: inject-plane-worker
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          names:
+          - plane-worker-wl-*
+          namespaces:
+          - plane
+    mutate:
+      patchStrategicMerge:
+        spec:
+          containers:
+          - name: plane-worker
                 env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
