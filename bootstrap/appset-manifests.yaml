@@ -17,6 +17,7 @@ spec:
           - path: kubernetes/ingress
           - path: kubernetes/link-shortener
           - path: kubernetes/csi-snapshot-controller
+          - path: kubernetes/arc
           - path: kubernetes/keycloak-realm
           - path: kubernetes/matrix/element
           - path: kubernetes/matrix/synapse

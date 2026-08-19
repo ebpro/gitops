@@ -19,7 +19,6 @@ declare -A NS=(
 default_ns="argocd"
 
 charts=(
-  actions-runner-controller
   alloy
   garage
   harbor

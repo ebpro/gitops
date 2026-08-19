@@ -47,7 +47,6 @@
 1. `bootstrap/appset-helm.yaml` — Creates ArgoCD Applications from list elements (most apps)
 2. `bootstrap/appset-manifests.yaml` — Creates ArgoCD Applications from git tree directories
 3. `bootstrap/app-nexus.yaml`, `app-plane.yaml`, `app-vault.yaml` — Standalone Applications
-4. `bootstrap/k8s-apps/actions-runner-controller.yaml` — Standalone manifest
 
 ## Modifying Helm Apps
 1. Edit `helm/releases/<app>/values.yaml`

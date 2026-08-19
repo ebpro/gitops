@@ -1,0 +1,19 @@
+fullnameOverride: arc-controller
+serviceAccount:
+  create: true
+imagePullSecrets:
+  - name: docker-hub-registry
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+flags:
+  logLevel: info
+  logFormat: json
+metrics:
+  controllerManagerAddr: ":8080"
+  listenerAddr: ":8080"
+  listenerEndpoint: "/metrics"

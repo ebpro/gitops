@@ -1,0 +1,20 @@
+name: ARC selftest
+
+on:
+  workflow_dispatch:
+
+jobs:
+  selftest:
+    runs-on: [self-hosted, linux, x64]
+    steps:
+      - name: Runner info
+        run: |
+          echo "hostname: $(hostname)"
+          uname -a
+          df -h /home/runner | tail -1
+      - name: DinD check
+        run: |
+          docker version --format 'client={{.Client.Version}} server={{.Server.Version}}'
+      - name: hello-world
+        run: |
+          docker run --rm hello-world
