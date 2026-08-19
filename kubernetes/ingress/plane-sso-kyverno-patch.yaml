@@ -23,7 +23,7 @@ spec:
         spec:
           containers:
           - name: plane-admin
-                env:
+            env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
                 - name: GITEA_HOST
@@ -53,7 +53,7 @@ spec:
         spec:
           containers:
           - name: plane-api
-                env:
+            env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
                 - name: GITEA_HOST
@@ -83,7 +83,7 @@ spec:
         spec:
           containers:
           - name: plane-beat-worker
-                env:
+            env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
                 - name: GITEA_HOST
@@ -113,7 +113,7 @@ spec:
         spec:
           containers:
           - name: plane-live
-                env:
+            env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
                 - name: GITEA_HOST
@@ -143,7 +143,7 @@ spec:
         spec:
           containers:
           - name: plane-space
-                env:
+            env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
                 - name: GITEA_HOST
@@ -173,7 +173,7 @@ spec:
         spec:
           containers:
           - name: plane-web
-                env:
+            env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
                 - name: GITEA_HOST
@@ -203,7 +203,7 @@ spec:
         spec:
           containers:
           - name: plane-worker
-                env:
+            env:
                 - name: IS_GITEA_ENABLED
                   value: "1"
                 - name: GITEA_HOST
