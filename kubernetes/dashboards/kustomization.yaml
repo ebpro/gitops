@@ -25,6 +25,7 @@ resources:
 - backstage.yaml
 - woodpecker.yaml
 - microcks.yaml
+- link-shortener.yaml
 - loki.yaml
 - loki-logs.yaml
 - external-secrets.yaml
