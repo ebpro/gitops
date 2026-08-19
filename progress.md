@@ -91,8 +91,21 @@
 - **Phase C unblocked**: 7 realistic `example` payloads added to `openapi.yaml` (all ops + POST request body), pushed `58c516f` → pipeline re-imports → `messagesMap` should populate.
   - Remaining: mock curl via `/api/rest/...` → `POST /api/tests` (testEndpoint = mock base for self-consistent demo; Phase D repoints at the live app) → MCP JSON-RPC demo (`POST /mcp/link-shortener/1.0.0-SNAPSHOT`: initialize → tools/list → tools/call) → Pact smoke in a cluster maven pod (no JDK on the gitops host).
 
+### Completed (2026-08-19, Phase C+ Pact loop)
+- **Pact CDK loop verified green locally** (Quarkus 3.37.4 + `quarkiverse/quarkus-pact` 1.6.0, Java 25): consumer test 1/1, provider test 3/3 — provider runs the real app (Quarkus test) against the CNPG DB via local port `15432` (SCRAM bypass: JDBC URL with `?user=&password=` query params; **local-only**, CI needs env/secret DB config).
+  - Pact DSL fix: response body is a **flat JSON array** → `like(Map.of(...))` per element (list-shaped matchers failed); dropped unneeded provider state.
+  - **App bug fixed: `POST /api/links` 500** — `LinkResource.create()` now fills `shortcode` (`Link.randomCode()`) + `createdAt` when absent (entity is bound directly from the request JSON; request field is `targetUrl`). Commits `02911d9`, `a8ffba6` on Gitea `bruno/link-shortener` main → pipeline #29 success (16:36 UTC) → Harbor `:latest` carries the fix.
+- **Stale `:1.0.1` image pin — full root cause, resolved (commit `3a105ed`)**:
+  - Symptom: renders pinned `harbor.ebruno.fr/link-shortener/link-shortener:1.0.1` despite git `deployment.yaml` = `:latest`. Survived: ImageUpdater CR removal (`a4cae78`), manifest-cache flush, app-controller restart, hard refreshes. App object verified surgically clean (spec `kustomize: null` under 100 s of 2 s-interval monitoring during reconcile; 0 annotations/labels/managedFields; AppSet template clean; external image-updater pod inactive `images_updated=0`).
+  - **Root cause**: ArgoCD is actually **v3.5.1** (not v2.14 as AGENTS.md says). The repo-server's `mergeSourceParameters` (`reposerver/repository/repository.go` ~L1863) reads **`.argocd-source-<appName>.yaml`** from the app's path **in the git repo** and applies it as a JSON merge-patch onto the `ApplicationSource` at render time — this is the image-updater's **git write-back target**. The pin file (`kustomize: images: […:1.0.1]`) was committed on Aug 15 by the updater's write-back (`eab8c76 "build: update of application link-shortener"`) and survived the CR deletion. Explains everything: clean app spec, clean AppSet, pin on every render, constant manifest cache-key FNV hash across revisions.
+  - Fix (git-only): `git rm kubernetes/link-shortener/.argocd-source-link-shortener.yaml` → `3a105ed` → hard refresh → rev `a4cae78`→`3a105ed` → auto-sync → pod `link-shortener-787678d48b` `:latest` Running, app Synced/Healthy.
+  - Live verification: `POST /api/links {"targetUrl":"https://example.com"}` → **200** with server-generated `shortcode` + `createdAt`; `GET /api/links/{code}` → 200; `DELETE` → 204 (test row removed).
+  - ⚠️ Operational note: any future ArgoCD image-updater (or `.argocd-source*.yaml` file) in this repo **is load-bearing render state** — deleting the updater must also delete its write-back files (repo-wide check: `find . -name ".argocd-source*" -not -path "./.git/*"` — none remain).
+
 ### In Progress
-- **Phase C**: mock + test scenario + MCP endpoint demo — spec examples pushed (`58c516f`), awaiting pipeline re-import; then mock invocation, test run, MCP demo.
+- **Phase C+ (Pact CDK)**: local consumer/provider loop green (above). Next: wire Pact Broker into Woodpecker CI — `./mvnw -s /tmp/settings-nexus.xml clean verify` (drop `-DskipTests`; mvnw `distributionUrl` → in-cluster Nexus), broker via standard Pact JVM sysprops `-Dpact.brokerUrl=http://pact-broker.pact-broker.svc:80` + basic auth (`pactbroker` / k8s secret key `user-password`) + `-Dpact.provider.version=1.0.0`; CI DB config for provider test (env/secret, no SCRAM bypass).
+- **Phase D**: drift step gets `spectral lint` + `oasdiff break` + code↔spec drift gate in `.woodpecker.yaml`.
+- Phase E: Backstage `resource:api` links Microcks + Pact Broker. Phase F: Microcks 1.13.2→1.14.0 (separate window, re-vendor chart + dual-shell readinessProbe patch).
 
 ### Blocked
 - Nothing.

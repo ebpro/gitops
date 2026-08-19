@@ -14,7 +14,7 @@
 ## Architecture
 - **K3s v1.31.5** — Single-node cluster (`compute-lsis-2`), kernel `6.8.0-124-generic`
 - **Cilium CNI** — Tunnel mode, eBPF observability
-- **ArgoCD v2.14+** — Auto-sync with prune/selfHeal
+- **ArgoCD v3.5.1** — Auto-sync with prune/selfHeal
 - **CloudNativePG v0.29+** — PostgreSQL management via `Cluster` CRDs
 - **Vault + ExternalSecrets** — Secret management
 - **Traefik + Cert-Manager** — Ingress (public/local DNS)
@@ -81,6 +81,7 @@ DNS pattern: `<cluster-name>-rw.<namespace>.svc.cluster.local:5432` (read-write/
 - **ArgoCD ignores remote valueFile changes**: Apps that reference `valueFiles` via raw GitHub URLs (e.g. `https://raw.githubusercontent.com/.../values.yaml?v=N`) are cached aggressively. Even after pushing a new commit, ArgoCD won't re-download. **Bump the `?v=N` query param** in `bootstrap/appset-helm.yaml` to force a cache miss, then commit and push.
 - **Helm chart drops pod-level settings**: Some charts do not propagate top-level `hostAliases`, `tolerations`, or `affinity` to the actual pod spec. Always verify with `kubectl get <resource> -o json | python3 -c "..."` to confirm the pod spec contains the expected fields. If missing, use the chart's supported mechanisms (e.g., `server.podTemplate`) instead.
 - **gitops-platform OutOfSync**: Even after pushing commits, `gitops-platform` may go OutOfSync and stall. Run `kubectl annotate application gitops-platform -n argocd argocd.argoproj.io/refresh=hard --overwrite` to force a refresh. If it persists, check the cluster network and GitHub API availability.
+- **Image pinned in renders despite clean git/app spec**: ArgoCD v3 repo-server reads `.argocd-source.yaml` / `.argocd-source-<appName>.yaml` at the app's path **in the git repo** and merge-patches it onto the ApplicationSource at render time (image-updater git write-back target). These dotfiles are hidden from `kustomize build` (dotfiles ignored) → manifests look clean locally but ArgoCD renders differently. Audit with: `find . -name ".argocd-source*" -not -path "./.git/*"`. Removing an image-updater CR requires deleting its write-back file(s) too.
 - **Pod CrashLoopBackOff**: Check ALL container logs (sidecars may be the problem)
 - **Maintenance mode (SonarQube)**: Database migration failed — check migration logs, verify DB schema and PKs match migration expectations
 - **Data store not found (Nexus)**: JDBC driver missing, or storeProperties not correctly formatted
