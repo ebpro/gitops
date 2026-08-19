@@ -1,8 +1,8 @@
 # Plane Helm values — chart plane-ce (https://helm.plane.so)
-# Live app secrets (DATABASE_URL/REDIS_URL/AMQP_URL/SECRET_KEY/LIVE_SERVER_SECRET_KEY)
-# come from the plane-app-secrets ExternalSecret (Vault: secret/plane).
-# SSO env (Gitea OAuth: IS_GITEA_ENABLED/GITEA_HOST/GITEA_CLIENT_*/WEB_URL override)
-# is injected at pod admission by Kyverno policy plane-sso-env-patch.
+# Live app secrets (DATABASE_URL/REDIS_URL/AMQP_URL/SECRET_KEY) come from
+# the plane-app-secrets ExternalSecret (Vault: secret/plane).
+# SSO env (Gitea OAuth: IS_GITEA_ENABLED/GITEA_HOST/GITEA_CLIENT_*) is
+# injected at pod admission by Kyverno policy plane-sso-env-patch.
 planeVersion: v1.2.0
 
 dockerRegistry:
@@ -23,6 +23,8 @@ rabbitmq:
   local_setup: false
 
 env:
+  # chart key consumed by plane-live-secrets (redis.local_setup=false path)
+  remote_redis_url: redis://plane-redis.plane.svc.cluster.local:6379/0
   docstore_bucket: uploads
 
 external_secrets:
@@ -30,30 +32,21 @@ external_secrets:
 
 worker:
   replicas: 1
-  resources:
-    requests:
-      cpu: 25m
-      memory: 256Mi
-    limits:
-      cpu: 1000m
-      memory: 2Gi
+  memoryLimit: 4Gi
+  cpuLimit: 1000m
+  cpuRequest: 250m
+  memoryRequest: 1024Mi
 
 api:
   replicas: 1
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      cpu: 1000m
-      memory: 4Gi
+  memoryLimit: 4Gi
+  cpuLimit: 1000m
+  cpuRequest: 250m
+  memoryRequest: 1024Mi
 
 beatworker:
   replicas: 1
-  resources:
-    requests:
-      cpu: 25m
-      memory: 256Mi
-    limits:
-      cpu: 1000m
-      memory: 2Gi
+  memoryLimit: 4Gi
+  cpuLimit: 1000m
+  cpuRequest: 250m
+  memoryRequest: 1024Mi

@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: plane
       valueFiles:
-      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/plane/values.yaml?v=4
+      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/plane/values.yaml?v=5
   destination:
     server: https://kubernetes.default.svc
     namespace: plane
