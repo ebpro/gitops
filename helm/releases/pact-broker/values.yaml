@@ -1,6 +1,13 @@
 broker:
   config:
-    baseUrl: https://pactbroker.ebruno.fr
+    # Base URL used to build HAL links / absolute API URLs. Must be the in-cluster
+    # service URL (the URL the CI pact-jvm client actually connects to) so that the
+    # `pacts/provider/:p/for-verification` HAL link stays in-cluster instead of
+    # bouncing to the public host behind ForwardAuth (which 401s the anonymous
+    # pact-jvm verification POST). The stock chart (<=6.4.0) only exposes the
+    # singular PACT_BROKER_BASE_URL (not space-split), so per-host matching of a
+    # public+internal pair is not possible without a chart fork.
+    baseUrl: "http://pact-broker.pact-broker.svc:80"
     databaseSslmode: disable
     hidePactflowMessages: true
     logLevel: info
