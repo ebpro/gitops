@@ -9,7 +9,7 @@ spec:
   project: platform
   source:
     repoURL: https://helm.plane.so
-    targetRevision: 1.6.1
+    targetRevision: 1.6.2
     chart: plane-ce
     helm:
       releaseName: plane
