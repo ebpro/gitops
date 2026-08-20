@@ -42,17 +42,18 @@ steps:
     image: python:3.11-slim
     commands:
       - pip install pyyaml
-      - python3 -c "
-import yaml, json
-with open('kubernetes/keycloak-realm/platform-realm-configmap.yaml') as f:
-    cm = yaml.safe_load(f)
-realm = json.loads(cm['data']['platform.json'])
-print(f'Realm validated: {len(realm[\"clients\"])} clients, realm={realm[\"realm\"]}')
-for c in realm['clients']:
-    assert 'clientId' in c, f'Missing clientId in client {c}'
-    assert 'redirectUris' in c, f'Missing redirectUris for {c[\"clientId\"]}'
-print('All clients have required fields')
-"
+      - |
+        python3 -c "
+        import yaml, json
+        with open('kubernetes/keycloak-realm/platform-realm-configmap.yaml') as f:
+            cm = yaml.safe_load(f)
+        realm = json.loads(cm['data']['platform.json'])
+        print(f'Realm validated: {len(realm[\"clients\"])} clients, realm={realm[\"realm\"]}')
+        for c in realm['clients']:
+            assert 'clientId' in c, f'Missing clientId in client {c}'
+            assert 'redirectUris' in c, f'Missing redirectUris for {c[\"clientId\"]}'
+        print('All clients have required fields')
+        "
     when:
       event: [push, pull_request]
 
