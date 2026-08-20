@@ -208,4 +208,8 @@ spec:
         jsonPointers:
         - /metadata/annotations/kubectl.kubernetes.io~1last-applied-configuration
         - /spec/conversion
+      - group: aquasecurity.github.io
+        kind: ClusterComplianceReport
+        jsonPointers:
+        - /metadata/annotations/kubectl.kubernetes.io~1last-applied-configuration
 # updated 1785997307
