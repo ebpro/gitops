@@ -1,19 +1,35 @@
-trivy:
-  ignoreUnfixed: true
-  skipDBUpdate: false
-  offlineScan: false
-  autoRestart:
-    enabled: false
+# trivy-operator 0.33.0 (chart trivy-operator 0.35.0)
+# Continuous security for all namespaces: image vulnerabilities, SBOM,
+# configuration audit, exposed secrets, RBAC assessment, cluster compliance.
 
-trivyOperator:
-  operator:
-    scanAllNamespaces: true
-    createCRD: true
-    RBAC:
-      clusterWide: true
-    scanInterval: 24h
-    scanWorkerThreads: 50
-    signature:
-      notations:
-        sign:
-          enable: true
+targetWorkloads: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
+excludeNamespaces: "arc-runners"
+
+image:
+  tag: "0.33.0"
+
+operator:
+  namespace: trivy-system
+  scanJobTimeout: 10m
+  scanJobsConcurrentLimit: 4
+  vulnerabilityScannerEnabled: true
+  sbomGenerationEnabled: true
+  configAuditScannerEnabled: true
+  rbacAssessmentScannerEnabled: true
+  exposedSecretScannerEnabled: true
+  infraAssessmentScannerEnabled: false
+  clusterComplianceEnabled: true
+  privateRegistryScanSecretsNames:
+    link-shortener: harbor-registry-secret
+
+trivy:
+  severity: HIGH,CRITICAL
+  ignoreUnfixed: true
+  timeout: 10m0s
+
+compliance:
+  reportType: summary
+  cron: "0 */6 * * *"
+  specs:
+    - k8s-nsa-1.0
+    - k8s-pss-baseline-0.1

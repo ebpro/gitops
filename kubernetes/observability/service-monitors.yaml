@@ -210,7 +210,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: trivy-operator
   endpoints:
-    - port: http-prom
+    - port: metrics
       path: /metrics
       interval: 60s
       scrapeTimeout: 10s

@@ -25,14 +25,6 @@ spec:
         version: 0.14.2
         syncWave: '5'
         valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/arc/controller-values.yaml?v=2
-      - app: arc-org-runners
-        chart: gha-runner-scale-set
-        namespace: arc-runners
-        releaseName: arc-org-runners
-        repoURL: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
-        version: 0.14.2
-        syncWave: '15'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/arc/org-scale-set-values.yaml?v=3
       - app: argo-image-updater
         chart: argocd-image-updater
         namespace: argocd
@@ -142,9 +134,9 @@ spec:
         namespace: trivy-system
         releaseName: trivy-operator
         repoURL: https://aquasecurity.github.io/helm-charts
-        version: 0.21.0
+        version: 0.35.0
         syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/trivyoperator/values.yaml?v=1
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/trivyoperator/values.yaml?v=2
       - app: traefik
         chart: traefik
         namespace: kube-system
