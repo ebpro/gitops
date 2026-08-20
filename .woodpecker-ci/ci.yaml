@@ -55,3 +55,43 @@ print('All clients have required fields')
 "
     when:
       event: [push, pull_request]
+
+# ─── Plane Liveness + API Token + Version Drift Guard ──────
+  verify-plane:
+    image: python:3.11-slim
+    commands:
+      - python -m pip install -q requests
+      - >
+        python - <<'PYEOF'
+        import os
+        import requests
+
+        base = os.environ["PLANE_URL"].rstrip("/")
+        token = os.environ["PLANE_API_TOKEN"]
+
+        r = requests.get(
+            f"{base}/api/v1/users/me/",
+            headers={"X-Api-Key": token},
+            timeout=15,
+        )
+        assert r.status_code == 200, (
+            f"plane API-key auth failed: {r.status_code} {r.text[:200]}"
+        )
+        print(f"plane token ok: {r.json().get('email')}")
+
+        r = requests.get(f"{base}/api/instances/", timeout=15)
+        assert r.status_code == 200, f"plane instances probe failed: {r.status_code}"
+        version = r.json()["instance"]["current_version"]
+        expected = os.environ["PLANE_EXPECTED_VERSION"]
+        assert version == expected, (
+            f"plane version drift: running {version}, expected {expected}"
+        )
+        print(f"plane version ok: {version}")
+        PYEOF
+    environment:
+      PLANE_URL: https://plane.ebruno.fr
+      PLANE_EXPECTED_VERSION: "1.4.1"
+      PLANE_API_TOKEN:
+        from_secret: plane_api_token
+    when:
+      event: [push, pull_request]
