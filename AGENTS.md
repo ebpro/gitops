@@ -64,6 +64,7 @@ DNS pattern: `<cluster-name>-rw.<namespace>.svc.cluster.local:5432` (read-write/
 | `nexus-db` | `nexus` | 20Gi | 300 |
 | `backstage-db` | `backstage` | 10Gi | 200 |
 | `keycloak-db` | `keycloak` | 20Gi | 500 |
+| `harbor-db` | `harbor` | 20Gi | 300 |
 
 **Managed via**: `kubernetes/postgresql/<db>-yaml` files synced by ArgoCD.
 **Debug via**: `kubectl exec -it <cluster>-1 -n <ns> -- psql -U postgres -d <dbname>`

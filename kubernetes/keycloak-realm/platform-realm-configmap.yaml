@@ -1071,14 +1071,14 @@ data:
             "https://harbor.ebruno.fr/c/oidc/callback"
           ],
           "webOrigins": [
-            "*"
+            "https://harbor.ebruno.fr"
           ],
           "notBefore": 0,
           "bearerOnly": false,
           "consentRequired": false,
           "standardFlowEnabled": true,
           "implicitFlowEnabled": false,
-          "directAccessGrantsEnabled": true,
+          "directAccessGrantsEnabled": false,
           "serviceAccountsEnabled": false,
           "publicClient": false,
           "frontchannelLogout": false,
@@ -1104,7 +1104,7 @@ data:
             "organization",
             "microprofile-jwt"
           ],
-          "secret": "IjuYTYj6UwcW3NSDx7mMiBJLPnlNlXH69AuKMDt0ZFkWwGdIwIfYU5EddnVyDlPB9EogikK4l9wWustDZEQkcm"
+          "secret": "ROTATED-2026-08-19-source-of-truth-Vault-secret-oidc-harbor-clientSecret-live-realm-wins"
         },
         {
           "clientId": "woodpecker",

@@ -54,6 +54,13 @@ PostgreSQL instances are deployed via **CloudNativePG (CNPG)** operator as `Clus
 - CPU: 250m/500m (req/limit), Memory: 512Mi/1Gi
 - Service: `pact-broker-db-rw`
 
+**harbor-db** (`harbor` namespace)
+- 20Gi PVC with `local-path` storage
+- 300 max connections
+- CPU: 250m/500m (req/limit), Memory: 512Mi/1Gi
+- Service: `harbor-db-rw`
+- Harbor chart consumes CNPG-generated creds from the `harbor-db-superuser` secret (the `secret/data/postgresql/harbor` Vault path + `harbor-postgresql-auth` ExternalSecret are legacy/unused)
+
 ### CNPG Management
 - Managed via raw K8s manifests in `kubernetes/postgresql/`, synced by ArgoCD
 - ExternalSecrets for app-user credentials, Vault-backed
