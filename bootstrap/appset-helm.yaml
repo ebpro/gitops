@@ -72,7 +72,7 @@ spec:
         repoURL: https://helm.goharbor.io
         version: 1.19.2
         syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/harbor/values.yaml?v=5
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/harbor/values.yaml?v=6
       - app: kube-prometheus
         chart: kube-prometheus-stack
         namespace: kube-prometheus
