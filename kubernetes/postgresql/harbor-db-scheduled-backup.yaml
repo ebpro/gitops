@@ -6,4 +6,5 @@ metadata:
 spec:
   cluster:
     name: harbor-db
-  schedule: "0 3 * * *"
+  # 6-field cron (CNPG, NOT k8s CronJob format): second minute hour dom month dow
+  schedule: "0 0 3 * * *"
