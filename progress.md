@@ -112,9 +112,16 @@
 - **Probe instrumentation removed** (link-shortener `8552970`): reflection pool probe `@BeforeAll` + `md5()` + shell `printenv|md5sum` lines. CI green after removal.
 - Broker state: consumer versions `6aa7d03`/`9f3c559`/`8552970` published, verification results published for the last two. `can-i-deploy` = top-level `GET /can-i-deploy?pacticipant=&version=&to=|environment=` route (legacy `/pacts/.../can_i_deploy` is unrouted on this version) — natural hook for a Phase D deploy gate.
 
+### Completed (2026-08-20, Phase D — contract gates GREEN)
+- **Pipeline now 6 gates**: `spec-gate` → `build` (+code↔spec drift) → `microcks-contract` → `pact-broker` → `deploy-gate` → `docker-build-push`. Commits on Gitea `bruno/link-shortener` main: `bbcc2e2` (gates), `4ae54d2` (Spectral 6.16.3 has no `annotated` format — default formatter), `7527837` (push baseline via `CI_PREV_COMMIT_SHA`, best-effort). Pipelines: #41 failed (bad spectral flag), **#42 `4ae54d2` + #43 `7527837` fully green** (all 7 steps incl. clone).
+- **`spec-gate`** (node:22-bookworm; push/pull_request/manual): pinned `@stoplight/spectral-cli@6.16.3` + oasdiff 1.29.1 (sha256-pinned tarball). Lint (errors fail, warnings allowed — spec currently 0 errors/23 warnings: operation-description/operationId/tag-defined), `oasdiff validate` (3.1 conformance), breaking gate: baseline = PR → `origin/HEAD`, push → `CI_PREV_COMMIT_SHA` (best-effort fetch) else `HEAD~1`; breaking change **without** `info.version` bump → FATAL, with bump → WARN pass, no baseline → WARN skip.
+- **Code↔spec drift gate** (in `build`, maven): boots the built jar against the CNPG DB (`DB_TEST_PASSWORD` secret), health-loops `/q/health/live` (~8s), fetches `/q/openapi` (YAML), `oasdiff diff openapi.yaml runtime --exclude-elements examples,extensions --fail-on-diff` — code that drifts from the committed contract fails the pipe.
+- **Runtime-spec pins** (`application.properties`): `quarkus.smallrye-openapi.info-title=link-shortener` + `quarkus.smallrye-openapi.servers=https://link.ebruno.fr` — runtime doc previously said `link-shortener API` and omitted `servers`; drift diff now empty.
+- **`deploy-gate`** (after pact-broker): `GET /can-i-deploy?pacticipant=link-shortener&version=$CI_COMMIT_SHA&to=ci` — HTTP≠200 or `"deployable":false` blocks the image push. Contract live-verified: `to` param mandatory (absent → 400); verified SHA → `deployable:true`; unverified version → 200 + `deployable:false` (fail-closed).
+- **Known limitation (by design)**: push-event breaking baseline currently WARN-skips (depth-1 clone; `--deepen`/fetch-by-SHA not available from Gitea). PR baseline (`origin/main`) works; the gate never blocks on missing baseline — it blocks on real breaking changes without a version bump.
+
 ### In Progress
-- **Phase D**: Woodpecker contract step gains `spectral lint` + `oasdiff break` + code↔spec drift gate (and optionally a broker `can-i-deploy` check on deploy).
-- Phase E: Backstage `resource:api` links Microcks + Pact Broker. Phase F: Microcks 1.13.2→1.14.0 (separate window, re-vendor chart + dual-shell readinessProbe patch).
+- Phase E (deferred by user for now): Backstage catalog `resource:api` entry linking Microcks service + Pact Broker (stock `backstage:1.53.1` image; Microcks **plugin** would need a custom image build — not required for plain catalog-info links).
 
 ### Blocked
 - Nothing.
