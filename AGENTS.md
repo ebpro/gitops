@@ -12,7 +12,7 @@
 - **Immutable cluster state** — The cluster must NEVER be touched directly. All changes flow through git. Violating this rule causes split-brain: ArgoCD will detect drift and rollback within 180s. If an AppSet hasn't re-rendered, refresh `gitops-platform` app first, then wait for the chain to propagate.
 
 ## Architecture
-- **K3s v1.31.5** — Single-node cluster (`compute-lsis-2`), kernel `6.8.0-124-generic`
+- **K3s v1.35.5+k3s1** — Single-node cluster (`compute-lsis-2`), kernel `6.8.0-124-generic`
 - **Cilium CNI** — Tunnel mode, eBPF observability
 - **ArgoCD v3.5.1** — Auto-sync with prune/selfHeal
 - **CloudNativePG v0.29+** — PostgreSQL management via `Cluster` CRDs
@@ -65,6 +65,10 @@ DNS pattern: `<cluster-name>-rw.<namespace>.svc.cluster.local:5432` (read-write/
 | `backstage-db` | `backstage` | 10Gi | 200 |
 | `keycloak-db` | `keycloak` | 20Gi | 500 |
 | `harbor-db` | `harbor` | 20Gi | 300 |
+| `plane-db` | `plane` | 20Gi | 200 |
+| `woodpecker-db` | `ci` | 10Gi | (default) |
+| `link-shortener-db` | `link-shortener` | 20Gi | (default) |
+| `matrix-db` | `synapse` | 10Gi | (default) |
 
 **Managed via**: `kubernetes/postgresql/<db>-yaml` files synced by ArgoCD.
 **Debug via**: `kubectl exec -it <cluster>-1 -n <ns> -- psql -U postgres -d <dbname>`
@@ -81,6 +85,9 @@ DNS pattern: `<cluster-name>-rw.<namespace>.svc.cluster.local:5432` (read-write/
 - **ArgoCD not picking up changes**: Verify the full reconciliation chain: `gitops-platform` (sync status) → `helm-apps`/`kubernetes-manifests` AppSets → individual Application → live resource. If AppSet wasn't updated, refresh `gitops-platform`: `kubectl annotate application gitops-platform -n argocd argocd.argoproj.io/refresh=hard --overwrite`. If Application wasn't updated, annotate it similarly. **Never patch the live resource** — fix the source files, commit, push, and refresh the chain.
 - **ArgoCD ignores remote valueFile changes**: Apps that reference `valueFiles` via raw GitHub URLs (e.g. `https://raw.githubusercontent.com/.../values.yaml?v=N`) are cached aggressively. Even after pushing a new commit, ArgoCD won't re-download. **Bump the `?v=N` query param** in `bootstrap/appset-helm.yaml` to force a cache miss, then commit and push.
 - **Helm chart drops pod-level settings**: Some charts do not propagate top-level `hostAliases`, `tolerations`, or `affinity` to the actual pod spec. Always verify with `kubectl get <resource> -o json | python3 -c "..."` to confirm the pod spec contains the expected fields. If missing, use the chart's supported mechanisms (e.g., `server.podTemplate`) instead.
+- **CNPG `ScheduledBackup` cron needs 6 fields (with seconds)**: CNPG's cron parser requires `sec min hour day month weekday` (e.g. `0 0 3 * * *` = daily 03:00). A 5-field expr silently mis-parses (e.g. hourly `:03` storm). Fix `schedule:` in `kubernetes/postgresql/<db>-scheduled-backup.yaml`.
+- **Vault `secret/` KV is writable with the root token** (verified 2026-08-20: PUT/read/DELETE all OK via `http://vault-active.vault.svc.cluster.local:8200`). The earlier "read-only even with root" note is obsolete. KV layout is flat/mixed (some parents are leaves, not dirs) → always address **full leaf paths** (`secret/data/<a>/<b>`), never try to list parents. AppRole (ESO) is intentionally read-scoped (403 on list, 200 on its keys).
+- **CNPG image standardized**: all clusters now pin `ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie` in git. `matrix-db` was moved from the `keycloak` ns to `synapse` (2026-08-20).
 - **gitops-platform OutOfSync**: Even after pushing commits, `gitops-platform` may go OutOfSync and stall. Run `kubectl annotate application gitops-platform -n argocd argocd.argoproj.io/refresh=hard --overwrite` to force a refresh. If it persists, check the cluster network and GitHub API availability.
 - **Pact broker HAL links + UI base URL (single `PACT_BROKER_BASE_URL`)**: The broker generates ALL absolute URLs — HAL links (e.g. `pb:provider-pacts-for-verification`) **and** the rendered UI (CSS/JS/favicon tags + page links + `BASE_URL` JS global in `lib/pact_broker/ui/views/layouts/main.haml`) — from its configured base URL. A single in-cluster value breaks the public UI (browsers can't reach `pact-broker.pact-broker.svc` → unstyled page, dead links); a single public value 401s the anonymous CI pact-jvm `for-verification` POST behind `fwd-auth`. Fix (no chart fork needed): set `broker.config.baseUrl` in `helm/releases/pact-broker/values.yaml` to a **space-separated pair** `"http://pact-broker.pact-broker.svc:80 https://pactbroker.ebruno.fr"`. The broker's `Rack::PactBroker::SetBaseUrl` middleware (supported since broker v2.79.0; chart 6.1.0 passes the one env verbatim and the app space-splits it) picks per request the entry matching the request's scheme+host (X-Forwarded headers first, then Host-only, else first entry) — Traefik always sends `X-Forwarded-Proto/Host`, so public browsers match the public entry and in-cluster CI falls back to the in-cluster entry. **Keep the in-cluster URL first** — it is the fallback for non-matching requests, which is what keeps CI HAL links in-cluster. Debug resolved base URL: `curl -s http://pact-broker.pact-broker.svc:80/diagnostic/status/heartbeat` (in-cluster), or add `-H 'X-Forwarded-Proto: https' -H 'X-Forwarded-Host: pactbroker.ebruno.fr'` (e.g. from the broker pod) to simulate a public request.
 - **Image pinned in renders despite clean git/app spec**: ArgoCD v3 repo-server reads `.argocd-source.yaml` / `.argocd-source-<appName>.yaml` at the app's path **in the git repo** and merge-patches it onto the ApplicationSource at render time (image-updater git write-back target). These dotfiles are hidden from `kustomize build` (dotfiles ignored) → manifests look clean locally but ArgoCD renders differently. Audit with: `find . -name ".argocd-source*" -not -path "./.git/*"`. Removing an image-updater CR requires deleting its write-back file(s) too.
@@ -109,6 +116,10 @@ We delegate operations to controllers (operators). Never manage `Deployment`, `S
 | KEDA              | ❌ Planned  | keda-system                    | Event-driven autoscaling       |
 | Descheduler       | ❌ Planned  | kubesphere                     | Pod placement optimization     |
 | Keycloak          | ✅ Deployed | keycloak                       | Central SSO / Identity Provider |
+| ARC               | ✅ Deployed | actions-runner-controller      | GitHub Actions runners (App auth) |
+| Microcks          | ✅ Deployed | microcks                       | API mocking / contract tests   |
+| Trivy Operator    | ✅ Deployed | trivy-system                   | Image/manifest scanning        |
+| Woodpecker CI     | ✅ Deployed | ci                             | VCS-hosted CI (v3)             |
 
 ## CNPG Strategy
 **One dedicated cluster per critical app.** Isolates upgrades, tuning, and failover.
@@ -134,15 +145,13 @@ spec:
 ```
 Behind the scenes, operators provision: CNPG Cluster, ExternalSecret + Vault, Traefik IngressRoute, KEDA scaler, OTel instrumentation, Prometheus monitoring, Loki logs, Tempo traces, Velero backups, Kyverno policies.
 
-## ArgoCD Team Platform Status (2026-08-08)
+## ArgoCD Team Platform Status (2026-08-20)
 ```
-healthy: 20/31 apps (65%)
-  ArgoCD: vault, external-secrets, cloudnative-pg, kyverno, traefik, etc.
+healthy: 49/50 apps (98%)
+  Synced/Healthy: all infra, identity, apps
+  vault: Health Unknown, Sync (metadata-only app, by design)
 ```
-**Degraded (6)**: backstage-build, gitops-platform, kube-prometheus, mysql-proxy, oauth2-proxy, postgresql
-**Unknown (2)**: kite-prometheus, nexus
-**OutofSync (2)**: postgresql, plane
-**Progressing (3)**: microcks, plane, vault
+**Full deep audit:** see `docs/deep-audit.md`.
 ## SSO & Identity Architecture
 Platform is migrating to **Keycloak as single source of identity**. Central authentication via Keycloak Helm Chart (Quarkus), GitOps-managed realms.
 
@@ -217,5 +226,6 @@ Break-glass accounts maintained locally for: Keycloak admin, Vault, ArgoCD, Sona
 - Pending: validate token, OIDC redirect URLs
 
 ## External File References (lazy-load when needed)
+- @docs/deep-audit.md — full platform audit: state, inventory, fixes, residual defects
 - @infrastructure/README.md — CNPG clusters, vault secret paths, storage classes, operator stack
 - @README.md — Repository structure, management patterns

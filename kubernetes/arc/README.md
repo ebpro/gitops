@@ -33,10 +33,11 @@ scale event (verified 2026-08-20; no error is raised anywhere).
   `POST /actions/runner-registration` (`RemoteAuth <registration token>`).
   Read-only probes: `GET .../runnerscalesets` (labels/stats) and
   `GET .../runnerscalesets/{id}/acquirablejobs` (204 = no job acquired).
-- The rebuilt Vault's secret API is **read-only** (writes/destroy/delete are
-  400/no-op even with the root token); provisioning goes through the pod's
-  sidecar path. Residual dead key `secret/data/github/arc-runner` (revoked PAT,
-  2026-08-20) cannot be purged via API — it disappears with the Vault rebuild.
+ - The rebuilt Vault's `secret/` KV API is **fully writable with the root token**
+   (PUT/read/DELETE verified 2026-08-20). Provisioning can go directly through the
+   API (`http://vault-active.vault.svc.cluster.local:8200`), not just the pod's
+   sidecar path. The dead key `secret/data/github/arc-runner` (revoked PAT) was
+   purged via API on 2026-08-20.
 
 ## CRDs (vendored)
 
