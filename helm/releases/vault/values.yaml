@@ -28,6 +28,10 @@ server:
       memory: 512Mi
   ui:
     enabled: true
+  auditStorage:
+    enabled: true
+    size: 2Gi
+    storageClass: local-path
   metrics:
     enabled: true
     serviceMonitor:
