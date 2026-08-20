@@ -33,6 +33,10 @@ scale event (verified 2026-08-20; no error is raised anywhere).
   `POST /actions/runner-registration` (`RemoteAuth <registration token>`).
   Read-only probes: `GET .../runnerscalesets` (labels/stats) and
   `GET .../runnerscalesets/{id}/acquirablejobs` (204 = no job acquired).
+- The rebuilt Vault's secret API is **read-only** (writes/destroy/delete are
+  400/no-op even with the root token); provisioning goes through the pod's
+  sidecar path. Residual dead key `secret/data/github/arc-runner` (revoked PAT,
+  2026-08-20) cannot be purged via API — it disappears with the Vault rebuild.
 
 ## CRDs (vendored)
 
