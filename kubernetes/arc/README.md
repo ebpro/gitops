@@ -6,8 +6,33 @@ GitHub Actions ephemeral runners for org `ebpro`, scale-set architecture (SOTA 2
 |---|---|
 | Controller deployment | helm app `arc-controller` (`bootstrap/appset-helm.yaml`), ns `actions-runner-controller` |
 | Org scale set (`ebpro-org`) | helm app `arc-org-runners` (`bootstrap/appset-helm.yaml`), ns `arc-runners` |
-| GitHub PAT (runner mgmt) | Vault `secret/data/github/arc-runner` → ExternalSecret `arc-github-creds` (this dir) → K8s secret in `arc-runners` |
-| Selftest workflow | `.github/workflows/arc-selftest.yaml` (workflow_dispatch, `[self-hosted, linux, x64]`) |
+| GitHub App `arc-gitops-ebruno` (runner mgmt) | Vault `secret/data/github/arc-app` (`github_app_id`, `github_app_installation_id`, `github_app_private_key`) → ExternalSecret `arc-github-creds` (this dir) → K8s secret in `arc-runners` |
+| Selftest workflow | `.github/workflows/arc-selftest.yaml` (workflow_dispatch, `runs-on: ebpro-org`) |
+
+## Jobs → scale set routing (GitHub-side matching)
+
+Documented forms only (github.com docs: *Using Actions Runner Controller runners in a workflow*):
+
+```yaml
+runs-on: ebpro-org                      # scale-set name (recommended)
+runs-on: [linux, x64]                   # EXACT runnerScaleSetLabels set
+```
+
+Hybrids like `[self-hosted, linux, x64]` or `[self-hosted, linux, x64, ebpro-org]`
+do **not** match — the job then stays queued forever and the listener sees no
+scale event (verified 2026-08-20; no error is raised anywhere).
+
+## Ops notes
+
+- The 0.14.2 controller does **not** watch the `githubConfigSecret` change: after
+  rotating the GitHub App credentials in Vault/ExternalSecret, restart the
+  controller pod (it recreates the listener) for the new config to propagate.
+- Scale set CRUD is **not** in the public REST API (`.../scaling-set-definitions`
+  is 404). Internal endpoint: `_apis/runtime/runnerscalesets` on the actions
+  service URL, using the admin connection from
+  `POST /actions/runner-registration` (`RemoteAuth <registration token>`).
+  Read-only probes: `GET .../runnerscalesets` (labels/stats) and
+  `GET .../runnerscalesets/{id}/acquirablejobs` (204 = no job acquired).
 
 ## CRDs (vendored)
 
