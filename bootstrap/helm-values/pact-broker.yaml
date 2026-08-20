@@ -1,8 +1,10 @@
 broker:
   config:
-    # In-cluster service URL so CI pact-jvm verification HAL links stay in-cluster
-    # (see helm/releases/pact-broker/values.yaml for the full rationale).
-    baseUrl: "http://pact-broker.pact-broker.svc:80"
+    # Space-separated base URLs. In-cluster first (fallback keeps CI pact-jvm HAL
+    # links in-cluster), public second so UI assets/links render for browsers.
+    # The broker's SetBaseUrl middleware matches per request (see
+    # helm/releases/pact-broker/values.yaml for the full rationale).
+    baseUrl: "http://pact-broker.pact-broker.svc:80 https://pactbroker.ebruno.fr"
     databaseSslmode: disable
     hidePactflowMessages: true
     logLevel: info

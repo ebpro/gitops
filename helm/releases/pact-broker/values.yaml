@@ -1,13 +1,18 @@
 broker:
   config:
-    # Base URL used to build HAL links / absolute API URLs. Must be the in-cluster
-    # service URL (the URL the CI pact-jvm client actually connects to) so that the
-    # `pacts/provider/:p/for-verification` HAL link stays in-cluster instead of
-    # bouncing to the public host behind ForwardAuth (which 401s the anonymous
-    # pact-jvm verification POST). The stock chart (<=6.4.0) only exposes the
-    # singular PACT_BROKER_BASE_URL (not space-split), so per-host matching of a
-    # public+internal pair is not possible without a chart fork.
-    baseUrl: "http://pact-broker.pact-broker.svc:80"
+    # Space-separated list of base URLs used to build HAL links / absolute API
+    # URLs AND to render UI assets/links. The broker's SetBaseUrl rack middleware
+    # (>= v2.79.0) matches the incoming request's scheme+host against this list
+    # per request (X-Forwarded headers first, then Host-only, else first entry).
+    #
+    # Order matters: the FIRST entry is the fallback for requests that match
+    # nothing, so the in-cluster URL goes first to keep CI pact-jvm HAL
+    # `for-verification` links in-cluster (avoids the public host behind
+    # ForwardAuth, which 401s the anonymous verification POST). Public browser
+    # requests (via Traefik X-Forwarded-Proto/Host) match the public entry, so
+    # UI CSS/JS/links render against https://pactbroker.ebruno.fr instead of the
+    # unreachable in-cluster service URL.
+    baseUrl: "http://pact-broker.pact-broker.svc:80 https://pactbroker.ebruno.fr"
     databaseSslmode: disable
     hidePactflowMessages: true
     logLevel: info
