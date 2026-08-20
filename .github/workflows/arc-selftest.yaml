@@ -5,7 +5,7 @@ on:
 
 jobs:
   selftest:
-    runs-on: [self-hosted, linux, x64]
+    runs-on: ebpro-org
     steps:
       - name: Runner info
         run: |
