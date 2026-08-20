@@ -29,6 +29,13 @@ trivy:
   timeout: 10m0s
   storageSize: "5Gi"
   storageClassName: local-path
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 2Gi
   server:
     resources:
       requests:
@@ -44,3 +51,5 @@ compliance:
   specs:
     - k8s-nsa-1.0
     - k8s-pss-baseline-0.1
+    - k8s-cis-1.23
+    - k8s-pss-restricted-0.1
