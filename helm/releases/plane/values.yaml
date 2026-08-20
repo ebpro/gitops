@@ -4,7 +4,7 @@
 # SSO env (Gitea OAuth: IS_GITEA_ENABLED/GITEA_HOST/GITEA_CLIENT_*) is
 # injected at pod admission by Kyverno ClusterPolicy plane-sso-env-patch
 # (kubernetes/ingress/plane-sso-kyverno-patch.yaml, synced by ArgoCD app "ingress").
-planeVersion: v1.2.0
+planeVersion: v1.4.1
 
 dockerRegistry:
   enabled: false
