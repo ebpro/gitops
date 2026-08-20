@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-org-runners
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '15'
+# Vendored chart (charts/gha-runner-scale-set) instead of oci://ghcr.io: upstream chart
+# 0.14.2 renders scalar runner-container fields (e.g. image) as broken single-key maps
+# via `{{ $key }}: {{ $val | toYaml | nindent 2 }}` in _helpers.tpl (dind/kubernetes/
+# kubernetes-novolume runner-container helpers). Local copy ships the scalar-safe fix.
+# Syncs from git path so chart + values both come from this repo (single source of truth).
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/ebpro/gitops
+    targetRevision: main
+    path: charts/gha-runner-scale-set
+    helm:
+      releaseName: arc-org-runners
+      valueFiles:
+      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/arc/org-scale-set-values.yaml?v=4
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arc-runners
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
