@@ -8,6 +8,7 @@ patches:
   - path: patches/argocd-cmd-params-cm.yaml
   - path: patches/argocd-rbac-cm.yaml
   - path: patches/argocd-server-deployment-patch.yaml
+  - path: patches/argocd-application-controller-restart.yaml
   - target:
       kind: CustomResourceDefinition
       name: applications.argoproj.io
