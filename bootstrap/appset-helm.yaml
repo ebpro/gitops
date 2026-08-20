@@ -136,7 +136,7 @@ spec:
         repoURL: https://aquasecurity.github.io/helm-charts
         version: 0.35.0
         syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/trivyoperator/values.yaml?v=2
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/trivyoperator/values.yaml?v=3
       - app: traefik
         chart: traefik
         namespace: kube-system

@@ -19,6 +19,7 @@ operator:
   exposedSecretScannerEnabled: true
   infraAssessmentScannerEnabled: false
   clusterComplianceEnabled: true
+  builtInTrivyServer: true
   privateRegistryScanSecretsNames:
     link-shortener: harbor-registry-secret
 
@@ -26,6 +27,16 @@ trivy:
   severity: HIGH,CRITICAL
   ignoreUnfixed: true
   timeout: 10m0s
+  storageSize: "5Gi"
+  storageClassName: local-path
+  server:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: "2"
+        memory: 2Gi
 
 compliance:
   reportType: summary
