@@ -4,7 +4,7 @@ githubConfigSecret: arc-github-creds
 scaleSetLabels:
   - linux
   - x64
-minRunners: 0
+minRunners: 1
 maxRunners: 2
 containerMode:
   type: dind

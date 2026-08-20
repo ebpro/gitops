@@ -19,7 +19,7 @@ spec:
     helm:
       releaseName: arc-org-runners
       valueFiles:
-      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/arc/org-scale-set-values.yaml?v=7
+      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/arc/org-scale-set-values.yaml?v=8
   destination:
     server: https://kubernetes.default.svc
     namespace: arc-runners
