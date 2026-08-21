@@ -31,6 +31,8 @@ spec:
     - component/traefik
     - component/backstage
     - component/gitops
+    - component/microcks
+    - component/pact-broker
     - resource/backstage-db
     - resource/keycloak-db
     - resource/sonarqube-db
@@ -40,17 +42,44 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: argocd
-  description: GitOps continuous deployment, auto-sync with prune/selfHeal
+  name: grafana
+  description: Monitoring dashboards, Prometheus metrics exploration
   links:
     - title: UI
-      url: https://argocd.ebruno.fr
+      url: https://grafana.ebruno.fr
       icon: dashboard
 spec:
   type: service
   lifecycle: production
   owner: group/platform
-  providesApi: api/argocd
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: microcks
+  description: API mocking and contract testing (REST/AsyncAPI/OpenAPI)
+  links:
+    - title: UI
+      url: https://microcks.ebruno.fr
+      icon: dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: pact-broker
+  description: Consumer-driven contract negotiation and verification (Pact)
+  links:
+    - title: UI
+      url: https://pactbroker.ebruno.fr
+      icon: dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
 ---
 apiVersion: backstage.io/v1alpha1
 kind: API
