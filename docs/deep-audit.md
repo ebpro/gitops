@@ -86,12 +86,16 @@ Apps: backstage, harbor, ci (Woodpecker v3), nexus, plane, sonarqube, microcks, 
 - Purged dead Vault key `github/arc-runner`.
 - Corrected `kubernetes/arc/README.md` read-only claim + this doc.
 - Synced `AGENTS.md`.
+- **Keycloak admin**: Vault `keycloak` `adminPassword` verified valid against live KC 26.7.0 (`password` grant 200, master realm `admin`). Docs corrected (see SSO section of AGENTS.md).
+- **KC group membership re-established** after realm rebuild: `bruno` → `platform-admins`; verified rows `ci-runner` → `developers`+`platform-engineers`, `gitops-user` → `platform-engineers`. (KC build 26.7.0: classic endpoints `GET groups/{id}/users` / `POST groups/{id}/members` / `POST users/{id}/role-mappings/groups/{role}` 404 — use `PUT /admin/realms/{realm}/users/{uid}/groups/{gid}`.)
+- **Harbor admin**: OIDC user `bruno@ebruno.fr` (user_id 9) promoted via one-off `UPDATE harbor_user SET sysadmin_flag=true` in `registry` DB (pod `harbor-db-1`). Login as bruno now exposes Harbor admin panel. Local `admin` account is still stale (break-glass only, low priority).
+- **Harbor push robot**: `robot$backstage` created on project `library` (Pull+Push); API-verified. Credential stored Vault `secret/data/harbor/backstage` (`username`/`password`), synced to `ci/woodpecker-harbor-backstage` via ExternalSecret `kubernetes/ci/harbor-backstage-external-secret.yaml` (same key naming as the pre-existing manually-created `ci/woodpecker-harbor-creds`).
+- **Keycloak realm reconciler**: old `Error` pods were transient (`No route to host` to KC API at job time); current runs complete OK — no action needed.
 
-### 4.2 Open — credential blockers (block Backend CI)
-1. **Gitea admin**: Vault `gitea/admin` ≠ live Gitea DB (admin login 401). → reset admin password in Gitea UI, reseed Vault `gitea/admin`, then ESO re-syncs.
-2. **Harbor admin**: `admin/Harbor12345` stale (login 401). → confirm/reset admin, reseed Vault `harbor` admin + `oidc/harbor`.
-3. **Woodpecker CI vars** for `bruno/backstage`: `HARBOR_USERNAME`/`HARBOR_PASSWORD` (robot on `library`) + `GITEA_TOKEN` — to be created once #1/#2 are live.
-4. **Keycloak admin password**: Vault `keycloak` admin grant returns 400 `invalid_grant` (stale). → reset + reseed `keycloak` adminPassword/adminToken.
+### 4.2 Open — credential blockers (residual)
+1. **Gitea local admin `admin`**: Vault `gitea/admin` ≠ live DB (401). **Not blocking**: `bruno` is Gitea site-admin + Woodpecker admin (`WOODPECKER_ADMIN: bruno,ci-runner`); robot tokens no longer needed for the plan. Optional: reset admin password + reseed Vault.
+2. **Harbor local `admin`**: stale (401). **Not blocking**: bruno is now sysadmin via OIDC. Optional: reset + reseed Vault `harbor`.
+3. **Woodpecker secrets for `bruno/backstage`**: repo-level secrets `HARBOR_USERNAME`/`HARBOR_PASSWORD` must exist when the backstage pipeline runs (pattern copied from live `bruno/link-shortener` `.woodpecker.yaml` `from_secret` usage). Credentials ready in Vault/K8s (`ci/woodpecker-harbor-backstage`); Woodpecker-side secret creation happens at pipeline onboarding (Step 4) via UI/API. `DB_TEST_PASSWORD`/`MICROCKS_*` for the app are provisioned alongside the app manifest (Step 4/5).
 
 ### 4.3 Noted / deferred
 - `vault` app reports Unknown (metadata-only manifests) — cosmetic.
