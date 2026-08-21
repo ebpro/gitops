@@ -267,7 +267,10 @@ config:
         preserveEncodedCharacters: false
       negativeCache:
         enabled: true
-        timeToLive: 1440
+        # 15 min: a transient upstream 404 must not poison a GAV for a day
+        # (2026-08-21: cold-fetch failure of wildfly-common:2.0.1 blocked the
+        # woodpecker build for the full 1440-min TTL).
+        timeToLive: 15
       httpClient:
         blocked: false
         autoBlock: false
