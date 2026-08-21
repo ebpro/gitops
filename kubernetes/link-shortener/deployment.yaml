@@ -17,7 +17,7 @@ spec:
         app.kubernetes.io/name: link-shortener
       annotations:
         instrumentation.opentelemetry.io/inject-java: link-shortener-otel
-        observability.link-shortener/restart: java25-v8
+        observability.link-shortener/restart: oidc-hardened-1
     spec:
       containers:
         - name: link-shortener
