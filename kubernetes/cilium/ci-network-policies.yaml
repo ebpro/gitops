@@ -254,6 +254,14 @@ spec:
               protocol: TCP
             - port: "9292"
               protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app: sonarqube
+            k8s:io.kubernetes.pod.namespace: sonarqube
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
     - toFQDNs:
         - matchPattern: "gitea.ebruno.fr"
         - matchPattern: "*.github.com"
