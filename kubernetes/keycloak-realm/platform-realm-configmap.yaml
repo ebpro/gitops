@@ -1218,37 +1218,6 @@ data:
           "directAccessGrantsEnabled": false,
           "serviceAccountsEnabled": false,
           "publicClient": false,
-          "roles": {
-            "role": [
-              {
-                "name": "admin",
-                "description": "",
-                "composite": false,
-                "clientRole": true,
-                "containerId": "62b1e6da-3a03-4880-9024-a2257d973dcf",
-                "id": "5d7446ec-24e9-4791-a8a6-26fd0f8713be",
-                "attributes": {}
-              },
-              {
-                "name": "manager",
-                "description": "",
-                "composite": false,
-                "clientRole": true,
-                "containerId": "62b1e6da-3a03-4880-9024-a2257d973dcf",
-                "id": "b53134c7-0dfd-43ca-967e-8cd0fd26efe8",
-                "attributes": {}
-              },
-              {
-                "name": "user",
-                "description": "",
-                "composite": false,
-                "clientRole": true,
-                "containerId": "62b1e6da-3a03-4880-9024-a2257d973dcf",
-                "id": "914d1e33-46ca-49fd-b743-1bf5c3dda8de",
-                "attributes": {}
-              }
-            ]
-          },
           "frontchannelLogout": false,
           "protocol": "openid-connect",
           "attributes": {
