@@ -318,7 +318,10 @@ config:
       - -c
     args:
       - apk update && apk add --no-cache --quiet bash jq sed curl && exec bash /scripts/configure.sh
-    ttlSecondsAfterFinished: 600
+    # 0 = never reap. With the chart default (600) ArgoCD selfHeal re-creates the
+    # finished Job every ~10 min, and each run re-applies repo config through the
+    # REST API, briefly stopping maven-central and 500-ing concurrent Maven pulls.
+    ttlSecondsAfterFinished: 0
     resources:
       requests:
         cpu: 100m
