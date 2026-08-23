@@ -10,9 +10,20 @@ spec:
       database: app
       owner: app
   backup:
-    volumeSnapshot:
-      className: test-snapshot-class
-      online: true
+    retentionPolicy: "14d"
+    barmanObjectStore:
+      destinationPath: s3://backups/nexus-db
+      endpointURL: http://garage.garage.svc:3900
+      s3Credentials:
+        accessKeyId:
+          name: nexus-backup-s3
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: nexus-backup-s3
+          key: AWS_SECRET_ACCESS_KEY
+        region:
+          name: nexus-backup-s3
+          key: AWS_REGION
   storage:
     size: 20Gi
     storageClass: local-path

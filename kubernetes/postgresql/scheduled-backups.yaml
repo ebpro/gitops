@@ -1,28 +1,13 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
-  name: sonarqube-db-backup
-  namespace: sonarqube
+  name: plane-db-backup
+  namespace: plane
 spec:
   cluster:
-    name: sonarqube-db
-  method: volumeSnapshot
-  online: true
-  target: primary
-  schedule: "0 0 3 * * *"
----
-apiVersion: postgresql.cnpg.io/v1
-kind: ScheduledBackup
-metadata:
-  name: nexus-db-backup
-  namespace: nexus
-spec:
-  cluster:
-    name: nexus-db
-  method: volumeSnapshot
-  online: true
-  target: primary
-  schedule: "0 30 2 * * *"
+    name: plane-db
+  # 6-field cron (CNPG, NOT k8s CronJob format): second minute hour dom month dow
+  schedule: "0 45 0 * * *"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
@@ -32,20 +17,74 @@ metadata:
 spec:
   cluster:
     name: backstage-db
-  method: volumeSnapshot
-  online: true
-  target: primary
   schedule: "0 15 1 * * *"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
-  name: plane-db-backup
-  namespace: plane
+  name: nexus-db-backup
+  namespace: nexus
 spec:
   cluster:
-    name: plane-db
-  method: volumeSnapshot
-  online: true
-  target: primary
-  schedule: "0 45 0 * * *"
+    name: nexus-db
+  schedule: "0 30 2 * * *"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: sonarqube-db-backup
+  namespace: sonarqube
+spec:
+  cluster:
+    name: sonarqube-db
+  schedule: "0 0 3 * * *"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: keycloak-db-backup
+  namespace: keycloak
+spec:
+  cluster:
+    name: keycloak-db
+  schedule: "0 30 3 * * *"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: matrix-db-backup
+  namespace: synapse
+spec:
+  cluster:
+    name: matrix-db
+  schedule: "0 0 4 * * *"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: pact-broker-db-backup
+  namespace: pact-broker
+spec:
+  cluster:
+    name: pact-broker-db
+  schedule: "0 15 4 * * *"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: woodpecker-db-backup
+  namespace: ci
+spec:
+  cluster:
+    name: woodpecker-db
+  schedule: "0 30 4 * * *"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: link-shortener-db-backup
+  namespace: link-shortener
+spec:
+  cluster:
+    name: link-shortener-db
+  schedule: "0 45 4 * * *"

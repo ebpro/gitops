@@ -8,6 +8,21 @@ metadata:
 spec:
   affinity:
     podAntiAffinityType: preferred
+  backup:
+    retentionPolicy: "14d"
+    barmanObjectStore:
+      destinationPath: s3://backups/keycloak-db
+      endpointURL: http://garage.garage.svc:3900
+      s3Credentials:
+        accessKeyId:
+          name: keycloak-backup-s3
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: keycloak-backup-s3
+          key: AWS_SECRET_ACCESS_KEY
+        region:
+          name: keycloak-backup-s3
+          key: AWS_REGION
   bootstrap:
     initdb:
       database: keycloak

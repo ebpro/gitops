@@ -8,6 +8,21 @@ spec:
   storage:
     size: 10Gi
     storageClass: local-path
+  backup:
+    retentionPolicy: "14d"
+    barmanObjectStore:
+      destinationPath: s3://backups/matrix-db
+      endpointURL: http://garage.garage.svc:3900
+      s3Credentials:
+        accessKeyId:
+          name: matrix-backup-s3
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: matrix-backup-s3
+          key: AWS_SECRET_ACCESS_KEY
+        region:
+          name: matrix-backup-s3
+          key: AWS_REGION
   postgresql:
     parameters:
       max_connections: "200"

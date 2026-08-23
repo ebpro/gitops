@@ -10,9 +10,20 @@ spec:
       database: pact_broker
       owner: pactbroker
   backup:
-    volumeSnapshot:
-      className: test-snapshot-class
-      online: true
+    retentionPolicy: "14d"
+    barmanObjectStore:
+      destinationPath: s3://backups/pact-broker-db
+      endpointURL: http://garage.garage.svc:3900
+      s3Credentials:
+        accessKeyId:
+          name: pact-broker-backup-s3
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: pact-broker-backup-s3
+          key: AWS_SECRET_ACCESS_KEY
+        region:
+          name: pact-broker-backup-s3
+          key: AWS_REGION
   storage:
     size: 5Gi
     storageClass: local-path

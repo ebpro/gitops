@@ -8,6 +8,21 @@ metadata:
 spec:
   affinity:
     podAntiAffinityType: preferred
+  backup:
+    retentionPolicy: "14d"
+    barmanObjectStore:
+      destinationPath: s3://backups/link-shortener-db
+      endpointURL: http://garage.garage.svc:3900
+      s3Credentials:
+        accessKeyId:
+          name: link-shortener-backup-s3
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: link-shortener-backup-s3
+          key: AWS_SECRET_ACCESS_KEY
+        region:
+          name: link-shortener-backup-s3
+          key: AWS_REGION
   bootstrap:
     initdb:
       database: linkshortener

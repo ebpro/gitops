@@ -17,10 +17,20 @@ spec:
       work_mem: "16MB"
       maintenance_work_mem: "128MB"
   backup:
-    volumeSnapshot:
-      className: test-snapshot-class
-      online: true
-    target: prefer-standby
+    retentionPolicy: "14d"
+    barmanObjectStore:
+      destinationPath: s3://backups/backstage-db
+      endpointURL: http://garage.garage.svc:3900
+      s3Credentials:
+        accessKeyId:
+          name: backstage-backup-s3
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: backstage-backup-s3
+          key: AWS_SECRET_ACCESS_KEY
+        region:
+          name: backstage-backup-s3
+          key: AWS_REGION
   enableSuperuserAccess: true
   resources:
     requests:
