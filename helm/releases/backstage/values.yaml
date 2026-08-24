@@ -92,9 +92,8 @@ backstage:
     - backstage-secrets
 
   # Inline appConfig (chart renders it to a ConfigMap and checksums it, so
-  # config changes roll the pod). Keycloak provider config is intentionally
-  # NOT here: it ships in the custom image (community module) at the OIDC
-  # cutover. Guest provider stays enabled until that cutover.
+  # config changes roll the pod). The standard OIDC provider is configured
+  # here; the custom image ships the stock @backstage OIDC provider only.
   appConfig:
     app:
       title: Platform Developer Portal
@@ -159,11 +158,20 @@ backstage:
           target: https://raw.githubusercontent.com/ebpro/gitops/main/kubernetes/backstage-catalog/entities.yaml
 
     auth:
+      environment: production
       dangerouslyAllowExternalLoginByDefault: true
+      session:
+        secret: ${BACKSTAGE_JWT}
       providers:
-        guest:
-          dangerouslyAllowOutsideDevelopment: true
-          enabled: true
+        oidc:
+          production:
+            metadataUrl: https://keycloak.ebruno.fr/realms/platform/.well-known/openid-configuration
+            clientId: ${BACKSTAGE_KEYCLOAK_CLIENT_ID}
+            clientSecret: ${BACKSTAGE_KEYCLOAK_CLIENT_SECRET}
+            prompt: "auto"
+            signIn:
+              resolvers:
+                - resolver: emailMatchingUserEntityProfileEmail
 
     scaffolder:
       backend:

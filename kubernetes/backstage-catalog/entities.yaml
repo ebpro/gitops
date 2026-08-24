@@ -308,3 +308,15 @@ spec:
   type: database
   lifecycle: production
   owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: bruno
+  description: Platform owner / primary engineer
+spec:
+  profile:
+    displayName: Bruno
+    email: bruno@ebruno.fr
+  memberOf:
+    - group/platform
