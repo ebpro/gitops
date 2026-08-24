@@ -98,6 +98,12 @@ backstage:
     app:
       title: Platform Developer Portal
       baseUrl: https://backstage.ebruno.fr
+      # The image ships a stale frontend build under packages/app/dist/public/
+      # (pre-OIDC, guest-only SignInPage). In "protected mode" (dist/public
+      # present) unauthenticated users are served from that tree, hiding the
+      # OIDC login button. Disable the public entry point so every request is
+      # served from the current dist/ build.
+      disablePublicEntryPoint: true
 
     backend:
       baseUrl: https://backstage.ebruno.fr
