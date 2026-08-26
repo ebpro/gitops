@@ -189,7 +189,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: cert-manager
   endpoints:
-    - port: metrics
+    - port: tcp-prometheus-servicemonitor
       path: /metrics
       interval: 30s
       scrapeTimeout: 10s
