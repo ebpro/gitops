@@ -37,6 +37,12 @@ spec:
     - resource/keycloak-db
     - resource/sonarqube-db
     - resource/nexus-db
+    - resource/harbor-db
+    - resource/plane-db
+    - resource/woodpecker-db
+    - resource/pact-broker-db
+    - resource/matrix-db
+    - resource/link-shortener-db
     - api/argocd
 ---
 apiVersion: backstage.io/v1alpha1
@@ -191,19 +197,6 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: grafana
-  description: Monitoring dashboards, Prometheus metrics exploration
-  links:
-    - title: UI
-      url: https://grafana.ebruno.fr
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
   name: kyverno
   description: K8s policy-as-code enforcement
 spec:
@@ -304,6 +297,66 @@ kind: Resource
 metadata:
   name: nexus-db
   description: PostgreSQL for Nexus (CloudNativePG, 20Gi local-path)
+spec:
+  type: database
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: harbor-db
+  description: PostgreSQL for Harbor (CloudNativePG, 20Gi local-path)
+spec:
+  type: database
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: plane-db
+  description: PostgreSQL for Plane (CloudNativePG, 20Gi local-path)
+spec:
+  type: database
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: woodpecker-db
+  description: PostgreSQL for Woodpecker CI (CloudNativePG, 10Gi local-path)
+spec:
+  type: database
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: pact-broker-db
+  description: PostgreSQL for Pact Broker (CloudNativePG, 5Gi local-path)
+spec:
+  type: database
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: matrix-db
+  description: PostgreSQL for Synapse/Matrix (CloudNativePG, 10Gi local-path)
+spec:
+  type: database
+  lifecycle: production
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: link-shortener-db
+  description: PostgreSQL for link-shortener (CloudNativePG, 20Gi local-path)
 spec:
   type: database
   lifecycle: production

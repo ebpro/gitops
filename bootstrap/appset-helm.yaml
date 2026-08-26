@@ -168,7 +168,7 @@ spec:
         repoURL: https://backstage.github.io/charts
         version: 2.10.0
         syncWave: '25'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/backstage/values.yaml?v=5
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/backstage/values.yaml?v=6
       - app: woodpecker
         chart: woodpecker
         namespace: ci

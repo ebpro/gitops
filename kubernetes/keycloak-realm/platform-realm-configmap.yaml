@@ -927,7 +927,7 @@ data:
             "organization",
             "microprofile-jwt"
           ],
-          "secret": "7gt2Ike3xlUMnYXJ0hrA558LlTzCdcjfbBR8jhZNpZyTRfPi2q4jmApzmpKDSl3QpmYNLZGsVC8pUlSWa0tRL5"
+          "secret": "ROTATED-source-of-truth-Vault-secret-keycloak-clientSecretBackstage-live-realm-wins"
         },
         {
           "clientId": "broker",

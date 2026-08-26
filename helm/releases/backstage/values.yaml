@@ -111,7 +111,7 @@ backstage:
         port: 7007
       reading:
         allow:
-          - host: raw.githubusercontent.com
+          - host: gitea.ebruno.fr
       auth:
         options:
           debug: false
@@ -161,7 +161,7 @@ backstage:
             - kind: User
       locations:
         - type: url
-          target: https://raw.githubusercontent.com/ebpro/gitops/main/kubernetes/backstage-catalog/entities.yaml
+          target: https://gitea.ebruno.fr/ebpro/gitops/raw/branch/main/kubernetes/backstage-catalog/entities.yaml
 
     auth:
       environment: production
