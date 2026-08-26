@@ -1,0 +1,32 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "baseBranches": ["main"],
+  "includeForks": false,
+  "gitIgnoredAuthors": [
+    "argocd-image-updater",
+    "argocd-image-updater[bot]"
+  ],
+  "labels": ["dependencies"],
+  "automerge": false,
+  "platformAutomerge": false,
+  "ignorePaths": [
+    "link-shortener/**",
+    "kubernetes/link-shortener/**",
+    "kubernetes/argocd-image-updater/**",
+    ".woodpecker/**",
+    ".woodpecker-ci/**",
+    "bootstrap/helm-values/gitea.yaml"
+  ],
+  "packageRules": [
+    {
+      "description": "Leave first-party and mirrored Harbor images to Argo CD Image Updater or manual ops",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": [
+        "harbor.ebruno.fr/link-shortener/*",
+        "harbor.ebruno.fr/trivy/*",
+        "harbor.ebruno.fr/docker-hub-p2c/*"
+      ],
+      "enabled": false
+    }
+  ]
+}
