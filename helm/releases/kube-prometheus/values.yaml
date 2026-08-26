@@ -182,6 +182,7 @@ grafana:
         lokiSearch:
           datasourceUid: loki
   sidecar:
+    enableUniqueFilenames: true
     dashboards:
       enabled: true
       searchNamespace: ALL
