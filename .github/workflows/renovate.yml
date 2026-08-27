@@ -25,4 +25,4 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Run Renovate
-        run: renovate --log-level info
+        run: renovate
