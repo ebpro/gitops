@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  security_events: read
 
 concurrency:
   group: renovate
@@ -26,4 +27,4 @@ jobs:
       RENOVATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Run Renovate
-        run: renovate ebpro/gitops
+        run: renovate --platform github ebpro/gitops
