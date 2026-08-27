@@ -26,4 +26,4 @@ jobs:
       RENOVATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Run Renovate
-        run: renovate
+        run: renovate ebpro/gitops
