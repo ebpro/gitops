@@ -1,5 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "platform": "github",
   "baseBranches": ["main"],
   "includeForks": false,
   "gitIgnoredAuthors": [
