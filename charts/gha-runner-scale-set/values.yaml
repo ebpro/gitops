@@ -4,6 +4,11 @@ githubConfigUrl: ""
 
 scaleSetLabels: []
 
+## dind is used when containerMode.type=dind
+## image is the docker daemon image for the dind container (pinned instead of floating latest)
+dind:
+  image: docker:28-dind
+
 ## githubConfigSecret is the k8s secret information to use when authenticating via the GitHub API.
 ## You can choose to supply:
 ##   A) a PAT token,
