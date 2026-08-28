@@ -2,6 +2,7 @@ runnerScaleSetName: ebpro-org
 githubConfigUrl: https://github.com/ebpro
 githubConfigSecret: arc-github-creds
 scaleSetLabels:
+  - self-hosted
   - linux
   - x64
 minRunners: 1
