@@ -307,7 +307,7 @@ config:
     # - configure.sh requires bash, jq, GNU sed and curl.
     image:
       repository: docker.io/sonatype/nexus3
-      tag: "3.95.1-alpine"
+      tag: "3.95.3-alpine"
       pullPolicy: IfNotPresent
     podSecurityContext:
       runAsNonRoot: false
