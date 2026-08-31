@@ -18,7 +18,7 @@ server:
     replicas: 1
   image:
     repository: hashicorp/vault
-    tag: 1.21.2
+    tag: 1.21.4
   resources:
     limits:
       cpu: 1000m
@@ -50,7 +50,7 @@ server:
 
   extraInitContainers:
     - name: vault-unseal
-      image: hashicorp/vault:1.21.2
+      image: hashicorp/vault:1.21.4
       imagePullPolicy: IfNotPresent
       resources:
         requests:
