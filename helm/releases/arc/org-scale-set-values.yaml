@@ -18,9 +18,10 @@ template:
   spec:
     imagePullSecrets:
       - name: docker-hub-registry
+      - name: harbor-registry-secret
     containers:
       - name: runner
-        image: ghcr.io/actions/actions-runner:2.337.0
+        image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:v1.1.0
         command: ["/home/runner/run.sh"]
         resources:
           requests:
