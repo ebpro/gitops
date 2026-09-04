@@ -17,6 +17,7 @@ spec:
       mergePolicy: Replace
       type: Opaque
       data:
+        username: '{{ .username }}'
         password: '{{ .password }}'
   dataFrom:
     - extract:
