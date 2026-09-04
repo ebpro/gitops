@@ -1,0 +1,19 @@
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: link-shortener
+  namespace: argocd
+spec:
+  applicationRefs:
+    - namePattern: ^link-shortener$
+      useAnnotations: false
+      writeBackConfig:
+        method: git
+      images:
+        - alias: link-shortener
+          imageName: harbor.ebruno.fr/link-shortener/link-shortener:latest
+          commonUpdateSettings:
+            updateStrategy: digest
+          manifestTargets:
+            kustomize:
+              name: harbor.ebruno.fr/link-shortener/link-shortener

@@ -281,3 +281,31 @@ spec:
       path: /metrics
       interval: 30s
       scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: link-shortener
+  namespace: link-shortener
+  labels:
+    release: kube-prometheus
+spec:
+  jobLabel: app.kubernetes.io/name
+  namespaceSelector:
+    matchNames:
+      - link-shortener
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: link-shortener
+  endpoints:
+    - port: management
+      path: /q/management/metrics
+      interval: 30s
+      scrapeTimeout: 10s
+      relabelings:
+        - sourceLabels:
+            - __meta_kubernetes_pod_label_app_kubernetes_io_name
+          targetLabel: app
+        - sourceLabels:
+            - __meta_kubernetes_namespace
+          targetLabel: namespace

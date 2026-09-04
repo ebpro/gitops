@@ -5,3 +5,6 @@ resources:
   - service.yaml
 patches:
   - path: patch-deployment-pull-secret.yaml
+images:
+  - name: harbor.ebruno.fr/link-shortener/link-shortener
+    newTag: latest

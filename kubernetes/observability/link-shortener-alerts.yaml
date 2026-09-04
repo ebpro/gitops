@@ -1,0 +1,45 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: link-shortener
+  namespace: kube-prometheus
+  labels:
+    prometheus: kube-prometheus
+    release: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+    - name: link-shortener/app
+      rules:
+        - alert: LinkShortenerDown
+          expr: up{job="link-shortener", namespace="link-shortener"} == 0
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "link-shortener is down"
+            description: "Prometheus cannot scrape link-shortener in namespace link-shortener"
+        - alert: LinkShortenerNotReady
+          expr: kube_deployment_status_available{namespace="link-shortener", deployment="link-shortener"} < 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "link-shortener deployment is not available"
+            description: "The link-shortener deployment has no available replicas"
+        - alert: LinkShortenerHighErrorRate
+          expr: sum by (app, namespace) (rate(http_server_requests_seconds_count{app="link-shortener", namespace="link-shortener", status=~"5.."}[5m])) / sum by (app, namespace) (rate(http_server_requests_seconds_count{app="link-shortener", namespace="link-shortener"}[5m])) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High error rate for link-shortener"
+            description: "link-shortener has more than 5% HTTP 5xx responses (current: {{ $value | humanizePercentage }})"
+        - alert: LinkShortenerHighLatency
+          expr: histogram_quantile(0.99, sum by (le, app, namespace) (rate(http_server_requests_seconds_bucket{app="link-shortener", namespace="link-shortener"}[5m]))) > 2
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High P99 latency for link-shortener"
+            description: "link-shortener P99 latency is {{ $value }}s"

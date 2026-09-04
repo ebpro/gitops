@@ -246,6 +246,14 @@ spec:
               protocol: TCP
     - toEndpoints:
         - matchLabels:
+            app.kubernetes.io/instance: link-shortener-ci-db
+            k8s:io.kubernetes.pod.namespace: ci
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
             app.kubernetes.io/instance: pact-broker
             k8s:io.kubernetes.pod.namespace: pact-broker
       toPorts:

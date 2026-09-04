@@ -1,0 +1,86 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: link-shortener-ci-db-secret
+  namespace: ci
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: vault
+  refreshInterval: 24h
+  target:
+    name: link-shortener-ci-db-credentials
+    creationPolicy: Owner
+    deletionPolicy: Retain
+    template:
+      engineVersion: v2
+      mergePolicy: Replace
+      type: Opaque
+      data:
+        password: '{{ .password }}'
+  dataFrom:
+    - extract:
+        key: postgresql/link-shortener
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: link-shortener-ci-db
+  namespace: ci
+spec:
+  affinity:
+    podAntiAffinityType: preferred
+  bootstrap:
+    initdb:
+      database: linkshortener
+      encoding: UTF8
+      localeCType: C
+      localeCollate: C
+      owner: linkshortener
+  enablePDB: false
+  enableSuperuserAccess: true
+  failoverDelay: 0
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie
+  instances: 1
+  logLevel: info
+  maxSyncReplicas: 0
+  minSyncReplicas: 0
+  postgresGID: 26
+  postgresUID: 26
+  postgresql:
+    parameters:
+      max_connections: '100'
+      max_worker_processes: '8'
+      shared_preload_libraries: ''
+  primaryUpdateMethod: restart
+  primaryUpdateStrategy: unsupervised
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  smartShutdownTimeout: 60
+  storage:
+    resizeInUseVolumes: true
+    size: 4Gi
+    storageClass: local-path
+  stopDelay: 1800
+  switchoverDelay: 3600
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: linkshortener
+  namespace: ci
+spec:
+  cluster:
+    name: link-shortener-ci-db
+  comment: link-shortener CI application role
+  connectionLimit: -1
+  name: linkshortener
+  ensure: present
+  login: true
+  passwordSecret:
+    name: link-shortener-ci-db-credentials
