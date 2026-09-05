@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nexus-api
+  namespace: nexus
+  labels:
+    app.kubernetes.io/part-of: nexus
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`nexus-api.ebruno.fr`)
+      services:
+        - name: nexus-nexus3
+          port: http
+  tls:
+    certResolver: letsencrypt-ovh

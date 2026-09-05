@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sonarqube-api
+  namespace: sonarqube
+  labels:
+    app.kubernetes.io/part-of: sonarqube
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`sonarqube-api.ebruno.fr`) && PathPrefix(`/api/`)
+      services:
+        - name: sonarqube-sonarqube
+          port: http
+  tls:
+    certResolver: letsencrypt-ovh
