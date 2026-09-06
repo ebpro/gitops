@@ -166,6 +166,9 @@ backstage:
       locations:
         - type: url
           target: https://raw.githubusercontent.com/ebpro/gitops/main/kubernetes/backstage-catalog/entities.yaml
+      providers:
+        backstageOpenapi:
+          plugins: []
 
     auth:
       environment: production
