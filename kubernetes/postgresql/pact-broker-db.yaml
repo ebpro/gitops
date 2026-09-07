@@ -18,7 +18,8 @@ spec:
         ensure: present
         login: true
         passwordSecret:
-          name: pact-broker-db-app
+          name: pact-broker-db-ap
+        key: password
 
   backup:
     retentionPolicy: "14d"
