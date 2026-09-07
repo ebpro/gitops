@@ -42,7 +42,7 @@ spec:
       kind: Cluster
 
       jqPathExpressions:
-        - .spec.managed.roles[]?.passwordSecret.key
+        - .spec.managed.roles[].passwordSecret.key
         # Scheduling defaults
         - .spec.affinity
         - .spec.enablePDB
