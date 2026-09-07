@@ -51,3 +51,4 @@ spec:
     - .spec.startDelay
     - .spec.stopDelay
     - .spec.switchoverDelay
+    - .spec.postgresql.syncReplicaElectionConstraint
