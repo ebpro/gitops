@@ -7,14 +7,18 @@ metadata:
     argocd.argoproj.io/sync-wave: '20'
 spec:
   project: platform
-  source:
-    repoURL: https://helm.releases.hashicorp.com
-    targetRevision: 0.32.0
-    chart: vault
-    helm:
-      releaseName: vault
-      valueFiles:
-       - helm/releases/vault/values.yaml
+  sources:
+    - repoURL: https://helm.releases.hashicorp.com
+      targetRevision: 0.32.0
+      chart: vault
+      helm:
+        releaseName: vault
+        valueFiles:
+          - $values/helm/releases/vault/values.yaml
+
+    - repoURL: https://github.com/ebpro/gitops.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: vault
