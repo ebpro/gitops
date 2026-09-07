@@ -47,21 +47,59 @@ server:
           params:
             format:
               - prometheus
-    extraContainers:
+
+  extraContainers:
     - name: vault-unseal
       image: hashicorp/vault:1.21.2
       imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi
       command:
         - /bin/sh
         - -c
         - |
           echo "Waiting for Vault API..."
 
-          while ! vault status >/tmp/status.json 2>/dev/null; do
-            rc=$?
-            if [ "$rc" = "2" ]; then
+          while true; do
+            vault status >/tmp/status.json 2>/dev/null
+            RC=$?
+
+            if [ "$RC" = "0" ] || [ "$RC" = "2" ]; then
               break
             fi
+
+            echo "Vault API not reachable yet"
             sleep 5
           done
 
+          while true; do
+            vault status -format=json >/tmp/status.json 2>/dev/null
+
+            SEALED=$(python3 -c "
+          import json
+          with open('/tmp/status.json') as f:
+              print(json.load(f)['sealed'])
+          ")
+
+            if [ "$SEALED" = "true" ]; then
+              echo "Vault sealed, unsealing..."
+              vault operator unseal "$VAULT_UNSEAL_TOKEN"
+            else
+              echo "Vault already unsealed"
+            fi
+
+            sleep 60
+          done
+      env:
+        - name: VAULT_ADDR
+          value: http://127.0.0.1:8200
+        - name: VAULT_UNSEAL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: vault-init
+              key: unseal_key              
