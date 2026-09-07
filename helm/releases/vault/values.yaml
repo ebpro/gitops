@@ -47,8 +47,7 @@ server:
           params:
             format:
               - prometheus
-
-  extraInitContainers:
+  extraContainers:
     - name: vault-unseal
       image: hashicorp/vault:1.21.2
       imagePullPolicy: IfNotPresent
@@ -63,23 +62,28 @@ server:
         - /bin/sh
         - -c
         - |
-          for i in $(seq 1 90); do
-            VAULT_STATUS=$(vault status -format=json 2>/dev/null || echo '{}')
-            SEALED=$(echo "$VAULT_STATUS" | python3 -c "import sys,json;print(json.load(sys.stdin).get('sealed','unknown'))" 2>/dev/null || echo "unknown")
-            if [ "$SEALED" = "false" ]; then
+          echo "Waiting for Vault API..."
+
+          until vault status >/dev/null 2>&1 || [ $? -eq 2 ]; do
+            sleep 5
+          done
+
+          while true; do
+            SEALED=$(vault status -format=json 2>/dev/null \
+              | python3 -c "import sys,json; print(json.load(sys.stdin).get('sealed'))" \
+              2>/dev/null)
+
+            if [ "$SEALED" = "true" ]; then
+              echo "Vault sealed, unsealing..."
+              vault operator unseal "$VAULT_UNSEAL_TOKEN"
+            elif [ "$SEALED" = "false" ]; then
               echo "Vault already unsealed"
-              exit 0
+            else
+              echo "Vault not ready yet"
             fi
-            echo "Waiting for Vault to be ready (attempt $i/90)..."
-            sleep 2
+
+            sleep 60
           done
-          echo "Unsealing Vault..."
-          sleep 3
-          for i in $(seq 1 5); do
-            vault operator unseal "$VAULT_UNSEAL_TOKEN" && break
-            sleep 2
-          done
-          echo "Vault unsealed successfully"
       env:
         - name: VAULT_ADDR
           value: http://127.0.0.1:8200
@@ -87,4 +91,4 @@ server:
           valueFrom:
             secretKeyRef:
               name: vault-init
-              key: unseal_key
+              key: unseal_key              
