@@ -44,41 +44,31 @@ spec:
                 sleep 10
               done
 
-              # --- Extract admin token from kcadm session ---
-              echo "Extracting admin token..."
-              # Parse kcadm.config JSON for the "token" field — fallback to grep
-              ADMIN_TOKEN=$(grep -oP '"token"\s*:\s*"\K[^"]+' /opt/keycloak/.keycloak/kcadm.config 2>/dev/null || true)
-              if [ -z "$ADMIN_TOKEN" ]; then
-                echo "FATAL: Could not extract admin token from kcadm session"
-                exit 1
-              fi
-              printf "  Token extracted (%d chars)\n" "${#ADMIN_TOKEN}"
-
-              # --- Helper: add user to group via /dev/tcp PUT ---
+              # --- Helper: add user to group ---
               add_to_group() {
                 local grp_name="$1"
-                local uid="$2"
+                local username="$2"
+
+                echo "    Adding $username to $grp_name..."
+
+                local uid
+                uid=$("$KCADM" get users -r "$REALM" -q username="$username" 2>/dev/null \
+                  | grep -oP '"id"\s*:\s*"\K[^"]+' \
+                  | head -1 || true)
+
                 local gid
-                gid=$("$KCADM" get groups -r "$REALM" -q search="$grp_name" 2>/dev/null | grep -oP '"id"\s*:\s*"\K[^"]+' | head -1 || true)
-                if [ -z "$gid" ] || [ -z "$uid" ]; then
-                  echo "    Group/user ID not found, skipping $grp_name"
-                  return 0
+                gid=$("$KCADM" get groups -r "$REALM" -q search="$grp_name" 2>/dev/null \
+                  | grep -oP '"id"\s*:\s*"\K[^"]+' \
+                  | head -1 || true)
+
+                if [ -z "$uid" ] || [ -z "$gid" ]; then
+                  echo "    ERROR: user/group missing"
+                  return 1
                 fi
-                local http_code
-                http_code=$({ exec 5<>/dev/tcp/keycloak-http.keycloak.svc.cluster.local/80; \
-                  printf "PUT /admin/realms/%s/users/%s/groups/%s HTTP/1.1\r\n" "$REALM" "$uid" "$gid" >&5; \
-                  printf "Host: keycloak-http.keycloak.svc.cluster.local:80\r\n" >&5; \
-                  printf "Authorization: Bearer %s\r\n" "$ADMIN_TOKEN" >&5; \
-                  printf "Connection: close\r\n" >&5; \
-                  printf "\r\n" >&5; \
-                  head -1 <&5; \
-                  exec 5>&-; \
-                  } 2>/dev/null || echo "FAILED")
-                if echo "$http_code" | grep -q "204"; then
-                  echo "    Added to $grp_name (HTTP 204)"
-                else
-                  echo "    WARNING: Group assignment for $grp_name returned: $http_code"
-                fi
+
+                "$KCADM" update users/"$uid"/groups/"$gid" -r "$REALM"
+
+                echo "    Added to $grp_name"
               }
 
               # --- User: bruno ---
@@ -92,7 +82,7 @@ spec:
               echo "  Setting password..."
               "$KCADM" set-password --username bruno --new-password "$BRUNO_PASSWORD" -r "$REALM"
               echo "  Assigning to /platform-admins..."
-              add_to_group "platform-admins" "$UID_BRUNO"
+              add_to_group "platform-admins" "bruno"
 
               # --- User: ci-runner ---
               echo "Setting up user ci-runner..."
@@ -105,7 +95,7 @@ spec:
               echo "  Setting password..."
               "$KCADM" set-password --username ci-runner --new-password "$CI_RUNNER_PASSWORD" -r "$REALM"
               echo "  Assigning to /platform-engineers..."
-              add_to_group "platform-engineers" "$UID_CI"
+              add_to_group "platform-engineers" "ci-runner"
 
               # --- User: gitops-user ---
               echo "Setting up user gitops-user..."
@@ -118,7 +108,7 @@ spec:
               echo "  Setting password..."
               "$KCADM" set-password --username gitops-user --new-password "$GITOPS_USER_PASSWORD" -r "$REALM"
               echo "  Assigning to /platform-engineers..."
-              add_to_group "platform-engineers" "$UID_GITOPS"
+              add_to_group "platform-engineers" "gitops-user"
 
               echo "=== Platform realm setup complete ==="
           env:
