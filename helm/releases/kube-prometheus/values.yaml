@@ -61,10 +61,17 @@ kubeStateMetrics:
   enabled: true
 
 kube-state-metrics:
-  selfMonitor:
-    enabled: true
-    telemetryHost: 0.0.0.0
-    telemetryPort: 8081
+  extraArgs:
+    - --telemetry-port=8081
+
+  service:
+    ports:
+      - name: http
+        port: 8080
+        targetPort: http
+      - name: metrics
+        port: 8081
+        targetPort: metrics
 
 nodeExporter:
   enabled: true
