@@ -34,8 +34,8 @@ broker:
 database:
   adapter: postgres
   auth:
-    existingSecret: pact-broker-db
-    existingSecretPasswordKey: user-password
+    existingSecret: pact-broker-db-app
+    existingSecretPasswordKey: password
     username: pactbroker
   databaseName: pact_broker
   host: pact-broker-db-rw.pact-broker.svc.cluster.local
