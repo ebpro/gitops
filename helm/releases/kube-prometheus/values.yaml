@@ -60,6 +60,10 @@ kubeApiServer:
 kubeStateMetrics:
   enabled: true
 
+kube-state-metrics:
+  extraArgs:
+    - --telemetry-port=8081
+
 nodeExporter:
   enabled: true
   releaseLabel: true
