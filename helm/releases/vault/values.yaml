@@ -47,7 +47,6 @@ server:
           params:
             format:
               - prometheus
-
   extraContainers:
     - name: vault-unseal
       image: hashicorp/vault:1.21.2
@@ -66,7 +65,7 @@ server:
           echo "Waiting for Vault API..."
 
           while true; do
-            vault status >/tmp/status.json 2>/dev/null
+            vault status -format=json >/tmp/status.json 2>/dev/null
             RC=$?
 
             if [ "$RC" = "0" ] || [ "$RC" = "2" ]; then
@@ -80,17 +79,16 @@ server:
           while true; do
             vault status -format=json >/tmp/status.json 2>/dev/null
 
-            SEALED=$(python3 -c "
-          import json
-          with open('/tmp/status.json') as f:
-              print(json.load(f)['sealed'])
-          ")
+            SEALED=$(grep -o '"sealed":[^,]*' /tmp/status.json | cut -d: -f2)
 
             if [ "$SEALED" = "true" ]; then
               echo "Vault sealed, unsealing..."
               vault operator unseal "$VAULT_UNSEAL_TOKEN"
-            else
+            elif [ "$SEALED" = "false" ]; then
               echo "Vault already unsealed"
+            else
+              echo "Unable to determine Vault seal state"
+              cat /tmp/status.json
             fi
 
             sleep 60
@@ -102,4 +100,4 @@ server:
           valueFrom:
             secretKeyRef:
               name: vault-init
-              key: unseal_key              
+              key: unseal_key
