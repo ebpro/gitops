@@ -20,9 +20,9 @@ extraVolumes:
     name: webapp
 jdbcOverwrite:
   enabled: true
-  jdbcSecretName: sonarqube-postgresql
-  jdbcSecretPasswordKey: postgresql-password
-  jdbcUrl: jdbc:postgresql://sonarqube-postgresql.sonarqube.svc.cluster.local:5432/sonardb
+  jdbcSecretName: sonarqube-db-app
+  jdbcSecretPasswordKey: password
+  jdbcUrl: jdbc:postgresql://sonarqube-db-rw.sonarqube.svc.cluster.local:5432/sonardb
   jdbcUsername: app
 # OTEL instrumentation annotation - OTel operator auto-injects Java agent
 podAnnotations:
