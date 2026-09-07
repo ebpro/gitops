@@ -16,7 +16,13 @@ broker:
     databaseSslmode: disable
     hidePactflowMessages: true
     logLevel: info
+
   replicaCount: 1
+
+  # Restart deployment automatically when referenced secrets/configmaps change
+  annotations:
+    reloader.stakater.com/auto: "true"
+
   resources:
     limits:
       cpu: 500m
@@ -24,6 +30,7 @@ broker:
     requests:
       cpu: 100m
       memory: 512Mi
+
 database:
   adapter: postgres
   auth:
@@ -33,7 +40,9 @@ database:
   databaseName: pact_broker
   host: pact-broker-db-rw.pact-broker.svc.cluster.local
   port: "5432"
+
 ingress:
   enabled: false
+
 service:
   type: ClusterIP
