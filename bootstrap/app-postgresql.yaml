@@ -5,14 +5,18 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: '15'
+
 spec:
   project: platform
+
   source:
     repoURL: https://github.com/ebpro/gitops
     targetRevision: main
     path: kubernetes/postgresql
+
   destination:
     server: https://kubernetes.default.svc
+
   syncPolicy:
     automated:
       prune: true
@@ -26,12 +30,9 @@ spec:
     syncOptions:
     - CreateNamespace=true
     - ApplyOutOfSyncOnly=true
+
   ignoreDifferences:
   - group: postgresql.cnpg.io
     kind: Cluster
-    jsonPointers:
-    - /metadata/managedFields
-    - /metadata/annotations
-    - /metadata/resourceVersion
-    - /metadata/creationTimestamp
-
+    managedFieldsManagers:
+    - cnpg-controller-manager
