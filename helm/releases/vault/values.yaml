@@ -78,8 +78,7 @@ server:
 
           while true; do
             vault status -format=json >/tmp/status.json 2>/dev/null
-
-            SEALED=$(grep -o '"sealed":[^,]*' /tmp/status.json | cut -d: -f2)
+            SEALED=$(grep -o '"sealed":[^,]*' /tmp/status.json | cut -d: -f2 | tr -d ' ')
 
             if [ "$SEALED" = "true" ]; then
               echo "Vault sealed, unsealing..."
