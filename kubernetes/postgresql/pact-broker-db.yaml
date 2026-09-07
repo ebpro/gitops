@@ -3,12 +3,23 @@ kind: Cluster
 metadata:
   name: pact-broker-db
   namespace: pact-broker
+
 spec:
   instances: 1
+
   bootstrap:
     initdb:
       database: pact_broker
       owner: pactbroker
+
+  managed:
+    roles:
+      - name: pactbroker
+        ensure: present
+        login: true
+        passwordSecret:
+          name: pact-broker-db-app
+
   backup:
     retentionPolicy: "14d"
     barmanObjectStore:
@@ -24,13 +35,17 @@ spec:
         region:
           name: pact-broker-backup-s3
           key: AWS_REGION
+
   storage:
     size: 5Gi
     storageClass: local-path
+
   postgresql:
     parameters:
       max_connections: "200"
+
   enableSuperuserAccess: true
+
   resources:
     requests:
       cpu: 250m
