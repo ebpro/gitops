@@ -19,7 +19,6 @@ spec:
         login: true
         passwordSecret:
           name: pact-broker-db-ap
-        key: password
 
   backup:
     retentionPolicy: "14d"
