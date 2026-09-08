@@ -6,6 +6,7 @@ GitHub Actions ephemeral runners for org `ebpro`, scale-set architecture (SOTA 2
 |---|---|
 | Controller deployment | helm app `arc-controller` (`bootstrap/appset-helm.yaml`), ns `actions-runner-controller` |
 | Org scale set (`ebpro-org`) | helm app `arc-org-runners` (`bootstrap/appset-helm.yaml`), ns `arc-runners` |
+| Arm scale set (`ebpro-org-arm`) | helm app `arc-arm-runners` (`bootstrap/app-arc-arm-runners.yaml`), ns `arc-runners` |
 | GitHub App `arc-gitops-ebruno` (runner mgmt) | Vault `secret/data/github/arc-app` (`github_app_id`, `github_app_installation_id`, `github_app_private_key`) → ExternalSecret `arc-github-creds` (this dir) → K8s secret in `arc-runners` |
 | Selftest workflow | `.github/workflows/arc-selftest.yaml` (workflow_dispatch, `runs-on: ebpro-org`) |
 
@@ -16,11 +17,31 @@ Documented forms only (github.com docs: *Using Actions Runner Controller runners
 ```yaml
 runs-on: ebpro-org                      # scale-set name (recommended)
 runs-on: [linux, x64]                   # EXACT runnerScaleSetLabels set
+runs-on: ebpro-org-arm                  # arm scale set (native arm64 builds)
+runs-on: [self-hosted, linux, arm64]    # exact arm label set
 ```
 
 Hybrids like `[self-hosted, linux, x64]` or `[self-hosted, linux, x64, ebpro-org]`
 do **not** match — the job then stays queued forever and the listener sees no
 scale event (verified 2026-08-20; no error is raised anywhere).
+
+## Multiarch (no QEMU)
+
+- Both scale sets are arch-pinned via `template.spec.nodeSelector`
+  (`kubernetes.io/arch: amd64` / `arm64`) — required so x64 jobs can never land
+  on the arm node (its dind has no binfmt, so amd64 job containers would fail
+  to start).
+- Native multiarch build pattern: workflow matrix over `[amd64, arm64]`, each
+  leg `runs-on` its scale set and builds its platform natively, pushing
+  per-arch tags; a final job assembles the manifest list registry-side with
+  `docker buildx imagetools create` (no local pull, no QEMU/binfmt anywhere).
+- The arm node is `lima-k3s-agent` (Lima dev VM): if the VM reboots, arm
+  runners vanish and queued arm jobs wait until it returns (GitHub has no
+  timeout for self-hosted labels). `minRunners: 0` bounds the blast radius;
+  first arm job pays a ~30–60s cold start.
+- The runner image `quarkus-ci-runner` is multiarch (amd64+arm64 in Harbor);
+  `docker:28-dind` and the listener image are multiarch too — same image refs
+  on both sets.
 
 ## Ops notes
 

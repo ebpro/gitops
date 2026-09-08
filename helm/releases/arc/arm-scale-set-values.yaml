@@ -1,12 +1,15 @@
-runnerScaleSetName: ebpro-org
+# ARM64 scale set for native arm64 builds (no QEMU).
+# Mirrors org-scale-set-values.yaml (x64 set); pinned to arm64 nodes.
+# minRunners 0: the arm node (lima-k3s-agent) is a dev VM — scale to zero when idle.
+runnerScaleSetName: ebpro-org-arm
 githubConfigUrl: https://github.com/ebpro
 githubConfigSecret: arc-github-creds
 scaleSetLabels:
   - self-hosted
   - linux
-  - x64
-minRunners: 1
-maxRunners: 3
+  - arm64
+minRunners: 0
+maxRunners: 1
 dind:
   image: docker:28-dind
 containerMode:
@@ -17,7 +20,7 @@ controllerServiceAccount:
 template:
   spec:
     nodeSelector:
-      kubernetes.io/arch: amd64
+      kubernetes.io/arch: arm64
     imagePullSecrets:
       - name: docker-hub-registry
       - name: harbor-registry-secret

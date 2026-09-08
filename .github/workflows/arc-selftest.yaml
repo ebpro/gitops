@@ -5,16 +5,25 @@ on:
 
 jobs:
   selftest:
-    runs-on: ebpro-org
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ebpro-org, ebpro-org-arm]
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Runner info
         run: |
           echo "hostname: $(hostname)"
           uname -a
+          echo "arch: $(uname -m)"
           df -h /home/runner | tail -1
       - name: DinD check
         run: |
-          docker version --format 'client={{.Client.Version}} server={{.Server.Version}}'
-      - name: hello-world
+          docker version --format 'client={{.Client.Version}} server={{.Server.Version}} arch={{.Server.Arch}}'
+      - name: Buildx check
+        run: |
+          docker buildx version
+          docker buildx imagetools create --help >/dev/null
+      - name: hello-world (native arch)
         run: |
           docker run --rm hello-world

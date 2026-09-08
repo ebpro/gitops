@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-arm-runners
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '15'
+# ARM64 scale set (ebpro-org-arm) for native arm64 builds without QEMU.
+# Mirrors app-arc-org-runners.yaml (x64). Vendored chart (charts/gha-runner-scale-set)
+# for the scalar-safe runner-container fix; see that app's comments.
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/ebpro/gitops
+    targetRevision: main
+    path: charts/gha-runner-scale-set
+    helm:
+      releaseName: arc-arm-runners
+      valueFiles:
+      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/arc/arm-scale-set-values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arc-runners
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
