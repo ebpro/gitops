@@ -1,0 +1,15 @@
+# Declared explicitly in git because the kubernetes-manifests AppSet relies on
+# `CreateNamespace=true` with an EMPTY spec.destination.namespace, which does
+# NOT create the namespace on ArgoCD v3.5.1 (the controller emits no
+# namespace-creation task, so every ns-scoped resource fails with
+# `namespaces "opencode" not found`). Declaring the Namespace here makes it a
+# first-class GitOps resource. sync-wave "-1" guarantees it is created before
+# the wave-0 workloads (PVC, Service, Deployment, ...).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: opencode
+  labels:
+    app.kubernetes.io/name: opencode
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
