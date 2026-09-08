@@ -1,0 +1,118 @@
+# OpenCode agent server (`opencode web`) — in-cluster deployment.
+#
+# Image: harbor.ebruno.fr/library/opencode:1.18.29
+#   Built from github.com/ebpro/opencode-config (Dockerfile in that repo).
+#
+# Vault: the ExternalSecret (opencode-secrets) reads secret/opencode, which
+#   must be created manually (KV v2 user-path, no secret/data prefix) — see
+#   README.md in this directory. Until it exists the ESO stays unsynced and
+#   the pod cannot start.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opencode
+  namespace: opencode
+  labels:
+    app.kubernetes.io/name: opencode
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: opencode
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: opencode
+    spec:
+      serviceAccountName: opencode
+      imagePullSecrets:
+        - name: harbor-registry-secret
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: opencode
+          image: harbor.ebruno.fr/library/opencode:1.18.29
+          ports:
+            - name: http
+              containerPort: 4096
+              protocol: TCP
+          env:
+            - name: OPENCODE_SERVER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: opencode-secrets
+                  key: serverPassword
+            - name: VLLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: opencode-secrets
+                  key: vllmApiKey
+            - name: LIS_LAB_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: opencode-secrets
+                  key: lisLabApiKey
+            - name: SONAR_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: opencode-secrets
+                  key: sonarToken
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: opencode-secrets
+                  key: githubToken
+            - name: GITEA_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: opencode-secrets
+                  key: giteaToken
+            - name: WOODPECKER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: opencode-secrets
+                  key: woodpeckerToken
+            - name: OPENCODE_DISABLE_AUTOUPDATE
+              value: "true"
+            - name: XDG_DATA_HOME
+              value: "/data"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "4"
+              memory: 4Gi
+          readinessProbe:
+            httpGet:
+              path: /global/health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /global/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 6
+          startupProbe:
+            httpGet:
+              path: /global/health
+              port: http
+            failureThreshold: 30
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: opencode-data
