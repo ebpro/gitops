@@ -5,25 +5,63 @@ GitHub Actions ephemeral runners for org `ebpro`, scale-set architecture (SOTA 2
 | Piece | Where |
 |---|---|
 | Controller deployment | helm app `arc-controller` (`bootstrap/appset-helm.yaml`), ns `actions-runner-controller` |
-| Org scale set (`ebpro-org`) | helm app `arc-org-runners` (`bootstrap/appset-helm.yaml`), ns `arc-runners` |
+| Org scale set (`ebpro-org`) | helm app `arc-org-runners` (`bootstrap/app-arc-org-runners.yaml`), ns `arc-runners` |
 | Arm scale set (`ebpro-org-arm`) | helm app `arc-arm-runners` (`bootstrap/app-arc-arm-runners.yaml`), ns `arc-runners` |
 | GitHub App `arc-gitops-ebruno` (runner mgmt) | Vault `secret/data/github/arc-app` (`github_app_id`, `github_app_installation_id`, `github_app_private_key`) → ExternalSecret `arc-github-creds` (this dir) → K8s secret in `arc-runners` |
-| Selftest workflow | `.github/workflows/arc-selftest.yaml` (workflow_dispatch, `runs-on: ebpro-org`) |
+| Selftest workflow | `.github/workflows/arc-selftest.yaml` (workflow_dispatch; matrix legs `runs-on: [ebpro-org, linux, self-hosted, x64]` / `[..., arm64]`) |
 
-## Jobs → scale set routing (GitHub-side matching)
+## Jobs → runner scheduling (unified fleet labels, 2026-09-09)
 
-Documented forms only (github.com docs: *Using Actions Runner Controller runners in a workflow*):
+Both scale sets carry the shared fleet label `ebpro-org` and differ only in the
+arch label, so one selector family covers the whole fleet. The three selectors:
 
 ```yaml
-runs-on: ebpro-org                      # scale-set name (recommended)
-runs-on: [linux, x64]                   # EXACT runnerScaleSetLabels set
-runs-on: ebpro-org-arm                  # arm scale set (native arm64 builds)
-runs-on: [self-hosted, linux, arm64]    # exact arm label set
+runs-on: [ebpro-org, linux, self-hosted]            # portable — any arch (random)
+runs-on: [ebpro-org, linux, self-hosted, x64]       # pin x86-64
+runs-on: [ebpro-org, linux, self-hosted, arm64]     # pin arm64
 ```
 
-Hybrids like `[self-hosted, linux, x64]` or `[self-hosted, linux, x64, ebpro-org]`
-do **not** match — the job then stays queued forever and the listener sees no
-scale event (verified 2026-08-20; no error is raised anywhere).
+Rendered labels per set (git → GitHub):
+
+| Scale set | `runnerScaleSetLabels` (in git) | Runner labels on GitHub |
+|---|---|---|
+| `ebpro-org` | `[self-hosted, linux, ebpro-org, x64]` | `self-hosted linux ebpro-org x64` |
+| `ebpro-org-arm` | `[self-hosted, linux, ebpro-org, arm64]` | `self-hosted linux ebpro-org arm64 ebpro-org-arm` |
+
+ARC additionally registers each scale set's NAME as a runner label
+automatically, so the scale-set-name labels remain usable as fine-grained
+escape hatches:
+
+- `runs-on: ebpro-org-arm` → arm set only.
+- `runs-on: ebpro-org` → now matches **both** sets (the fleet label is shared);
+  it no longer implicitly means "x64 set" — use the explicit `x64`/`arm64`
+  selectors for arch-pinned work.
+
+Notes:
+
+- `x64` is the GitHub Actions convention (Docker/OCI call it `amd64`) — keep
+  `x64`/`arm64` in labels and selectors.
+- Runner labels are opaque strings: GitHub only checks that the job's
+  `runs-on` set is contained in the runner's label set. Label correctness is
+  guaranteed by each scale set's `template.spec.nodeSelector`
+  (`kubernetes.io/arch: amd64`/`arm64`), which pins the runner pod to nodes of
+  that arch — the label cannot drift from the machine.
+- Historical (pre-unification): with per-set label sets, hybrids like
+  `[self-hosted, linux, x64]` were observed not to trigger a scale event (job
+  queued forever, verified 2026-08-20; no error raised anywhere). Use the
+  selectors above — they all name the fleet explicitly.
+
+### Usage rules
+
+1. **Fleet selector only for arch-independent work.**
+   `[ebpro-org, linux, self-hosted]` lands on a random arch — fine for
+   arch-agnostic steps (lint, docs, platform-independent tests). When you build
+   container images, the build node's arch IS the image arch (no QEMU/binfmt on
+   the arm node), so image builds must pin their leg
+   (`[ebpro-org, linux, self-hosted, x64]` / `[..., arm64]`).
+2. **Fail fast on arch.** Echo `uname -m` as the first step of any job whose
+   output is arch-sensitive, so a scheduling surprise fails loudly with
+   evidence instead of producing a wrong-arch artifact.
 
 ## Multiarch (no QEMU)
 
@@ -32,9 +70,11 @@ scale event (verified 2026-08-20; no error is raised anywhere).
   on the arm node (its dind has no binfmt, so amd64 job containers would fail
   to start).
 - Native multiarch build pattern: workflow matrix over `[amd64, arm64]`, each
-  leg `runs-on` its scale set and builds its platform natively, pushing
-  per-arch tags; a final job assembles the manifest list registry-side with
-  `docker buildx imagetools create` (no local pull, no QEMU/binfmt anywhere).
+  leg `runs-on` its arch-pinned selector
+  (`[ebpro-org, linux, self-hosted, x64]` / `[..., arm64]`) and builds its
+  platform natively, pushing per-arch tags; a final job assembles the manifest
+  list registry-side with `docker buildx imagetools create` (no local pull, no
+  QEMU/binfmt anywhere).
 - The arm node is `lima-k3s-agent` (Lima dev VM): if the VM reboots, arm
   runners vanish and queued arm jobs wait until it returns (GitHub has no
   timeout for self-hosted labels). `minRunners: 0` bounds the blast radius;

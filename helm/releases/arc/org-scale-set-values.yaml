@@ -4,6 +4,7 @@ githubConfigSecret: arc-github-creds
 scaleSetLabels:
   - self-hosted
   - linux
+  - ebpro-org
   - x64
 minRunners: 1
 maxRunners: 3

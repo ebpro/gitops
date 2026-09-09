@@ -8,8 +8,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [ebpro-org, ebpro-org-arm]
-    runs-on: ${{ matrix.runner }}
+        include:
+          - arch: amd64
+            label: x64
+          - arch: arm64
+            label: arm64
+    name: selftest (${{ matrix.arch }})
+    runs-on:
+      - ebpro-org
+      - linux
+      - self-hosted
+      - ${{ matrix.label }}
     steps:
       - name: Runner info
         run: |
