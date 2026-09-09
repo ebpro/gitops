@@ -111,6 +111,13 @@ agent:
       memory: 1Gi
       cpu: 500m
 
+  # Pin agents to amd64 nodes. The agent image is multi-arch, and v3.17.0
+  # auto-pins every build pod to the agent's own arch (CI_SYSTEM_PLATFORM ->
+  # kubernetes.io/arch), so an agent scheduled on the arm64 node would pull
+  # its build pods to arm64.
+  nodeSelector:
+    kubernetes.io/arch: amd64
+
   env:
     WOODPECKER_SERVER: "woodpecker-server:9000"
     WOODPECKER_AGENT_SECRET:
