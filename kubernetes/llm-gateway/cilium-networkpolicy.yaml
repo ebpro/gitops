@@ -1,0 +1,28 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: litellm-ingress
+  namespace: llm-gateway
+  labels:
+    app.kubernetes.io/name: litellm
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: litellm
+  ingress:
+    # Allow the opencode agent to call the gateway
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: opencode
+      toPorts:
+        - ports:
+            - port: "4000"
+              protocol: TCP
+    # Allow self-namespace (health probes, service discovery)
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: llm-gateway
+      toPorts:
+        - ports:
+            - port: "4000"
+              protocol: TCP
