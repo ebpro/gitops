@@ -8,12 +8,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - arch: amd64
-            label: x64
-          - arch: arm64
-            label: arm64
-    name: selftest (${{ matrix.arch }})
+        label: [x64, arm64]
+    name: selftest (${{ matrix.label }})
     runs-on:
       - ebpro-org
       - linux
