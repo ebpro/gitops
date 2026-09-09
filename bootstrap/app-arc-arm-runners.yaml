@@ -17,7 +17,7 @@ spec:
     helm:
       releaseName: arc-arm-runners
       valueFiles:
-      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/arc/arm-scale-set-values.yaml?v=2
+      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/arc/arm-scale-set-values.yaml?v=3
   destination:
     server: https://kubernetes.default.svc
     namespace: arc-runners

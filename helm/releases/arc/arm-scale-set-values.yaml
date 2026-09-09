@@ -1,6 +1,7 @@
 # ARM64 scale set for native arm64 builds (no QEMU).
 # Mirrors org-scale-set-values.yaml (x64 set); pinned to arm64 nodes.
-# minRunners 0: the arm node (lima-k3s-agent) is a dev VM — scale to zero when idle.
+# minRunners 1: minimum capacity pinned (fleet HA) — one arm runner always
+# warm. The arm node (lima-k3s-agent) is a dev VM: runners vanish if it reboots.
 runnerScaleSetName: ebpro-org-arm
 githubConfigUrl: https://github.com/ebpro
 githubConfigSecret: arc-github-creds
@@ -9,7 +10,7 @@ scaleSetLabels:
   - linux
   - ebpro-org
   - arm64
-minRunners: 0
+minRunners: 1
 maxRunners: 1
 dind:
   image: docker:28-dind

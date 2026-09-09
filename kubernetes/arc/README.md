@@ -62,6 +62,10 @@ Notes:
 2. **Fail fast on arch.** Echo `uname -m` as the first step of any job whose
    output is arch-sensitive, so a scheduling surprise fails loudly with
    evidence instead of producing a wrong-arch artifact.
+3. **Minimum capacity is pinned.** Both sets run `minRunners: 1`, so one
+   runner per arch is always warm — no cold start, no zero-capacity window.
+   Scale above the floor is automatic with job count (`maxRunners` caps it:
+   3 x64, 1 arm).
 
 ## Multiarch (no QEMU)
 
@@ -77,8 +81,8 @@ Notes:
   QEMU/binfmt anywhere).
 - The arm node is `lima-k3s-agent` (Lima dev VM): if the VM reboots, arm
   runners vanish and queued arm jobs wait until it returns (GitHub has no
-  timeout for self-hosted labels). `minRunners: 0` bounds the blast radius;
-  first arm job pays a ~30–60s cold start.
+  timeout for self-hosted labels). `minRunners: 1` keeps one arm runner
+  always warm (no cold start on the first arm job).
 - The runner image `quarkus-ci-runner` is multiarch (amd64+arm64 in Harbor);
   `docker:28-dind` and the listener image are multiarch too — same image refs
   on both sets.
