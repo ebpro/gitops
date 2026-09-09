@@ -53,3 +53,7 @@ data:
 
     general_settings:
       master_key: os.environ/LITELLM_MASTER_KEY
+
+    litellm_settings:
+      success_callback: ["prometheus"]
+      failure_callback: ["prometheus"]
