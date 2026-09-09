@@ -7,10 +7,13 @@ backstage:
   image:
     registry: harbor.ebruno.fr
     repository: library/backstage
-    tag: "c8fb97f1f79c3a35f564db1426e048f0f668b888"
+    tag: "8fcc4703c689318980c2b686efb86ef1239a0acd"
     pullPolicy: Always
     pullSecrets:
       - backstage-harbor-pull
+
+  nodeSelector:
+    kubernetes.io/arch: amd64
 
   podAnnotations:
     instrumentation.opentelemetry.io/inject-nodejs: "true"
