@@ -24,7 +24,7 @@ spec:
     metadata:
       annotations:
         synapse-image-hash: "45d1347"
-        config/restartedAt: "2026-08-12T00:25:00Z - admin revert"
+        config/restartedAt: "2026-09-11T00:00:00Z - x_forwarded:true SSO redirect-loop fix (19fd87d)"
       labels:
         app: synapse
     spec:
