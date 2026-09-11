@@ -13,7 +13,7 @@ data:
       - port: 8008
         tls: false
         type: http
-        x_forwarded: false
+        x_forwarded: true
         resources:
           - names: [client, federation]
             compress: false
