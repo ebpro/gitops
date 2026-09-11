@@ -1,0 +1,22 @@
+# NOTE: Open WebUI exposes /metrics only when the built-in Prometheus endpoint
+# is enabled; verify the endpoint exists on v0.11.3 before relying on this scrape.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: open-webui
+  namespace: open-webui
+  labels:
+    release: kube-prometheus
+spec:
+  jobLabel: app.kubernetes.io/name
+  namespaceSelector:
+    matchNames:
+      - open-webui
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: open-webui
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

@@ -25,6 +25,7 @@ spec:
           - path: kubernetes/alertmanager
           - path: kubernetes/alertmanager/alertmanager-config
           - path: kubernetes/observability
+          - path: kubernetes/open-webui
           - path: kubernetes/opencode
           - path: kubernetes/llm-gateway
           - path: kubernetes/argocd-image-updater

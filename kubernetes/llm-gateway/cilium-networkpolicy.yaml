@@ -18,6 +18,14 @@ spec:
         - ports:
             - port: "4000"
               protocol: TCP
+    # Allow the open-webui app to call the gateway
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: open-webui
+      toPorts:
+        - ports:
+            - port: "4000"
+              protocol: TCP
     # Allow self-namespace (health probes, service discovery)
     - fromEndpoints:
         - matchLabels:

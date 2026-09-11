@@ -1,0 +1,12 @@
+# Declared explicitly in git because the kubernetes-manifests AppSet relies on
+# `CreateNamespace=true` with an EMPTY spec.destination.namespace, which does
+# NOT create the namespace on ArgoCD v3.5.1. sync-wave "-1" guarantees it is
+# created before the wave-0 workloads (ExternalSecret, Service, Deployment, ...).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: open-webui
+  labels:
+    app.kubernetes.io/name: open-webui
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"

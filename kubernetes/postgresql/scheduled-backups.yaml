@@ -88,3 +88,13 @@ spec:
   cluster:
     name: link-shortener-db
   schedule: "0 45 4 * * *"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: open-webui-db-backup
+  namespace: open-webui
+spec:
+  cluster:
+    name: open-webui-db
+  schedule: "0 0 5 * * *"

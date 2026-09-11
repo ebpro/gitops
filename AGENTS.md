@@ -69,6 +69,7 @@ DNS pattern: `<cluster-name>-rw.<namespace>.svc.cluster.local:5432` (read-write/
 | `woodpecker-db` | `ci` | 10Gi | (default) |
 | `link-shortener-db` | `link-shortener` | 20Gi | (default) |
 | `matrix-db` | `synapse` | 10Gi | (default) |
+| `open-webui-db` | `open-webui` | 5Gi | 200 |
 
 **Managed via**: `kubernetes/postgresql/<db>-yaml` files synced by ArgoCD.
 **Debug via**: `kubectl exec -it <cluster>-1 -n <ns> -- psql -U postgres -d <dbname>`
@@ -78,6 +79,7 @@ DNS pattern: `<cluster-name>-rw.<namespace>.svc.cluster.local:5432` (read-write/
 1. `kubectl get app <app> -n argocd -o yaml` → check sync/health status
 2. `kubectl logs <pod> -n <namespace> -c <container> --tail=100` → check logs
 3. `kubectl describe deployment/<app-name> -n <ns>` → check scheduling/health
+4. Secret inspection: `kubectl get secret <name> -n <ns> -o jsonpath='{.data.<key>}' | base64 -d` (mind unencoded special characters in connection strings — see Troubleshooting Patterns)
 
 ## Troubleshooting Patterns
 - **App stuck in Progressing**: Check pod logs, then check resource status
@@ -104,6 +106,8 @@ DNS pattern: `<cluster-name>-rw.<namespace>.svc.cluster.local:5432` (read-write/
 - **Keycloak slow startup**: CNPG DB may not be ready — add init container retry loop (default 60s startup probe handles this)
 - **Nexus proxy 404-poisoning (negative cache)**: `maven-central` proxy negative-cached a transient upstream 404 for the full `negativeCache.timeToLive` (was 1440 min). Symptom in Maven: `Unresolveable build extension: ... quarkus-maven-plugin ... Failed to read artifact descriptor for org.<g>:<a>:<v>` + `Unknown packaging: quarkus` (the packaging error is only the consequence). Diagnose: `kubectl exec -n nexus nexus-nexus3-0 -c nexus3 -- curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/repository/maven-central/<gav-path>` (loopback = ground truth; also test pod egress `curl https://repo1.maven.org/...`). **Never trust `nexus.ebruno.fr` as ground truth** — a 404 there can be an ingress-route artifact while in-cluster serving is fine (2026-08-21: `org.wildfly.common:wildfly-common:2.0.1` 404'd via the public ingress while `maven-public` loopback served 200). TTL is now 15 min (`helm/releases/nexus/values.yaml`).
 - **SonarQube 26 project/role provisioning (no local admin password)**: the SQ pod has no `SONAR_ADMIN_PASSWORD`; built-in `admin` works **only** via HTTP-header SSO on loopback from inside the pod (`sonar.web.sso.enable=true`, one header does it all: `Gap-Auth`): `kubectl exec -n sonarqube sonarqube-sonarqube-0 -c sonarqube -- sh -c 'curl -s -H "Gap-Auth: admin" http://localhost:9000/...'` — this is SonarQube's break-glass path. The 26.x API surface changed: create project `POST /api/projects/create` param is **`project`** (not `projectKey`); grant a user `POST /api/permissions/add_user` (`projectKey`, `login`, `permission`; project perms: `admin, codeviewer, issueadmin, securityhotspotadmin, scan, user`); `/api/user_roles/update` and `/api/users/who_am_i` are gone; full webapi index at `GET /api/webservices/list`. Provisioned 2026-08-21: project `link-shortener` exists, `bruno@ebruno.fr` = project admin; the Woodpecker `sonar-qa` step authenticates with global token `ci` (USER_TOKEN, bruno, scope GLOBAL). Verify grants in `sonardb`: `user_roles.role` joined via `user_uuid`→`users.login` and `entity_uuid`→`projects.uuid` (project key column is **`kee`**).
+- **Connection strings with special characters in passwords**: ALWAYS URL-encode passwords containing `/`, `@`, `#`, `=`, `:`, `+`, `?` before embedding them in connection strings. A password like `abc/Xyz=123` silently breaks URL parsing and causes cryptic downstream errors — suspect this first when a connection string "looks right" but fails.
+- **One-off jobs (migrations, one-shot fixes)**: `kubectl run --restart=OnFailure` is a LAST resort outside git; always clean up the pod afterwards. Prefer encoding the job in git (e.g. a Helm chart Job) when the fix is repeatable.
 
 ## Operator-First Philosophy
 We delegate operations to controllers (operators). Never manage `Deployment`, `StatefulSet`, or `Release` directly for critical infrastructure. Fix by editing git, never patching. The cluster should be self-healing.

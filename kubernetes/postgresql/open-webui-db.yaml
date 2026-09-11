@@ -1,0 +1,48 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: open-webui-db
+  namespace: open-webui
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie
+  instances: 1
+  bootstrap:
+    initdb:
+      database: openwebui
+      owner: openwebui
+  managed:
+    roles:
+      - name: openwebui
+        ensure: present
+        login: true
+        passwordSecret:
+          name: open-webui-db-app
+  backup:
+    retentionPolicy: "14d"
+    barmanObjectStore:
+      destinationPath: s3://backups/open-webui-db
+      endpointURL: http://garage.garage.svc:3900
+      s3Credentials:
+        accessKeyId:
+          name: open-webui-backup-s3
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: open-webui-backup-s3
+          key: AWS_SECRET_ACCESS_KEY
+        region:
+          name: open-webui-backup-s3
+          key: AWS_REGION
+  storage:
+    size: 5Gi
+    storageClass: local-path
+  postgresql:
+    parameters:
+      max_connections: "200"
+  enableSuperuserAccess: true
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
