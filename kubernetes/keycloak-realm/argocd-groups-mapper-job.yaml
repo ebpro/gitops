@@ -1,18 +1,23 @@
-# One-shot kcadm Job: ensure the 'groups' client-scope in the platform realm has
-# the oidc-group-membership-mapper so Keycloak emits a "groups" claim in the id_token.
-# Why: ArgoCD OIDC login authenticated bruno but the token carried no groups, so the
-# RBAC binding "g, /platform-admins, role:admin" never matched and the UI was empty.
-# The realm import is IGNORE_EXISTING, so the pre-existing empty 'groups' scope was
-# never given the mapper from the realm JSON — this Job applies it to the live realm.
-# Idempotent: exits 0 without changes if a mapper named 'groups' already exists.
+# One-shot kcadm Job: ensure the realm 'groups' client-scope has an
+# oidc-group-membership-mapper so Keycloak emits a "groups" claim in the id_token.
+# Why: ArgoCD OIDC login authenticated bruno but the token carried no groups, so
+# the RBAC binding "g, /platform-admins, role:admin" never matched and the UI was
+# empty. The realm import is IGNORE_EXISTING, so the mapper defined in the realm
+# JSON was never applied to the pre-existing empty 'groups' scope.
+# Notes:
+#  - kcadm create of protocol-mappers fails ("Cannot parse the JSON"); the mapper
+#    is POSTed via raw /dev/tcp (same pattern as platform-realm-microcks-roles-job).
+#  - client-scopes list INLINES protocol mappers; microprofile-jwt has a mapper
+#    literally named "groups". The scope is discriminated by requiring the object
+#    be followed by ,"attributes" (mappers are followed by ,"protocolMapper").
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-argocd-groups-mapper-20260912b
+  name: keycloak-argocd-groups-mapper-20260912c
   namespace: keycloak
   annotations: {}
 spec:
-  backoffLimit: 5
+  backoffLimit: 4
   template:
     spec:
       restartPolicy: Never
@@ -25,52 +30,62 @@ spec:
             - |
               set -euo pipefail
               KCADM=/opt/keycloak/bin/kcadm.sh
-              KC_SERVER=http://keycloak-http.keycloak.svc.cluster.local:80
+              KC_HOST=keycloak-http.keycloak.svc.cluster.local
+              KC_PORT=80
+              KC_SERVER=http://$KC_HOST:$KC_PORT
               REALM="platform"
 
-              echo "=== Ensure oidc-group-membership-mapper on the 'groups' client-scope ==="
+              echo "=== Ensure oidc-group-membership-mapper on realm 'groups' client-scope ==="
 
               # --- Login (with retry) ---
-              echo "Waiting for Keycloak admin API..."
-              for attempt in $(seq 1 15); do
-                printf "  Login attempt %d/15... " "$attempt"
+              for attempt in $(seq 1 20); do
+                printf "  Login attempt %d/20... " "$attempt"
                 if "$KCADM" config credentials \
                   --server "$KC_SERVER" --realm master \
                   --user admin --password "$KEYCLOAK_ADMIN_PASSWORD" 2>/dev/null; then
                   echo "OK"; break
                 fi
-                if [ "$attempt" -eq 15 ]; then echo "FATAL: auth failed"; exit 1; fi
+                if [ "$attempt" -eq 20 ]; then echo "FATAL: auth failed"; exit 1; fi
                 echo "retrying..."; sleep 10
               done
 
-              # --- Resolve the 'groups' client-scope id (KC26 spaced JSON) ---
-              SCOPE_ID=$("$KCADM" get client-scopes -r "$REALM" -q name=groups 2>/dev/null \
-                | tr -d ' \n' | grep -oP '"id":"\K[^"]+' | head -1 || true)
-              if [ -z "$SCOPE_ID" ]; then
-                echo "FATAL: 'groups' client-scope not found"; exit 1
-              fi
+              # --- Extract admin token from kcadm session ---
+              ADMIN_TOKEN=$(grep -oP '"token"\s*:\s*"\K[^"]+' /opt/keycloak/.keycloak/kcadm.config 2>/dev/null || true)
+              if [ -z "$ADMIN_TOKEN" ]; then echo "FATAL: no admin token"; exit 1; fi
+              printf "  admin token extracted (%d chars)\n" "${#ADMIN_TOKEN}"
+
+              # --- Resolve the 'groups' SCOPE id (exclude inlined mappers named 'groups') ---
+              SCOPE_ID=$("$KCADM" get client-scopes -r "$REALM" 2>/dev/null \
+                | tr -d ' \n' \
+                | grep -oP '"id":"\K[^"]+(?=","name":"groups","protocol":"openid-connect","attributes")' \
+                | head -1 || true)
+              if [ -z "$SCOPE_ID" ]; then echo "FATAL: 'groups' client-scope not found"; exit 1; fi
               echo "  'groups' client-scope uuid=${SCOPE_ID:0:8}..."
 
               # --- Idempotency: skip if a mapper named 'groups' already exists on the scope ---
               MAPS=$("$KCADM" get "client-scopes/$SCOPE_ID/protocol-mappers/models" -r "$REALM" 2>/dev/null || true)
               if echo "$MAPS" | grep -Eq '"name" *: *"groups"'; then
-                echo "  [OK] 'groups' mapper already present — nothing to do"
-                exit 0
+                echo "  [OK] 'groups' mapper already present — nothing to do"; exit 0
               fi
 
-              # --- Create the Group Membership mapper (correct key: full.group.path) ---
-              echo "  Creating oidc-group-membership-mapper on the 'groups' scope..."
-              "$KCADM" create "client-scopes/$SCOPE_ID/protocol-mappers/models" -r "$REALM" \
-                -s name=groups \
-                -s protocol=openid-connect \
-                -s protocolMapper=oidc-group-membership-mapper \
-                -s config.claim.name=groups \
-                -s config.full.group.path=true \
-                -s config.id.token.claim=true \
-                -s config.access.token.claim=true \
-                -s config.userinfo.token.claim=true \
-                -s config.multivalued=true \
-                -s config.jsonType.label=String
+              # --- POST the Group Membership mapper via raw /dev/tcp ---
+              PAYLOAD='{"name":"groups","protocol":"openid-connect","protocolMapper":"oidc-group-membership-mapper","consentRequired":false,"config":{"claim.name":"groups","full.group.path":"true","id.token.claim":"true","access.token.claim":"true","userinfo.token.claim":"true","multivalued":"true","jsonType.label":"String"}}'
+              echo "  POSTing oidc-group-membership-mapper to the 'groups' scope..."
+              HTTP_CODE=$({ exec 3<>"/dev/tcp/$KC_HOST/$KC_PORT"; \
+                printf "POST /admin/realms/%s/client-scopes/%s/protocol-mappers/models HTTP/1.1\r\n" "$REALM" "$SCOPE_ID" >&3; \
+                printf "Host: %s:%s\r\n" "$KC_HOST" "$KC_PORT" >&3; \
+                printf "Authorization: Bearer %s\r\n" "$ADMIN_TOKEN" >&3; \
+                printf "Content-Type: application/json\r\n" >&3; \
+                printf "Content-Length: %s\r\n" "${#PAYLOAD}" >&3; \
+                printf "Connection: close\r\n" >&3; \
+                printf "\r\n" >&3; \
+                printf "%s" "$PAYLOAD" >&3; \
+                head -1 <&3; \
+                exec 3>&-; } 2>/dev/null || echo "FAILED")
+              echo "  response: $HTTP_CODE"
+              if ! echo "$HTTP_CODE" | grep -qE ' 20[014]'; then
+                echo "FATAL: mapper POST did not succeed: ${HTTP_CODE:-no-response}"; exit 1
+              fi
 
               # --- Verify ---
               MAPS2=$("$KCADM" get "client-scopes/$SCOPE_ID/protocol-mappers/models" -r "$REALM" 2>/dev/null || true)
