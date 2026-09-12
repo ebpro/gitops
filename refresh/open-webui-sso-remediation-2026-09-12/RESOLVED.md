@@ -49,3 +49,12 @@ Fix `bootstrap/keycloak-reconciler` so client secrets reliably reach Vault:
 - on reconcile, push/patch the client secret even for EXISTING clients when the Vault key is missing,
 - use KV-v2 PATCH (read-modify-write) instead of the current blind `POST {"data":{oneKey}}` which
   would CLOBBER all sibling `clientSecret*` keys in the shared `secret/data/keycloak` object.
+
+## Follow-up — browser OIDC login fix (2026-09-12T23:3xZ)
+Manual browser test hit: "This email is already registered." Cause: bootstrap admin
+`WEBUI_ADMIN_EMAIL=bruno@ebruno.fr` is a LOCAL account and `OAUTH_MERGE_ACCOUNTS_BY_EMAIL`
+was unset (false), so Open WebUI refused to link the Keycloak OIDC identity to it.
+Fix commit `6acf3d7`: added `OAUTH_MERGE_ACCOUNTS_BY_EMAIL=true`. New pod rolled healthy,
+env confirmed, /health=200. Retry the browser login -> it should now link to the admin account.
+Note: DEFAULT_USER_ROLE=pending only gates *new* OAuth users; the merged admin keeps its role,
+and ENABLE_OAUTH_ROLE_MANAGEMENT + OAUTH_ADMIN_ROLES=platform-admin still apply platform-admin.
