@@ -8,6 +8,26 @@ metadata:
 data:
   config.yaml: |
     model_list:
+      # ---- Own (PRIMARY): Qwen3.8 Flash Next - llama.cpp, Mac Studio Ultra (no auth) ----
+      # NOTE: compute-lsis-1.lis-lab.fr is currently NOT resolvable from this cluster node;
+      # litellm fails over instantly to the chatlab deployment of the same group below.
+      # Add a hostAlias/reachable IP for compute-lsis-1 to make this the live primary.
+      - model_name: qwen3.8-flash-next
+        litellm_params:
+          model: openai/Qwen3.8-Flash-Next
+          api_base: http://compute-lsis-1.lis-lab.fr:8002/v1
+          api_key: "not-needed"
+          max_parallel_requests: 4
+          timeout: 600
+      # ---- Lab BACKUP for the same model group (reachable; answers on failover) ----
+      - model_name: qwen3.8-flash-next
+        litellm_params:
+          model: openai/qwen3.8-flash-next
+          api_base: https://chat.lis-lab.fr/api
+          api_key: os.environ/LIS_LAB_API_KEY
+          max_parallel_requests: 2
+          timeout: 600
+      # ---- Own: Qwen3.8-27B - ouranos1 vLLM (A100 80G) on-node localhost:8001 ----
       - model_name: qwen3.8-27b
         litellm_params:
           model: openai/qwen3.8-27b
@@ -15,22 +35,10 @@ data:
           api_key: os.environ/VLLM_API_KEY
           max_parallel_requests: 8
           timeout: 600
-      - model_name: qwen3.8-flash
+      # ---- Lab MANUAL alternative (Qwen 3.8 LIS preset) ----
+      - model_name: lismodel1
         litellm_params:
-          model: openai/Qwen3.8-Flash-Next
-          api_base: http://compute-lsis-1.lis-lab.fr:8002/v1
-          max_parallel_requests: 4
-          timeout: 600
-      - model_name: gemma-4-31b-nvfp4
-        litellm_params:
-          model: openai/unsloth/gemma-4-31B-it-NVFP4
-          api_base: https://chat.lis-lab.fr/api
-          api_key: os.environ/LIS_LAB_API_KEY
-          max_parallel_requests: 2
-          timeout: 600
-      - model_name: gemma-4-31b-fp16
-        litellm_params:
-          model: openai/google/gemma-4-31B-it
+          model: openai/lismodel1
           api_base: https://chat.lis-lab.fr/api
           api_key: os.environ/LIS_LAB_API_KEY
           max_parallel_requests: 2
@@ -42,14 +50,10 @@ data:
       cooldown_time: 300
       allowed_fails: 3
       fallbacks:
+        - qwen3.8-flash-next:
+            - lismodel1
         - qwen3.8-27b:
-            - qwen3.8-flash
-            - gemma-4-31b-nvfp4
-            - gemma-4-31b-fp16
-        - qwen3.8-flash:
-            - gemma-4-31b-nvfp4
-        - gemma-4-31b-nvfp4:
-            - gemma-4-31b-fp16
+            - qwen3.8-flash-next
 
     general_settings:
       master_key: os.environ/LITELLM_MASTER_KEY
