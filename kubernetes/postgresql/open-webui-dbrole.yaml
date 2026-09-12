@@ -1,0 +1,15 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: openwebui
+  namespace: open-webui
+spec:
+  cluster:
+    name: open-webui-db
+  comment: open-webui application role
+  connectionLimit: -1
+  name: openwebui
+  ensure: present
+  login: true
+  passwordSecret:
+    name: open-webui-db-app
