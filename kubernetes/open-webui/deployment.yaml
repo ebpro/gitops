@@ -61,6 +61,8 @@ spec:
               value: "false"
             - name: ENABLE_OAUTH_SIGNUP
               value: "true"
+            - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
+              value: "true"
             - name: OAUTH_CLIENT_ID
               value: open-webui
             - name: OAUTH_PROVIDER_NAME
