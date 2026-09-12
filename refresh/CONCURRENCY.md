@@ -61,6 +61,23 @@ Git worktrees give each session its own checkout dir + own HEAD, while sharing t
 - Detect contention cheaply: `git -C <tree> status -sb` + `git worktree list` + the `.claimed`
   marker in each REFRESH folder before starting.
 
+## Helper: `claim.sh` (mechanizes steps 1–4 + 7)
+The ARC session ships `/home/bruno/REFRESH/claim.sh` so parallel sessions follow the practice
+without remembering the commands. It is dry-tested and self-cleaning.
+
+```
+# claim a job (isolated worktree + preservation branch + .claimed marker + INDEX row)
+./claim.sh <job-slug> [base-ref]        # base-ref defaults to origin/main
+# then ONLY work inside the printed worktree path; push by PR, never to main.
+
+# finish / abandon (removes worktree + LOCAL branch + marker; keeps remote branch & INDEX row
+# so a merged job can be marked DONE by hand)
+./claim.sh --release <job-slug>
+```
+Env overrides: `GITOPS_REPO`, `REFRESH_DIR`, `WT_ROOT`, `NO_FETCH=1`.
+Guards: refuses to clobber an existing worktree path; never uses `git add -A`; inserts the INDEX
+row idempotently (fixed-string match, one row per job).
+
 ## One-line rule
 > **A shared checkout is a shared race condition. Give every concurrent session its own
 > worktree and its own branch; register both in `INDEX.md`; publish by PR, never by `main`.**
