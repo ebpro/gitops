@@ -12,4 +12,4 @@ spec:
   ensure: present
   login: true
   passwordSecret:
-    name: open-webui-db-app
+    name: open-webui-db-credentials
