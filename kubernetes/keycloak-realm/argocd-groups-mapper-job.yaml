@@ -1,0 +1,96 @@
+# One-shot kcadm Job: ensure the 'groups' client-scope in the platform realm has
+# the oidc-group-membership-mapper so Keycloak emits a "groups" claim in the id_token.
+# Why: ArgoCD OIDC login authenticated bruno but the token carried no groups, so the
+# RBAC binding "g, /platform-admins, role:admin" never matched and the UI was empty.
+# The realm import is IGNORE_EXISTING, so the pre-existing empty 'groups' scope was
+# never given the mapper from the realm JSON — this Job applies it to the live realm.
+# Idempotent: exits 0 without changes if a mapper named 'groups' already exists.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-argocd-groups-mapper-20260912
+  namespace: keycloak
+  annotations: {}
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: kcadm-groups-mapper
+          image: quay.io/keycloak/keycloak:26.7.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              KCADM=/opt/keycloak/bin/kcadm.sh
+              KC_SERVER=http://keycloak-http.keycloak.svc.cluster.local:80
+              REALM="platform"
+
+              echo "=== Ensure oidc-group-membership-mapper on the 'groups' client-scope ==="
+
+              # --- Login (with retry) ---
+              echo "Waiting for Keycloak admin API..."
+              for attempt in $(seq 1 15); do
+                printf "  Login attempt %d/15... " "$attempt"
+                if "$KCADM" config credentials \
+                  --server "$KC_SERVER" --realm master \
+                  --user admin --password "$KEYCLOAK_ADMIN_PASSWORD" 2>/dev/null; then
+                  echo "OK"; break
+                fi
+                if [ "$attempt" -eq 15 ]; then echo "FATAL: auth failed"; exit 1; fi
+                echo "retrying..."; sleep 10
+              done
+
+              # --- Resolve the 'groups' client-scope id (KC26 spaced JSON) ---
+              SCOPE_DOC=$("$KCADM" get client-scopes -r "$REALM" 2>/dev/null)
+              SCOPE_ID=$(echo "$SCOPE_DOC" | tr -d ' \n' | \
+                grep -oP '"id":"[^"]+","name":"groups"' | \
+                grep -oP '(?<="id":")[^"]+' | head -1 || true)
+              if [ -z "$SCOPE_ID" ]; then
+                echo "FATAL: 'groups' client-scope not found"; exit 1
+              fi
+              echo "  'groups' client-scope uuid=${SCOPE_ID:0:8}..."
+
+              # --- Idempotency: skip if a mapper named 'groups' already exists on the scope ---
+              MAPS=$("$KCADM" get "client-scopes/$SCOPE_ID/protocol-mappers/models" -r "$REALM" 2>/dev/null || true)
+              if echo "$MAPS" | grep -Eq '"name" *: *"groups"'; then
+                echo "  [OK] 'groups' mapper already present — nothing to do"
+                exit 0
+              fi
+
+              # --- Create the Group Membership mapper (correct key: full.group.path) ---
+              echo "  Creating oidc-group-membership-mapper on the 'groups' scope..."
+              "$KCADM" create "client-scopes/$SCOPE_ID/protocol-mappers/models" -r "$REALM" \
+                -s name=groups \
+                -s protocol=openid-connect \
+                -s protocolMapper=oidc-group-membership-mapper \
+                -s config.claim.name=groups \
+                -s config.full.group.path=true \
+                -s config.id.token.claim=true \
+                -s config.access.token.claim=true \
+                -s config.userinfo.token.claim=true \
+                -s config.multivalued=true \
+                -s config.jsonType.label=String
+
+              # --- Verify ---
+              MAPS2=$("$KCADM" get "client-scopes/$SCOPE_ID/protocol-mappers/models" -r "$REALM" 2>/dev/null || true)
+              if echo "$MAPS2" | grep -Eq '"name" *: *"groups"'; then
+                echo "=== groups mapper created & verified ==="
+              else
+                echo "FATAL: mapper not found after create"; exit 1
+              fi
+          env:
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: adminPassword
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

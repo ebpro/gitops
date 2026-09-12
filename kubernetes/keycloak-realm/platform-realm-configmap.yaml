@@ -1893,7 +1893,7 @@ data:
               "protocolMapper": "oidc-group-membership-mapper",
               "consentRequired": false,
               "config": {
-                "full.path": "true",
+                "full.group.path": "true",
                 "userinfo.token.claim": "true",
                 "multivalued": "true",
                 "id.token.claim": "true",
