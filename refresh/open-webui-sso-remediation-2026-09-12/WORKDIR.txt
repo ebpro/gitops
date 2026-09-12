@@ -1,0 +1,6 @@
+# Finish this job from THIS working directory (isolated git worktree — NOT the shared primary tree)
+WORKTREE=/tmp/wt-open-webui-sso-remediation-2026-09-12
+BRANCH=preservation/open-webui-sso-remediation-2026-09-12
+BASE_REF=origin/main
+BASE_SHA=7a05f7bdcbd3949847a8c78eb0bbcd5772d002e2
+PRIMARY_SHARED_TREE=/mnt/hdd/home/bruno/gitops   # == /home/bruno/gitops (same inode). Do NOT checkout/edit here.
