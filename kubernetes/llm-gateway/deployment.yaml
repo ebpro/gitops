@@ -16,12 +16,16 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: "e5b3d351c387fe23"
+        checksum/config: "fda9bb937aba5cf8"
       labels:
         app.kubernetes.io/name: litellm
         app.kubernetes.io/component: llm-gateway
     spec:
       hostNetwork: true
+      hostAliases:
+        - ip: "10.2.248.32"
+          hostnames:
+            - "compute-lsis-1.lis-lab.fr"
       nodeSelector:
         kubernetes.io/hostname: compute-lsis-2
       containers:

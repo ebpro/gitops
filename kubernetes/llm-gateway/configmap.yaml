@@ -8,10 +8,8 @@ metadata:
 data:
   config.yaml: |
     model_list:
-      # ---- Own (PRIMARY): Qwen3.8 Flash Next - llama.cpp, Mac Studio Ultra (no auth) ----
-      # NOTE: compute-lsis-1.lis-lab.fr is currently NOT resolvable from this cluster node;
-      # litellm fails over instantly to the chatlab deployment of the same group below.
-      # Add a hostAlias/reachable IP for compute-lsis-1 to make this the live primary.
+      # ---- PRIMARY: own Qwen3.8 Flash Next (llama.cpp, Mac Studio Ultra, no auth) ----
+      # reachable via hostAlias compute-lsis-1.lis-lab.fr -> 10.2.248.32 (see deployment.yaml)
       - model_name: qwen3.8-flash-next
         litellm_params:
           model: openai/Qwen3.8-Flash-Next
@@ -19,15 +17,7 @@ data:
           api_key: "not-needed"
           max_parallel_requests: 4
           timeout: 600
-      # ---- Lab BACKUP for the same model group (reachable; answers on failover) ----
-      - model_name: qwen3.8-flash-next
-        litellm_params:
-          model: openai/qwen3.8-flash-next
-          api_base: https://chat.lis-lab.fr/api
-          api_key: os.environ/LIS_LAB_API_KEY
-          max_parallel_requests: 2
-          timeout: 600
-      # ---- Own: Qwen3.8-27B - ouranos1 vLLM (A100 80G) on-node localhost:8001 ----
+      # ---- PRIMARY: own Qwen3.8-27B (ouranos1 vLLM, A100 80G) on-node localhost:8001 ----
       - model_name: qwen3.8-27b
         litellm_params:
           model: openai/qwen3.8-27b
@@ -35,7 +25,15 @@ data:
           api_key: os.environ/VLLM_API_KEY
           max_parallel_requests: 8
           timeout: 600
-      # ---- Lab MANUAL alternative (Qwen 3.8 LIS preset) ----
+      # ---- BACKUP / manual: lab Qwen3.8 Flash Next (chat.lis-lab.fr) ----
+      - model_name: qwen3.8-flash-next-lab
+        litellm_params:
+          model: openai/qwen3.8-flash-next
+          api_base: https://chat.lis-lab.fr/api
+          api_key: os.environ/LIS_LAB_API_KEY
+          max_parallel_requests: 2
+          timeout: 600
+      # ---- manual: lab Qwen 3.8 preset ----
       - model_name: lismodel1
         litellm_params:
           model: openai/lismodel1
@@ -51,9 +49,12 @@ data:
       allowed_fails: 3
       fallbacks:
         - qwen3.8-flash-next:
+            - qwen3.8-flash-next-lab
             - lismodel1
         - qwen3.8-27b:
             - qwen3.8-flash-next
+        - qwen3.8-flash-next-lab:
+            - lismodel1
 
     general_settings:
       master_key: os.environ/LITELLM_MASTER_KEY
