@@ -2,6 +2,8 @@
 Regenerated: 2026-09-12T19:2xZ (by ARC/Kyverno session)
 Every SOTA-2026 handoff lives in its own subfolder here. Read the folder's own docs to resume.
 
+> **Concurrency:** several jobs share one working tree. See **[CONCURRENCY.md](CONCURRENCY.md)** for the note + SOTA practice (one `git worktree` + one branch per session; publish by PR, never to `main`).
+
 | Folder | Job | Finish-in (working dir) | Git preservation | Status / next |
 |---|---|---|---|---|
 | `arc-kyverno-arm64-taint-2026-09-12/` | ARC/Kyverno: persist arm64 node taint + tolerate in ARM runner set | `/mnt/hdd/home/bruno/gitops` (main) | ebpro/gitops `preservation/arc-kyverno-arm64-taint-2026-09-12` @ `0c761c8`, path `refresh/…` | **Job NOT implemented** (record-only). Clean start verified (no policy/RBAC/toleration files). Fresh session: run `FILES.md`→`NEXT-STEPS.md`→`CHECKLIST.md`; then one-off Kyverno CM patch (`CONTEXT.md`). |
