@@ -10,13 +10,6 @@ spec:
     initdb:
       database: openwebui
       owner: openwebui
-  managed:
-    roles:
-      - name: openwebui
-        ensure: present
-        login: true
-        passwordSecret:
-          name: open-webui-db-app
   backup:
     retentionPolicy: "14d"
     barmanObjectStore:
