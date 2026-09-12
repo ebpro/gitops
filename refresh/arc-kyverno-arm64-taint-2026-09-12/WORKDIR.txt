@@ -1,0 +1,21 @@
+JOB: ARC / Kyverno — persist arm64 node taint via GitOps + tolerate it in the ARM runner set
+SESSION: opencode SOTA 2026 handoff
+CREATED: 2026-09-12T19:22:40Z
+
+=== FINISH THE JOB IN ===
+  /mnt/hdd/home/bruno/gitops
+  branch: main   remote: git@github.com:ebpro/gitops.git   (ArgoCD auto-sync: prune+selfHeal)
+
+  First, ALWAYS detect partial work from earlier aborted delegations:
+    git -C /mnt/hdd/home/bruno/gitops checkout main
+    git -C /mnt/hdd/home/bruno/gitops pull --ff-only
+    git -C /mnt/hdd/home/bruno/gitops status --short
+    git -C /mnt/hdd/home/bruno/gitops log --oneline -5
+    ls kubernetes/arc/   # expect: node-arm64-arch-taint.yaml + kyverno-node-mutation-rbac.yaml MISSING (not yet created)
+
+=== THIS HANDOFF COPY (discoverable) ===
+  /home/bruno/REFRESH/arc-kyverno-arm64-taint-2026-09-12/
+
+=== GIT-PRESERVED COPY ===
+  repo: ebpro/gitops  branch: preservation/arc-kyverno-arm64-taint-2026-09-12
+  path: refresh/arc-kyverno-arm64-taint-2026-09-12/   (see GIT.md)
