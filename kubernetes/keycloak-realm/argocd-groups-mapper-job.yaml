@@ -8,7 +8,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-argocd-groups-mapper-20260912
+  name: keycloak-argocd-groups-mapper-20260912b
   namespace: keycloak
   annotations: {}
 spec:
@@ -44,10 +44,8 @@ spec:
               done
 
               # --- Resolve the 'groups' client-scope id (KC26 spaced JSON) ---
-              SCOPE_DOC=$("$KCADM" get client-scopes -r "$REALM" 2>/dev/null)
-              SCOPE_ID=$(echo "$SCOPE_DOC" | tr -d ' \n' | \
-                grep -oP '"id":"[^"]+","name":"groups"' | \
-                grep -oP '(?<="id":")[^"]+' | head -1 || true)
+              SCOPE_ID=$("$KCADM" get client-scopes -r "$REALM" -q name=groups 2>/dev/null \
+                | tr -d ' \n' | grep -oP '"id":"\K[^"]+' | head -1 || true)
               if [ -z "$SCOPE_ID" ]; then
                 echo "FATAL: 'groups' client-scope not found"; exit 1
               fi
