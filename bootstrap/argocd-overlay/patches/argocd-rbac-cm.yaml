@@ -4,10 +4,20 @@ metadata:
   name: argocd-rbac-cm
 data:
   policy.csv: |
-    # Keycloak groups → ArgoCD roles (v3.x format)
+    # Keycloak groups -> ArgoCD roles (v3.x format)
+    # ArgoCD 'g,' bindings are EXACT string match. This Keycloak build emits the
+    # BARE group name in the OIDC 'groups' claim (e.g. 'platform-admins'), not the
+    # full path ('/platform-admins'), even with the mapper's full.group.path=true.
+    # Bind both forms so RBAC matches regardless of which Keycloak emits.
     g, /platform-admins, role:admin
+    g, platform-admins, role:admin
     g, /platform-engineers, role:projects-admin
+    g, platform-engineers, role:projects-admin
     g, /developers, role:readonly
+    g, developers, role:readonly
     g, /readonly, role:readonly
+    g, readonly, role:readonly
     g, /developers/qa-team, role:readonly
+    g, qa-team, role:readonly
     g, /developers/security-team, role:readonly
+    g, security-team, role:readonly
