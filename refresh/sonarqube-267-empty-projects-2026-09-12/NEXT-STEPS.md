@@ -41,3 +41,10 @@ This restarts the SQ pod (brief outage for the team) -> coordinate before mergin
   - Finish reading the javaagent source in the plugin clone (`/tmp/opencode/sqcb-plugin` — EPHEMERAL,
     may be gone; re-clone `mc1arke/sonarqube-community-branch-plugin` if needed) to pinpoint the exact
     26.7 search-path hook. Optional; step 1 gives the faster proof.
+
+## 1b. Do NOT bother with an ES reindex (settled 2026-09-12)
+The tempting "DB good / index corrupt" theory was checked and REJECTED as a fix path. See CONTEXT.md
+"ES index shape". Short version: components index is already 26.7-shaped (auth_*/join_components, 30
+docs = 15 real + 15 auth shadow, GREEN, matches DB 1:1) and there is NO safe reindex API in 26.7 —
+a rebuild would only wipe ES + restart and reproduce the same content. Go straight to step 1
+(disable the `=web` javaagent via Git + ?v bump + restart); it is the reversible, diagnostic test.
