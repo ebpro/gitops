@@ -22,10 +22,10 @@ spec:
         app.kubernetes.io/component: llm-gateway
     spec:
       hostNetwork: true
-      hostAliases:
-        - ip: "10.2.248.32"
-          hostnames:
-            - "compute-lsis-1.lis-lab.fr"
+      # Resolve lab-internal hostnames (compute-lsis-1.lis-lab.fr) via the node's own
+      # resolver instead of CoreDNS, so no static IP hostAlias is needed. hostNetwork pod
+      # => Default = node /etc/resolv.conf (systemd-resolved 127.0.0.53 + search lis-lab.fr).
+      dnsPolicy: Default
       nodeSelector:
         kubernetes.io/hostname: compute-lsis-2
       containers:
