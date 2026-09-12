@@ -5,9 +5,11 @@
   ],
   "permission": {
     "bash": {
-      "kubectl apply -f *": "deny",
+      "kubectl apply *": "deny",
       "kubectl patch *": "deny",
       "kubectl edit *": "deny",
+      "kubectl set *": "ask",
+      "kubectl scale *": "ask",
       "kubectl exec *": "ask",
       "kubectl delete *": "ask",
       "git push": "ask",
@@ -15,16 +17,6 @@
     },
     "edit": "allow",
     "webfetch": "allow",
-    "skill": {
-      "internal-*": "allow",
-      "add-operator": "allow",
-      "cnpg-cluster": "allow",
-      "observability-integration": "allow",
-      "backup-restore": "allow",
-      "keycloak-realm": "allow",
-      "app-oidc-integration": "allow",
-      "proxy-auth-middleware": "allow",
-      "*": "allow"
-    }
+    "skill": "allow"
   }
 }
