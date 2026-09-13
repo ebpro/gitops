@@ -75,9 +75,13 @@ detailed in the findings sections of this document.
 | compute-lsis-2 | control-plane | amd64 | 81d | 10.2.248.31 | Ubuntu 24.04.4 / kernel 6.8.0-136-generic, containerd 2.3.4 | 32 CPU / 65.7 GiB / 110 pods (allocatable 29 CPU / 58.4 GiB) | 14% CPU / 53% mem |
 | lima-k3s-agent | worker | arm64 | 14h | 10.2.248.247 | kernel 6.8.0-138 | 8 CPU / 49.2 GiB / 110 pods | 2% CPU / 1% mem |
 
-Both nodes are Ready. `lima-k3s-agent` joined on 2026-09-07 and carries **no taints**
-— it is an active arm64 test node, not a cordoned spare. The control-plane node last
-restarted around 2026-09-01T12:53Z (Ready since that timestamp).
+Both nodes are Ready. `lima-k3s-agent` joined on 2026-09-07 and is an active arm64
+test node, not a cordoned spare. It carries a `kubernetes.io/arch=arm64:NoSchedule`
+taint, now **GitOps-enforced via Kyverno** (ClusterPolicy `node-arm64-arch-taint`,
+admission+background, in `kubernetes/arc/`) so it persists across kubelet
+re-provisioning; ARC ARM runners tolerate it (see `kubernetes/arc/README.md`).
+Resolved 2026-09-12. The control-plane node last restarted around 2026-09-01T12:53Z
+(Ready since that timestamp).
 
 ### K3s version
 
@@ -620,7 +624,7 @@ pulls (see §10); 159 VulnerabilityReports exist for scanned images.
 | 7 | Minor | Unmanaged namespace `reloader` | stakater reloader v1.4.21 (Deployment + ServiceAccount), created 2026-09-07T16:41Z, absent from git, no ArgoCD labels | Delete it or adopt it into GitOps |
 | 8 | Minor | Mutable image tags (5) | `synapse:latest`, `minio/minio:latest`, `link-shortener:latest` (live), `bash:latest` (init container), `minio/mc:latest` (one-shot) | Pin tags/digests for reproducibility |
 | 9 | Minor | Missing resource guarantees | gitea and oauth2-proxy pod specs have no CPU/memory requests or limits (others sampled have them) | Add requests/limits |
-| 10 | Minor | Untainted arm64 test node | `lima-k3s-agent` (joined 2026-09-07) carries no taints; unowned `arm-test` pod present | Taint with NoSchedule or decommission after testing |
+| 10 | Minor | Untainted arm64 test node — **resolved 2026-09-12** | `lima-k3s-agent` (joined 2026-09-07) carried no taints; unowned `arm-test` pod present | Tainted `kubernetes.io/arch=arm64:NoSchedule`, now GitOps-enforced via Kyverno `node-arm64-arch-taint` (admission+background) so it persists; ARC ARM runners tolerate it (`kubernetes/arc/`) |
 | 11 | Minor | Hubble flow buffer saturated | 4,095/4,095 at ~182 flows/s — flow visibility dropping events | Increase the flow-log queue or disable capture if unused |
 | 12 | Minor | Dangling registry secret | `ghcr-jbase-test` docker-registry secret in harbor ns, unreferenced | Delete if unused |
 | 13 | Minor | One historical backup failure | woodpecker-db 2026-09-02 "instance manager was restarted during backup" — recovered same day | Monitor; no action needed |

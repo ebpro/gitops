@@ -6,3 +6,5 @@ resources:
   - crds/actions.github.com_autoscalingrunnersets.yaml
   - crds/actions.github.com_ephemeralrunners.yaml
   - crds/actions.github.com_ephemeralrunnersets.yaml
+  - node-arm64-arch-taint.yaml
+  - kyverno-node-mutation-rbac.yaml

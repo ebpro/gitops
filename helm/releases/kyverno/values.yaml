@@ -6,3 +6,31 @@ metricsPrometheusWidget:
   enabled: true
 reports:
   enableBroadcast: true
+
+# --- Kyverno engine config (resourceFilters) ----------------------------------
+# The node-arm64-arch-taint ClusterPolicy (kubernetes/arc/) needs the Kyverno
+# admission webhook to process Node objects so it can re-apply the
+# kubernetes.io/arch=arm64:NoSchedule taint on arm64 nodes. Kyverno's default
+# resourceFilters exclude `[Node,*,*]`, which would make the admission webhook
+# skip Nodes entirely. `resourceFiltersExclude` is a real chart hook (deep-merged
+# into the chart default) that removes exactly that one entry, keeping
+# `[Node/?*,*,*]` so Node *subresources* (status) stay filtered. excludeGroups
+# stays the chart default `system:nodes` (kubelet updates are covered by the
+# policy's background rescan instead).
+config:
+  resourceFiltersExclude:
+    - '[Node,*,*]'
+
+# --- One-off live-CM patch (post-merge, manual — NOT part of this diff) --------
+# The live `kyverno/kyverno` ConfigMap is annotated `helm.sh/resource-policy:
+# keep` and is NOT managed by ArgoCD/Helm, so the values change above only takes
+# effect on a fresh install / rebuild. To apply it to the running cluster, run
+# this single sanctioned data-level patch (read-only-verify the mutating webhook
+# catch-all on Node first: apiGroups `*`, resources `*/*`, ops CREATE/UPDATE on
+# `kyverno-policy-mutating-webhook-cfg`), substituting the exact INTENDED string:
+#
+#   kubectl patch configmap kyverno -n kyverno --type merge -p '{"data":{"resourceFilters":"<INTENDED STRING BELOW>"}}'
+#
+# INTENDED resourceFilters (current live value minus the standalone `[Node,*,*]`;
+# `[Node/?*,*,*]` kept), single line:
+#   [*/*,kyverno,*] [Event,*,*] [*/events,*,*] [APIService,*,*] [APIServiceGroup,*,*] [TokenReview,*,*] [SubjectAccessReview,*,*] [SelfSubjectAccessReview,*,*] [RuntimeClass,*,*] [ClusterRuntimeClass,*,*] [ConstrainedTemplatePolicy,*,*] [ClusterConstrainedTemplatePolicy,*,*] [ClusterPolicy,*,*] [ClusterPolicyException,*,*] [BackgroundScanReport,*,*] [ClusterBackgroundScanReport,*,*] [ClusterAdmissionReport,*,*] [AdmissionReport,*,*] [kyverno.io/*,*,*] [updaterequests,*,*] [kyverno.io/updaterequests,*,*] [namespaceinitializers,*,*] [namespaceinitializers.cert-manager.io,*,*] [Node/?*,*,*]

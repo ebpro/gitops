@@ -1,0 +1,23 @@
+# RBAC for background Node mutation (see node-arm64-arch-taint.yaml).
+#
+# The Kyverno background controller rescan re-applies the arm64 node taint on
+# Node updates made by kubelet (which admission misses, as kubelet is in
+# `excludeGroups: system:nodes`). Background mutation requires the controller's
+# ServiceAccount to have update/patch on nodes.
+#
+# Rather than binding a dedicated ClusterRole, this role carries the Kyverno
+# aggregation label so the base `kyverno:background-controller` ClusterRole's
+# aggregationRule picks it up automatically — the existing
+# kyverno:background-controller ClusterRoleBinding (already created by the
+# Kyverno chart) then grants it. No extra binding is needed.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kyverno:update-nodes
+  labels:
+    rbac.kyverno.io/aggregate-to-background-controller: "true"
+    argocd.argoproj.io/sync-wave: "-1"
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch", "update", "patch"]

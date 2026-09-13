@@ -23,6 +23,14 @@ template:
   spec:
     nodeSelector:
       kubernetes.io/arch: arm64
+    # Tolerate the arch taint (enforced by Kyverno node-arm64-arch-taint) so the
+    # arm runner pod can land on the tainted arm64 node. Listeners intentionally
+    # stay on the x64 node (no toleration added to listenerTemplate).
+    tolerations:
+      - key: "kubernetes.io/arch"
+        operator: "Equal"
+        value: "arm64"
+        effect: "NoSchedule"
     imagePullSecrets:
       - name: docker-hub-registry
       - name: harbor-registry-secret
