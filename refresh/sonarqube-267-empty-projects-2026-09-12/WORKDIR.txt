@@ -1,0 +1,29 @@
+JOB: SonarQube 26.7 — empty project list (search_projects total:15 / components:[]) diagnosis
+SESSION: opencode SOTA 2026 handoff
+CREATED: 2026-09-12 (this session)
+
+=== FINISH THE JOB IN ===
+  cd /mnt/hdd/home/bruno/gitops      (== /home/bruno/gitops, same repo/inode)
+  remote: git@github.com:ebpro/gitops.git
+  ArgoCD auto-syncs main (prune+selfHeal). Read-only cluster/ES/DB inspection allowed;
+  NO direct kubectl mutation — all fixes flow through git.
+
+  FIRST, detect partial work from earlier aborted delegations (shared-tree warning):
+    git -C /mnt/hdd/home/bruno/gitops worktree list        # a concurrent session may hold the tree
+    git -C /mnt/hdd/home/bruno/gitops fetch origin
+    git -C /mnt/hdd/home/bruno/gitops log --oneline origin/main -5
+  Do NOT `checkout`/`add -A`/`stash` in the shared primary tree if another worktree is active —
+  use an isolated worktree (see GIT.md / CONCURRENCY.md).
+
+=== THIS HANDOFF COPY (discoverable) ===
+  /home/bruno/REFRESH/sonarqube-267-empty-projects-2026-09-12/
+
+=== GIT-PRESERVED COPY ===
+  repo: ebpro/gitops  branch: preservation/sonarqube-267-empty-projects-2026-09-12
+  path: refresh/sonarqube-267-empty-projects-2026-09-12/   (see GIT.md)
+
+=== MEDIA ATTACHMENT NOTICE ===
+  The originating request included image/file attachments that exceeded the provider size limit
+  and were dropped from context. If the investigation references a screenshot or exported file,
+  it is NOT available here — re-send smaller or fewer files, or re-derive the evidence with the
+  read-only commands in NEXT-STEPS.md.
