@@ -4,7 +4,7 @@ manager:
     tag: "0.109.0"
   targetAllocatorImage:
     repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
-    tag: "0.109.0"
+    tag: "v0.158.0"
   autoInstrumentationImage:
     java:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-java
