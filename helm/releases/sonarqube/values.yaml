@@ -31,10 +31,11 @@ resources:
   requests:
     cpu: 500m
     memory: 2Gi
-  # TEMP 2026-09-14 (sonarqube-267-empty-projects): 26.5.0 web-layer javaagent + web-app zip override removed to isolate 26.7 search regression. CE-side plugin config intentionally unchanged.
+  # TEMP 2026-09-14 (sonarqube-267-empty-projects): 26.5.0 web-app zip override removed; web javaagent restored (the branch plugin requires it). Experiment E2: isolate webapp override as the search regression cause.
 sonarProperties:
   sonar.ce.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.5.0.jar=ce
   sonar.security.textblock.cipherType: AES256
+  sonar.web.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.5.0.jar=web
   sonar.web.sso.enable: "true"
   sonar.web.sso.loginHeader: "Gap-Auth"
   sonar.web.sso.nameHeader: "Gap-Auth"
