@@ -114,8 +114,9 @@ All 41 PVCs in the cluster are Bound.
 The control-plane node carries the full workload: 53% memory and 14% CPU at audit time.
 Memory is the binding constraint on `local-path` storage with no expansion path — disk
 growth requires manual PV management. The arm64 worker adds 8 CPUs / 49.2 GiB of
-headroom at near-zero current usage, but as an untainted test node it offers no
-placement guarantee for production workloads.
+headroom at near-zero current usage, but as an arch-tainted
+`kubernetes.io/arch=arm64:NoSchedule` node it is not a placement target for x86
+production workloads.
 
 ## 4. GitOps control plane
 
@@ -619,7 +620,7 @@ pulls (see §10); 159 VulnerabilityReports exist for scanned images.
 | 2 | Major | Trivy cannot scan Plane images | 10 scan Jobs in `BackoffLimitExceeded`; FATAL on `artifacts.plane.so/makeplane/plane-{backend,admin}:v1.4.1` — unauthenticated pull → HTTP 401 / TOOMANYREQUESTS; 159 VulnerabilityReports exist but Plane is effectively unscanned | Supply registry credentials to Trivy (or mirror Plane images into Harbor and scan there) |
 | 3 | Major | TLS split-brain between public and in-cluster paths | Public vantage serves valid Let's Encrypt certs; in-cluster requests to node IPs (10.2.248.31/10.2.248.247) with the same Host serve `CN=TRAEFIK DEFAULT CERT`; 2 failed `CertificateRequest`s (`gitea-tls-1`, `harbor-tls-1`, ACME order invalid, 2026-09-07T12:17Z) while Certificates report READY; LE expiry 2026-12-04 | Root cause unconfirmed — investigate HTTP-01/ACME path and Traefik certificate routing before the Dec 4 expiry |
 | 4 | Major | Apicurio (declarative) chronic restart loop | 318 restarts over 28 days; pod still cycling at audit time; container has no resource limits | Diagnose OOM/liveness; set resource limits; pin the image |
-| 5 | Major | Documentation drift vs live cluster | Docs state K3s v1.35.5, single node, 10 CNPG clusters, kernel 6.8.0-124; live is v1.36.4, 2 nodes (arm64 worker, untainted), 11 clusters, kernel 6.8.0-136 | Update AGENTS.md / infrastructure README; this document is the current reference |
+| 5 | Major | Documentation drift vs live cluster | Docs state K3s v1.35.5, single node, 10 CNPG clusters, kernel 6.8.0-124; live is v1.36.4, 2 nodes (arm64 worker, untainted at audit; arch-tainted since 2026-09-12, finding #10), 11 clusters, kernel 6.8.0-136 | Update AGENTS.md / infrastructure README; this document is the current reference |
 | 6 | Minor | Zombie job stuck Terminating | `velero/velero-upgrade-crds` Terminating 62 days (finalizer `argocd.argoproj.io/hook-finalizer`, namespace already deleted) | Remove the finalizer / clean up the ArgoCD Application reference |
 | 7 | Minor | Unmanaged namespace `reloader` | stakater reloader v1.4.21 (Deployment + ServiceAccount), created 2026-09-07T16:41Z, absent from git, no ArgoCD labels | Delete it or adopt it into GitOps |
 | 8 | Minor | Mutable image tags (5) | `synapse:latest`, `minio/minio:latest`, `link-shortener:latest` (live), `bash:latest` (init container), `minio/mc:latest` (one-shot) | Pin tags/digests for reproducibility |
