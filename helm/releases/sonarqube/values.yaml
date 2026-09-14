@@ -1,23 +1,5 @@
 community:
   enabled: true
-extraInitContainers:
-  - args:
-      - wget -O /tmp/sonarqube-webapp.zip https://github.com/mc1arke/sonarqube-community-branch-plugin/releases/download/26.5.0/sonarqube-webapp.zip && unzip -o /tmp/sonarqube-webapp.zip -d /web && chmod -R 755 /web && chown -R 1000:0 /web && rm -f /tmp/sonarqube-webapp.zip
-    command:
-      - sh
-      - -c
-    image: busybox:1.37
-    name: download-webapp
-    volumeMounts:
-      - mountPath: /web
-        name: webapp
-extraVolumeMounts:
-  - mountPath: /opt/sonarqube/web
-    name: webapp
-extraVolumes:
-  - emptyDir:
-      sizeLimit: 50Mi
-    name: webapp
 jdbcOverwrite:
   enabled: true
   jdbcSecretName: sonarqube-db-app
@@ -49,10 +31,10 @@ resources:
   requests:
     cpu: 500m
     memory: 2Gi
+  # TEMP 2026-09-14 (sonarqube-267-empty-projects): 26.5.0 web-layer javaagent + web-app zip override removed to isolate 26.7 search regression. CE-side plugin config intentionally unchanged.
 sonarProperties:
   sonar.ce.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.5.0.jar=ce
   sonar.security.textblock.cipherType: AES256
-  sonar.web.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.5.0.jar=web
   sonar.web.sso.enable: "true"
   sonar.web.sso.loginHeader: "Gap-Auth"
   sonar.web.sso.nameHeader: "Gap-Auth"
