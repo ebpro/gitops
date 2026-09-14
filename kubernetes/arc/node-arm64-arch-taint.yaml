@@ -1,0 +1,37 @@
+# Re-apply the arch taint on arm64 nodes so it survives kubelet re-provisioning.
+#
+# The ARM node (lima-k3s-agent) is intentionally tainted
+# kubernetes.io/arch=arm64:NoSchedule so x64 work never lands on it (its dind
+# has no binfmt). Kubelet periodically re-provisions Node objects and is in
+# Kyverno's `excludeGroups: system:nodes`, so admission alone would miss those
+# updates; this policy runs BOTH admission (real-time) and background (rescan)
+# to keep the taint persistent. Background Node mutation needs node update RBAC
+# — see kyverno-node-mutation-rbac.yaml (ClusterRole aggregated into the
+# Kyverno background controller).
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: node-arm64-arch-taint
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  validationFailureAction: Audit
+  background: true
+  admission: true
+  emitWarning: false
+  rules:
+    - name: taint-arm64-nodes
+      match:
+        any:
+          - resources:
+              kinds: ["Node"]
+              selector:
+                matchLabels:
+                  kubernetes.io/arch: arm64
+      mutate:
+        patchStrategicMerge:
+          spec:
+            taints:
+              - key: kubernetes.io/arch
+                value: "arm64"
+                effect: NoSchedule

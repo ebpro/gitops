@@ -87,6 +87,32 @@ Notes:
   `docker:28-dind` and the listener image are multiarch too — same image refs
   on both sets.
 
+## Node taint & toleration (arm64)
+
+The arm node `lima-k3s-agent` is tainted `kubernetes.io/arch=arm64:NoSchedule` so
+x64 work can never land on it (its dind has no binfmt). Two pieces keep this
+consistent under GitOps:
+
+- **Kyverno enforces the taint** — ClusterPolicy `node-arm64-arch-taint`
+  (`node-arm64-arch-taint.yaml`) runs admission+background and re-applies the
+  taint on any arm64 Node, so it survives kubelet re-provisioning (kubelet is in
+  `excludeGroups: system:nodes`, which the background rescan covers). Background
+  Node mutation is allowed by the `kyverno:update-nodes` ClusterRole
+  (`kyverno-node-mutation-rbac.yaml`), aggregated into the Kyverno background
+  controller via the `rbac.kyverno.io/aggregate-to-background-controller` label
+  (no separate binding). Kyverno's `resourceFilters` must not exclude
+  `[Node,*,*]` for the admission path to see Nodes — handled in
+  `helm/releases/kyverno/values.yaml` (`config.resourceFiltersExclude`) plus a
+  documented one-off patch to the live `keep`-annotated ConfigMap.
+- **ARM runners tolerate it** — `helm/releases/arc/arm-scale-set-values.yaml`
+  adds `template.spec.tolerations` for `kubernetes.io/arch=arm64:NoSchedule` so
+  the `ebpro-org-arm` runner pod can be scheduled onto the tainted node. Listeners
+  intentionally stay on the x64 node (`listenerTemplate` has no toleration).
+
+**VM-reboot behaviour:** `lima-k3s-agent` is a Lima dev VM. If it reboots, the arm
+runner pods vanish (and re-appear via `minRunners: 1` once the node returns), but
+the taint itself persists and is re-asserted by Kyverno — no manual re-taint needed.
+
 ## Ops notes
 
 - The 0.14.2 controller does **not** watch the `githubConfigSecret` change: after
