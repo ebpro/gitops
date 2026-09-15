@@ -21,6 +21,7 @@ spec:
   emitWarning: false
   rules:
     - name: taint-arm64-nodes
+      skipBackgroundRequests: false
       match:
         any:
           - resources:
