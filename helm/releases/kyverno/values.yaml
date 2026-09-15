@@ -21,16 +21,13 @@ config:
   resourceFiltersExclude:
     - '[Node,*,*]'
 
-# --- One-off live-CM patch (post-merge, manual — NOT part of this diff) --------
-# The live `kyverno/kyverno` ConfigMap is annotated `helm.sh/resource-policy:
-# keep` and is NOT managed by ArgoCD/Helm, so the values change above only takes
-# effect on a fresh install / rebuild. To apply it to the running cluster, run
-# this single sanctioned data-level patch (read-only-verify the mutating webhook
-# catch-all on Node first: apiGroups `*`, resources `*/*`, ops CREATE/UPDATE on
-# `kyverno-policy-mutating-webhook-cfg`), substituting the exact INTENDED string:
+# --- No manual ConfigMap patch required ---------------------------------------
+# The `resourceFiltersExclude` hook above removes the standalone `[Node,*,*]`
+# entry at Helm render time (deep-merged into the chart default), keeping
+# `[Node/?*,*,*]` so Node *subresources* (status) stay filtered.
 #
-#   kubectl patch configmap kyverno -n kyverno --type merge -p '{"data":{"resourceFilters":"<INTENDED STRING BELOW>"}}'
-#
-# INTENDED resourceFilters (current live value minus the standalone `[Node,*,*]`;
-# `[Node/?*,*,*]` kept), single line:
-#   [*/*,kyverno,*] [Event,*,*] [*/events,*,*] [APIService,*,*] [APIServiceGroup,*,*] [TokenReview,*,*] [SubjectAccessReview,*,*] [SelfSubjectAccessReview,*,*] [RuntimeClass,*,*] [ClusterRuntimeClass,*,*] [ConstrainedTemplatePolicy,*,*] [ClusterConstrainedTemplatePolicy,*,*] [ClusterPolicy,*,*] [ClusterPolicyException,*,*] [BackgroundScanReport,*,*] [ClusterBackgroundScanReport,*,*] [ClusterAdmissionReport,*,*] [AdmissionReport,*,*] [kyverno.io/*,*,*] [updaterequests,*,*] [kyverno.io/updaterequests,*,*] [namespaceinitializers,*,*] [namespaceinitializers.cert-manager.io,*,*] [Node/?*,*,*]
+# The live `kyverno` ConfigMap IS ArgoCD-managed: ArgoCD owns its `data` keys.
+# The `helm.sh/resource-policy: keep` annotation only stops ArgoCD from DELETING
+# the CM on prune — it does NOT stop ArgoCD from UPDATING its data. So once the
+# `kyverno` app syncs, the live `resourceFilters` is already correct (no
+# `[Node,*,*]`). No manual one-off `kubectl patch configmap kyverno` is needed.
