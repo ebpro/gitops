@@ -1,5 +1,17 @@
 community:
   enabled: true
+extraInitContainers:
+  - name: cleanup-branch-plugin
+    image: busybox:1.37
+    command:
+      - sh
+      - -c
+    args:
+      - rm -f /opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-*.jar && echo removed-stale-branch-plugin || echo no-stale-branch-plugin
+    volumeMounts:
+      - mountPath: /opt/sonarqube/extensions
+        name: sonarqube
+        subPath: extensions
 jdbcOverwrite:
   enabled: true
   jdbcSecretName: sonarqube-db-app
@@ -17,9 +29,6 @@ persistence:
   enabled: true
   size: 20Gi
   storageClass: local-path
-plugins:
-  install:
-    - https://github.com/mc1arke/sonarqube-community-branch-plugin/releases/download/26.5.0/sonarqube-community-branch-plugin-26.5.0.jar
 prometheusMonitoring:
   podMonitor:
     enabled: true
@@ -31,11 +40,9 @@ resources:
   requests:
     cpu: 500m
     memory: 2Gi
-  # TEMP 2026-09-14 (sonarqube-267-empty-projects): 26.5.0 web-app zip override removed; web javaagent restored (the branch plugin requires it). Experiment E2: isolate webapp override as the search regression cause.
+  # TEMP 2026-09-15 (sonarqube-267-empty-projects): E1 — 26.5.0 community branch plugin stack fully removed (jar + ce/web agents) to test stock 26.7. Branch/PR analysis disabled while this is live.
 sonarProperties:
-  sonar.ce.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.5.0.jar=ce
   sonar.security.textblock.cipherType: AES256
-  sonar.web.javaAdditionalOpts: -javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.5.0.jar=web
   sonar.web.sso.enable: "true"
   sonar.web.sso.loginHeader: "Gap-Auth"
   sonar.web.sso.nameHeader: "Gap-Auth"
