@@ -7,7 +7,7 @@ backstage:
   image:
     registry: harbor.ebruno.fr
     repository: library/backstage
-    tag: "53692a629fc8a9b46bb702e4d18a7dac0e4187f4"
+    tag: "dd74672e8282cc8e641ad7831135dba6418b6fe2"
     pullPolicy: Always
     pullSecrets:
       - backstage-harbor-pull
