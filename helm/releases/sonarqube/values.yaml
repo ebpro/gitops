@@ -23,7 +23,7 @@ image:
   tag: 26.5.0.122743-community
 jdbcOverwrite:
   enabled: true
-  jdbcSecretName: sonarqube-db-app
+  jdbcSecretName: sonarqube-postgresql
   jdbcSecretPasswordKey: password
   jdbcUrl: jdbc:postgresql://sonarqube-db-rw.sonarqube.svc.cluster.local:5432/app
   jdbcUsername: app
