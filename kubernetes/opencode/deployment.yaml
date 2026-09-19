@@ -1,7 +1,8 @@
 # OpenCode agent server (`opencode web`) — in-cluster deployment.
 #
-# Image: harbor.ebruno.fr/library/opencode:1.18.29
-#   Built from github.com/ebpro/opencode-config (Dockerfile in that repo).
+# Image: harbor.ebruno.fr/bruno/opencode:b74ef1d
+#   Built by Woodpecker (gitea bruno/opencode-image) into the PRIVATE bruno
+#   Harbor project; tag = short commit SHA.
 #
 # Vault: the ExternalSecret (opencode-secrets) reads secret/opencode, which
 #   must be created manually (KV v2 user-path, no secret/data prefix) — see
@@ -29,6 +30,8 @@ spec:
       serviceAccountName: opencode
       imagePullSecrets:
         - name: harbor-registry-secret
+        # required out-of-band prerequisite (private bruno project) — see README
+        - name: harbor-bruno-pull
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -37,7 +40,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: opencode
-          image: harbor.ebruno.fr/library/opencode:1.18.29
+          image: harbor.ebruno.fr/bruno/opencode:b74ef1d
           ports:
             - name: http
               containerPort: 4096
@@ -78,6 +81,11 @@ spec:
                 secretKeyRef:
                   name: opencode-secrets
                   key: woodpeckerToken
+            - name: LITELLM_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: opencode-secrets
+                  key: litellmMasterKey
             - name: OPENCODE_DISABLE_AUTOUPDATE
               value: "true"
             - name: XDG_DATA_HOME
