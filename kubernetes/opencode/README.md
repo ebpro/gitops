@@ -28,8 +28,19 @@ operations and are intentionally not managed by ArgoCD:
      gitopsGiteaToken="<token with write on ebpro/gitops>"
    ```
 
-2. **Image** `harbor.ebruno.fr/library/opencode:1.18.29` must exist in Harbor,
-   built from the `ebpro/opencode-config` repo Dockerfile.
+   > **9th key / gateway dependency:** `opencode-secrets` also sources one
+   > **additional** key, `litellmMasterKey`, from Vault path
+   > **`secret/llm-gateway`** via a cross-path `remoteRef` (see
+   > `external-secret.yaml`). It is **NOT** part of `secret/opencode`, so
+   > `opencode-secrets` ends up with **9 keys total** and the deployment
+   > consumes it as `LITELLM_MASTER_KEY`. `secret/llm-gateway` is **shared
+   > with the llm-gateway workload** and must also exist for a full sync —
+   > until it does the ExternalSecret stays unsynced.
+
+2. **Image** `harbor.ebruno.fr/bruno/opencode:b74ef1d` must exist in Harbor.
+   It lives in the **PRIVATE `bruno`** Harbor project and is built by
+   **Woodpecker** (gitea repo `bruno/opencode-image`); the tag is the **short
+   commit SHA**.
 
 3. **`harbor-registry-secret`** must exist in ns `opencode` (one-off copy from
    ns `ci`):
@@ -40,14 +51,29 @@ operations and are intentionally not managed by ArgoCD:
      | kubectl apply -f -
    ```
 
-4. **Model endpoint** reaches vLLM on host `10.2.248.31:8001` via the existing
+4. **`harbor-bruno-pull`** (HARD PREREQUISITE) must exist in ns `opencode`.
+   The image `harbor.ebruno.fr/bruno/opencode:b74ef1d` lives in the **PRIVATE
+   Harbor project `bruno`**, so the pod needs a pull secret with `bruno`
+   access. The generic `harbor-registry-secret` robot is scoped to
+   `link-shortener` and **CANNOT pull `bruno`** — without this secret the pod
+   stays `ImagePullBackOff`. Credentials come from Vault
+   `secret/data/harbor/bruno` (robot `robot$opencode-k3s`):
+
+   ```sh
+   kubectl -n opencode create secret docker-registry harbor-bruno-pull \
+     --docker-server=https://harbor.ebruno.fr \
+     --docker-username 'robot$opencode-k3s' \
+     --docker-password '<vault secret/data/harbor/bruno:password>'
+   ```
+
+5. **Model endpoint** reaches vLLM on host `10.2.248.31:8001` via the existing
    autossh tunnel.
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `external-secret.yaml` | ExternalSecret → Vault `secret/opencode` (8 keys) |
+| `external-secret.yaml` | ExternalSecret → 8 keys from Vault `secret/opencode` + `litellmMasterKey` from `secret/llm-gateway` (9 keys total) |
 | `pvc.yaml` | 20Gi `local-path` PVC for agent data (`XDG_DATA_HOME=/data`) |
 | `serviceaccount-rbac.yaml` | SA + read-only ClusterRole for the kubernetes MCP server |
 | `deployment.yaml` | The `opencode web` server (Recreate strategy, RWO PVC) |
