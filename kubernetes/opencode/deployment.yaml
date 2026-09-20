@@ -101,23 +101,20 @@ spec:
               cpu: "4"
               memory: 4Gi
           readinessProbe:
-            httpGet:
-              path: /global/health
-              port: http
+            tcpSocket:
+              port: 4096
             initialDelaySeconds: 15
             periodSeconds: 10
             failureThreshold: 12
           livenessProbe:
-            httpGet:
-              path: /global/health
-              port: http
+            tcpSocket:
+              port: 4096
             initialDelaySeconds: 30
             periodSeconds: 20
             failureThreshold: 6
           startupProbe:
-            httpGet:
-              path: /global/health
-              port: http
+            tcpSocket:
+              port: 4096
             failureThreshold: 30
             periodSeconds: 10
       volumes:
