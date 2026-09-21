@@ -6,7 +6,7 @@ scaleSetLabels:
   - linux
   - ebpro-org
   - x64
-minRunners: 1
+minRunners: 2
 maxRunners: 3
 dind:
   image: docker:28-dind
