@@ -38,14 +38,10 @@ template:
       - name: runner
         image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:sha-7ade946
         command: ["/home/runner/run.sh"]
-        # No-op regeneration marker. Bumping this value forces a new spec.template
-        # -> ARC tears down + re-creates the GitHub runner scale set, which re-reads
-        # runnerScaleSetLabels. Labels were frozen at the scale set's original
-        # registration (x64 id 36 / arm id 37) and a label-only edit never re-pushes
-        # them (ARC RunnerSetSpecHash excludes runnerScaleSetLabels). See kubernetes/arc/README.md.
-        env:
-          - name: ARC_SCALESET_REGEN
-            value: "2026-09-23"
+        # Note: forcing a GitHub runner scale-set re-registration (to re-read
+        # scaleSetLabels) requires deleting the AutoScalingRunnerSet CR (finalizer
+        # path) so ArgoCD re-creates it fresh — it is NOT achievable via a
+        # pod-template/env change.
         resources:
           requests:
             cpu: 2
