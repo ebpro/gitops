@@ -1,6 +1,6 @@
 # OpenCode agent server (`opencode web`) — in-cluster deployment.
 #
-# Image: harbor.ebruno.fr/bruno/opencode:b74ef1d
+# Image: harbor.ebruno.fr/bruno/opencode:8f21383
 #   Built by Woodpecker (gitea bruno/opencode-image) into the PRIVATE bruno
 #   Harbor project; tag = short commit SHA.
 #
@@ -40,7 +40,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: opencode
-          image: harbor.ebruno.fr/bruno/opencode:b74ef1d
+          image: harbor.ebruno.fr/bruno/opencode:8f21383
           ports:
             - name: http
               containerPort: 4096
