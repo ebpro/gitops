@@ -36,7 +36,7 @@ template:
             memory: 4Gi
           limits:
             cpu: 4
-            memory: 8Gi
+            memory: 16Gi
 listenerTemplate:
   spec:
     imagePullSecrets:
