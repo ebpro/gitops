@@ -33,10 +33,10 @@ template:
         resources:
           requests:
             cpu: 2
-            memory: 4Gi
+            memory: 8Gi
           limits:
             cpu: 4
-            memory: 16Gi
+            memory: 24Gi
 listenerTemplate:
   spec:
     imagePullSecrets:
