@@ -13,7 +13,7 @@ spec:
   backup:
     retentionPolicy: "14d"
     barmanObjectStore:
-      destinationPath: s3://backups/sonarqube-db
+      destinationPath: s3://backups/sonarqube-db-2
       endpointURL: http://garage.garage.svc:3900
       s3Credentials:
         accessKeyId:
