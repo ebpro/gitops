@@ -2,7 +2,7 @@
 # Scale-to-zero: minRunners 0 — no persistent footprint; a runner spins up only
 # when a job with the `large` label is dispatched, then scales back to 0 when idle.
 # Pinned to compute-lsis-2 (the big x64 node, ~55 GiB allocatable) via required
-# nodeAffinity on hostname. Memory 16Gi req / 24Gi lim; CPU unchanged from the org
+# nodeAffinity on hostname. Memory 8Gi req / 24Gi lim; CPU unchanged from the org
 # pool. NOTE: ARC 0.14.2's AutoscalingRunnerSet CRD has no scaleDownDelay field, so
 # idle scale-down timing uses the controller default; a runner with an active job
 # is never scaled down (ARC checks for running jobs first), so mid-build is safe.
@@ -26,7 +26,7 @@ controllerServiceAccount:
 template:
   spec:
     # Pin to the specific big-x64 node by hostname (stronger than the org pool's
-    # arch nodeSelector): the 16 Gi runner only fits on compute-lsis-2.
+    # arch nodeSelector): the 8 Gi runner only fits on compute-lsis-2.
     affinity:
       nodeAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
@@ -50,7 +50,7 @@ template:
         resources:
           requests:
             cpu: 2
-            memory: 16Gi
+            memory: 8Gi
           limits:
             cpu: 4
             memory: 24Gi
