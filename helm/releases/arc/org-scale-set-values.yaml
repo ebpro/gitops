@@ -1,3 +1,7 @@
+# x64 org scale set. Right-sized 2026-09-28: min2/max3 -> min1/max1 and runner
+# memory 8Gi->4Gi (req) / 24Gi->8Gi (lim) to free ~12 Gi of persistent node
+# requests on compute-lsis-2, making room for the scale-to-zero `large` pool
+# (see large-scale-set-values.yaml). CPU unchanged.
 runnerScaleSetName: ebpro-org
 githubConfigUrl: https://github.com/ebpro
 githubConfigSecret: arc-github-creds
@@ -6,8 +10,8 @@ scaleSetLabels:
   - linux
   - ebpro-org
   - x64
-minRunners: 2
-maxRunners: 3
+minRunners: 1
+maxRunners: 1
 dind:
   image: docker:28-dind
 containerMode:
@@ -33,10 +37,10 @@ template:
         resources:
           requests:
             cpu: 2
-            memory: 8Gi
+            memory: 4Gi
           limits:
             cpu: 4
-            memory: 24Gi
+            memory: 8Gi
 listenerTemplate:
   spec:
     imagePullSecrets:

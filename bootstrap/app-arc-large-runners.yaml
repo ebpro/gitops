@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-large-runners
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '15'
+# Large (scale-to-zero) x64 scale set (ebpro-org-large) for memory-heavy builds.
+# Mirrors app-arc-org-runners.yaml (x64) + app-arc-arm-runners.yaml (arm).
+# Vendored chart (charts/gha-runner-scale-set) for the scalar-safe runner-container
+# fix; see app-arc-org-runners.yaml comments. Values pin the runner to
+# compute-lsis-2 via nodeAffinity (see large-scale-set-values.yaml).
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/ebpro/gitops
+    targetRevision: main
+    path: charts/gha-runner-scale-set
+    helm:
+      releaseName: arc-large-runners
+      valueFiles:
+      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/arc/large-scale-set-values.yaml?v=1
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arc-runners
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

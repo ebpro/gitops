@@ -1,0 +1,69 @@
+# Large x64 scale set for memory-heavy builds (Quarkus/Java + DinD at scale).
+# Scale-to-zero: minRunners 0 — no persistent footprint; a runner spins up only
+# when a job with the `large` label is dispatched, then scales back to 0 when idle.
+# Pinned to compute-lsis-2 (the big x64 node, ~55 GiB allocatable) via required
+# nodeAffinity on hostname. Memory 16Gi req / 24Gi lim; CPU unchanged from the org
+# pool. NOTE: ARC 0.14.2's AutoscalingRunnerSet CRD has no scaleDownDelay field, so
+# idle scale-down timing uses the controller default; a runner with an active job
+# is never scaled down (ARC checks for running jobs first), so mid-build is safe.
+runnerScaleSetName: ebpro-org-large
+githubConfigUrl: https://github.com/ebpro
+githubConfigSecret: arc-github-creds
+scaleSetLabels:
+  - self-hosted
+  - linux
+  - x64
+  - large
+minRunners: 0
+maxRunners: 1
+dind:
+  image: docker:28-dind
+containerMode:
+  type: dind
+controllerServiceAccount:
+  namespace: actions-runner-controller
+  name: arc-controller
+template:
+  spec:
+    # Pin to the specific big-x64 node by hostname (stronger than the org pool's
+    # arch nodeSelector): the 16 Gi runner only fits on compute-lsis-2.
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - compute-lsis-2
+    imagePullSecrets:
+      - name: docker-hub-registry
+      - name: harbor-registry-secret
+    containers:
+      - name: runner
+        image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:sha-2d55143
+        command: ["/home/runner/run.sh"]
+        # Note: forcing a GitHub runner scale-set re-registration (to re-read
+        # scaleSetLabels) requires deleting the AutoScalingRunnerSet CR (finalizer
+        # path) so ArgoCD re-creates it fresh — it is NOT achievable via a
+        # pod-template/env change.
+        resources:
+          requests:
+            cpu: 2
+            memory: 16Gi
+          limits:
+            cpu: 4
+            memory: 24Gi
+listenerTemplate:
+  spec:
+    imagePullSecrets:
+      - name: docker-hub-registry
+    containers:
+      - name: listener
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 250m
+            memory: 512Mi
