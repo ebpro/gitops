@@ -30,6 +30,9 @@ template:
       - name: runner
         image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:sha-2d55143
         command: ["/home/runner/run.sh"]
+        env:
+          - name: ACTIONS_RESULTS_URL
+            value: "http://cache-server.ci.svc:3000/"
         # Note: forcing a GitHub runner scale-set re-registration (to re-read
         # scaleSetLabels) requires deleting the AutoScalingRunnerSet CR (finalizer
         # path) so ArgoCD re-creates it fresh — it is NOT achievable via a

@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cache-server
+  namespace: ci
+  labels:
+    app.kubernetes.io/name: cache-server
+    app.kubernetes.io/instance: cache-server
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cache-server
+      app.kubernetes.io/instance: cache-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cache-server
+        app.kubernetes.io/instance: cache-server
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: cache-server
+          image: "ghcr.io/falcondev-oss/github-actions-cache-server@sha256:58bc6ae6fc34606c3b139e259c3c12d9ff23c793a666e8a784f13f6bb9b1aa41"
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: cache-server
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: cache-server
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cache-server
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: MANAGEMENT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cache-server
+                  key: MANAGEMENT_API_KEY
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: cache-server-data
+        - name: tmp
+          emptyDir: {}
