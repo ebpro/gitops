@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: reposilite
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
+spec:
+  project: platform
+  source:
+    repoURL: https://helm.reposilite.com/
+    targetRevision: 1.4.2
+    chart: reposilite
+    helm:
+      releaseName: reposilite
+      valueFiles:
+      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/reposilite/values.yaml?v=1
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: reposilite
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

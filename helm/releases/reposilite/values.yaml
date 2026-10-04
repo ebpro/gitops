@@ -1,0 +1,106 @@
+# Reposilite 3.6.3 — Maven proxy/cache canary
+# Chart: reposilite/reposilite 1.4.2 (appVersion 3.6.3) from https://helm.reposilite.com/
+#
+# Design:
+#   - A `maven-public` GROUP backed by two caching PROXIES (`maven-central`, `maven-confluent`).
+#   - Reposilite 3.6.3 defines repositories in the SHARED CONFIGURATION (JSON), linked with
+#     `--shared-configuration <path>`. There are NO CLI flags / console commands to create them.
+#   - The shared config MUST live on the writable data volume (PVC): the provider rewrites the
+#     file on update, so a read-only ConfigMap at that path would break it. An init container
+#     (re)writes the JSON to the PVC on every start — git is the source of truth.
+#   - Canary keeps it minimal: no `--token` (the PUBLIC proxy works without auth). Dashboard /
+#     token provisioning is a follow-up (Vault secret/data/reposilite -> ExternalSecret ->
+#     `--token root:<value>`).
+#
+# Chart keys confirmed against chart 1.4.2 templates (NOT the values in the old broken file):
+#   image.name (not image.repository), env (not extraEnv),
+#   deployment.initContainers (not top-level initContainers),
+#   persistence.storageClass (not storageClassName). Data volume name = persistence.name ("data"),
+#   mounted at persistence.path (/app/data).
+
+image:
+  # Verified to exist: Docker Hub + ghcr.io/dzikoysk/reposilite:3.6.3 (200).
+  # NOTE: the previously assumed ghcr.io/reposilite/reposilite:3.6.3 returns 403 (does not exist).
+  name: dzikoysk/reposilite
+  tag: "3.6.3"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+persistence:
+  enabled: true
+  name: data
+  size: 20Gi
+  storageClass: local-path
+  accessMode: ReadWriteOnce
+  path: /app/data
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 1Gi
+
+# The image entrypoint runs `java -jar reposilite.jar $REPOSILITE_OPTS` and auto-prepends
+# `--working-directory=/app/data` if absent. All flags go in this single env var.
+env:
+  - name: REPOSILITE_OPTS
+    value: "--shared-configuration=/app/data/configuration.shared.json"
+
+deployment:
+  initContainers:
+    # Writes the shared configuration (Maven repositories) to the PVC on every start.
+    # `command` overrides the image ENTRYPOINT (/app/entrypoint.sh -> java) so only the
+    # file is written. /bin/sh is present in the image (PATH includes /bin).
+    - name: write-shared-config
+      image: "dzikoysk/reposilite:3.6.3"
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          cat > /app/data/configuration.shared.json << 'REPOSILITE_SHARED_CONFIG'
+          {
+            "maven": {
+              "repositories": [
+                {
+                  "id": "maven-central",
+                  "visibility": "PUBLIC",
+                  "storageProvider": { "type": "fs" },
+                  "storagePolicy": "PRIORITIZE_UPSTREAM_METADATA",
+                  "metadataMaxAge": 3600,
+                  "resolutionCacheMaxEntries": 2048,
+                  "proxied": [
+                    { "reference": "https://repo.maven.apache.org/maven2/", "store": true }
+                  ]
+                },
+                {
+                  "id": "maven-confluent",
+                  "visibility": "PUBLIC",
+                  "storageProvider": { "type": "fs" },
+                  "storagePolicy": "PRIORITIZE_UPSTREAM_METADATA",
+                  "metadataMaxAge": 3600,
+                  "resolutionCacheMaxEntries": 2048,
+                  "proxied": [
+                    { "reference": "https://packages.confluent.io/maven", "store": true }
+                  ]
+                },
+                {
+                  "id": "maven-public",
+                  "visibility": "PUBLIC",
+                  "storageProvider": { "type": "fs" },
+                  "proxied": [
+                    { "reference": "maven-central" },
+                    { "reference": "maven-confluent" }
+                  ]
+                }
+              ]
+            }
+          }
+          REPOSILITE_SHARED_CONFIG
+      volumeMounts:
+        - name: data
+          mountPath: /app/data
