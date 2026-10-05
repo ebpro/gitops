@@ -8,9 +8,11 @@
 #   - The shared config MUST live on the writable data volume (PVC): the provider rewrites the
 #     file on update, so a read-only ConfigMap at that path would break it. An init container
 #     (re)writes the JSON to the PVC on every start — git is the source of truth.
-#   - Canary keeps it minimal: no `--token` (the PUBLIC proxy works without auth). Dashboard /
-#     token provisioning is a follow-up (Vault secret/data/reposilite -> ExternalSecret ->
-#     `--token root:<value>`).
+#   - Management token (console/API) is REQUIRED: `--token root:<value>` where `<value>` comes
+#     from Vault (`secret/reposilite` key `token`) via ExternalSecret `reposilite-management`
+#     (kubernetes/reposilite-secrets/). It is injected through the REPOSILITE_OPTS env using a
+#     `valueFrom.secretKeyRef` (chart 1.4.2 renders `env` verbatim). The PUBLIC repositories stay
+#     open for unauthenticated artifact pulls — the token only gates the console/management API.
 #
 # Chart keys confirmed against chart 1.4.2 templates (NOT the values in the old broken file):
 #   image.name (not image.repository), env (not extraEnv),
@@ -47,9 +49,16 @@ resources:
 
 # The image entrypoint runs `java -jar reposilite.jar $REPOSILITE_OPTS` and auto-prepends
 # `--working-directory=/app/data` if absent. All flags go in this single env var.
+#
+# The value is sourced from the Vault-backed K8s Secret `reposilite-management` (key
+# `reposiliteOpts`) so the management token is never hardcoded in git. It expands to:
+#   --shared-configuration=/app/data/configuration.shared.json --token root:<token>
 env:
   - name: REPOSILITE_OPTS
-    value: "--shared-configuration=/app/data/configuration.shared.json"
+    valueFrom:
+      secretKeyRef:
+        name: reposilite-management
+        key: reposiliteOpts
 
 deployment:
   initContainers:
