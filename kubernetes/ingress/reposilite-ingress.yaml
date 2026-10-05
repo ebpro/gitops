@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: reposilite
+  namespace: reposilite
+  labels:
+    app.kubernetes.io/part-of: reposilite
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`repo.ebruno.fr`)
+      services:
+        - name: reposilite
+          port: 8080
+    - kind: Rule
+      match: Host(`repo-api.ebruno.fr`)
+      services:
+        - name: reposilite
+          port: 8080
+  tls:
+    certResolver: letsencrypt-ovh
