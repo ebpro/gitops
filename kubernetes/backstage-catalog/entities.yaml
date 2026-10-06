@@ -88,8 +88,8 @@ spec:
   owner: group/platform
   partOf: system/identity
   dependsOn:
-    - resource/keycloak-db
-    - resource/local-cluster
+    - resource:default/keycloak-db
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -108,7 +108,7 @@ spec:
   owner: group/platform
   partOf: system/identity
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -124,7 +124,7 @@ spec:
   owner: group/platform
   partOf: system/identity
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 # ---------------------------------------------------------------------------
 # SYSTEM: ci-cd
@@ -146,7 +146,7 @@ spec:
   owner: group/platform
   partOf: system/ci-cd
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -165,8 +165,8 @@ spec:
   owner: group/platform
   partOf: system/ci-cd
   dependsOn:
-    - resource/woodpecker-db
-    - resource/local-cluster
+    - resource:default/woodpecker-db
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -186,7 +186,7 @@ spec:
   owner: group/platform
   partOf: system/ci-cd
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -202,7 +202,7 @@ spec:
   owner: group/platform
   partOf: system/ci-cd
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -221,8 +221,8 @@ spec:
   owner: group/platform
   partOf: system/ci-cd
   dependsOn:
-    - resource/nexus-db
-    - resource/local-cluster
+    - resource:default/nexus-db
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -241,8 +241,8 @@ spec:
   owner: group/platform
   partOf: system/ci-cd
   dependsOn:
-    - resource/harbor-db
-    - resource/local-cluster
+    - resource:default/harbor-db
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -262,7 +262,7 @@ spec:
   owner: group/platform
   partOf: system/ci-cd
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -282,8 +282,8 @@ spec:
   owner: group/platform
   partOf: system/ci-cd
   dependsOn:
-    - resource/pact-broker-db
-    - resource/local-cluster
+    - resource:default/pact-broker-db
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -303,7 +303,7 @@ spec:
   owner: group/platform
   partOf: system/ci-cd
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -319,7 +319,7 @@ spec:
   owner: group/platform
   partOf: system/ci-cd
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -338,8 +338,8 @@ spec:
   owner: group/platform
   partOf: system/ci-cd
   dependsOn:
-    - resource/sonarqube-db
-    - resource/local-cluster
+    - resource:default/sonarqube-db
+    - resource:default/local-cluster
 ---
 # ---------------------------------------------------------------------------
 # SYSTEM: platform-infra
@@ -358,7 +358,7 @@ spec:
   owner: group/platform
   partOf: system/platform-infra
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -374,7 +374,7 @@ spec:
   owner: group/platform
   partOf: system/platform-infra
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -390,7 +390,7 @@ spec:
   owner: group/platform
   partOf: system/platform-infra
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -406,7 +406,7 @@ spec:
   owner: group/platform
   partOf: system/platform-infra
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -422,7 +422,7 @@ spec:
   owner: group/platform
   partOf: system/platform-infra
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -438,7 +438,7 @@ spec:
   owner: group/platform
   partOf: system/platform-infra
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 # ---------------------------------------------------------------------------
 # SYSTEM: observability
@@ -461,7 +461,7 @@ spec:
   owner: group/platform
   partOf: system/observability
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -481,7 +481,7 @@ spec:
   owner: group/platform
   partOf: system/observability
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -497,7 +497,7 @@ spec:
   owner: group/platform
   partOf: system/observability
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -513,7 +513,7 @@ spec:
   owner: group/platform
   partOf: system/observability
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -529,7 +529,7 @@ spec:
   owner: group/platform
   partOf: system/observability
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 # ---------------------------------------------------------------------------
 # SYSTEM: applications
@@ -552,8 +552,8 @@ spec:
   owner: group/platform
   partOf: system/applications
   dependsOn:
-    - resource/plane-db
-    - resource/local-cluster
+    - resource:default/plane-db
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -573,8 +573,8 @@ spec:
   owner: group/platform
   partOf: system/applications
   dependsOn:
-    - resource/link-shortener-db
-    - resource/local-cluster
+    - resource:default/link-shortener-db
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -594,8 +594,8 @@ spec:
   owner: group/platform
   partOf: system/applications
   dependsOn:
-    - resource/open-webui-db
-    - resource/local-cluster
+    - resource:default/open-webui-db
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -615,8 +615,8 @@ spec:
   owner: group/platform
   partOf: system/applications
   dependsOn:
-    - resource/matrix-db
-    - resource/local-cluster
+    - resource:default/matrix-db
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -636,7 +636,7 @@ spec:
   owner: group/platform
   partOf: system/applications
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -656,7 +656,7 @@ spec:
   owner: group/platform
   partOf: system/applications
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -676,7 +676,7 @@ spec:
   owner: group/platform
   partOf: system/applications
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -692,7 +692,7 @@ spec:
   owner: group/platform
   partOf: system/applications
   dependsOn:
-    - resource/local-cluster
+    - resource:default/local-cluster
 ---
 # ---------------------------------------------------------------------------
 # SYSTEM: dev-portal
@@ -716,8 +716,8 @@ spec:
   partOf: system/dev-portal
   consumesApi: api/argocd
   dependsOn:
-    - resource/backstage-db
-    - resource/local-cluster
+    - resource:default/backstage-db
+    - resource:default/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -897,6 +897,7 @@ metadata:
   description: Platform engineering team
 spec:
   type: team
+  children: []
 ---
 apiVersion: backstage.io/v1alpha1
 kind: User
