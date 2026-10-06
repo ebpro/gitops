@@ -32,22 +32,34 @@ external_secrets:
   app_env_existingSecret: plane-app-secrets
 
 worker:
-  replicas: 1
+  replicas: 0
   memoryLimit: 4Gi
   cpuLimit: 1000m
   cpuRequest: 250m
   memoryRequest: 1024Mi
 
 api:
-  replicas: 1
+  replicas: 0
   memoryLimit: 4Gi
   cpuLimit: 1000m
   cpuRequest: 250m
   memoryRequest: 1024Mi
 
 beatworker:
-  replicas: 1
+  replicas: 0
   memoryLimit: 4Gi
   cpuLimit: 1000m
   cpuRequest: 250m
   memoryRequest: 1024Mi
+
+web:
+  replicas: 0
+
+space:
+  replicas: 0
+
+admin:
+  replicas: 0
+
+live:
+  replicas: 0
