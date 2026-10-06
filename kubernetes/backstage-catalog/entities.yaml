@@ -1,77 +1,268 @@
 ---
+# =============================================================================
+# Backstage catalog — 6-system realignment (Phase 1)
+# Polled by Backstage (NOT ArgoCD-synced) from this raw URL.
+# Structure: 1 Domain, 6 Systems, 35 Components, 1 API, 12 Resources, 1 Group, 1 User.
+# Relations (partOf / dependsOn / memberOf / consumesApi) carry all structure;
+# the Group no longer lists children.
+# =============================================================================
+apiVersion: backstage.io/v1alpha1
+kind: Domain
+metadata:
+  name: ebruno
+  description: EBRUNO internal platform
+spec:
+  owner: group/platform
+---
 apiVersion: backstage.io/v1alpha1
 kind: System
 metadata:
-  name: platform
-  description: Internal GitOps developer platform (K3s + ArgoCD + Keycloak SSO)
+  name: identity
+  description: Authentication, authorization and secrets
 spec:
-  domain: ebruno.fr
+  domain: ebruno
   owner: group/platform
 ---
 apiVersion: backstage.io/v1alpha1
-kind: Group
+kind: System
 metadata:
-  name: platform
-  description: Platform engineering team
+  name: ci-cd
+  description: Source, build, test, scan, ship and deploy
 spec:
-  type: team
-  children:
-    - component/argocd
-    - component/vault
-    - component/keycloak
-    - component/harbor
-    - component/gitea
-    - component/nexus
-    - component/woodpecker
-    - component/sonarqube
-    - component/grafana
-    - component/kyverno
-    - component/cloudnative-pg
-    - component/external-secrets
-    - component/traefik
-    - component/backstage
-    - component/gitops
-    - component/microcks
-    - component/pact-broker
-    - resource/backstage-db
+  domain: ebruno
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: platform-infra
+  description: Cluster plumbing, edge, storage and policy
+spec:
+  domain: ebruno
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: observability
+  description: Metrics, logs, traces and dashboards
+spec:
+  domain: ebruno
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: applications
+  description: End-user applications and data/AI services
+spec:
+  domain: ebruno
+  owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: dev-portal
+  description: The developer portal and its source of truth
+spec:
+  domain: ebruno
+  owner: group/platform
+---
+# ---------------------------------------------------------------------------
+# SYSTEM: identity
+# ---------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: keycloak
+  description: Central identity provider (OIDC SSO for all platform apps)
+  links:
+    - title: UI
+      url: https://keycloak.ebruno.fr
+  annotations:
+    backstage.io/kubernetes-id: keycloak
+    backstage.io/kubernetes-namespace: keycloak
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/identity
+  dependsOn:
     - resource/keycloak-db
-    - resource/sonarqube-db
-    - resource/nexus-db
-    - resource/harbor-db
-    - resource/plane-db
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: vault
+  description: HashiCorp Vault, single source of secrets (ExternalSecrets backend)
+  links:
+    - title: UI
+      url: https://vault.ebruno.fr
+  annotations:
+    backstage.io/kubernetes-id: vault
+    backstage.io/kubernetes-namespace: vault
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/identity
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: oauth2-proxy
+  description: ForwardAuth SSO fallback (Gap-Auth emitter) for apps without native OIDC
+  annotations:
+    backstage.io/kubernetes-id: oauth2-proxy
+    backstage.io/kubernetes-namespace: oauth2-proxy
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/identity
+  dependsOn:
+    - resource/local-cluster
+---
+# ---------------------------------------------------------------------------
+# SYSTEM: ci-cd
+# ---------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: gitea
+  description: Source code hosting, Woodpecker CI forge
+  links:
+    - title: UI
+      url: https://gitea.ebruno.fr
+  annotations:
+    backstage.io/kubernetes-id: gitea
+    backstage.io/kubernetes-namespace: gitea
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/ci-cd
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: woodpecker
+  description: CI pipelines (Kaniko builds, Trivy scans, ArgoCD webhooks)
+  links:
+    - title: UI
+      url: https://woodpecker.ebruno.fr
+  annotations:
+    backstage.io/kubernetes-id: woodpecker-server
+    backstage.io/kubernetes-namespace: ci
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/ci-cd
+  dependsOn:
     - resource/woodpecker-db
-    - resource/pact-broker-db
-    - resource/matrix-db
-    - resource/link-shortener-db
-    - api/argocd
+    - resource/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: grafana
-  description: Monitoring dashboards, Prometheus metrics exploration
+  name: argocd
+  description: GitOps continuous delivery (declarative sync + self-heal)
   links:
     - title: UI
-      url: https://grafana.ebruno.fr
+      url: https://argocd.ebruno.fr
       icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: argocd-server
+    backstage.io/kubernetes-namespace: argocd
 spec:
   type: service
   lifecycle: production
   owner: group/platform
+  partOf: system/ci-cd
+  dependsOn:
+    - resource/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: microcks
-  description: API mocking and contract testing (REST/AsyncAPI/OpenAPI)
-  links:
-    - title: UI
-      url: https://microcks.ebruno.fr
-      icon: dashboard
+  name: actions-runner-controller
+  description: GitHub Actions self-hosted runners (ARC scale sets)
+  annotations:
+    backstage.io/kubernetes-id: arc-controller
+    backstage.io/kubernetes-namespace: actions-runner-controller
 spec:
   type: service
   lifecycle: production
   owner: group/platform
+  partOf: system/ci-cd
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: nexus
+  description: Maven/npm generic artifact repository (OSS)
+  links:
+    - title: UI
+      url: https://nexus.ebruno.fr
+  annotations:
+    backstage.io/kubernetes-id: nexus-nexus3
+    backstage.io/kubernetes-namespace: nexus
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/ci-cd
+  dependsOn:
+    - resource/nexus-db
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: harbor
+  description: OCI image registry (private), Trivy scanning
+  links:
+    - title: UI
+      url: https://harbor.ebruno.fr
+  annotations:
+    backstage.io/kubernetes-id: harbor-core
+    backstage.io/kubernetes-namespace: harbor
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/ci-cd
+  dependsOn:
+    - resource/harbor-db
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: reposilite
+  description: Lightweight Maven/Go/npm artifact repository
+  links:
+    - title: UI
+      url: https://repo.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: reposilite
+    backstage.io/kubernetes-namespace: reposilite
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/ci-cd
+  dependsOn:
+    - resource/local-cluster
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -82,11 +273,474 @@ metadata:
     - title: UI
       url: https://pactbroker.ebruno.fr
       icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: pact-broker
+    backstage.io/kubernetes-namespace: pact-broker
 spec:
   type: service
   lifecycle: production
   owner: group/platform
+  partOf: system/ci-cd
+  dependsOn:
+    - resource/pact-broker-db
+    - resource/local-cluster
 ---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: microcks
+  description: API mocking and contract testing (REST/AsyncAPI/OpenAPI)
+  links:
+    - title: UI
+      url: https://microcks.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: microcks
+    backstage.io/kubernetes-namespace: microcks
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/ci-cd
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: trivy
+  description: Container image and manifest vulnerability scanning (operator)
+  annotations:
+    backstage.io/kubernetes-id: trivy-operator
+    backstage.io/kubernetes-namespace: trivy-system
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/ci-cd
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: sonarqube
+  description: Code quality and security analysis
+  links:
+    - title: UI
+      url: https://sonarqube.ebruno.fr
+  annotations:
+    backstage.io/kubernetes-id: sonarqube-sonarqube
+    backstage.io/kubernetes-namespace: sonarqube
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/ci-cd
+  dependsOn:
+    - resource/sonarqube-db
+    - resource/local-cluster
+---
+# ---------------------------------------------------------------------------
+# SYSTEM: platform-infra
+# ---------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: traefik
+  description: Edge ingress + ForwardAuth middleware (with oauth2-proxy)
+  annotations:
+    backstage.io/kubernetes-id: traefik
+    backstage.io/kubernetes-namespace: kube-system
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/platform-infra
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cert-manager
+  description: TLS certificate issuance and renewal (Let's Encrypt ACME)
+  annotations:
+    backstage.io/kubernetes-id: cert-manager
+    backstage.io/kubernetes-namespace: cert-manager
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/platform-infra
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cloudnative-pg
+  description: PostgreSQL clusters lifecycle (CloudNativePG operator)
+  annotations:
+    backstage.io/kubernetes-id: cloudnative-pg
+    backstage.io/kubernetes-namespace: cnpg-system
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/platform-infra
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: external-secrets
+  description: Vault -> Kubernetes Secret synchronization
+  annotations:
+    backstage.io/kubernetes-id: external-secrets
+    backstage.io/kubernetes-namespace: external-secrets
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/platform-infra
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: kyverno
+  description: K8s policy-as-code enforcement
+  annotations:
+    backstage.io/kubernetes-id: kyverno-admission-controller
+    backstage.io/kubernetes-namespace: kyverno
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/platform-infra
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: garage
+  description: S3-compatible object storage (CNPG Barman backup target)
+  annotations:
+    backstage.io/kubernetes-id: garage
+    backstage.io/kubernetes-namespace: garage
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/platform-infra
+  dependsOn:
+    - resource/local-cluster
+---
+# ---------------------------------------------------------------------------
+# SYSTEM: observability
+# ---------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: grafana
+  description: Monitoring dashboards, Prometheus metrics exploration
+  links:
+    - title: UI
+      url: https://grafana.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: kube-prometheus-grafana
+    backstage.io/kubernetes-namespace: kube-prometheus
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/observability
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: prometheus
+  description: Metrics collection and storage (Prometheus)
+  links:
+    - title: UI
+      url: https://prometheus.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: prometheus-kube-prometheus-kube-prome-prometheus
+    backstage.io/kubernetes-namespace: kube-prometheus
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/observability
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: loki
+  description: Log aggregation (Loki)
+  annotations:
+    backstage.io/kubernetes-id: loki
+    backstage.io/kubernetes-namespace: loki
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/observability
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: tempo
+  description: Distributed tracing (Tempo)
+  annotations:
+    backstage.io/kubernetes-id: tempo
+    backstage.io/kubernetes-namespace: tempo
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/observability
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: opentelemetry
+  description: OpenTelemetry instrumentation operator
+  annotations:
+    backstage.io/kubernetes-id: opentelemetry-opentelemetry-operator
+    backstage.io/kubernetes-namespace: opentelemetry-operator-system
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/observability
+  dependsOn:
+    - resource/local-cluster
+---
+# ---------------------------------------------------------------------------
+# SYSTEM: applications
+# ---------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: plane
+  description: Project management (Plane CE)
+  links:
+    - title: UI
+      url: https://plane.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: plane-api-wl
+    backstage.io/kubernetes-namespace: plane
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/applications
+  dependsOn:
+    - resource/plane-db
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: link-shortener
+  description: URL shortening service (Quarkus, the platform's own service)
+  links:
+    - title: UI
+      url: https://link.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: link-shortener
+    backstage.io/kubernetes-namespace: link-shortener
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/applications
+  dependsOn:
+    - resource/link-shortener-db
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: open-webui
+  description: Web UI for LLMs (Open WebUI)
+  links:
+    - title: UI
+      url: https://openwebui.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: open-webui
+    backstage.io/kubernetes-namespace: open-webui
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/applications
+  dependsOn:
+    - resource/open-webui-db
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: synapse
+  description: Matrix homeserver (Synapse)
+  links:
+    - title: UI
+      url: https://matrix.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: synapse
+    backstage.io/kubernetes-namespace: synapse
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/applications
+  dependsOn:
+    - resource/matrix-db
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: element
+  description: Matrix web client (Element)
+  links:
+    - title: UI
+      url: https://element.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: element-web
+    backstage.io/kubernetes-namespace: element
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/applications
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: apicurio
+  description: API registry and catalog (Apicurio)
+  links:
+    - title: UI
+      url: https://apicurio.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: apicurio
+    backstage.io/kubernetes-namespace: apicurio
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/applications
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: opencode
+  description: AI coding agent (opencode)
+  links:
+    - title: UI
+      url: https://opencode.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: opencode
+    backstage.io/kubernetes-namespace: opencode
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/applications
+  dependsOn:
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: llm-gateway
+  description: LLM API gateway (LiteLLM)
+  annotations:
+    backstage.io/kubernetes-id: litellm
+    backstage.io/kubernetes-namespace: llm-gateway
+spec:
+  type: service
+  lifecycle: production
+  owner: group/platform
+  partOf: system/applications
+  dependsOn:
+    - resource/local-cluster
+---
+# ---------------------------------------------------------------------------
+# SYSTEM: dev-portal
+# ---------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: backstage
+  description: This developer portal
+  links:
+    - title: UI
+      url: https://backstage.ebruno.fr
+      icon: dashboard
+  annotations:
+    backstage.io/kubernetes-id: backstage
+    backstage.io/kubernetes-namespace: backstage
+spec:
+  type: website
+  lifecycle: production
+  owner: group/platform
+  partOf: system/dev-portal
+  consumesApi: api/argocd
+  dependsOn:
+    - resource/backstage-db
+    - resource/local-cluster
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: gitops
+  description: GitOps repository, single source of truth for the cluster
+  links:
+    - title: Gitea
+      url: https://gitea.ebruno.fr/ebpro/gitops
+  annotations:
+    # verify on deploy — local techdocs builder has no Gitea token; if this
+    # dir: reference cannot be resolved, fall back to the plain URL
+    # https://github.com/ebpro/gitops
+    backstage.io/techdocs-ref: 'dir:github.com/ebpro/gitops?path=/&ref=main'
+spec:
+  type: library
+  lifecycle: production
+  owner: group/platform
+  partOf: system/dev-portal
+---
+# ---------------------------------------------------------------------------
+# API
+# ---------------------------------------------------------------------------
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
@@ -103,165 +757,9 @@ spec:
       version: "2.14"
     paths: {}
 ---
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: vault
-  description: HashiCorp Vault, single source of secrets (ExternalSecrets backend)
-  links:
-    - title: UI
-      url: https://vault.ebruno.fr
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: keycloak
-  description: Central identity provider (OIDC SSO for all platform apps)
-  links:
-    - title: UI
-      url: https://keycloak.ebruno.fr
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: harbor
-  description: OCI image registry (private), Trivy scanning
-  links:
-    - title: UI
-      url: https://harbor.ebruno.fr
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: gitea
-  description: Source code hosting, Woodpecker CI forge
-  links:
-    - title: UI
-      url: https://gitea.ebruno.fr
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: nexus
-  description: Maven/npm generic artifact repository (OSS)
-  links:
-    - title: UI
-      url: https://nexus.ebruno.fr
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: woodpecker
-  description: CI pipelines (Kaniko builds, Trivy scans, ArgoCD webhooks)
-  links:
-    - title: UI
-      url: https://woodpecker.ebruno.fr
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: sonarqube
-  description: Code quality and security analysis
-  links:
-    - title: UI
-      url: https://sonarqube.ebruno.fr
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: kyverno
-  description: K8s policy-as-code enforcement
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: cloudnative-pg
-  description: PostgreSQL clusters lifecycle (CloudNativePG operator)
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: external-secrets
-  description: Vault -> Kubernetes Secret synchronization
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: traefik
-  description: Edge ingress + ForwardAuth middleware (with oauth2-proxy)
-spec:
-  type: service
-  lifecycle: production
-  owner: group/platform
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: backstage
-  description: This developer portal
-  links:
-    - title: UI
-      url: https://backstage.ebruno.fr
-      icon: dashboard
-spec:
-  type: website
-  lifecycle: production
-  owner: group/platform
-  consumesApi: api/argocd
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: gitops
-  description: GitOps repository, single source of truth for the cluster
-  links:
-    - title: Gitea
-      url: https://gitea.ebruno.fr/ebpro/gitops
-spec:
-  type: library
-  lifecycle: production
-  owner: group/platform
----
+# ---------------------------------------------------------------------------
+# RESOURCES — databases (CloudNativePG) + the single in-cluster Kubernetes cluster
+# ---------------------------------------------------------------------------
 apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
@@ -361,6 +859,44 @@ spec:
   type: database
   lifecycle: production
   owner: group/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: open-webui-db
+  description: PostgreSQL for Open WebUI (CloudNativePG, 5Gi local-path)
+spec:
+  type: database
+  lifecycle: production
+  owner: group/platform
+---
+# verify on deploy — serviceAccount auth is ignored on catalog cluster entities;
+# the config-based locator in values.yaml is the working in-cluster connection.
+# This Resource maps entities to the cluster BY NAME (local-cluster) under multiTenant.
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: local-cluster
+  description: Single K3s cluster (local-cluster) — the platform's only Kubernetes cluster
+  annotations:
+    kubernetes.io/api-server: https://kubernetes.default.svc
+    kubernetes.io/api-server-certificate-authority: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJkekNDQVIyZ0F3SUJBZ0lCQURBS0JnZ3Foa2pPUFFRREFqQWpNU0V3SHdZRFZRUUREQmhyTTNNdGMyVnkKZG1WeUxXTmhRREUzT0RFM05qa3hPREF3SGhjTk1qWXdOakU0TURZMU16QXdXaGNOTXpZd05qRTFNRFkxTXpBdwpXakFqTVNFd0h3WURWUVFEREJock0zTXRjMlZ5ZG1WeUxXTmhRREUzT0RFM05qa3hPREF3V1RBVEJnY3Foa2pPClBRSUJCZ2dxaGtqT1BRTUJCd05DQUFUWkNXRUhOTWZZWEl3aVl1V1hLV25YTXFMd3dOeXhpZisrWUUrS284b1kKbks1Qld0ZjhCTlpiNWZETll2elIyRVdlbHQ5ZnlDdkJsNk4wV3RJU0ZyZGxvMEl3UURBT0JnTlZIUThCQWY4RQpCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBZEJnTlZIUTRFRmdRVU9tNnRJRVhrSGl1S1lPWnhycHNlClhGUTBNZkV3Q2dZSUtvWkl6ajBFQXdJRFNBQXdSUUlnU1IxU3BYaTJTYkxpTjRyU1pMdDFLd2VPMmhTS3lyTDVKWFhNcU8rc2ZWV0lDSVFEMGRicFBoMTRlZ24zT0Y3STArMXEybnRjcGE0azlKSEdNRXhHbE9TU05DUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+    kubernetes.io/auth-provider: serviceAccount
+spec:
+  type: kubernetes-cluster
+  lifecycle: production
+  owner: group/platform
+---
+# ---------------------------------------------------------------------------
+# GROUP — relations (owner/partOf/dependsOn) carry structure; no children list
+# ---------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: platform
+  description: Platform engineering team
+spec:
+  type: team
 ---
 apiVersion: backstage.io/v1alpha1
 kind: User

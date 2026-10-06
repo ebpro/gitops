@@ -98,9 +98,47 @@ backstage:
   # config changes roll the pod). The standard OIDC provider is configured
   # here; the custom image ships the stock @backstage OIDC provider only.
   appConfig:
+    # Phase 1 personalization: organization branding. Verify on deploy —
+    # if the org name does not render in the sidebar, this key is inert on
+    # this image (harmless); branding is otherwise carried by app.title.
+    organization:
+      name: ebruno
+      displayName: EBRUNO
     app:
       title: Platform Developer Portal
       baseUrl: https://backstage.ebruno.fr
+      # Phase 1 personalization: reserved theme palette. INERT on the new
+      # frontend-modules image (theming is an App.tsx/createUnifiedTheme
+      # concern; unknown appConfig keys are stripped) — kept to document
+      # intent; actual theming is a Phase 2 image item.
+      theme:
+        variables:
+          background: "#0f1115"
+          foreground: "#e6e6e6"
+          primary: "#3b82f6"
+      # Phase 1 personalization: Home widget grid. Applies at /home (root /
+      # stays the stock demo page until Phase 2 makes Home the landing via an
+      # image App.tsx patch). Shape per Backstage `page:home` docs.
+      extensions:
+        - page:home:
+            config:
+              defaultConfig:
+                - component: HomePageSearchBar
+                  column: 0
+                  row: 0
+                  width: 12
+                  height: 2
+                  deletable: false
+                - component: HomePageMyCatalogEntities
+                  column: 0
+                  row: 2
+                  width: 6
+                  height: 6
+                - component: HomePageRecentEntities
+                  column: 6
+                  row: 2
+                  width: 6
+                  height: 6
       # The image ships a stale frontend build under packages/app/dist/public/
       # (pre-OIDC, guest-only SignInPage). In "protected mode" (dist/public
       # present) unauthenticated users are served from that tree, hiding the
@@ -201,11 +239,13 @@ backstage:
     sonarqube:
       baseUrl: https://sonarqube.ebruno.fr
 
+    # Grafana Dashboards plugin: embeds these dashboards inside Backstage
     grafana:
       dashboards:
         - name: Backstage Dashboard
           url: https://grafana.ebruno.fr
 
+    # ArgoCD plugin: links the ci-cd component to the live ArgoCD instance
     argocd:
       ui:
         baseUrl: https://argocd.ebruno.fr

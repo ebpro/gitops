@@ -7,12 +7,12 @@
 - **NEVER use `kubectl patch`, `kubectl annotate`, `kubectl scale`, `kubectl apply`, `kubectl delete` or `kubectl exec` to 'fix' ArgoCD apps** — Even `kubectl scale statefulset --replicas=0/1` is forbidden. Edit the Helm values or manifests in git and push. ArgoCD reconciliation chain: `gitops-platform` app → `helm-apps` / `kubernetes-manifests` AppSets → individual Applications → live resources. If ArgoCD isn't picking up changes, verify the chain by checking `gitops-platform` sync status. **Never bypass it.**
 - **ArgoCD auto-sync** — All apps use `automated: { prune: true, selfHeal: true }`. Changes propagate automatically, but the `gitops-platform` App often stalls due to GitHub API timeout. When changes aren't picked up within 2 minutes, **force reconcile the chain** by editing any file in the target `bootstrap/` or `helm/` directory and committing/pushing — the file change triggers ArgoCD's Git webhook to refresh faster than waiting for poll cycle.
 - **Secrets in Vault** — All credentials live in HashiCorp Vault. Use ExternalSecrets to reference them. Never commit plaintext passwords.
-- **Cilium CNI** — Tunnel mode, pod CIDR `10.42.0.0/24`, service CIDR `10.42.0.0/16`.
+- **Cilium CNI** — Tunnel mode, pod CIDR `10.42.0.0/24`, service CIDR `10.43.0.0/16`.
 - **Single namespace per app** — Each app except orchestrator is deployed to its own namespace.
 - **Immutable cluster state** — The cluster must NEVER be touched directly. All changes flow through git. Violating this rule causes split-brain: ArgoCD will detect drift and rollback within 180s. If an AppSet hasn't re-rendered, refresh `gitops-platform` app first, then wait for the chain to propagate.
 
 ## Architecture
-- **K3s v1.35.5+k3s1** — Single-node cluster (`compute-lsis-2`), kernel `6.8.0-124-generic`
+- **K3s v1.36.4+k3s1** — Two-node cluster: `compute-lsis-2` (amd64 control-plane, kernel 6.8.0-142) + `lima-k3s-agent` (arm64 worker, kernel 6.8.0-139)
 - **Cilium CNI** — Tunnel mode, eBPF observability
 - **ArgoCD v3.5.1** — Auto-sync with prune/selfHeal
 - **CloudNativePG v0.29+** — PostgreSQL management via `Cluster` CRDs
@@ -231,7 +231,7 @@ SonarQube **Community Build 26+** has native header authentication (documented f
 ### Keycloak Deployment
 - **Deployment**: Keycloak Quarkus via CodeCentric Helm chart
 - **Database**: CNPG cluster (PostgreSQL), not H2
-- **Availability**: Single pod on K3s (HA not possible on single node)
+- **Availability**: Single replica on a two-node cluster (HA not yet enabled — anti-affinity is feasible now that a second node exists)
 - **Config**: Realms imported via `KeycloakRealmImport` CRD — Git is source of truth
 - **Backup**: Realm JSON export → Velero schedule
 
