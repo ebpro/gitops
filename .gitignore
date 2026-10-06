@@ -1,2 +1,26 @@
 .opencode
 kubernetes/argocd-image-updater/image-updater-creds.yaml
+# --- backups / editor / OS junk ---
+*.bak
+*.backup
+*.orig
+*~
+.DS_Store
+*.swp
+*.swo
+*.tmp
+# --- logs / archives ---
+*.log
+*.tar*
+*.zip
+*.gz
+# --- env / secrets (defense in depth) ---
+.env
+*.pem
+*.key
+id_rsa*
+# --- local databases ---
+*.sqlite
+*.db
+# --- ArgoCD v3 hidden write-back dotfiles (never committable) ---
+.argocd-source*

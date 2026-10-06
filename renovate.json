@@ -10,7 +10,6 @@
   "automerge": false,
   "platformAutomerge": false,
   "ignorePaths": [
-    "link-shortener/**",
     "kubernetes/link-shortener/**",
     "kubernetes/argocd-image-updater/**",
     ".woodpecker/**",
