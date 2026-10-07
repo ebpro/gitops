@@ -1,0 +1,63 @@
+# AI review scale set for code and lecture material review.
+# Runs opencode + agents + shared workflow (embedded in the runner image).
+# Targeted at the arm64 node (lima-k3s-agent) — same node as ebpro-org-arm.
+# Scale-to-zero: no persistent runner; spins up on demand when a workflow
+# requests the `best-practices` label.
+runnerScaleSetName: ebpro-ai-review
+githubConfigUrl: https://github.com/ebpro
+githubConfigSecret: arc-github-creds
+scaleSetLabels:
+  - self-hosted
+  - linux
+  - best-practices
+minRunners: 0
+maxRunners: 1
+dind:
+  image: docker:28-dind
+containerMode:
+  type: dind
+controllerServiceAccount:
+  namespace: actions-runner-controller
+  name: arc-controller
+template:
+  spec:
+    nodeSelector:
+      kubernetes.io/arch: arm64
+    # Tolerate the arch taint (enforced by Kyverno node-arm64-arch-taint) so the
+    # AI review runner pod can land on the tainted arm64 node. Listeners
+    # intentionally stay on the x64 node (no toleration added to listenerTemplate).
+    tolerations:
+      - key: "kubernetes.io/arch"
+        operator: "Equal"
+        value: "arm64"
+        effect: "NoSchedule"
+    imagePullSecrets:
+      - name: docker-hub-registry
+      - name: harbor-registry-secret
+    containers:
+      - name: runner
+        image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:feat-ai-review-agents
+        command: ["/home/runner/run.sh"]
+        env:
+          - name: ACTIONS_RESULTS_URL
+            value: "http://cache-server.ci.svc:3000/"
+        resources:
+          requests:
+            cpu: 2
+            memory: 4Gi
+          limits:
+            cpu: 4
+            memory: 8Gi
+listenerTemplate:
+  spec:
+    imagePullSecrets:
+      - name: docker-hub-registry
+    containers:
+      - name: listener
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 250m
+            memory: 512Mi

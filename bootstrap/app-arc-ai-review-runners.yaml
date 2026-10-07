@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-ai-review-runners
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '15'
+# AI review scale set (ebpro-ai-review) for code and lecture material review.
+# Runs opencode + agents on the arm64 node. Scale-to-zero, on-demand.
+# Vendored chart (charts/gha-runner-scale-set) — same as other ARC apps.
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/ebpro/gitops
+    targetRevision: main
+    path: charts/gha-runner-scale-set
+    helm:
+      releaseName: arc-ai-review-runners
+      valueFiles:
+      - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/arc/ai-review-scale-set-values.yaml?v=1
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arc-runners
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
