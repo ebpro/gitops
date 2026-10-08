@@ -37,6 +37,7 @@ template:
     containers:
       - name: runner
         image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:feat-ai-review-agents
+        imagePullPolicy: Always
         command: ["/home/runner/run.sh"]
         env:
           - name: ACTIONS_RESULTS_URL
