@@ -1,3 +1,4 @@
+# imagePullPolicy: Always — forces fresh pull on re-pushed tags (2026-10-08).
 # AI review scale set for code and lecture material review.
 # Runs opencode + agents + shared workflow (embedded in the runner image).
 # Targeted at the arm64 node (lima-k3s-agent) — same node as ebpro-org-arm.
