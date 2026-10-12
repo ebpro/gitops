@@ -2,6 +2,10 @@
 # memory 8Gi->4Gi (req) / 24Gi->8Gi (lim) to free ~12 Gi of persistent node
 # requests on compute-lsis-2, making room for the scale-to-zero `large` pool
 # (see large-scale-set-values.yaml). CPU unchanged.
+# 2026-10-12: pc-bruno-gpu (Dell laptop, amd64, 20 CPU / 64 Gi, taint
+# workload=runner:NoSchedule, may be powered off) added as PREFERRED runner
+# node: runners land there when up, fall back to compute-lsis-2 when down.
+# maxRunners 3->4 (laptop absorbs the extra; 4x4Gi still fits compute-lsis-2).
 runnerScaleSetName: ebpro-org
 githubConfigUrl: https://github.com/ebpro
 githubConfigSecret: arc-github-creds
@@ -11,7 +15,7 @@ scaleSetLabels:
   - ebpro-org
   - x64
 minRunners: 0
-maxRunners: 3
+maxRunners: 4
 dind:
   image: docker:28-dind
 containerMode:
@@ -23,6 +27,27 @@ template:
   spec:
     nodeSelector:
       kubernetes.io/arch: amd64
+    # Soft preference for the runner laptop: when up, runners go there;
+    # when off/NotReady, they schedule on compute-lsis-2 as before.
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - pc-bruno-gpu
+    # Tolerate the laptop's workload=runner:NoSchedule taint (it repels all
+    # non-runner pods). Listeners intentionally stay on compute-lsis-2
+    # (no toleration in listenerTemplate). A hard node shutdown mid-build
+    # fails that job; GitHub re-queues on retry.
+    tolerations:
+      - key: "workload"
+        operator: "Equal"
+        value: "runner"
+        effect: "NoSchedule"
     imagePullSecrets:
       - name: docker-hub-registry
       - name: harbor-registry-secret
