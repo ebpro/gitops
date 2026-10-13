@@ -8,7 +8,7 @@ goes through the GitOps-managed `node-ops` ServiceAccount
 ## Scripts
 | File | Purpose |
 |---|---|
-| `runner-leave.sh` | Planned graceful leave: cordon + drain, stop k3s-agent, power off. |
+| `runner-leave.sh` | Planned graceful leave: cordon + drain, stop k3s-agent — no shutdown (workstation-safe). User-initiated poweroff/reboot/lid-suspend is covered by `runner-auto-leave.sh`. |
 | `runner-join.sh` | Rejoin after boot: wait for Ready, uncordon, WARN on non-runner taints (never removes them), pre-pull the runner image. |
 | `runner-auto-leave.sh` | Best-effort drain fired on ANY initiated poweroff/reboot/suspend. Always exits 0, prints nothing on shutdown. |
 | `runner-auto-leave.service` | Type=oneshot RemainAfterExit unit; drain hook runs on ExecStop — must be **started** (not just enabled) to be armed. |

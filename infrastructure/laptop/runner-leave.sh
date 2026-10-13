@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Graceful planned leave. Covers manual poweroff; unplanned poweroff/reboot/
-# suspend handled by runner-auto-leave.service (installed by install.sh).
+# Graceful planned leave = cordon + drain + stop k3s-agent.
+# This script does NOT power the machine off — it is safe to run on the
+# workstation. When you later initiate any shutdown/reboot/suspend yourself,
+# runner-auto-leave.service (installed by install.sh) performs the drain
+# automatically.
 #
-# Takes the laptop OUT of the cluster: cordon + drain, stop the k3s agent,
-# power off. The node comes back CORDONED after the next boot — use
-# runner-join.sh to resume accepting work.
+# The node stays CORDONED after leaving (and comes back cordoned after any
+# reboot) — use runner-join.sh to resume accepting work.
 set -euo pipefail
 
 NODE=$(hostname)
@@ -34,5 +36,4 @@ kubectl drain "${NODE}" \
 echo "==> Stopping k3s-agent"
 sudo systemctl stop k3s-agent || true
 
-echo "==> Powering off"
-sudo poweroff
+echo "Node left the cluster. It stays cordoned — run runner-join.sh to resume accepting work. Shutting down is now safe (auto-leave hook will no-op)."
