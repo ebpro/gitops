@@ -130,6 +130,11 @@ startupProbe:
   initialDelaySeconds: 0
   failureThreshold: 24
   periodSeconds: 5
+  timeoutSeconds: 5
+{{- end }}
+{{- with .Values.dind.resources }}
+resources:
+  {{- toYaml . | nindent 2 }}
 {{- end }}
 volumeMounts:
   - name: work

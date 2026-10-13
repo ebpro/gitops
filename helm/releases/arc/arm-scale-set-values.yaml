@@ -14,6 +14,13 @@ minRunners: 0
 maxRunners: 2
 dind:
   image: docker:28-dind
+  # 2026-10-13: bound the dind sidecar. No CPU limit (builds).
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 4Gi
 containerMode:
   type: dind
 controllerServiceAccount:

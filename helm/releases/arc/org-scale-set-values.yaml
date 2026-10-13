@@ -18,6 +18,16 @@ minRunners: 0
 maxRunners: 4
 dind:
   image: docker:28-dind
+  # 2026-10-13: dind sidecar was unbounded (BestEffort, no requests/limits).
+  # Memory limit 3Gi (not 4Gi) so 4 runners x (8Gi runner + 3Gi dind) = 44Gi
+  # stays under ~45Gi when the laptop is off and all load lands on compute-lsis-2.
+  # No CPU limit — avoid throttling docker builds.
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 3Gi
 containerMode:
   type: dind
 controllerServiceAccount:

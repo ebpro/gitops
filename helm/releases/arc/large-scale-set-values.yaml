@@ -24,6 +24,14 @@ minRunners: 0
 maxRunners: 2
 dind:
   image: docker:28-dind
+  # 2026-10-13: bound the dind sidecar. 2 x (16Gi runner + 8Gi dind) = 48Gi
+  # max on one node — inside ~55Gi allocatable. No CPU limit (builds).
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      memory: 8Gi
 containerMode:
   type: dind
 controllerServiceAccount:
