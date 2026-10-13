@@ -48,7 +48,7 @@ kubectl uncordon "${NODE}"
 # node.cilium.io/agent-not-ready after an unclean leave silently blocks runner
 # pods even on an Ready+uncordoned node. Never removed automatically.
 unexpected_taints=$(kubectl get node "${NODE}" \
-  -o jsonpath='{range .spec.taints[*]}{.key}:{.effect}{"\n"}{end}' 2>/dev/null \
+  -o jsonpath='{range .spec.taints[*]}{.key}={.value}:{.effect}{"\n"}{end}' 2>/dev/null \
   | grep -v -e '^workload=runner:NoSchedule$' -e '^[[:space:]]*$' || true)
 if [ -n "${unexpected_taints}" ]; then
   echo "WARN: unexpected taint(s) on ${NODE} — runner pods may not schedule:" >&2
@@ -58,10 +58,13 @@ if [ -n "${unexpected_taints}" ]; then
 fi
 
 IMG=harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:sha-2d55143
-if ! sudo nerdctl -n k8s.io image inspect "${IMG}" >/dev/null 2>&1; then
+# k3s ctr talks directly to k3s' embedded containerd (stock k3s agent ships no
+# nerdctl binary) and defaults to the k8s.io namespace — the one the kubelet
+# reads — so a pre-pulled image is visible to runner pods without re-download.
+if ! sudo k3s ctr images ls -q 2>/dev/null | grep -qxF "${IMG}"; then
   echo "==> Pre-pulling runner image ${IMG}"
   # Non-fatal: harbor is only reachable on the lab network/VPN.
-  sudo nerdctl -n k8s.io pull "${IMG}" || echo "WARN: pre-pull failed (VPN down?) — continuing"
+  sudo k3s ctr images pull "${IMG}" || echo "WARN: pre-pull failed (VPN down?) — continuing"
 fi
 
 exit 0
