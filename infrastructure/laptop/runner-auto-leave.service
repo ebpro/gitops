@@ -1,0 +1,24 @@
+# Drain the k8s runner node whenever a poweroff/reboot/suspend is initiated
+# from inside the system (also fires for `sudo poweroff`, i.e. runner-leave.sh).
+#
+# After=k3s-agent.service orders OUR STOP before k3s-agent's stop: with
+# DefaultDependencies=no the stop phase runs in reverse order of the [Unit]
+# ordering, so ExecStop fires WHILE the kubelet is still alive — cordon/drain
+# can still complete. TimeoutStopSec=90 bounds the whole hook;
+# runner-auto-leave.sh itself exits ~instantly when the API server is
+# unreachable (off-VPN), so shutdown is never held hostage.
+[Unit]
+Description=Drain k8s runner node on initiated poweroff/reboot/suspend
+DefaultDependencies=no
+After=k3s-agent.service network-online.target
+Wants=network-online.target
+Conflicts=shutdown.target suspend.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStop=/usr/local/bin/runner-auto-leave.sh
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

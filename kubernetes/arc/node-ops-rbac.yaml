@@ -1,0 +1,73 @@
+# Least-privilege credentials for the laptop runner-node (pc-bruno-gpu)
+# lifecycle scripts — infrastructure/laptop/runner-join.sh, runner-leave.sh,
+# runner-auto-leave.sh — and their installer, infrastructure/laptop/install.sh.
+#
+# The scripts only ever need to: watch/cordon/uncordon the node (nodes
+# get/list/patch), evict or delete its pods during drain (pods get/list/delete,
+# pods/eviction create). Nothing else in the cluster is reachable with this
+# token, so a leaked laptop kubeconfig cannot read app secrets or mutate
+# workloads.
+#
+# Created and owned by ArgoCD via git (kubernetes-manifests AppSet → `arc`
+# app) — NEVER kubectl-create/apply these objects. The token is minted by the
+# ServiceAccount-token controller into node-ops-token; extract it server-side
+# and pipe it to the laptop exactly as documented in install.sh (the token
+# value never lives in this repo).
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-ops
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: node-ops
+    app.kubernetes.io/part-of: laptop-runner-lifecycle
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: node-ops
+  labels:
+    app.kubernetes.io/name: node-ops
+    app.kubernetes.io/part-of: laptop-runner-lifecycle
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/eviction"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: node-ops
+  labels:
+    app.kubernetes.io/name: node-ops
+    app.kubernetes.io/part-of: laptop-runner-lifecycle
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: node-ops
+subjects:
+  - kind: ServiceAccount
+    name: node-ops
+    namespace: kube-system
+---
+# Statically-minted SA token (k8s fills .data.token/.data.ca.crt). The laptop
+# kubeconfig is bootstrap-chicken-and-egg: it needs this token to talk to the
+# API, so it is copied out server-side per install.sh — least-privilege above
+# bounds what that copy can do.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: node-ops-token
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: node-ops
+    app.kubernetes.io/part-of: laptop-runner-lifecycle
+  annotations:
+    kubernetes.io/service-account.name: node-ops
+type: kubernetes.io/service-account-token
