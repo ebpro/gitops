@@ -14,7 +14,11 @@
 set -u
 
 NODE=$(hostname)
-export KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}"
+export KUBECONFIG="${RUNNER_OPS_KUBECONFIG:-$HOME/.kube/node-ops.conf}"
+# Never touch ~/.kube/config (localhost-only on this agent laptop). If the
+# node-ops kubeconfig was never installed, skip silently: this runs during
+# shutdown — no stdout, no non-zero exit.
+[ -f "${KUBECONFIG}" ] || exit 0
 
 # Fast pre-check: if the node/API is not reachable within 5s, stay quiet.
 timeout 8 kubectl --request-timeout=5s get node "${NODE}" >/dev/null 2>&1 || exit 0

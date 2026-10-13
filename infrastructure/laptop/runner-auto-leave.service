@@ -4,9 +4,12 @@
 # After=k3s-agent.service orders OUR STOP before k3s-agent's stop: with
 # DefaultDependencies=no the stop phase runs in reverse order of the [Unit]
 # ordering, so ExecStop fires WHILE the kubelet is still alive — cordon/drain
-# can still complete. TimeoutStopSec=90 bounds the whole hook;
-# runner-auto-leave.sh itself exits ~instantly when the API server is
-# unreachable (off-VPN), so shutdown is never held hostage.
+# can still complete. TimeoutStopSec=120 bounds the whole hook — must exceed
+# the worst-case script path (pre-check 8s + cordon 20s + drain 75s = 103s),
+# otherwise SIGKILL mid-drain leaves cordoned-undrained zombie capacity. 120s
+# still bounds shutdown acceptably; runner-auto-leave.sh itself exits
+# ~instantly when the API server is unreachable (off-VPN), so shutdown is
+# never held hostage.
 [Unit]
 Description=Drain k8s runner node on initiated poweroff/reboot/suspend
 DefaultDependencies=no
@@ -18,7 +21,7 @@ Conflicts=shutdown.target suspend.target
 Type=oneshot
 RemainAfterExit=yes
 ExecStop=/usr/local/bin/runner-auto-leave.sh
-TimeoutStopSec=90
+TimeoutStopSec=120
 
 [Install]
 WantedBy=multi-user.target
