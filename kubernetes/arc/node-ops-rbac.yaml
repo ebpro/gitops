@@ -4,9 +4,9 @@
 #
 # The scripts only ever need to: watch/cordon/uncordon the node (nodes
 # get/list/patch), evict or delete its pods during drain (pods get/list/delete,
-# pods/eviction create). Nothing else in the cluster is reachable with this
-# token, so a leaked laptop kubeconfig cannot read app secrets or mutate
-# workloads.
+# pods/eviction create), and read DaemonSets during drain (daemonsets
+# get/list). The token can therefore also READ daemonset specs cluster-wide;
+# it still cannot read app secrets or mutate workloads.
 #
 # Created and owned by ArgoCD via git (kubernetes-manifests AppSet → `arc`
 # app) — NEVER kubectl-create/apply these objects. The token is minted by the
@@ -39,6 +39,11 @@ rules:
   - apiGroups: [""]
     resources: ["pods/eviction"]
     verbs: ["create"]
+  # drain --ignore-daemonsets must READ daemonsets to classify their pods;
+  # read-only, no mutation granted.
+  - apiGroups: ["apps"]
+    resources: ["daemonsets"]
+    verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
