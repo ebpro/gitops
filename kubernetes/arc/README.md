@@ -62,10 +62,16 @@ Notes:
 2. **Fail fast on arch.** Echo `uname -m` as the first step of any job whose
    output is arch-sensitive, so a scheduling surprise fails loudly with
    evidence instead of producing a wrong-arch artifact.
-3. **Minimum capacity is pinned.** Both sets run `minRunners: 1`, so one
-   runner per arch is always warm — no cold start, no zero-capacity window.
-   Scale above the floor is automatic with job count (`maxRunners` caps it:
-   3 x64, 1 arm).
+3. **All sets scale to zero.** Every scale set runs `minRunners: 0` — there is
+   no warm runner and no capacity floor; the first job after an idle period
+   pays a cold start (pod schedule + image pull + registration). Scaling is
+   job-driven, capped by `maxRunners`: org 4, large 2, arm 2, ai-review 1.
+   The org (3→4) and large (1→2) raises of 2026-10-12 exploit the
+   `pc-bruno-gpu` laptop's headroom (preferred runner node that may be powered
+   off); with the laptop down the extra slots can stay Pending and jobs queue —
+   `large` is opt-in/scale-to-zero, so that never stalls the default org pool
+   (see the header comments in `helm/releases/arc/org-scale-set-values.yaml` /
+   `large-scale-set-values.yaml`).
 
 ## Multiarch (no QEMU)
 
@@ -81,8 +87,9 @@ Notes:
   QEMU/binfmt anywhere).
 - The arm node is `lima-k3s-agent` (Lima dev VM): if the VM reboots, arm
   runners vanish and queued arm jobs wait until it returns (GitHub has no
-  timeout for self-hosted labels). `minRunners: 1` keeps one arm runner
-  always warm (no cold start on the first arm job).
+  timeout for self-hosted labels). With `minRunners: 0` there is no warm arm
+  runner to lose — and no pre-warming either: the first arm job after the node
+  returns cold-starts like any other.
 - The runner image `quarkus-ci-runner` is multiarch (amd64+arm64 in Harbor);
   `docker:28-dind` and the listener image are multiarch too — same image refs
   on both sets.
@@ -110,8 +117,9 @@ consistent under GitOps:
   intentionally stay on the x64 node (`listenerTemplate` has no toleration).
 
 **VM-reboot behaviour:** `lima-k3s-agent` is a Lima dev VM. If it reboots, the arm
-runner pods vanish (and re-appear via `minRunners: 1` once the node returns), but
-the taint itself persists and is re-asserted by Kyverno — no manual re-taint needed.
+runner pods vanish (and re-appear job-driven — `minRunners: 0`, so only when a new
+arm job is dispatched once the node is back), but the taint itself persists and is
+re-asserted by Kyverno — no manual re-taint needed.
 
 ## Ops notes
 
@@ -129,6 +137,43 @@ the taint itself persists and is re-asserted by Kyverno — no manual re-taint n
    API (`http://vault-active.vault.svc.cluster.local:8200`), not just the pod's
    sidecar path. The dead key `secret/data/github/arc-runner` (revoked PAT) was
    purged via API on 2026-08-20.
+
+## GitHub App credential rotation runbook
+
+Chain (everything below is git-managed except the GitHub App itself and the Vault
+entry): GitHub org settings → Vault `secret/data/github/arc-app` (keys
+`github_app_id`, `github_app_installation_id`, `github_app_private_key`) →
+ExternalSecret `arc-github-creds` (`arc-github-creds-external-secret.yaml`,
+`refreshInterval: 24h`) → Secret `arc-github-creds` in ns `arc-runners` → consumed
+by all four scale sets via `githubConfigSecret` in
+`helm/releases/arc/*-scale-set-values.yaml`. The target Secret is ESO-owned
+(`creationPolicy: Owner`, `mergePolicy: Replace`) — never edit it by hand; it is
+rebuilt from Vault. The Vault entry is created out-of-band; recreate it with
+(root token in the `vault-init` secret; this Vault CLI has no `kv merge`, so all
+keys must go in one full put; KV-v2 user path — no `secret/data/` prefix):
+
+    vault kv put secret/github/arc-app github_app_id=<APP_ID> \
+      github_app_installation_id=<INSTALLATION_ID> github_app_private_key=@new-key.pem
+
+1. **New key at GitHub** — org settings → GitHub Apps → `arc-gitops-ebruno` →
+   Private keys → generate; download the PEM. Old keys stay valid until deleted —
+   delete the previous one only after step 5 passes.
+2. **Back up first** — `vault kv get secret/github/arc-app`; store the previous
+   values off-cluster (password manager). Never paste them into tickets, chat, git.
+3. **Write the new values** — full re-`put` (command above, real values instead of
+   placeholders; `@file` avoids PEM-newline quoting issues).
+4. **Propagate** — ESO only re-reads Vault every 24h; force it now:
+   `kubectl annotate externalsecret arc-github-creds -n arc-runners force-sync=$(date +%s) --overwrite`
+   (trigger-only — selfHeal removing the annotation afterwards is harmless; ESO acts
+   on first sight). Then restart the controller pod (delete it; the Deployment
+   recreates it): 0.14.2 does not watch `githubConfigSecret` (see Ops notes), and
+   controller restart is what recreates the listeners that mount the Secret.
+5. **Verify** — `kubectl logs -n actions-runner-controller deploy/arc-controller --tail=100`
+   shows no auth failures (401 / invalid-client / message-session errors), then
+   dispatch `.github/workflows/arc-selftest.yaml` (workflow_dispatch): runner
+   spin-up and a green job prove the App signature end-to-end.
+6. **Rollback** — re-run steps 3–4 from the step-2 backup. Recovery is Vault-side
+   only while the old key is still valid at GitHub.
 
 ## CRDs (vendored)
 
