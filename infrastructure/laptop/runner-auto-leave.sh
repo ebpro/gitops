@@ -28,4 +28,19 @@ timeout 75 kubectl drain "${NODE}" \
   --ignore-daemonsets --delete-emptydir-data --force \
   --grace-period=30 --timeout=60s >/dev/null 2>&1 || true
 
+# De-hijack the host network before the unit's ordering tears k3s-agent down
+# after us: a plain ExecStop leaves Cilium's cgroup socket-LB + fwmark policy
+# rule in the kernel, and SUSPEND preserves kernel state — so after a lid-close
+# the user's connections to the Traefik LB VIP (10.2.248.31) keep being
+# diverted into a dead overlay (incident 2026-10-14). For poweroff/reboot this
+# purge is redundant (kernel goes away anyway); for suspend it is the whole
+# point. Both steps are timeout-guarded, silenced (journal-only) and never
+# fatal — the script still always exits 0. NOTE: the API-unreachable early
+# exits above intentionally keep skipping this too (documented consequence in
+# the header; run sudo ./runner-net-cleanup.sh by hand after such a suspend).
+timeout 20 systemctl stop k3s-agent >/dev/null 2>&1 || true
+CLEANUP="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/runner-net-cleanup.sh"
+[ -x "${CLEANUP}" ] || CLEANUP=/usr/local/bin/runner-net-cleanup.sh
+[ -x "${CLEANUP}" ] && timeout 40 "${CLEANUP}" >/dev/null 2>&1 || true
+
 exit 0

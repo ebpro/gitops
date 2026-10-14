@@ -46,7 +46,9 @@ fi
 cd "$(dirname "$0")"
 
 echo "==> Installing scripts to /usr/local/bin"
-for f in runner-join.sh runner-leave.sh runner-auto-leave.sh; do
+# runner-net-cleanup.sh must be installed alongside: runner-auto-leave.sh runs
+# from /usr/local/bin during shutdown/suspend and resolves the helper there.
+for f in runner-join.sh runner-leave.sh runner-auto-leave.sh runner-net-cleanup.sh; do
   sudo cp "${f}" /usr/local/bin/
   sudo chmod 755 "/usr/local/bin/${f}"
 done

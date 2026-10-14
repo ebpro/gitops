@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Rejoin after a leave/boot: wait for the node to go Ready, uncordon it (a
-# drained node comes back CORDONED and would accept no work), warn about any
-# non-runner taints, then pre-pull the CI runner image so the first job after
-# boot is fast.
+# Rejoin after a leave/boot: wait for the node to go Ready, PROVE the cluster
+# data plane is reachable over the current network (VPN must carry the Cilium
+# overlay UDP), then uncordon (a drained node comes back CORDONED and would
+# accept no work), warn about any non-runner taints, then pre-pull the CI
+# runner image so the first job after boot is fast. Preflight failure keeps
+# the node cordoned (fail-closed) — see README "Home vs lab operation".
 set -euo pipefail
 
 NODE=$(hostname)
@@ -39,6 +41,44 @@ while true; do
     exit 1
   fi
   sleep 5
+done
+
+# --- data-plane preflight (BEFORE uncordon, fail-closed) ----------------------
+# Why: Cilium's host socket-LB hijacks LOCAL connections to the Traefik LB VIP
+# (10.2.248.31) into the cluster overlay. On VPNs whose gateway drops the
+# overlay's UDP underlay, uncordoning would (1) let the scheduler place runner
+# pods here whose traffic can never reach the cluster and (2) leave the user's
+# own browser connections to the VIP black-holed. Because this very probe is
+# itself hijacked into the overlay, ANY HTTP answer — even 401/403/404/5xx
+# (Harbor's 5xx is a separate, tracked DB outage) — PROVES the overlay
+# traverses this network; only 000/timeout means it does not. Control plane
+# reachability (6443, proven above) is NOT sufficient — TCP works while the
+# tunnel is dead.
+VIP=10.2.248.31
+if ! systemctl is-active --quiet k3s-agent; then
+  echo "ERROR: k3s-agent is not active — cannot prove the data plane before uncordoning." >&2
+  echo "       Start it first: sudo systemctl start k3s-agent, then re-run this script." >&2
+  exit 1
+fi
+
+echo "==> Data-plane preflight: probing https://${VIP}/ through the Cilium overlay (up to 120s)"
+dp_deadline=$((SECONDS + 120))
+while true; do
+  code=$(curl -sk --connect-timeout 5 -m 8 -o /dev/null -w '%{http_code}' "https://${VIP}/" 2>/dev/null || true)
+  if [ -n "${code}" ] && [ "${code}" != "000" ]; then
+    echo "==> Data plane reachable over this network (HTTP ${code}) — safe to uncordon"
+    break
+  fi
+  if [ "${SECONDS}" -ge "${dp_deadline}" ]; then
+    echo "ERROR: data plane unreachable over this network (overlay UDP blocked by VPN" >&2
+    echo "       gateway). Node left CORDONED — correct state for a remote laptop." >&2
+    echo "       Web access may still be hijacked: run" >&2
+    echo "         sudo systemctl stop k3s-agent && sudo ./runner-net-cleanup.sh" >&2
+    echo "       (or reboot) to restore the plain network path." >&2
+    echo "       See README: 'Home vs lab operation'." >&2
+    exit 1
+  fi
+  sleep 10
 done
 
 echo "==> Uncordoning node ${NODE}"

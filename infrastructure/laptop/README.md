@@ -8,8 +8,9 @@ goes through the GitOps-managed `node-ops` ServiceAccount
 ## Scripts
 | File | Purpose |
 |---|---|
-| `runner-leave.sh` | Planned graceful leave: cordon + drain, stop k3s-agent — no shutdown (workstation-safe). User-initiated poweroff/reboot/lid-suspend is covered by `runner-auto-leave.sh`. |
-| `runner-join.sh` | Rejoin after boot: wait for Ready, uncordon, WARN on non-runner taints (never removes them), pre-pull the runner image. |
+| `runner-leave.sh` | Planned graceful leave: cordon + drain, stop k3s-agent, then purge residual Cilium host-network state via `runner-net-cleanup.sh` — no shutdown (workstation-safe). User-initiated poweroff/reboot/lid-suspend is covered by `runner-auto-leave.sh`. |
+| `runner-join.sh` | Rejoin after boot: wait for Ready, **data-plane preflight** (refuses to uncordon unless the cluster overlay is proven reachable over the current network), uncordon, WARN on non-runner taints (never removes them), pre-pull the runner image. |
+| `runner-net-cleanup.sh` | Purge helper: removes leftover Cilium ip-rules / nft tables / cgroup socket-LB eBPF programs that survive `systemctl stop k3s-agent`. Called by leave + auto-leave; idempotent, safe to run by hand (`sudo ./runner-net-cleanup.sh`). Never reboots. |
 | `runner-auto-leave.sh` | Best-effort drain fired on ANY initiated poweroff/reboot/suspend. Always exits 0, prints nothing on shutdown. |
 | `runner-auto-leave.service` | Type=oneshot RemainAfterExit unit; drain hook runs on ExecStop — must be **started** (not just enabled) to be armed. |
 | `install.sh` | One-time installer: copies scripts + unit system-wide and writes the kubeconfig. |
@@ -38,6 +39,35 @@ The laptop's legacy `~/.kube/config` points at `127.0.0.1:6443`, which does not
 exist in agent-only mode — every kubectl call would "connection refused" or
 hang. All scripts pin `KUBECONFIG=${RUNNER_OPS_KUBECONFIG:-$HOME/.kube/node-ops.conf}`.
 
+## Home vs lab operation
+The laptop joins the cluster through Cilium's **tunnel overlay**, which rides
+on UDP through the VPN underlay. Not every network path carries that UDP, so:
+
+1. **Joining requires the VPN to carry the cluster tunnel UDP.**
+   `runner-join.sh` now pre-tests this **before** uncordoning: it probes
+   `https://10.2.248.31/` (the Traefik LB VIP) from the host — a connection
+   that Cilium socket-LB itself hijacks into the overlay — and treats **any**
+   HTTP answer as proof the overlay works end-to-end (401/403/404/5xx are
+   fine; e.g. Harbor 5xx is a separate, tracked DB outage). Only 000/timeout
+   fails. On failure the node stays **CORDONED** (fail-closed).
+2. **A remote laptop that cannot pass the pre-test must stay left**: cordoned,
+   `k3s-agent` stopped, cleanup run. That is a supported resting state, not a
+   failure — the runner simply does not participate from that network.
+3. **The hijack:** in tunnel mode Cilium keeps cgroup socket-LB eBPF programs
+   and an `ip rule fwmark 0x200/0xf00 lookup 2004` policy route on the host,
+   which divert every local connection to 10.2.248.31 into the overlay —
+   and these **survive `systemctl stop k3s-agent`**. Symptom signature:
+   `curl -k https://10.2.248.31/` returns `000` (timeout) while TCP 6443 to
+   the API server works. Fix: `sudo systemctl stop k3s-agent &&
+   sudo ./runner-net-cleanup.sh` (or reboot — the scripts never reboot).
+   Documented incident: 2026-10-14.
+4. **bpftool dependency:** detaching the cgroup eBPF programs (the piece that
+   survives everything else) needs `bpftool`, from `linux-tools-common` +
+   `linux-tools-$(uname -r)` — not installed by `install.sh` (no apt step
+   there; install manually). Without bpftool the cleanup still removes the ip
+   rules and nft tables and reports **PARTIAL**; a reboot is then the full
+   reset.
+
 ## Remote shutdown
 `ssh bruno@pc-bruno-gpu sudo poweroff` fires the same drain hook
 (runner-auto-leave.service ExecStop) as a local power-button press.
@@ -52,3 +82,7 @@ hang. All scripts pin `KUBECONFIG=${RUNNER_OPS_KUBECONFIG:-$HOME/.kube/node-ops.
 - After ANY drain the node returns **CORDONED** — always run `runner-join.sh`.
 - Off-VPN suspend skips the auto-drain silently ⇒ zombie Terminating runner
   pods may hold ARC capacity; force-delete the pods on the node (see AGENTS.md).
+- Join exits 1 at the "Data-plane preflight" step ⇒ this VPN drops the overlay
+  UDP; keep the node cordoned and run the cleanup (see "Home vs lab operation").
+- `curl -k https://10.2.248.31/` = `000` while 6443 works, agent already stopped
+  ⇒ leftover Cilium hijack state ⇒ `sudo ./runner-net-cleanup.sh` (or reboot).

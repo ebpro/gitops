@@ -36,4 +36,20 @@ kubectl drain "${NODE}" \
 echo "==> Stopping k3s-agent"
 sudo systemctl stop k3s-agent || true
 
+# Stopping the unit does NOT remove Cilium's kernel-level hijack state (cgroup
+# socket-LB programs + the fwmark 0x200/0xf00 policy rule survive the stop and
+# keep black-holing host connections to the Traefik LB VIP over VPNs that drop
+# the overlay UDP — incident 2026-10-14). Purge it. The helper re-execs under
+# sudo itself; a PARTIAL verdict is surfaced but never fails the leave.
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+CLEANUP="${SCRIPT_DIR}/runner-net-cleanup.sh"
+[ -x "${CLEANUP}" ] || CLEANUP=/usr/local/bin/runner-net-cleanup.sh
+if [ -x "${CLEANUP}" ]; then
+  echo "==> Purging residual Cilium host-network state"
+  "${CLEANUP}" || echo "WARN: runner-net-cleanup.sh reported problems — see output above" >&2
+else
+  echo "WARN: runner-net-cleanup.sh not found (script dir nor /usr/local/bin)" >&2
+  echo "      — residual Cilium socket-LB/IP-rule state may persist; reboot clears it" >&2
+fi
+
 echo "Node left the cluster. It stays cordoned — run runner-join.sh to resume accepting work. Shutting down is now safe (auto-leave hook will no-op)."
