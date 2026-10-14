@@ -5,7 +5,7 @@ metadata:
   namespace: synapse
 spec:
   activeDeadlineSeconds: 900
-  ttlSecondsAfterFinished: 7200
+  ttlSecondsAfterFinished: 3600
   template:
     spec:
       serviceAccountName: alertmanager-token-writer

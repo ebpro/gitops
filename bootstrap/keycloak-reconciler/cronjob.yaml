@@ -15,10 +15,11 @@ metadata:
 spec:
   schedule: "*/15 * * * *"
   concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 2
-  failedJobsHistoryLimit: 2
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 3600
       template:
         spec:
           serviceAccountName: keycloak-reconciler
