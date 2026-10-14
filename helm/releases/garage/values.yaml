@@ -27,15 +27,15 @@ garage:
 persistence:
   enabled: true
   meta:
-    storageClass: local-path
+    storageClass: local-path-hdd
     size: 5Gi
   data:
-    storageClass: local-path
+    storageClass: local-path-hdd
     size: 20Gi
 
 deployment:
   kind: StatefulSet
-  replicaCount: 0
+  replicaCount: 1
 
 image:
   repository: dxflrs/amd64_garage
