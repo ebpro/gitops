@@ -91,6 +91,12 @@ spec:
     metadata:
       labels:
         app: alertmanager-matrix-webhook
+      annotations:
+        # Bump this value whenever the webhook.py ConfigMap changes — the
+        # Deployment template otherwise stays identical and ArgoCD never
+        # rolls the pods, so the running Python process keeps serving the
+        # previous script from memory.
+        config-version: "2026-10-14-put-send-fix"
     spec:
       containers:
         - name: webhook
