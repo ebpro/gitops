@@ -1,0 +1,24 @@
+# Disable USB runtime autosuspend on compute-lsis-2 (amd64 control-plane).
+#
+# Rationale (2026-10-14): the /mnt/hdd disk enclosure is USB-attached and now
+# hosts the garage backup-tier data (static Local PVs under
+# /mnt/hdd/k3s-storage/garage/{meta,data}, see kubernetes/garage-storage/).
+# Garage's meta store is an embedded LMDB: if the kernel runtime-suspends the
+# enclosure mid-write (dirty pages / open memory-mapped env), the volume dies
+# underneath the writes — LMDB corruption risk on the backup tier. Autosuspend
+# also caused I/O stalls during today's relocation. Power management for this
+# device must stay off, permanently.
+#
+# Install (operator action on the host — this file is NOT applied by ArgoCD;
+# cluster-side tooling cannot own udev):
+#   sudo cp 99-usb-never-autosuspend.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload-rules && sudo udevadm trigger
+#
+# Verify after install + replug/boot:
+#   cat /sys/bus/usb/devices/*/power/control   → all "on"
+#   cat /sys/bus/usb/devices/*/power/autosuspend → -1 (or autosuspend_delay)
+#
+# Runtime (non-persistent) equivalent applied today before the rule existed:
+#   for d in /sys/bus/usb/devices/*/power/control; do echo on > "$d"; done
+
+ACTION=="add", SUBSYSTEM=="usb", ATTR{power/autosuspend}="-1"
