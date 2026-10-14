@@ -46,6 +46,14 @@ spec:
             - '.spec.data[].remoteRef.decodingStrategy'
             - '.spec.data[].remoteRef.metadataPolicy'
             - '.spec.target.deletionPolicy'
+        - group: kyverno.io
+          kind: ClusterPolicy
+          jsonPointers:
+            # Kyverno owns these on live ClusterPolicies: /status (conditions,
+            # version, autogen rules) + kyverno.io/* annotations. selfHeal reverting
+            # them re-triggers the policy controller -> OutOfSync oscillation (arc).
+            - /status
+            - /metadata/annotations
       source:
         repoURL: https://github.com/ebpro/gitops
         targetRevision: main
