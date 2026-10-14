@@ -2,32 +2,67 @@ crds:
   enabled: false
 
 alertmanager:
+  # The kube-prometheus-stack chart renders the Alertmanager configuration
+  # from `.Values.alertmanager.config` (into Secret
+  # alertmanager-kube-prometheus-kube-prome-alertmanager, consumed by
+  # prometheus-operator). A `config:` block placed under `alertmanagerSpec`
+  # is NOT a field of the Alertmanager CRD and is silently dropped — which
+  # left the chart-default `"null"` receiver as the live default route since
+  # the chart's render. Keep it at this key.
+  # inhibit_rules are copied verbatim from the chart defaults so
+  # inhibition/silence behavior is unchanged.
+  config:
+    global:
+      resolve_timeout: 5m
+    inhibit_rules:
+      - source_matchers:
+          - severity = critical
+        target_matchers:
+          - severity =~ warning|info
+        equal:
+          - namespace
+          - alertname
+      - source_matchers:
+          - severity = warning
+        target_matchers:
+          - severity = info
+        equal:
+          - namespace
+          - alertname
+      - source_matchers:
+          - alertname = InfoInhibitor
+        target_matchers:
+          - severity = info
+        equal:
+          - namespace
+      - target_matchers:
+          - alertname = InfoInhibitor
+    route:
+      receiver: matrix
+      group_by: ['alertname', 'namespace', 'cluster']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      routes:
+        - receiver: matrix
+          matchers:
+            - severity =~ "critical|warning"
+          group_wait: 10s
+          repeat_interval: 1h
+        - receiver: "null"
+          matchers:
+            - severity = "info"
+        - receiver: "null"
+          matchers:
+            - alertname = "Watchdog"
+    receivers:
+      - name: matrix
+        webhook_configs:
+          - url: http://alertmanager-matrix-webhook.kube-prometheus.svc.cluster.local:8080
+            send_resolved: true
+            max_alerts: 100
+      - name: "null"
   alertmanagerSpec:
-    config:
-      global:
-        resolve_timeout: 5m
-      route:
-        receiver: default
-        group_by: ['alertname', 'namespace', 'cluster']
-        group_wait: 30s
-        group_interval: 5m
-        repeat_interval: 4h
-        routes:
-          - receiver: default
-            matchers:
-              - severity =~ "critical|warning"
-            group_wait: 10s
-            repeat_interval: 1h
-          - receiver: null
-            matchers:
-              - severity = "info"
-      receivers:
-        - name: default
-          webhook_configs:
-            - url: http://0.0.0.0:9096/webhook
-              send_resolved: true
-              max_alerts: 100
-        - name: null
     storage:
       volumeClaimTemplate:
         spec:
