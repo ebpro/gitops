@@ -38,6 +38,29 @@ spec:
       localeCType: C
       localeCollate: C
       owner: linkshortener
+  backup:
+    # Object-store data GC only (barman-cloud-backup-delete recovery window).
+    # Completed Backup CRs are never pruned by CNPG 1.30 — no ScheduledBackup
+    # retention field exists (verified: api/v1 ScheduledBackupSpec @ v1.30.0
+    # and the installed CRD schema).
+    retentionPolicy: "14d"
+    barmanObjectStore:
+      destinationPath: s3://backups/link-shortener-ci-db
+      endpointURL: http://garage.garage.svc:3900
+      # Shared garage key (single global key, bucket-level grants on the
+      # "backups" bucket). Secret lives in ns ci like the sibling
+      # *-backup-s3 secrets; garage-backup-creds chosen over
+      # woodpecker-backup-s3 because it is not tied to another app's name.
+      s3Credentials:
+        accessKeyId:
+          name: garage-backup-creds
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: garage-backup-creds
+          key: AWS_SECRET_ACCESS_KEY
+        region:
+          name: garage-backup-creds
+          key: AWS_REGION
   enablePDB: false
   enableSuperuserAccess: true
   failoverDelay: 0

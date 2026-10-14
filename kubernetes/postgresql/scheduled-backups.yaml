@@ -114,6 +114,24 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
+  name: link-shortener-ci-db-backup
+  namespace: ci
+spec:
+  # Backup method explicit (CRD enum: barmanObjectStore|volumeSnapshot|plugin;
+  # default is barmanObjectStore). Backup-level retention GC in
+  # spec.backup.retentionPolicy only runs for barmanObjectStore backups.
+  # NOTE: CNPG 1.30 has no ScheduledBackup retention field — expired Backup CRs
+  # are never auto-deleted (docs/src/backup.md "Retention Policies": cluster
+  # spec.backup.retentionPolicy drives barman-cloud-backup-delete on the object
+  # store only). Schedule at 05:30, outside the 02:30-05:00 backup wave.
+  method: barmanObjectStore
+  cluster:
+    name: link-shortener-ci-db
+  schedule: "0 30 5 * * *"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
   name: link-shortener-db-backup
   namespace: link-shortener
 spec:
