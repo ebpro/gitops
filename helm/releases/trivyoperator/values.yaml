@@ -11,7 +11,14 @@ image:
 operator:
   namespace: trivy-system
   scanJobTimeout: 10m
-  scanJobsConcurrentLimit: 4
+  # trivy-server suspends ALL requests hourly during its vuln-DB update and
+  # waits for in-flight scans to drain; with 4 concurrent scan jobs the drain
+  # stalled ~68min (2026-10-14 00:14→01:14Z) and every overlapping scan
+  # FATALed "database not open" (bbolt handle closed under the running scan).
+  # Concurrency 1 bounds the suspend window to a single scan; retry delay 5m
+  # keeps failed jobs from retrying straight back into the update window.
+  scanJobsConcurrentLimit: 1
+  scanJobsRetryDelay: 5m
   vulnerabilityScannerEnabled: true
   sbomGenerationEnabled: true
   configAuditScannerEnabled: true
