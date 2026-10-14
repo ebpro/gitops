@@ -26,6 +26,13 @@ goes through the GitOps-managed `node-ops` ServiceAccount
    `cd infrastructure/laptop && ./install.sh --token-file /tmp/node-ops.token --ca-file /tmp/node-ops.ca.crt`
 4. Sanity check: `kubectl --kubeconfig ~/.kube/node-ops.conf get node "$(hostname)"`
 
+## k3s agent version pin
+`install.sh` pins `K3S_VERSION="v1.36.4+k3s1"` / `K3S_CHANNEL="v1.36"` — the
+channel is pinned to match the control-plane (compute-lsis-2); bump it together
+with cluster upgrades. On a fresh laptop rebuild, `install.sh` prints the pinned
+one-time `get.k3s.io` agent bootstrap command when `k3s-agent` is not active
+(the k3s install itself is NOT automated; it needs the cluster node token).
+
 ## Why ~/.kube/node-ops.conf, never ~/.kube/config?
 The laptop's legacy `~/.kube/config` points at `127.0.0.1:6443`, which does not
 exist in agent-only mode — every kubectl call would "connection refused" or

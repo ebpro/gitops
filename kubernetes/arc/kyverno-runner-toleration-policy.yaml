@@ -1,0 +1,86 @@
+# AUDIT-ONLY guard: every Pod in arc-runners must carry a runner-placement
+# toleration (audit backlog item #10). validationFailureAction is deliberately
+# Audit, NOT Enforce — observe the false-positive rate before ever blocking.
+#
+# Evidence (live cluster, 2026-10-14):
+#   - Taints: `workload=runner:NoSchedule` is on pc-bruno-gpu (laptop amd64
+#     runner node), NOT on compute-lsis-2 (control plane has no taints today);
+#     `kubernetes.io/arch=arm64:NoSchedule` is on lima-k3s-agent (arm64 runner
+#     node, kept persistent by node-arm64-arch-taint.yaml).
+#   - Tolerations: org + large scale sets carry workload=runner (Equal);
+#     arm + ai-review scale sets deliberately carry ONLY
+#     kubernetes.io/arch=arm64 (Equal) and never the workload toleration
+#     (helm/releases/arc/{arm,ai-review}-scale-set-values.yaml). A strict
+#     "must tolerate workload=runner" check would therefore make every arm
+#     runner Pod a permanent audit failure — signal pollution, not a real
+#     finding. The CEL below accepts EITHER of the two live runner-placement
+#     taints, so it still catches the regression it targets: a runner Pod
+#     whose values lost its tolerations entirely (it could then never land on
+#     any runner node).
+#
+# Exclusions: NONE needed. `kubectl get pods -n arc-runners -o wide` on
+# 2026-10-14 shows only EphemeralRunner-owned runner Pods — no DaemonSet,
+# static, or other kube-system content lives in this namespace (the ARC
+# controller itself runs in actions-runner-controller). If infra Pods are
+# ever added to arc-runners, narrow this rule (e.g. by the
+# actions.github.com/scale-set-name label) before considering Enforce.
+#
+# Kyverno v1.15.0 (ns kyverno): validate.cel with `object` + variables runs in
+# BOTH admission and background scans (background: true).
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: arc-runner-toleration
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    policies.kyverno.io/title: ARC runner Pods must tolerate a runner taint
+    policies.kyverno.io/category: Multi-Tenancy, Best Practices
+    policies.kyverno.io/severity: low
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      Audit that every Pod in arc-runners carries an Equal toleration for one
+      of the two live runner-placement taints (workload=runner:NoSchedule on
+      the amd64 runner node, or kubernetes.io/arch=arm64:NoSchedule for the
+      arm64 scale sets). A runner Pod with neither can never be scheduled onto
+      a runner node.
+spec:
+  validationFailureAction: Audit
+  background: true
+  admission: true
+  emitWarning: false
+  failurePolicy: Ignore
+  rules:
+    - name: runner-pod-must-tolerate-runner-taints
+      match:
+        any:
+          - resources:
+              kinds: ["Pod"]
+              operations: ["CREATE", "UPDATE"]
+              namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: arc-runners
+      validate:
+        message: >-
+          Pod in arc-runners has no runner-placement toleration: expected an
+          Equal toleration for workload=runner:NoSchedule (amd64 runner nodes)
+          or kubernetes.io/arch=arm64:NoSchedule (arm64 scale sets). Check the
+          scale set values (helm/releases/arc/<set>-scale-set-values.yaml
+          tolerations block).
+        cel:
+          variables:
+            - name: toleratesRunnerTaint
+              expression: >-
+                object.?tolerations.orValue([]).exists(t,
+                t.?key.orValue('') == 'workload' &&
+                t.?operator.orValue('') == 'Equal' &&
+                t.?value.orValue('') == 'runner' &&
+                t.?effect.orValue('') == 'NoSchedule')
+            - name: toleratesArm64Taint
+              expression: >-
+                object.?tolerations.orValue([]).exists(t,
+                t.?key.orValue('') == 'kubernetes.io/arch' &&
+                t.?operator.orValue('') == 'Equal' &&
+                t.?value.orValue('') == 'arm64' &&
+                t.?effect.orValue('') == 'NoSchedule')
+          expressions:
+            - expression: "variables.toleratesRunnerTaint || variables.toleratesArm64Taint"

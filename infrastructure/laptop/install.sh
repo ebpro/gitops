@@ -19,6 +19,17 @@ SERVER="https://compute-lsis-2.lis-lab.fr:6443"
 TOKEN_FILE=""
 CA_FILE=""
 
+# k3s agent version pin — the laptop must join on the SAME k3s patch channel as
+# the cluster control plane (verified 2026-10-14: compute-lsis-2 and
+# lima-k3s-agent both run v1.36.4+k3s1). These feed the one-time k3s AGENT
+# bootstrap documented in README.md (get.k3s.io supports INSTALL_K3S_VERSION for
+# the exact tag and INSTALL_K3S_CHANNEL as a patch-channel backstop); bump them
+# together with cluster upgrades. Note: the node currently live in-cluster
+# reports v1.36.5+k3s1 (drifted one patch ahead); a rebuilt/reinstalled agent
+# must come back on the pinned v1.36.4+k3s1 until the control plane moves.
+K3S_CHANNEL="v1.36"
+K3S_VERSION="v1.36.4+k3s1"
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --token-file) TOKEN_FILE="${2:?--token-file requires a path}"; shift 2 ;;
@@ -106,5 +117,15 @@ users:
 EOF
 # cat > preserves the mode of a pre-existing file — enforce 0600 explicitly.
 chmod 600 "${KUBECONF}"
+
+# If the k3s agent itself is not installed yet (fresh laptop rebuild), print the
+# pinned one-time bootstrap. The node token comes from the control plane:
+#   kubectl -n kube-system get secret node-token -o jsonpath='{.data.token}' | base64 -d
+# Never paste the real K3S_TOKEN into chat/tickets or commit it.
+if ! systemctl is-active --quiet k3s-agent; then
+  echo "==> NOTE: k3s-agent is not active on this host. One-time agent bootstrap (pinned to the control-plane version):"
+  echo "    curl -fL https://get.k3s.io | INSTALL_K3S_VERSION='${K3S_VERSION}' INSTALL_K3S_CHANNEL='${K3S_CHANNEL}' \\"
+  echo "      K3S_URL='${SERVER}' K3S_TOKEN='<node-token from cluster>' INSTALL_K3S_EXEC='agent' sh -"
+fi
 
 echo "==> Done. Sanity check: kubectl --kubeconfig ~/.kube/node-ops.conf get node $(hostname)"

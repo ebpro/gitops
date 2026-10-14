@@ -8,4 +8,5 @@ resources:
   - crds/actions.github.com_ephemeralrunnersets.yaml
   - node-arm64-arch-taint.yaml
   - kyverno-node-mutation-rbac.yaml
+  - kyverno-runner-toleration-policy.yaml
   - node-ops-rbac.yaml
