@@ -8,6 +8,11 @@ nfs:
   path: /mnt/nfs_share
   server: 10.2.248.31
 storageClass:
+  # Do NOT archive deleted PVC volumes under <nfs path>/.archiving-* — the
+  # archive directory was an unbounded landfill (~123G on /mnt/disk, Oct 2026).
+  # NOTE: SC parameters are immutable — ArgoCD cannot update the live
+  # nfs-rwx StorageClass in place; the SC object must be delete-recreated.
+  archiveOnDelete: false
   defaultClass: false
   mountOptions:
     - lookupcache=none

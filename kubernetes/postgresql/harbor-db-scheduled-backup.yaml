@@ -4,6 +4,10 @@ metadata:
   name: harbor-db-backup
   namespace: harbor
 spec:
+  # Backup method explicit (CRD enum: barmanObjectStore|volumeSnapshot|plugin;
+  # default is barmanObjectStore). Backup-level retention GC in
+  # spec.backup.retentionPolicy only runs for barmanObjectStore backups.
+  method: barmanObjectStore
   cluster:
     name: harbor-db
   # 6-field cron (CNPG, NOT k8s CronJob format): second minute hour dom month dow

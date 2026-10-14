@@ -8,6 +8,9 @@ nfs:
   path: /mnt/nfs_share
   server: 10.2.248.31
 storageClass:
+  # Mirror of helm/releases/nfs-client/values.yaml — do not archive deleted
+  # PVC volumes (unbounded landfill under the export, see releases file).
+  archiveOnDelete: false
   defaultClass: false
   mountOptions:
     - lookupcache=none
