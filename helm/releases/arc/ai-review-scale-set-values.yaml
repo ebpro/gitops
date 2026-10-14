@@ -1,4 +1,4 @@
-# imagePullPolicy: Always — forces fresh pull on re-pushed tags (2026-10-08).
+# Image pinned to immutable tag sha-e1b46a1 (2026-10-14); pull policy IfNotPresent.
 # AI review scale set for code and lecture material review.
 # Runs opencode + agents + shared workflow (embedded in the runner image).
 # Targeted at the arm64 node (lima-k3s-agent) — same node as ebpro-org-arm.
@@ -13,17 +13,9 @@ scaleSetLabels:
   - best-practices
 minRunners: 0
 maxRunners: 1
-dind:
-  image: docker:28-dind
-  # 2026-10-13: bound the dind sidecar. No CPU limit (builds).
-  resources:
-    requests:
-      cpu: 250m
-      memory: 512Mi
-    limits:
-      memory: 4Gi
 containerMode:
-  type: dind
+  # untrusted PR code pool — no privileged docker sidecar; CLI-free per preflight (2026-10-14)
+  type: "none"
 controllerServiceAccount:
   namespace: actions-runner-controller
   name: arc-controller
@@ -44,8 +36,10 @@ template:
       - name: harbor-registry-secret
     containers:
       - name: runner
-        image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:feat-ai-review-agents
-        imagePullPolicy: Always
+        # immutable tag = last successful feat/ai-review-agents build (2026-10-08).
+        # Re-pin to main-branch builds after feat branch merges — user decision pending.
+        image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:sha-e1b46a1
+        imagePullPolicy: IfNotPresent
         command: ["/home/runner/run.sh"]
         env:
           - name: ACTIONS_RESULTS_URL
