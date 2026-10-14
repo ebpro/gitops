@@ -1,0 +1,33 @@
+# Static Local PV for garage data (design A', Phase 2).
+#
+# MAINTENANCE NOTE: this PV is pre-bound via spec.claimRef. If the garage
+# PVCs are ever deleted+recreated, the PV transitions to Released — clear
+# spec.claimRef and status.phase to rebind it.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: garage-data-hdd
+  labels:
+    app: garage
+    tier: data
+spec:
+  capacity:
+    storage: 20Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-path-hdd
+  claimRef:
+    namespace: garage
+    name: data-garage-0
+  local:
+    path: /mnt/hdd/k3s-storage/garage/data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - compute-lsis-2

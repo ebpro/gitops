@@ -1,0 +1,17 @@
+# StorageClass for the garage backup-tier relocation (Phase 2, design A').
+#
+# Purpose: decouple garage metadata/data volumes from /mnt/disk by pinning
+# them to large local HDD storage on compute-lsis-2 via pre-bound static
+# Local PVs (see 02-/03- files in this directory). The SC itself never
+# provisions anything (no-provisioner + WaitForFirstConsumer); it exists
+# solely so the static PVs and the garage PVCs share a binding class.
+#
+# These objects are INERT until the garage PVCs are re-created against
+# storageClassName: local-path-hdd (later phase, separate change).
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-path-hdd
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
