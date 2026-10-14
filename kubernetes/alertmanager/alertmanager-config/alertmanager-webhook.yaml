@@ -10,13 +10,33 @@ data:
     import json
     import os
     import uuid
-    import re
+    import html as htmllib
     from http.server import HTTPServer, BaseHTTPRequestHandler
     import requests as req
     TOKEN = os.environ["matrix-access-token"]
     ROOM = os.environ.get("MATRIX_ROOM_ID", "!kLasyTgOvpGTAGTEBU:matrix.ebruno.fr")
     SERVER = os.environ.get("MATRIX_SERVER", "http://synapse.synapse.svc.cluster.local:8008")
-    COLORS = {"critical": "#FF6B6B", "warning": "#FDCB6E", "info": "#74B9FF", "ok": "#55EFC4"}
+    # Matrix clients (Element/Synapse) only render the org.matrix.custom.html
+    # tag subset; headings and style attributes are stripped/shown raw, so the
+    # template uses emoji for severity/status emphasis instead of colors.
+    SEVERITY_EMOJI = {"critical": "🔴", "warning": "🟠", "info": "ℹ️"}
+    STATUS_EMOJI = {"firing": "🔥", "resolved": "✅"}
+    def esc(value):
+        return htmllib.escape(str(value), quote=True)
+    def sev_emoji(severity):
+        return SEVERITY_EMOJI.get(severity, "ℹ️")
+    def status_emoji(status):
+        return STATUS_EMOJI.get(status, "❓")
+    def link_annotations(annotations):
+        # Annotation values that look like URLs (e.g. dashboard_url,
+        # runbook_url) become clickable links — <a href> is in the subset.
+        links = []
+        for key, value in annotations.items():
+            k = key.lower()
+            if isinstance(value, str) and value.startswith(("http://", "https://")) and ("url" in k or "link" in k):
+                label = k.replace("_", " ").replace("-", " ").strip().title()
+                links.append((label, value))
+        return links
     def fmt(alert):
         labels = alert.get("labels", {})
         annotations = alert.get("annotations", {})
@@ -25,19 +45,39 @@ data:
         severity = labels.get("severity", "info")
         summary = annotations.get("summary", "")
         details = annotations.get("description", "")
-        cl = COLORS.get(severity, "#74B9FF")
-        parts = []
-        parts.append(f'<h2 style="color:{cl}">ALARM {name}</h2>')
-        parts.append(f"<p>Severity: <b>{severity}</b> | Status: <b>{status}</b></p>")
+        instance = labels.get("instance", "")
+        title = f"{status_emoji(status)} <b>{esc(status.upper())}</b> — {esc(name)}"
+        rows = [(esc("Severity"), f"{sev_emoji(severity)} {esc(severity)}")]
+        rows.append((esc("Status"), esc(status)))
+        if instance:
+            rows.append((esc("Instance"), f"<code>{esc(instance)}</code>"))
         if summary:
-            parts.append(f"<p><b>Summary:</b> {summary}</p>")
+            rows.append((esc("Summary"), esc(summary)))
         if details:
-            parts.append(f"<p><b>Details:</b> {details}</p>")
-        parts.append("<ul>")
-        for k in labels:
-            parts.append(f"<li><b>{k}</b>: <code>{labels[k]}</code></li>")
-        parts.append("</ul>")
-        return "<br/>".join(parts)
+            rows.append((esc("Details"), esc(details)))
+        for label, url in link_annotations(annotations):
+            rows.append((esc(label), f'<a href="{esc(url)}">{esc(url)}</a>'))
+        table = "<table>" + "".join(f"<tr><td><b>{k}</b></td><td>{v}</td></tr>" for k, v in rows) + "</table>"
+        return f"<p>{title}</p>{table}"
+    def summarize(alerts):
+        # Compact plain-text fallback line, e.g.
+        # "🔥 FIRING x3: NodePVCDiskCritical on /mnt/disk (critical)"
+        groups = {}
+        order = []
+        for alert in alerts:
+            labels = alert.get("labels", {})
+            key = (alert.get("status", "unknown"), labels.get("alertname", "Unknown"), labels.get("severity", "info"))
+            if key not in groups:
+                groups[key] = {"count": 0, "instance": labels.get("instance", "")}
+                order.append(key)
+            groups[key]["count"] += 1
+        lines = []
+        for status, name, severity in order:
+            g = groups[(status, name, severity)]
+            times = f" x{g['count']}" if g["count"] > 1 else ""
+            where = f" on {g['instance']}" if g["instance"] else ""
+            lines.append(f"{status_emoji(status)} {status.upper()}{times}: {name}{where} ({severity})")
+        return "; ".join(lines) if lines else "No alerts"
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):
             length = int(self.headers.get("Content-Length", 0))
@@ -49,7 +89,7 @@ data:
             # Matrix spec: only msgtype m.text/m.notice (+format,formatted_body)
             # triggers HTML rendering. "m.html" is not a valid msgtype — clients
             # fell back to printing body verbatim, so body must stay plain text.
-            body = re.sub("<[^>]+>", "", html).strip()
+            body = summarize(alerts)
             msg = {"msgtype": "m.text", "body": body, "format": "org.matrix.custom.html", "formatted_body": html}
             try:
                 r = req.put(url, json=msg, headers={"Authorization": f"Bearer {TOKEN}"}, timeout=10)
@@ -100,7 +140,7 @@ spec:
         # Deployment template otherwise stays identical and ArgoCD never
         # rolls the pods, so the running Python process keeps serving the
         # previous script from memory.
-        config-version: "2026-10-14-html-format-fix"
+        config-version: "2026-10-14-nicer-template"
     spec:
       containers:
         - name: webhook
