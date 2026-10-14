@@ -8,6 +8,13 @@ excludeNamespaces: "arc-runners"
 image:
   tag: "0.33.0"
 
+# Top-level podAnnotations land on the operator Deployment pod template
+# (chart templates/deployment.yaml). Forces a rollout so the long-lived
+# operator pod picks up the scan-concurrency env from trivy-operator-config
+# (envFrom does not restart pods on its own).
+podAnnotations:
+  restartedAt: "2026-10-14T02:45:00Z"
+
 operator:
   namespace: trivy-system
   scanJobTimeout: 10m
