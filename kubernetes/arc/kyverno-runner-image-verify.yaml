@@ -1,0 +1,85 @@
+# AUDIT-mode cosign keyless signature verification for ARC runner images
+# (wave 2b, 2026-10-14). validationFailureAction is deliberately Audit, NOT
+# Enforce — observe the finding rate before ever blocking runner pods.
+#
+# Scope: Pods in arc-runners only (ephemeral runner pods are the ground truth;
+# the controller and all listeners run in actions-runner-controller). Only the
+# harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner* glob is matched —
+# the docker:28-dind sidecars on org/arm/large pods are UNSIGNED by design and
+# must not match, hence they are excluded by the imageReferences filter, not by
+# an exclude block. No exclusions needed for runner pods: per the
+# kyverno-runner-toleration-policy.yaml evidence, arc-runners contains only
+# EphemeralRunner-owned pods, and every one of them now runs a keyless-signed
+# sha-8e38db8 build (all four scale sets re-pinned in wave 2b).
+#
+# Operational prerequisites for verification to actually execute (unmet deps
+# surface as audit failures / webhook errors, never as a silent pass):
+#   - Kyverno pods need egress to the Sigstore transparency log and trust root
+#     distribution: rekor.sigstore.dev (cosign bundle lookup) and the TUF
+#     mirror (tuf-repo-cdn.sigstore.dev). Keyless verification has no local
+#     trust anchor — no egress means every runner pod admission fails audit.
+#   - Kyverno fetches the signature bundle (tag.sig) from harbor.ebruno.fr
+#     using the verified Pod's imagePullSecrets; every scale-set template
+#     carries harbor-registry-secret, so registry auth follows the runner pods.
+#
+# Flipping to Enforce (minimum bar, not a recommendation to rush):
+#   1. >= 100 runner-pod admissions across >= 2 consecutive weeks with ZERO
+#      PolicyViolation objects from this rule:
+#        kubectl get polviol -A | grep verify-arc-runner-images
+#      and no kyverno webhook errors during the window:
+#        kubectl logs -n kyverno deploy/kyverno-admission-controller | grep -i "verify-arc-runner"
+#   2. Then flip validationFailureAction to Enforce and re-evaluate the two
+#      safety valves below (failurePolicy: Ignore + webhookTimeoutSeconds: 30).
+#      Under Enforce, failurePolicy: Fail turns a Kyverno outage into a runner
+#      outage — keep Ignore only if an unchecked-but-signed pod is acceptable;
+#      consider mutateDigest: true to pin verified digests at admission.
+#   3. Day one of Enforce, any pod built from an unsigned or foreign-identity
+#      tag (manual :main experiments included) is rejected outright.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: verify-arc-runner-images
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    policies.kyverno.io/title: ARC runner images must be cosign keyless-signed by ebpro/quarkus-ci-runner
+    policies.kyverno.io/category: Software Supply Chain Security
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      Audit that every quarkus-ci-runner image used by a Pod in arc-runners
+      carries a cosign keyless signature issued via the GitHub Actions OIDC
+      identity of the ebpro/quarkus-ci-runner repository.
+spec:
+  validationFailureAction: Audit
+  background: false
+  admission: true
+  emitWarning: false
+  # Audit policy must never block pod creation on a Kyverno hiccup. See the
+  # Enforce-flip note above before changing this.
+  failurePolicy: Ignore
+  # Rekor + harbor round-trips exceed the 10s default.
+  webhookTimeoutSeconds: 30
+  rules:
+    - name: verify-arc-runner-image-signature
+      match:
+        any:
+          - resources:
+              kinds: ["Pod"]
+              operations: ["CREATE", "UPDATE"]
+              namespaces: ["arc-runners"]
+      verifyImages:
+        - imageReferences:
+            - "harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner*"
+          # Keep tags as-authored while auditing (mutation is moot in Audit;
+          # revisit mutateDigest at Enforce time).
+          mutateDigest: false
+          # Runner pods reference immutable tags, not digests.
+          verifyDigest: false
+          attestors:
+            - count: 1
+              entries:
+                - keyless:
+                    issuer: "https://token.actions.githubusercontent.com"
+                    subjectRegExp: "^https://github\\.com/ebpro/quarkus-ci-runner/.*$"
+                    rekor:
+                      url: "https://rekor.sigstore.dev"

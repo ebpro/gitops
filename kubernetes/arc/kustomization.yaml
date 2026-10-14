@@ -9,4 +9,5 @@ resources:
   - node-arm64-arch-taint.yaml
   - kyverno-node-mutation-rbac.yaml
   - kyverno-runner-toleration-policy.yaml
+  - kyverno-runner-image-verify.yaml
   - node-ops-rbac.yaml
