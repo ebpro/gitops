@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: garage
       valueFiles:
-        - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/garage/values.yaml?v=7
+        - https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/garage/values.yaml?v=8
   destination:
     server: https://kubernetes.default.svc
     namespace: garage
@@ -24,5 +24,3 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
-    - Replace=true
-    - Force=true
