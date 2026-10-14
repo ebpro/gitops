@@ -71,3 +71,11 @@ core:
       value: "2026-08-20T23:20"
 service:
   type: ClusterIP
+
+# NOTE (2026-10-14 disk-space incident): goharbor helm chart 1.19.2 exposes NO values
+# key for registry garbage collection (verified against the upstream values.yaml — no
+# gc/gcHour key exists; GC state lives in Harbor's DB, not in env/config seeding).
+# Scheduled GC must be enabled in the Harbor UI (System Collections > Garbage
+# Collection) or via API: POST /api/v2.0/system/gc/schedule
+#   {"schedule": {"type": "Daily", "param": "6"}}
+# GC only frees space after untagged/old artifacts are deleted; run GC after pruning.

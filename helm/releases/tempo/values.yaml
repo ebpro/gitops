@@ -1,4 +1,9 @@
 fullnameOverride: tempo
+# NOTE (2026-10-14 disk-space incident): trace retention is controlled by the chart
+# key `tempo.retention` (rendered to compactor.compaction.block_retention), default
+# 24h in chart 1.24.4 — i.e. already tighter than the 7d target, so no override is
+# set here. The `tempo.compactor` block below is NOT read by chart 1.24.4 templates
+# (dead config, kept untouched to avoid churn).
 replicas: 1
 persistence:
   enabled: true

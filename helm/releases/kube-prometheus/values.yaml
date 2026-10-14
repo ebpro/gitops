@@ -80,8 +80,8 @@ nodeExporter:
 prometheus:
   enabled: true
   prometheusSpec:
-    retention: 30d
-    retentionSize: 45GB
+    retention: 7d
+    retentionSize: 15GB
     enableCompression: true
     walCompression: true
     enableRemoteWriteReceiver: true
