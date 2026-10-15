@@ -161,7 +161,17 @@ extraVolumeMounts: |
     mountPath: /opt/keycloak/data/import/platform.json
     subPath: platform.json
 
-extraPorts: []
+# Container port for Quarkus' real management listener (default 9000;
+# KC_HTTP_MANAGEMENT_PORT is never set - verified live pod env). The chart's
+# built-in `http-management` container port is HARDCODED to 9990 in
+# templates/statefulset.yaml (codecentric keycloak 18.0.0 - no value key
+# templates it), which is why 6b009e2's service.httpManagementPort=9000 did
+# NOT fix the scrape: the Service's named targetPort `http-management` still
+# resolved to the 9990 container port -> Endpoints on 9990, connection refused.
+extraPorts:
+  - name: management
+    containerPort: 9000
+    protocol: TCP
 
 podDisruptionBudget:
   minAvailable: 1
@@ -181,14 +191,23 @@ service:
   httpNodePort: null
   httpsPort: 8443
   httpsNodePort: null
-  # Must match Quarkus' actual management bind port. KC_HTTP_MANAGEMENT_PORT is
-  # never set (verified live pod env), so Keycloak 26.7 listens on its default
-  # management port 9000 — the liveness/readiness/startup probes below all hit
-  # 9000 and pass. The old 9990 made the Service (and the http-management
-  # ServiceMonitor port) point at nothing -> "connection refused" scrapes.
-  httpManagementPort: 9000
+  # Reverted to 9990 (chart default alignment). This Service port CANNOT reach
+  # Quarkus' management listener: its targetPort is the NAME `http-management`
+  # (templates/service-http.yaml), which resolves to the StatefulSet's
+  # hardcoded 9990 container port — 6b009e2's 9000 here only moved the Service
+  # front-port while Endpoints stayed on 9990 (connection-refused scrapes).
+  # The real management listener (9000, probes below already use it) is
+  # exposed by the `management` extraPort pair + serviceMonitor.port.
+  httpManagementPort: 9990
   httpManagementNodePort: null
-  extraPorts: []
+  # port 9000 -> NUMERIC targetPort 9000, bypassing the named-port resolution
+  # above so the EndpointSlice actually carries 9000 for the scrape.
+  extraPorts:
+    - name: management
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+      appProtocol: http
   loadBalancerSourceRanges: []
   externalTrafficPolicy: "Cluster"
   sessionAffinity: ""
@@ -223,7 +242,10 @@ serviceMonitor:
   interval: 30s
   scrapeTimeout: 10s
   path: /metrics
-  port: http-management
+  # `management` = Service extraPort above (port 9000 -> targetPort 9000), the
+  # only Service port whose Endpoints hit Quarkus' real management listener.
+  # (http-management resolves to the hardcoded 9990 container port.)
+  port: management
 
 extraServiceMonitor:
   enabled: false

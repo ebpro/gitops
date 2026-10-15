@@ -459,11 +459,18 @@ metrics:
       interval: 30s
       scrapeTimeout: 10s
       # Nexus rejects anonymous /service/metrics/prometheus (verified live:
-      # 403). Authenticate the scrape with the local root account; the
-      # password is referenced by Secret key only (Secret exists in-namespace,
-      # consumed by the StatefulSet as NEXUS_SECURITY_INITIAL_PASSWORD).
+      # 403; with these creds the endpoint returns 200 - probe 2026-10-15).
+      # Authenticate the scrape with the local root account. The ServiceMonitor
+      # CRD requires BOTH halves to be SecretKeySelector objects (the literal
+      # `username: admin` from 6b009e2 is schema-invalid -> sync-rejection
+      # storm); the username Secret is git-managed in
+      # kubernetes/observability/nexus-metrics-username-secret.yaml, the
+      # password Secret nexus-root-password pre-exists in-namespace (key
+      # password, consumed by the StatefulSet as NEXUS_SECURITY_INITIAL_PASSWORD).
       basicAuth:
-        username: admin
+        username:
+          name: nexus-metrics-username
+          key: username
         password:
           name: nexus-root-password
           key: password
