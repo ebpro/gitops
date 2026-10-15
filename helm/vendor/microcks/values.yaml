@@ -220,7 +220,7 @@ mongodb:
   image:
     registry:
     repository: library/mongo
-    tag: 4.4.29
+    tag: 4.4.30
     digest:
   persistent: true
   volumeSize: 2Gi
