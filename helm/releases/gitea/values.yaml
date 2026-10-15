@@ -16,6 +16,13 @@ strategy:
 
 deployment:
   env:
+    # Expose Prometheus metrics on /metrics (default DISABLED in gitea 1.26;
+    # without this the route is not registered and /metrics falls through to
+    # the HTML sign-in page). Scrape is in-cluster via podIP only; the public
+    # ingress does not proxy /metrics. TOKEN intentionally unset (anonymous
+    # in-cluster scrape).
+    - name: GITEA__metrics__ENABLED
+      value: "true"
     - name: GITEA__DATABASE__PASSWD
       valueFrom:
         secretKeyRef:

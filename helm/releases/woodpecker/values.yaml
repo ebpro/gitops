@@ -94,6 +94,16 @@ server:
   ingress:
     enabled: false
 
+  # Unauthenticated Prometheus metrics listener (chart >=3.x renders
+  # WOODPECKER_METRICS_SERVER_ADDR=":9001" + a Service port named `metrics`).
+  # Main :8000/metrics 404s without WOODPECKER_PROMETHEUS_AUTH_TOKEN, which
+  # would require Vault/ESO plumbing; this is the chart-supported path.
+  # Consumed by the `woodpecker` ServiceMonitor (port: metrics) in
+  # kubernetes/observability/service-monitors.yaml.
+  metrics:
+    enabled: true
+    port: 9001
+
 # ─── Agent ──────────────────────────────────────────────
 agent:
   enabled: true

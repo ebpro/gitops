@@ -64,7 +64,7 @@ spec:
         repoURL: https://dl.gitea.com/charts/
         version: 12.6.0
         syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/gitea/values.yaml?v=6
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/gitea/values.yaml?v=7
       - app: harbor
         chart: harbor
         namespace: harbor
@@ -160,7 +160,7 @@ spec:
         repoURL: https://codecentric.github.io/helm-charts
         version: 18.0.0
         syncWave: '25'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/keycloak/values.yaml?v=4
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/keycloak/values.yaml?v=5
       - app: backstage
         chart: backstage
         namespace: backstage
@@ -176,7 +176,7 @@ spec:
         repoURL: https://woodpecker-ci.org/
         version: 3.6.5
         syncWave: '25'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/woodpecker-values.yaml?v=56
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/bootstrap/helm-values/woodpecker-values.yaml?v=57
 
   template:
     metadata:

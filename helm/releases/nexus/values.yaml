@@ -458,6 +458,15 @@ metrics:
     endpointConfig:
       interval: 30s
       scrapeTimeout: 10s
+      # Nexus rejects anonymous /service/metrics/prometheus (verified live:
+      # 403). Authenticate the scrape with the local root account; the
+      # password is referenced by Secret key only (Secret exists in-namespace,
+      # consumed by the StatefulSet as NEXUS_SECURITY_INITIAL_PASSWORD).
+      basicAuth:
+        username: admin
+        password:
+          name: nexus-root-password
+          key: password
 
 manualMaintenanceMode:
   enabled: false

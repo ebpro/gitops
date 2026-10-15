@@ -24,27 +24,27 @@ spec:
       params:
         passcode:
           - ''
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: backstage
-  namespace: backstage
-  labels:
-    release: kube-prometheus
-spec:
-  jobLabel: app.kubernetes.io/name
-  namespaceSelector:
-    matchNames:
-      - backstage
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: backstage
-  endpoints:
-    - port: http-backend
-      path: /.backstage/health/v1/metrics
-      interval: 30s
-      scrapeTimeout: 10s
+# --- backstage ServiceMonitor REMOVED 2026-10-15 (was: http-backend port, path
+# /.backstage/health/v1/metrics). Root cause: the endpoint never existed. Live
+# probes on the backend pod :7007 showed /.backstage/health/v1/metrics and
+# /metrics both return the SPA index HTML (fallthrough) and
+# /api/prometheus/metrics returns 404 — the custom image (dd74672) has no
+# prometheus backend plugin and helm/releases/backstage/values.yaml appConfig
+# declares no `prometheus:` block, so no metrics route is registered anywhere.
+# The old scrape only returned text/html, which Prometheus rejects
+# ("unsupported Content-Type"). Removing the monitor instead of pointing it at
+# a fake path keeps the targets page honest.
+# RESTORE once the image installs the prometheus backend plugin AND appConfig
+# declares a `prometheus:` block — the endpoint is then /api/prometheus/metrics
+# on :7007, e.g.:
+#   apiVersion: monitoring.coreos.com/v1
+#   kind: ServiceMonitor
+#   metadata: {name: backstage, namespace: backstage, labels: {release: kube-prometheus}}
+#   spec:
+#     jobLabel: app.kubernetes.io/name
+#     namespaceSelector: {matchNames: [backstage]}
+#     selector: {matchLabels: {app.kubernetes.io/name: backstage}}
+#     endpoints: [{port: http-backend, path: /api/prometheus/metrics, interval: 30s, scrapeTimeout: 10s}]
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -257,7 +257,10 @@ spec:
       app.kubernetes.io/name: gitea
   endpoints:
     - port: http
-      path: /api/prometheus/metrics
+      # /api/prometheus/metrics is the pre-1.19 legacy path (removed upstream);
+      # gitea 1.26 serves metrics at /metrics once [metrics] ENABLED=true
+      # (see GITEA__metrics__ENABLED in helm/releases/gitea/values.yaml).
+      path: /metrics
       interval: 60s
       scrapeTimeout: 10s
 ---
@@ -277,7 +280,11 @@ spec:
     matchLabels:
       app.kubernetes.io/name: server
   endpoints:
-    - port: http
+    # woodpecker v3.17.0 returns 404 on the main :8000/metrics unless
+    # WOODPECKER_PROMETHEUS_AUTH_TOKEN is set. The chart's supported mechanism
+    # is a dedicated unauthenticated metrics listener (:9001, Service port
+    # `metrics`), enabled via server.metrics in woodpecker-values.yaml.
+    - port: metrics
       path: /metrics
       interval: 30s
       scrapeTimeout: 10s
@@ -299,7 +306,9 @@ spec:
       app.kubernetes.io/name: link-shortener
   endpoints:
     - port: management
-      path: /q/management/metrics
+      # Quarkus management metrics path on this build (verified live:
+      # :9000/q/metrics returns Prometheus text; /q/management/metrics 404s).
+      path: /q/metrics
       interval: 30s
       scrapeTimeout: 10s
       relabelings:

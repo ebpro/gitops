@@ -181,7 +181,12 @@ service:
   httpNodePort: null
   httpsPort: 8443
   httpsNodePort: null
-  httpManagementPort: 9990
+  # Must match Quarkus' actual management bind port. KC_HTTP_MANAGEMENT_PORT is
+  # never set (verified live pod env), so Keycloak 26.7 listens on its default
+  # management port 9000 — the liveness/readiness/startup probes below all hit
+  # 9000 and pass. The old 9990 made the Service (and the http-management
+  # ServiceMonitor port) point at nothing -> "connection refused" scrapes.
+  httpManagementPort: 9000
   httpManagementNodePort: null
   extraPorts: []
   loadBalancerSourceRanges: []
