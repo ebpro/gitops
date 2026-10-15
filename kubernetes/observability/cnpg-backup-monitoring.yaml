@@ -1,0 +1,108 @@
+# CNPG backup observability (2026-10-15 silent-backup-failure incident:
+# pact-broker, open-webui, link-shortener had failing ScheduledBackups for
+# ~2 days with zero alerts).
+#
+# How it works:
+# - PodMonitor scrapes the CNPG instance postgres-exporter (:9187, container
+#   port name "metrics") on every pod labeled cnpg.io/podRole=instance across
+#   ALL namespaces (CNPG 1.30 exposes /metrics unauthenticated; verified live
+#   on 12/12 clusters 2026-10-15). This is the FIRST scrape wiring for cnpg_* —
+#   previously Prometheus had zero cnpg_ series.
+# - The backup gauges below carry NO cluster label at the exporter, so we
+#   relabel it in from the cnpg.io/cluster pod label; `namespace` is added
+#   natively by the PodMonitor target discovery.
+#
+# Metric semantics (verified against Backup CRs on 2026-10-15):
+# - cnpg_collector_last_available_backup_timestamp: unix epoch of the last
+#   SUCCESSFUL backup in the barman catalog (matches the last completed
+#   Backup CR start minute exactly). 0 = never succeeded. Marked
+#   "(Deprecated)" in the 1.30 HELP text but live and updated; revisit on
+#   operator upgrades.
+# - cnpg_collector_last_failed_backup_timestamp: unix epoch of the most
+#   recent FAILED backup attempt (0 = never failed).
+# ScheduledBackups run daily 00:45-05:30 UTC across the 12 clusters, hence
+# the 26h staleness threshold (24h cycle + 2h schedule spread/grace).
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: monitoring.coreos.com/v1
+    kind: PodMonitor
+    metadata:
+      name: cnpg-instances
+      namespace: kube-prometheus
+      labels:
+        release: kube-prometheus
+    spec:
+      namespaceSelector:
+        any: true
+      selector:
+        matchLabels:
+          cnpg.io/podRole: instance
+      podMetricsEndpoints:
+        - port: metrics
+          path: /metrics
+          interval: 60s
+          scrapeTimeout: 15s
+          relabelings:
+            - action: replace
+              sourceLabels:
+                - __meta_kubernetes_pod_label_cnpg_io_cluster
+              targetLabel: cluster
+  - apiVersion: monitoring.coreos.com/v1
+    kind: PrometheusRule
+    metadata:
+      name: cnpg-backup
+      namespace: kube-prometheus
+      labels:
+        prometheus: kube-prometheus
+        release: kube-prometheus
+        role: alert-rules
+    spec:
+      groups:
+        - name: platform/cnpg-backup
+          rules:
+            # Latest backup attempt failed: the last failed epoch is newer
+            # than the last successful one. Auto-resolves when the next
+            # scheduled backup succeeds. Grouped per cluster+namespace so
+            # multi-instance clusters alert once.
+            - alert: CnpgBackupFailed
+              expr: |
+                max by (cluster, namespace) (cnpg_collector_last_failed_backup_timestamp)
+                  >
+                max by (cluster, namespace) (cnpg_collector_last_available_backup_timestamp)
+              labels:
+                severity: critical
+                runbook_url: https://github.com/ebpro/gitops/blob/main/AGENTS.md#debugging-workflow
+              annotations:
+                summary: "CNPG backup FAILED on cluster {{ $labels.namespace }}/{{ $labels.cluster }}"
+                description: "The most recent backup attempt is newer than the last successful backup (last failed: {{ $value }}). Check Backup CRs: kubectl get backup -n {{ $labels.namespace }} and inspect the failed one's status.error."
+            # No successful backup in > 26h: catch-all that fires regardless
+            # of failure mode (failed backup, missing/broken ScheduledBackup,
+            # barman misconfig, exporter gap on a still-reporting cluster).
+            # A brand-new cluster that has never backed up reports 0 and fires
+            # immediately — that is intended (no backup exists = not safe).
+            - alert: CnpgBackupStale
+              expr: |
+                time()
+                  -
+                max by (cluster, namespace) (cnpg_collector_last_available_backup_timestamp)
+                  > 93600
+              for: 30m
+              labels:
+                severity: critical
+                runbook_url: https://github.com/ebpro/gitops/blob/main/AGENTS.md#debugging-workflow
+              annotations:
+                summary: "CNPG cluster {{ $labels.namespace }}/{{ $labels.cluster }} has no successful backup in > 26h"
+                description: "Last available backup is {{ $value | humanizeDuration }} old (threshold 26h; schedule is daily 00:45-05:30 UTC). Verify with: kubectl get backup -n {{ $labels.namespace }} and kubectl get scheduledbackup -n {{ $labels.namespace }}."
+            # Scrape-coverage guard: if the CNPG exporter series vanish
+            # cluster-wide (PodMonitor broken/removed), the staleness rule
+            # above would silently stop evaluating. Warning-only global check.
+            - alert: CnpgBackupMetricsMissing
+              expr: absent(cnpg_collector_last_available_backup_timestamp)
+              for: 30m
+              labels:
+                severity: warning
+                runbook_url: https://github.com/ebpro/gitops/blob/main/AGENTS.md#debugging-workflow
+              annotations:
+                summary: "No CNPG backup metrics are being scraped at all"
+                description: "cnpg_collector_last_available_backup_timestamp is absent cluster-wide — the cnpg-instances PodMonitor or the CNPG exporter is not reporting; backup staleness alerts are currently blind."
