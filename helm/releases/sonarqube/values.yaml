@@ -6,7 +6,7 @@ extraInitContainers:
     command:
       - sh
       - -c
-    image: busybox:1.37
+    image: busybox:1.38
     name: download-webapp
     volumeMounts:
       - mountPath: /web
