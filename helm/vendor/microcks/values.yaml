@@ -183,7 +183,7 @@ keycloak:
   postgresImage:
     registry:
     repository: library/postgres
-    tag: 16.3-alpine
+    tag: 16.15-alpine
 
   postgresResources:
     requests:
