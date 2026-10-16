@@ -35,7 +35,7 @@ template:
         effect: "NoSchedule"
     imagePullSecrets:
       - name: docker-hub-registry
-      - name: harbor-registry-secret
+      - name: harbor-node-pull
     containers:
       - name: runner
         # Signed main-branch build (run 38552180933) — feat/ai-review-agents is

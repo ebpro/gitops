@@ -68,7 +68,7 @@ template:
         effect: "NoSchedule"
     imagePullSecrets:
       - name: docker-hub-registry
-      - name: harbor-registry-secret
+      - name: harbor-node-pull
     containers:
       - name: runner
         image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:sha-8e38db8

@@ -177,6 +177,35 @@ keys must go in one full put; KV-v2 user path — no `secret/data/` prefix):
 6. **Rollback** — re-run steps 3–4 from the step-2 backup. Recovery is Vault-side
    only while the old key is still valid at GitHub.
 
+## Harbor image-pull credential rotation (node-pull robot)
+
+Runner image pulls use the pull-only Harbor robot `robot$quarkus-microservices+node-pull`
+(project `quarkus-microservices`, action `repository:pull`, never expires), NOT the
+out-of-band admin secret. Chain: Harbor robot → Vault `secret/harbor/node-pull`
+(key `config` = compact `.dockerconfigjson` string, host key `https://harbor.ebruno.fr`)
+→ ExternalSecret `harbor-node-pull` (`harbor-node-pull-external-secret.yaml`,
+`refreshInterval: 24h`, ESO-owned template emits `kubernetes.io/dockerconfigjson`)
+→ Secret `harbor-node-pull` in ns `arc-runners` → referenced by all four
+`helm/releases/arc/*-scale-set-values.yaml` `imagePullSecrets`.
+
+Rotation (Harbor API is admin-only; run from inside a `harbor-core` pod against
+`http://localhost:8080`; the robot token is only ever returned on create/refresh):
+
+1. Refresh the secret: `POST /api/v2.0/robots/{id}/refreshsecret` (or delete+recreate),
+   capture the new `secret` (never print it).
+2. Rebuild the dockerconfig with the same host-key format and write it as ONE full
+   put (this Vault CLI has no `kv merge`):
+   `vault kv put secret/harbor/node-pull config=@new-dockerconfig.json` (user path —
+   no `secret/data/` prefix).
+3. Force ESO: `kubectl annotate externalsecret harbor-node-pull -n arc-runners force-sync=$(date +%s) --overwrite`.
+   Running runner pods keep working (pull secrets are read at pod start by kubelet;
+   new runners pick up the rotated Secret immediately).
+4. Verify: `curl -u "<robot-name>:<new-secret>" http://localhost:8080/v2/quarkus-microservices/quarkus-ci-runner/tags/list` → 200.
+
+The legacy Secret `harbor-registry-secret` (ns `arc-runners`, admin creds) is deliberately
+kept as the rollback path: revert the four values-file `imagePullSecrets` names to it.
+Do not delete it until the robot path has soaked.
+
 ## CRDs (vendored)
 
 `crds/` holds the 4 CRDs from `gha-runner-scale-set-controller` **0.14.2**
