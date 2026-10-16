@@ -68,6 +68,25 @@ on UDP through the VPN underlay. Not every network path carries that UDP, so:
    rules and nft tables and reports **PARTIAL**; a reboot is then the full
    reset.
 
+## VPN dependency (lab access)
+The laptop's lab access rides an **admin-managed WireGuard VPN**
+(`wg-lum-users.lis-lab.fr:20023`) that is NOT git-managed by this repo. When
+the tunnel is unhealthy, the laptop's supported state is the resting state:
+cordoned, `k3s-agent` stopped, `runner-net-cleanup.sh` PASS.
+
+- The provider profile ships full-internet supernet `AllowedIPs` (de-facto
+  full tunnel) plus global DNS (`~.` via 139.124.5.131/132): if the tunnel
+  data plane dies this black-holes **all** host internet, and combined with
+  the Cilium agent hijack above it is doubly hazardous. The admin's own
+  split-tunnel variant is the recommended laptop profile:
+  `AllowedIPs = 139.124.0.0/16, 192.168.4.2/32, 10.2.248.0/24, 10.2.251.0/24`,
+  with DNS search domains `ebruno.fr lis-lab.fr` instead of global `~.`.
+  `runner-join.sh`'s VIP probe (`10.2.248.31/32`) is covered by
+  `10.2.248.0/24`, so the preflight keeps working under split tunnel.
+- Key hygiene: WireGuard private keys / preshared keys must **never** be
+  committed to this repo or pasted into chats/tickets; on suspected exposure,
+  rotate the peer key at wg-lum-users.
+
 ## Remote shutdown
 `ssh bruno@pc-bruno-gpu sudo poweroff` fires the same drain hook
 (runner-auto-leave.service ExecStop) as a local power-button press.

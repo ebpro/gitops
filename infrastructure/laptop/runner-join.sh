@@ -72,10 +72,18 @@ while true; do
   if [ "${SECONDS}" -ge "${dp_deadline}" ]; then
     echo "ERROR: data plane unreachable over this network (overlay UDP blocked by VPN" >&2
     echo "       gateway). Node left CORDONED — correct state for a remote laptop." >&2
-    echo "       Web access may still be hijacked: run" >&2
-    echo "         sudo systemctl stop k3s-agent && sudo ./runner-net-cleanup.sh" >&2
-    echo "       (or reboot) to restore the plain network path." >&2
-    echo "       See README: 'Home vs lab operation'." >&2
+    # Fail-closed teardown: k3s-agent is active (proven above) but its Cilium
+    # host-network hijack keeps black-holing the operator's connections to the
+    # VIP over this VPN. Best-effort stop + purge so the laptop always rests in
+    # the plain-network state, then exit non-zero (the join did not succeed).
+    # runner-net-cleanup.sh re-execs under sudo itself and refuses to run while
+    # k3s-agent is active, so the stop must come first.
+    echo "       Auto-teardown attempted: stopping k3s-agent and purging Cilium host-network state." >&2
+    sudo systemctl stop k3s-agent || true
+    SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    CLEANUP="${SCRIPT_DIR}/runner-net-cleanup.sh"
+    [ -x "${CLEANUP}" ] || CLEANUP=/usr/local/bin/runner-net-cleanup.sh
+    [ -x "${CLEANUP}" ] && "${CLEANUP}" || true
     exit 1
   fi
   sleep 10

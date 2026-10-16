@@ -219,33 +219,36 @@ synced here as raw manifests (same reason the app uses an explicit
 `gha-runner-scale-set-controller-*/crds/*.yaml` from the new chart tarball,
 replace these files, commit + push. (Chart: `oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller`.)
 
-## Node → Harbor pull path (host firewall contract)
+## Node → Harbor pull path (WireGuard ingress contract)
 
 Runner image pulls (`harbor.ebruno.fr/...`) are **kubelet/host-level network
 operations** — pod-side `hostAliases` and in-cluster DNS are irrelevant to them.
 The 2026-10-13 incident (runners on `pc-bruno-gpu` stuck in
-`Init:ImagePullBackOff` pulling `quarkus-ci-runner`) was caused by the **host
-firewall on compute-lsis-2**, not the cluster:
+`Init:ImagePullBackOff` pulling `quarkus-ci-runner`) was a **VPN-path** issue,
+not the cluster (the earlier "compute-lsis-2 host firewall" attribution was
+false — see endpoint facts below, verified 2026-10-16):
 
 - The ingress VIP `10.2.248.31` is both the Traefik LoadBalancer IP and
   compute-lsis-2's own LAN IP. `harbor.ebruno.fr` has **no public A record by
   design** — TLS is ACME DNS-01 via OVH (`letsencrypt-ovh` resolver) — so the
   whole `*.ebruno.fr` platform is LAN/VPN-only.
-- **LAN-side traffic to the VIP bypasses netfilter INPUT** because Cilium eBPF
-  DNATs at TC-ingress on eth0 (documented quirk) — this is why in-cluster pulls
-  served fine while WireGuard-side pulls failed. WG traffic (net
-  `10.10.15.0/24`, compute-lsis-2 is the WG endpoint) arrives on `wg0` and hits
-  ufw INPUT, where the default-deny silently DROPs it → `i/o timeout`.
-- **Required host rule set** (keep ufw ENABLED; ufw is host administration,
-  outside git — applied manually on compute-lsis-2):
-  - already present: `22/tcp` and `6443/tcp` from Anywhere
-  - add: `sudo ufw allow from 10.10.15.0/24 to any port 80 proto tcp`
-  - add: `sudo ufw allow from 10.10.15.0/24 to any port 443 proto tcp`
-  - add: `sudo ufw logging low`
+- **The WireGuard endpoint is `wg-lum-users.lis-lab.fr:20023`** — a
+  lab-managed gateway host (admin-managed, NOT part of this gitops repo and
+  NOT a cluster node). Verified 2026-10-16: compute-lsis-2 has no VPN or
+  firewall tooling at all (no `wg0` interface, no `wg`/`ufw` binaries),
+  so no WG/firewall role belongs to it. WG net is `10.10.15.0/24`; the
+  laptop client gets `10.10.15.77`.
+- WG traffic therefore **arrives via wg-lum-users**: ufw/NAT/forwarding rules
+  live on that gateway host, and VPN traffic reaches the VIP as forwarded
+  LAN traffic, where Cilium eBPF DNATs it at TC-ingress on eth0 (documented
+  quirk — the same path LAN clients take).
+- **Firewall rule location:** WG-peer access to VIP ports 80/443 is governed
+  by ufw/forwarding on **wg-lum-users** (host administration, outside git).
+  The exact rule set there is (unconfirmed) from this repo.
 - **Verification from a WireGuard peer:**
   - `nc -vz -w3 10.2.248.31 443` → succeeds
   - `curl -sk --connect-timeout 5 https://10.2.248.31/v2/ -H 'Host: harbor.ebruno.fr' -o /dev/null -w '%{http_code}\n'` → `401` (registry auth challenge — pull path healthy)
 - **Regression symptom signature:** runner pods `Init:ImagePullBackOff` with
   `dial tcp 10.2.248.31:443: i/o timeout` **and** org scale-set slots exhausted
-  (`maxRunners: 4`) — check the host ufw rule set above before suspecting the
-  cluster.
+  (`maxRunners: 4`) — check the VPN path via wg-lum-users (peer reachability
+  of `10.2.248.31:443`) before suspecting the cluster.

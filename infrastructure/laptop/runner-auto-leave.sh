@@ -6,27 +6,35 @@
 # Deliberately NO `set -e` — a failing/guarded step must not abort mid-shutdown
 # nor mask the final `exit 0`.
 #
-# When the API server is unreachable (off-VPN / café suspend) the pre-check
-# skips us silently within seconds. Known consequence of that skip: pods can
-# linger Terminating on the offline node as zombie runner pods, keeping ARC
-# capacity slots claimed (2026-10-13 ebpro-org starvation) — fix per AGENTS.md:
-# force-delete the pods on the node, ARC self-heals.
+# The teardown (stop k3s-agent + purge the Cilium host-network hijack) is now
+# UNCONDITIONAL: it always runs, even when the API server is unreachable
+# (off-VPN / café suspend) or the node-ops kubeconfig is absent, because it
+# needs no cluster access and is what restores the laptop's plain-network
+# resting state after a suspend (incident 2026-10-14). Only the graceful
+# cordon/drain is gated on API reachability. Remaining known consequence when
+# the API is unreachable: pods can linger Terminating on the offline node as
+# zombie runner pods, keeping ARC capacity slots claimed (2026-10-13 ebpro-org
+# starvation) — the hijack is no longer part of that consequence; fix the
+# lingering pods per AGENTS.md: force-delete them, ARC self-heals.
 set -u
 
 NODE=$(hostname)
 export KUBECONFIG="${RUNNER_OPS_KUBECONFIG:-$HOME/.kube/node-ops.conf}"
-# Never touch ~/.kube/config (localhost-only on this agent laptop). If the
-# node-ops kubeconfig was never installed, skip silently: this runs during
-# shutdown — no stdout, no non-zero exit.
-[ -f "${KUBECONFIG}" ] || exit 0
-
-# Fast pre-check: if the node/API is not reachable within 5s, stay quiet.
-timeout 8 kubectl --request-timeout=5s get node "${NODE}" >/dev/null 2>&1 || exit 0
-
-timeout 20 kubectl --request-timeout=15s cordon "${NODE}" >/dev/null 2>&1 || true
-timeout 75 kubectl drain "${NODE}" \
-  --ignore-daemonsets --delete-emptydir-data --force \
-  --grace-period=30 --timeout=60s >/dev/null 2>&1 || true
+# The graceful cordon/drain below is the ONLY API-dependent part. It runs when
+# the node-ops kubeconfig exists AND the API server answers within the pre-check
+# window. When either is false (off-VPN / café suspend / config never installed)
+# we cannot drain — but control still falls through to the unconditional
+# teardown below (stopping the agent and purging the Cilium hijack need no
+# cluster access). Everything stays silenced (journal-only) and non-fatal: this
+# runs during shutdown — no stdout, always exit 0. Never touch ~/.kube/config
+# (localhost-only on this agent laptop).
+if [ -f "${KUBECONFIG}" ] \
+   && timeout 8 kubectl --request-timeout=5s get node "${NODE}" >/dev/null 2>&1; then
+  timeout 20 kubectl --request-timeout=15s cordon "${NODE}" >/dev/null 2>&1 || true
+  timeout 75 kubectl drain "${NODE}" \
+    --ignore-daemonsets --delete-emptydir-data --force \
+    --grace-period=30 --timeout=60s >/dev/null 2>&1 || true
+fi
 
 # De-hijack the host network before the unit's ordering tears k3s-agent down
 # after us: a plain ExecStop leaves Cilium's cgroup socket-LB + fwmark policy
@@ -35,9 +43,10 @@ timeout 75 kubectl drain "${NODE}" \
 # diverted into a dead overlay (incident 2026-10-14). For poweroff/reboot this
 # purge is redundant (kernel goes away anyway); for suspend it is the whole
 # point. Both steps are timeout-guarded, silenced (journal-only) and never
-# fatal — the script still always exits 0. NOTE: the API-unreachable early
-# exits above intentionally keep skipping this too (documented consequence in
-# the header; run sudo ./runner-net-cleanup.sh by hand after such a suspend).
+# fatal — the script always exits 0. This teardown is now UNCONDITIONAL: the
+# API-reachability check above gates ONLY the graceful drain, never this block,
+# so the hijack is purged after every suspend even when the cluster is
+# unreachable (no manual runner-net-cleanup.sh needed afterwards).
 timeout 20 systemctl stop k3s-agent >/dev/null 2>&1 || true
 CLEANUP="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/runner-net-cleanup.sh"
 [ -x "${CLEANUP}" ] || CLEANUP=/usr/local/bin/runner-net-cleanup.sh
