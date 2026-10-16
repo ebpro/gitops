@@ -1,5 +1,9 @@
-# Image pinned to immutable tag sha-8e38db8 (2026-10-14, cosign keyless-signed main
-# build); pull policy IfNotPresent.
+# Image pinned by immutable digest sha256:72ac7d9f25940b4f1221b32d5105d10ac3cc3c983f1b2ecf3d31ee9acc4a1c47
+# (2026-10-16, Harbor OCI-index digest of the former tag sha-8e38db8 — 2026-10-14
+# cosign keyless-signed main build; digest cross-verified via authenticated
+# /v2/ manifest HEAD Docker-Content-Digest + Harbor artifacts API, in agreement).
+# The human-readable tag sha-8e38db8 remains in git history for context.
+# imagePullPolicy IfNotPresent is safe with digest references.
 # No job-step container type declared: the vendored chart then renders the bare
 # runner container only — no daemon sidecar (untrusted PR code pool; CLI-free per
 # preflight 2026-10-14). Omitting the block is render-identical to an explicit
@@ -41,7 +45,7 @@ template:
         # Signed main-branch build (run 38552180933) — feat/ai-review-agents is
         # merged into main, so the agents toolchain ships from the main line.
         # Moving-tag era closed; re-pin decision closed.
-        image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:sha-8e38db8
+        image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner@sha256:72ac7d9f25940b4f1221b32d5105d10ac3cc3c983f1b2ecf3d31ee9acc4a1c47
         imagePullPolicy: IfNotPresent
         command: ["/home/runner/run.sh"]
         env:
