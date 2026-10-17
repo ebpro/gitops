@@ -16,7 +16,8 @@ scaleSetLabels:
   - ebpro-org
   - x64
 minRunners: 0
-maxRunners: 4
+# TEMP 2026-10-17: cap 4->3 to free slot for rootless-dind canary on ebpro-org-large — REVERT to 4 after CANARY_PASS (wave3 rollout plan)
+maxRunners: 3
 dind:
   image: docker:28-dind
   # 2026-10-13: dind sidecar was unbounded (BestEffort, no requests/limits).
