@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - arc-github-creds-external-secret.yaml
   - harbor-node-pull-external-secret.yaml
+  - harbor-kyverno-pull-external-secret.yaml
   - crds/actions.github.com_autoscalinglisteners.yaml
   - crds/actions.github.com_autoscalingrunnersets.yaml
   - crds/actions.github.com_ephemeralrunners.yaml

@@ -18,9 +18,17 @@
 #     distribution: rekor.sigstore.dev (cosign bundle lookup) and the TUF
 #     mirror (tuf-repo-cdn.sigstore.dev). Keyless verification has no local
 #     trust anchor — no egress means every runner pod admission fails audit.
-#   - Kyverno fetches the signature bundle (tag.sig) from harbor.ebruno.fr
-#     using the verified Pod's imagePullSecrets; every scale-set template
-#     carries harbor-registry-secret, so registry auth follows the runner pods.
+#   - Kyverno fetches the signature bundle (tag.sig) from harbor.ebruno.fr,
+#     which requires robot auth. Kyverno 1.15 does NOT consume the verified
+#     pod's imagePullSecrets (that is a 1.18+ feature) — registry credentials
+#     come from imageRegistryCredentials.secrets below, and on 1.15 the secret
+#     must live in the KYVERNO namespace (plain-name lookup; namespace/name
+#     notation is also 1.18+). harbor-kyverno-pull is GitOps-materialized there
+#     via harbor-kyverno-pull-external-secret.yaml, reusing the same Vault
+#     read-only robot token as harbor-node-pull — no new credentials.
+#     On a >=1.18 upgrade this rule can drop the explicit reference (pod
+#     imagePullSecrets become automatic) or switch to harbor-registry-secret
+#     via namespace/name notation.
 #
 # Flipping to Enforce (minimum bar, not a recommendation to rush):
 #   1. >= 100 runner-pod admissions across >= 2 consecutive weeks with ZERO
@@ -75,6 +83,11 @@ spec:
           mutateDigest: false
           # Runner pods reference immutable tags, not digests.
           verifyDigest: false
+          # Kyverno 1.15: plain-name lookup, secret must be in the kyverno
+          # namespace (see header). Harbor robot creds for the .sig fetch.
+          imageRegistryCredentials:
+            secrets:
+              - harbor-kyverno-pull
           attestors:
             - count: 1
               entries:
