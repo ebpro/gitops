@@ -22,7 +22,17 @@ scaleSetLabels:
 minRunners: 0
 maxRunners: 2
 dind:
-  image: docker:28-dind
+  # 2026-10-17 Wave 3 canary: rootless (unprivileged) dind on this pool only.
+  # docker:28-dind-rootless runs dockerd as uid/gid 1000 via rootlesskit +
+  # slirp4netns — requires unprivileged user namespaces on the node
+  # (compute-lsis-2 verified userns-ok 2026-10-17). The image entrypoint serves
+  # TLS on :2376 (rootlesskit forwards 0.0.0.0 *inside the Pod netns*, so
+  # --tlsverify is REQUIRED: plain 2375 would expose a root-equivalent API to
+  # any pod on the network); the runner gets DOCKER_HOST=tcp://localhost:2376 +
+  # client certs from the shared dind-certs emptyDir (wired by the vendored
+  # chart, dind.rootless=true; see _helpers.tpl vendored-fork-rootless-param).
+  image: docker:28-dind-rootless
+  rootless: true
   # 2026-10-13: bound the dind sidecar. 2 x (16Gi runner + 8Gi dind) = 48Gi
   # max on one node — inside ~55Gi allocatable. No CPU limit (builds).
   resources:
