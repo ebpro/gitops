@@ -48,7 +48,7 @@ spec:
         repoURL: https://cloudnative-pg.github.io/charts
         version: 0.29.0
         syncWave: '10'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/cloudnative-pg/values.yaml?v=1
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/cloudnative-pg/values.yaml?v=2
       - app: external-secrets
         chart: external-secrets
         namespace: external-secrets
