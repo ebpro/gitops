@@ -56,7 +56,7 @@ spec:
         repoURL: https://charts.external-secrets.io
         version: 2.7.0
         syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/external-secrets/values.yaml?v=1
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/external-secrets/values.yaml?v=2
       - app: gitea
         chart: gitea
         namespace: gitea
