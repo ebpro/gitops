@@ -7,8 +7,8 @@
 # 2026-10-16: laptop (pc-bruno-gpu) permanently evicted from the cluster —
 # the 2nd large runner may stay Pending if the first saturates the node;
 # large is opt-in/scale-to-zero, so this degrades to queueing, never stalls
-# the default org pool. Memory 8Gi req / 16Gi lim; CPU unchanged from the org
-# pool. NOTE: ARC 0.14.2's AutoscalingRunnerSet CRD has no scaleDownDelay field, so
+# the default org pool. Memory 4Gi req / 16Gi lim (requests right-sized
+# 2026-10-17); CPU unchanged from the org pool. NOTE: ARC 0.14.2's AutoscalingRunnerSet CRD has no scaleDownDelay field, so
 # idle scale-down timing uses the controller default; a runner with an active job
 # is never scaled down (ARC checks for running jobs first), so mid-build is safe.
 runnerScaleSetName: ebpro-org-large
@@ -35,10 +35,14 @@ dind:
   rootless: true
   # 2026-10-13: bound the dind sidecar. 2 x (16Gi runner + 8Gi dind) = 48Gi
   # max on one node — inside ~55Gi allocatable. No CPU limit (builds).
+  # 2026-10-17: REQUESTS right-sized to observed fleet usage (~0.2-0.4Gi/pod
+  # actual); LIMITS unchanged (8Gi) so burst headroom for real builds is kept.
+  # Frees scheduler room on compute-lsis-2 (request-based oversubscription was
+  # starving the rootless canary pod at 9Gi/pod).
   resources:
     requests:
       cpu: 500m
-      memory: 1Gi
+      memory: 512Mi
     limits:
       memory: 8Gi
 containerMode:
@@ -81,10 +85,13 @@ template:
         # scaleSetLabels) requires deleting the AutoScalingRunnerSet CR (finalizer
         # path) so ArgoCD re-creates it fresh — it is NOT achievable via a
         # pod-template/env change.
+        # 2026-10-17: REQUEST 8Gi->4Gi (observed usage ~0.2-0.4Gi/pod fleet-wide;
+        # 9Gi/pod requests starved scheduling on compute-lsis-2). LIMIT 16Gi
+        # kept as-is — burst headroom for memory-heavy Quarkus/Java builds.
         resources:
           requests:
             cpu: 2
-            memory: 8Gi
+            memory: 4Gi
           limits:
             cpu: 4
             memory: 16Gi
