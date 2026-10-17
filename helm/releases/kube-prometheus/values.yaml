@@ -96,6 +96,11 @@ kubeStateMetrics:
   enabled: true
 
 kube-state-metrics:
+  tolerations:
+    - key: kubernetes.io/arch
+      operator: Equal
+      value: arm64
+      effect: NoSchedule
   extraArgs:
     - --telemetry-port=8081
 
@@ -111,6 +116,13 @@ kube-state-metrics:
 nodeExporter:
   enabled: true
   releaseLabel: true
+
+prometheusOperator:
+  tolerations:
+    - key: kubernetes.io/arch
+      operator: Equal
+      value: arm64
+      effect: NoSchedule
 
 prometheus:
   enabled: true
