@@ -104,7 +104,7 @@ spec:
         repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
         version: 4.0.18
         syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/nfs-client/values.yaml?v=3
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/nfs-client/values.yaml?v=4
       - app: pact-broker
         chart: pact-broker
         namespace: pact-broker

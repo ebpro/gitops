@@ -21,3 +21,9 @@ storageClass:
     - timeo=600
     - retrans=2
   name: nfs-rwx
+
+tolerations:
+  - key: kubernetes.io/arch
+    operator: Equal
+    value: arm64
+    effect: NoSchedule
