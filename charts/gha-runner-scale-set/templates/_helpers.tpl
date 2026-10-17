@@ -146,6 +146,17 @@ securityContext:
   runAsGroup: 1000
   seccompProfile:
     type: Unconfined
+  ## Vendored-fork-rootless-param: rootlesskit's child does `mount --bind / /`
+  ## for mount-propagation setup; the node's default container AppArmor profile
+  ## denies it (verified crash 2026-10-17: "[rootlesskit:child] error: failed to
+  ## share mount point: /: permission denied"). appArmorProfile.type=Unconfined
+  ## is the v1.30+ canonical per-container opt-out (the deprecated
+  ## container.apparmor.* annotation has no doc-canonical name resolution for
+  ## NATIVE SIDECARS, which live in initContainers). On <1.30 clusters the API
+  ## server prunes this unknown field (warning only) - no behavior change there;
+  ## the rootless canary targets >=1.30 (this cluster: v1.36).
+  appArmorProfile:
+    type: Unconfined
 {{- if (ge (.Capabilities.KubeVersion.Minor | int) 29) }}
 restartPolicy: Always
 startupProbe:
