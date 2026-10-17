@@ -171,6 +171,16 @@ volumeMounts:
     mountPath: /certs
   - name: dind-externals
     mountPath: /home/runner/externals
+  ## Vendored-fork-rootless-param: slirp4netns needs /dev/net/tun, which is NOT
+  ## exposed inside containers by default (verified crash 2026-10-17: rootlesskit
+  ## "ip tuntap add name tap0 mode tap -> open: No such file or directory").
+  ## Canonical rootless-in-k8s requirement. RW on purpose: char-device ioctl
+  ## cannot go through a readOnly mount. CharDevice hostPath type makes a
+  ## missing tun module on the node fail scheduling loudly (FailedCreatePodSandBox
+  ## / node event) instead of crash-looping the sidecar - deliberate over an
+  ## unverified switch to rootlesskit's slower built-in 'slirp' net driver.
+  - name: dind-tun
+    mountPath: /dev/net/tun
 {{- else -}}
 image: {{ .Values.dind.image | default "docker:28-dind" }}
 args:
@@ -218,6 +228,12 @@ volumeMounts:
 ## TCP listener (server certs + 0644 client certs under /certs/client).
 - name: dind-certs
   emptyDir: {}
+## Vendored-fork-rootless-param: tun device for slirp4netns (see dind-container
+## rootless volumeMounts). type: CharDevice = loud scheduling failure if absent.
+- name: dind-tun
+  hostPath:
+    path: /dev/net/tun
+    type: CharDevice
 {{- end }}
 {{- end }}
 
