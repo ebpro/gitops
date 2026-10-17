@@ -110,6 +110,68 @@ volumeMounts:
 {{- end }}
 
 {{- define "gha-runner-scale-set.dind-container" -}}
+{{- if .Values.dind.rootless -}}
+## Vendored-fork-rootless-param: unprivileged rootless dind sidecar.
+## No command/args are set on purpose: the docker:dind-rootless entrypoint only
+## auto-configures TLS + the rootlesskit port forward when invoked with an empty
+## command. It then runs
+##   rootlesskit --net=slirp4netns -p 0.0.0.0:2376:2376/tcp \
+##     dockerd --host=unix:///run/user/1000/docker.sock \
+##             --host=tcp://0.0.0.0:2376 --tlsverify --tlsc*=/certs/*
+## (DOCKERD_ROOTLESS_ROOTLESSKIT_NET overrides the image's macOS-oriented
+## vpnkit default; slirp4netns is bundled in the image for Linux.)
+## and generates the TLS material under DOCKER_TLS_CERTDIR=/certs (shared with
+## the runner container via the dind-certs emptyDir; the entrypoint chmods
+## client/key.pem 0644 explicitly so client containers can read it).
+## Security rationale: the TCP listener is forwarded on 0.0.0.0 inside the Pod
+## network namespace, so --tlsverify (image default) is REQUIRED — without TLS
+## any pod reachable on the network could drive this root-equivalent daemon.
+## The runner connects over tcp://localhost:2376 (same Pod netns); the server
+## cert SANs include localhost/the pod hostname/pod IPs. Unconfined seccomp is
+## required for rootlesskit to create nested user namespaces; the node must
+## allow unprivileged userns (compute-lsis-2 verified 2026-10-17).
+image: {{ .Values.dind.image | default "docker:28-dind-rootless" }}
+env:
+  - name: XDG_RUNTIME_DIR
+    value: /run/user/1000
+  - name: DOCKER_HOST
+    value: unix:///run/user/1000/docker.sock
+  - name: DOCKER_TLS_CERTDIR
+    value: /certs
+  - name: DOCKERD_ROOTLESS_ROOTLESSKIT_NET
+    value: slirp4netns
+securityContext:
+  privileged: false
+  runAsUser: 1000
+  runAsGroup: 1000
+  seccompProfile:
+    type: Unconfined
+{{- if (ge (.Capabilities.KubeVersion.Minor | int) 29) }}
+restartPolicy: Always
+startupProbe:
+  exec:
+    command:
+      - docker
+      - info
+  initialDelaySeconds: 0
+  failureThreshold: 24
+  periodSeconds: 5
+  timeoutSeconds: 5
+{{- end }}
+{{- with .Values.dind.resources }}
+resources:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+volumeMounts:
+  - name: work
+    mountPath: /home/runner/_work
+  - name: dind-sock
+    mountPath: /run
+  - name: dind-certs
+    mountPath: /certs
+  - name: dind-externals
+    mountPath: /home/runner/externals
+{{- else -}}
 image: {{ .Values.dind.image | default "docker:28-dind" }}
 args:
   - dockerd
@@ -144,12 +206,19 @@ volumeMounts:
   - name: dind-externals
     mountPath: /home/runner/externals
 {{- end }}
+{{- end }}
 
 {{- define "gha-runner-scale-set.dind-volume" -}}
 - name: dind-sock
   emptyDir: {}
 - name: dind-externals
   emptyDir: {}
+{{- if .Values.dind.rootless }}
+## Vendored-fork-rootless-param: shared TLS material for the rootless daemon's
+## TCP listener (server certs + 0644 client certs under /certs/client).
+- name: dind-certs
+  emptyDir: {}
+{{- end }}
 {{- end }}
 
 {{- define "gha-runner-scale-set.tls-volume" -}}
@@ -218,6 +287,7 @@ volumeMounts:
 
 {{- define "gha-runner-scale-set.dind-runner-container" -}}
 {{- $tlsConfig := (default (dict) .Values.githubServerTLS) }}
+{{- $dindRootless := .Values.dind.rootless }}
 {{- range $i, $container := .Values.template.spec.containers }}
   {{- if eq $container.name "runner" }}
     {{- range $key, $val := $container }}
@@ -258,7 +328,17 @@ env:
     {{- end }}
     {{- if $setDockerHost }}
   - name: DOCKER_HOST
+    {{- if $dindRootless }}
+    ## Vendored-fork-rootless-param: loopback TCP to the rootless daemon inside
+    ## the shared Pod network namespace (mTLS via the dind-certs emptyDir).
+    value: tcp://localhost:2376
+  - name: DOCKER_TLS_VERIFY
+    value: "1"
+  - name: DOCKER_CERT_PATH
+    value: /certs/client
+    {{- else }}
     value: unix:///var/run/docker.sock
+    {{- end }}
     {{- end }}
     {{- if $setRunnerWaitDocker }}
   - name: RUNNER_WAIT_FOR_DOCKER_IN_SECONDS
@@ -298,8 +378,14 @@ volumeMounts:
     mountPath: /home/runner/_work
     {{- end }}
     {{- if $mountDindCert }}
+      {{- if $dindRootless }}
+  - name: dind-certs
+    mountPath: /certs
+    readOnly: true
+      {{- else }}
   - name: dind-sock
     mountPath: /var/run
+      {{- end }}
     {{- end }}
     {{- if $mountGitHubServerTLS }}
   - name: github-server-tls-cert

@@ -8,6 +8,13 @@ scaleSetLabels: []
 ## image is the docker daemon image for the dind container (pinned instead of floating latest)
 dind:
   image: docker:28-dind
+  ## rootless opts the dind sidecar into the official docker:dind-rootless image
+  ## running UNPRIVILEGED (no privileged: true) via user namespaces. When true, set
+  ## image to the matching *-dind-rootless tag. The runner then talks to the daemon
+  ## over tcp://localhost:2376 (shared Pod network namespace) with TLS client certs
+  ## mounted at /certs/client from a shared emptyDir. When false (default) the
+  ## sidecar renders byte-identically to upstream 0.14.2 (privileged dockerd socket).
+  rootless: false
 
 ## githubConfigSecret is the k8s secret information to use when authenticating via the GitHub API.
 ## You can choose to supply:

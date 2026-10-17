@@ -10,3 +10,9 @@ sources:
 - https://github.com/actions/actions-runner-controller
 type: application
 version: 0.14.2
+annotations:
+  # Vendored fork — upstream actions/runner-charts gha-runner-scale-set 0.14.2.
+  # vendored-fork-rootless-param: dind.rootless (default false) parameterizes the
+  # dind sidecar for the unprivileged docker:dind-rootless pattern; the privileged
+  # default path renders byte-identically to upstream.
+  vendored-fork-rootless-param: "true"
