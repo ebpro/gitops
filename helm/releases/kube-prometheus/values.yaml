@@ -92,6 +92,16 @@ kubeEtcd:
 kubeApiServer:
   enabled: false
 
+# k3s runs kube-proxy without exposing its /metrics endpoint, so the stack's
+# kube-proxy scrape never exists and the default `kubernetes-system-kube-proxy`
+# rule group (single rule: KubeProxyDown = absent(up{job="kube-proxy"})) fires
+# permanently. Disable the whole group — same k3s rationale as the disabled
+# control-plane components above. (Enabling kube-proxy metrics would need a
+# host-level kube-proxy-config change on every node: out of scope.)
+defaultRules:
+  rules:
+    kubeProxy: false
+
 kubeStateMetrics:
   enabled: true
 
