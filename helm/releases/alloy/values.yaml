@@ -65,6 +65,7 @@ alloy:
 
         rule {
           source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_ip"]
+          regex         = "(.*);(.*)"
           target_label  = "__address__"
           replacement   = "${2}:${1}"
         }
