@@ -70,14 +70,14 @@ spec:
           variables:
             - name: toleratesRunnerTaint
               expression: >-
-                object.?tolerations.orValue([]).exists(t,
+                object.spec.?tolerations.orValue([]).exists(t,
                 t.?key.orValue('') == 'workload' &&
                 t.?operator.orValue('') == 'Equal' &&
                 t.?value.orValue('') == 'runner' &&
                 t.?effect.orValue('') == 'NoSchedule')
             - name: toleratesArm64Taint
               expression: >-
-                object.?tolerations.orValue([]).exists(t,
+                object.spec.?tolerations.orValue([]).exists(t,
                 t.?key.orValue('') == 'kubernetes.io/arch' &&
                 t.?operator.orValue('') == 'Equal' &&
                 t.?value.orValue('') == 'arm64' &&
