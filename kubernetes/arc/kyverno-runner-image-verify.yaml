@@ -43,20 +43,41 @@
 #      consider mutateDigest: true to pin verified digests at admission.
 #   3. Day one of Enforce, any pod built from an unsigned or foreign-identity
 #      tag (manual :main experiments included) is rejected outright.
+#
+# Subject pinning (backlog #13 Phase 1 hardening, 2026-10-19): the signer
+# identity is asserted as an EXACT keyless `subject`, not a regex. Evidence
+# extracted from the live Harbor signature (index-level .sig of tag sha-8e38db8,
+# bundle in the dev.sigstore.cosign/bundle layer annotation, hashedrekord on
+# public-good): issuer https://token.actions.githubusercontent.com, SAN
+# https://github.com/ebpro/quarkus-ci-runner/.github/workflows/runner-image.yml@refs/heads/main.
+# The previous subjectRegExp (^...quarkus-ci-runner/.*) would have accepted a
+# signature from ANY workflow in that repo; the exact SAN admits only the
+# runner-image workflow on main. Re-pin when the signing workflow moves branch.
+#
+# No verifyImages `annotations` block (deliberate): in Kyverno 1.15 both
+# attestor-entry and deprecated top-level `annotations` are PAYLOAD MATCHERS
+# (CRD schema: "Every specified key-value pair must exist and match in the
+# verified payload") — using them to "record the verified digest" would make
+# every keyless audit check fail, since the cosign bundle payload carries no
+# such pair. Digest recording is an Enforce-phase concern (mutateDigest: true
+# pins the verified digest at admission; the `images` policy context can expose
+# it to annotations from 1.11+).
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
   name: verify-arc-runner-images
   annotations:
     argocd.argoproj.io/sync-wave: "0"
-    policies.kyverno.io/title: ARC runner images must be cosign keyless-signed by ebpro/quarkus-ci-runner
+    policies.kyverno.io/title: ARC runner images must be cosign keyless-signed by the ebpro/quarkus-ci-runner runner-image workflow
     policies.kyverno.io/category: Software Supply Chain Security
     policies.kyverno.io/severity: medium
     policies.kyverno.io/subject: Pod
     policies.kyverno.io/description: >-
       Audit that every quarkus-ci-runner image used by a Pod in arc-runners
-      carries a cosign keyless signature issued via the GitHub Actions OIDC
-      identity of the ebpro/quarkus-ci-runner repository.
+      carries a cosign keyless signature whose Fulcio SAN is exactly the
+      runner-image workflow of the ebpro/quarkus-ci-runner repository on the
+      main branch (GitHub Actions OIDC identity), timestamped on public-good
+      Rekor.
 spec:
   validationFailureAction: Audit
   background: false
@@ -93,6 +114,9 @@ spec:
               entries:
                 - keyless:
                     issuer: "https://token.actions.githubusercontent.com"
-                    subjectRegExp: "^https://github\\.com/ebpro/quarkus-ci-runner/.*$"
+                    # Exact signer SAN (see header "Subject pinning"). Was a
+                    # repo-wide regex until 2026-10-19; keep in sync with the
+                    # signing workflow's branch/ref.
+                    subject: "https://github.com/ebpro/quarkus-ci-runner/.github/workflows/runner-image.yml@refs/heads/main"
                     rekor:
                       url: "https://rekor.sigstore.dev"
