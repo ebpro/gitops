@@ -1,0 +1,156 @@
+# Slurm ephemeral-runner broker (Phase 1). Hardening precedent: kubernetes/ci/cache-server-deployment.yaml.
+#
+# STAGED ROLLOUT: keep replicas: 0 until the operator runbook steps A-C are done
+# (kubernetes/slurm-runner-broker/README.md): public key pasted into SMS
+# authorized_keys, ~/.netrc seeded on SMS, broker image built + pushed.
+# Flip to 1 (signed commit) to bring the tier live.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slurm-runner-broker
+  namespace: slurm-runner-broker
+  labels:
+    app.kubernetes.io/name: slurm-runner-broker
+    app.kubernetes.io/instance: slurm-runner-broker
+spec:
+  # raise to 1 after runbook steps A-C
+  replicas: 0
+  # Single-instance semantics (in-memory dispatch state + poll loop): never let
+  # two brokers overlap during an update.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: slurm-runner-broker
+      app.kubernetes.io/instance: slurm-runner-broker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: slurm-runner-broker
+        app.kubernetes.io/instance: slurm-runner-broker
+    spec:
+      automountServiceAccountToken: false
+      # Lab-zone DNS: sms-cluster.lis-lab.fr lives in the LAN zone that 8.8.8.8
+      # (node resolv.conf upstream) cannot see; 10.2.248.1 resolves lab + public
+      # (same pattern as kubernetes/llm-gateway/deployment.yaml). Cilium egress
+      # still gates it: DNS goes to world:53, see cilium-networkpolicy.yaml.
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+          - 10.2.248.1
+        searches:
+          - lis-lab.fr
+        options:
+          - name: timeout
+            value: "2"
+          - name: attempts
+            value: "2"
+      # NOTE: image is harbor.ebruno.fr/library/* — Harbor "library" is a PUBLIC
+      # project (verified via API), so no imagePullSecret is required here.
+      # NOTE: no nodeSelector needed — the arm64 worker keeps its
+      # kubernetes.io/arch=arm64:NoSchedule taint and this pod carries no
+      # matching toleration, so it lands on the amd64 control-plane node,
+      # which is also the host with a proven route to the lab LAN.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        # Secret volumes bind root:fsGroup at mode 04xx; ssh(1) insists on a
+        # user-owned 0600 key inside $HOME/.ssh. Seed an emptyDir copy here
+        # (same image, same uid) so the main container gets a real HOME.
+        - name: seed-ssh
+          image: harbor.ebruno.fr/library/slurm-runner-broker:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              cp /mnt/ssh-credentials/id_ed25519     /home/broker/.ssh/id_ed25519
+              chmod 600 /home/broker/.ssh/id_ed25519
+              cp /mnt/ssh-credentials/id_ed25519.pub /home/broker/.ssh/id_ed25519.pub
+              chmod 644 /home/broker/.ssh/id_ed25519.pub
+              cp /mnt/ssh-credentials/known_hosts    /home/broker/.ssh/known_hosts
+              chmod 644 /home/broker/.ssh/known_hosts
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: ssh-credentials
+              mountPath: /mnt/ssh-credentials
+              readOnly: true
+            - name: broker-ssh
+              mountPath: /home/broker/.ssh
+      containers:
+        - name: broker
+          image: harbor.ebruno.fr/library/slurm-runner-broker:latest
+          envFrom:
+            - configMapRef:
+                name: broker-config
+          volumeMounts:
+            - name: github-credentials
+              mountPath: /etc/slurm-broker/github
+              readOnly: true
+            - name: broker-home
+              mountPath: /home/broker
+            - name: broker-ssh
+              mountPath: /home/broker/.ssh
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+      volumes:
+        # defaultMode 0400 per hardening rule; per-item 0440 makes the files
+        # group-readable for uid 10001 via fsGroup (secret volumes are chowned
+        # to fsGroup). Nothing on disk ever holds the runner registration token.
+        - name: ssh-credentials
+          secret:
+            secretName: slurm-broker-ssh
+            defaultMode: 256  # 0400
+            items:
+              - key: ssh_private_key
+                path: id_ed25519
+                mode: 288  # 0440
+              - key: ssh_public_key
+                path: id_ed25519.pub
+                mode: 292  # 0444
+              - key: known_hosts
+                path: known_hosts
+                mode: 292  # 0444
+        - name: github-credentials
+          secret:
+            secretName: slurm-broker-github
+            defaultMode: 256  # 0400
+            items:
+              - key: github_app_id
+                path: github_app_id
+                mode: 288  # 0440
+              - key: github_app_installation_id
+                path: github_app_installation_id
+                mode: 288  # 0440
+              - key: github_app_private_key
+                path: github_app_private_key
+                mode: 288  # 0440
+        - name: broker-home
+          emptyDir: {}
+        - name: broker-ssh
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

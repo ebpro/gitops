@@ -1,0 +1,55 @@
+# Default-deny for the broker pod (selecting an endpoint with only egress rules
+# implicitly denies everything else, ingress included — no Service/probes needed).
+# DNS: the pod uses LAN DNS 10.2.248.1 directly (dnsPolicy: None, see deployment),
+# so world:53 must be allowed for Cilium's FQDN proxy to observe the answers;
+# kube-dns stays allowed for completeness/operability. FQDN pattern precedent:
+# kubernetes/ci/cache-server-netpol.yaml.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: slurm-runner-broker
+  namespace: slurm-runner-broker
+  labels:
+    app.kubernetes.io/name: slurm-runner-broker
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: slurm-runner-broker
+      app.kubernetes.io/instance: slurm-runner-broker
+  egress:
+    # In-cluster DNS (kube-dns)
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # LAN DNS (10.2.248.1) reached directly via dnsPolicy: None
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # Submit gateway: ssh + sbatch (the ONLY submission channel — no slurmrestd)
+    - toFQDNs:
+        - matchName: "sms-cluster.lis-lab.fr"
+      toPorts:
+        - ports:
+            - port: "22"
+              protocol: TCP
+    # GitHub REST (App JWT exchange is internal to this process; API host only)
+    - toFQDNs:
+        - matchName: "api.github.com"
+        # github.com kept for the org-web URL referenced in config.sh + future redirects
+        - matchName: "github.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

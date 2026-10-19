@@ -1,0 +1,26 @@
+# Woodpecker v3 pipeline for the slurm-runner-broker service image.
+# Runs in the Gitea-hosted repo (create it from this scaffold — see README.md).
+# Repo secrets required: HARBOR_USERNAME / HARBOR_PASSWORD
+#   = robot$library+backstage credentials (same pattern as bruno/link-shortener).
+# Pushes harbor.ebruno.fr/library/slurm-runner-broker:sha-<7> and :latest
+# (library is a PUBLIC Harbor project — the cluster pulls it without creds).
+when:
+  - event: push
+    branch: main
+
+steps:
+  - name: kaniko-build-push
+    image: gcr.io/kaniko-project/executor:v1.23.2-debug
+    entrypoint: ["/busybox/sh", "-c"]
+    environment:
+      IMAGE: harbor.ebruno.fr/library/slurm-runner-broker
+    commands:
+      - mkdir -p /kaniko/.docker
+      - printf '{"auths":{"harbor.ebruno.fr":{"auth":"%s"}}}'
+        "$(printf '%s:%s' "$HARBOR_USERNAME" "$HARBOR_PASSWORD" | base64 | tr -d '\n')"
+        > /kaniko/.docker/config.json
+      - /kaniko/executor
+        --context "$CI_WORKSPACE"
+        --dockerfile "$CI_WORKSPACE/Dockerfile"
+        --destination "${IMAGE}:sha-${CI_COMMIT_SHORT_SHA}"
+        --destination "${IMAGE}:latest"

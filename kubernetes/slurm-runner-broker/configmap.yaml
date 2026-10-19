@@ -1,0 +1,29 @@
+# Non-secret broker knobs (consumed via envFrom). Secrets (App creds, SSH keypair)
+# are separate: see external-secret-github.yaml / external-secret-ssh.yaml.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: broker-config
+  namespace: slurm-runner-broker
+  labels:
+    app.kubernetes.io/name: slurm-runner-broker
+data:
+  # Submit gateway (ssh:22, sbatch). NO slurmrestd on SMS — ssh is the only channel.
+  # Phase 1 authenticates as the lab account; a dedicated `ghaci` user is future
+  # work (see README runbook §Phase-2).
+  SMS_HOST: "sms-cluster.lis-lab.fr"
+  SLURM_USER: "emmanuel.bruno"
+  # GitHub org whose queued runs are polled + where runners register.
+  GH_ORG: "ebpro-org"
+  # Slurm partition + job shape for one ephemeral runner.
+  SLURM_PARTITION: "ouranos"
+  SLURM_CPUS: "8"
+  SLURM_MEM: "16G"
+  SLURM_TIME: "01:30:00"
+  # Ephemeral-runner image imported by enroot on the compute nodes. MUST stay
+  # digest-pinned: broker.py refuses to start on a tag (job-template.sh keys the
+  # image cache by digest, never by tag).
+  RUNNER_IMAGE: "harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner@sha256:72ac7d9f25940b4f1221b32d5105d10ac3cc3c983f1b2ecf3d31ee9acc4a1c47"
+  # Broker behavior.
+  MAX_PARALLEL: "4"
+  POLL_SECONDS: "15"
