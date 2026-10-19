@@ -30,7 +30,7 @@ spec:
         app.kubernetes.io/instance: slurm-runner-broker
     spec:
       automountServiceAccountToken: false
-      # Lab-zone DNS: sms-cluster.lis-lab.fr lives in the LAN zone that 8.8.8.8
+      # Lab-zone DNS: sms-ext.lis-lab.fr lives in the LAN zone that 8.8.8.8
       # (node resolv.conf upstream) cannot see; 10.2.248.1 resolves lab + public
       # (same pattern as kubernetes/llm-gateway/deployment.yaml). Cilium egress
       # still gates it: DNS goes to world:53, see cilium-networkpolicy.yaml.

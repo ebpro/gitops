@@ -11,7 +11,10 @@ data:
   # Submit gateway (ssh:22, sbatch). NO slurmrestd on SMS — ssh is the only channel.
   # Phase 1 authenticates as the lab account; a dedicated `ghaci` user is future
   # work (see README runbook §Phase-2).
-  SMS_HOST: "sms-cluster.lis-lab.fr"
+  # sms-ext (192.168.4.2) verified 2026-10-19: same resolution + TCP/22 open from
+  # workstation AND in-cluster; the previous cluster-internal gateway name is dead
+  # (cluster-side NXDOMAIN) — do not fall back to it.
+  SMS_HOST: "sms-ext.lis-lab.fr"
   SLURM_USER: "emmanuel.bruno"
   # GitHub org whose queued runs are polled + where runners register.
   GH_ORG: "ebpro-org"

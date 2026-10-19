@@ -4,73 +4,102 @@ Brings up the ephemeral-runner tier: an in-cluster broker (`Deployment`
 `slurm-runner-broker`, currently `replicas: 0`) that polls GitHub org
 `ebpro-org` for queued runs labelled `[self-hosted, linux, x64, hpc]` and
 `sbatch`-es one ephemeral runner per queued job onto SMS partition `ouranos`
-over `ssh emmanuel.bruno@sms-cluster.lis-lab.fr`.
+over `ssh emmanuel.bruno@sms-ext.lis-lab.fr` (forced command
+`/usr/local/bin/ebrunner-gate` — see step A3 +
+[`../../slurm-runner-broker/ebrunner-gate.sh`](../../slurm-runner-broker/ebrunner-gate.sh)).
 
 Broker code/image scaffold: [`../../slurm-runner-broker/`](../../slurm-runner-broker/README.md).
 
-Vault leaf `secret/data/slurm/broker` was provisioned 2026-10-19 with
-`ssh_private_key` / `ssh_public_key` / `sms_host` / `slurm_user` (version 1).
+Vault leaf `secret/data/slurm/broker` was provisioned 2026-10-19 and updated
+the same day: it now carries `ssh_private_key` / `ssh_public_key` / `sms_host`
+(= `sms-ext.lis-lab.fr`) / `slurm_user` / `known_hosts` (ed25519 pin — see A2).
 ESO policy `external-secrets` (`secret/data/*` read+list) already covers it —
 verified, no Vault change needed for ESO reads.
 
-**The broker will not start** until steps A–C are complete: `known_hosts` is
-still missing from the Vault leaf (by design — see A2) and no image is pushed
-yet. The `replicas: 0` Deployment keeps everything inert meanwhile.
+**The broker will not start** until steps A–C are complete: the broker key is
+not yet in SMS `authorized_keys` and the forced-command gate is not yet
+installed (step A), and no image is pushed yet (step C). The `replicas: 0`
+Deployment keeps everything inert meanwhile.
 
 Brokered key (audit fingerprint):
 `SHA256:LfCHXlnnJ8NqjyF0eg1/XJrr5z3eoZVNe4cSpo3wNv4` (ED25519)
 
 ---
 
-## Step A — SMS side: authorize the broker key + seed `known_hosts`
+## Step A — SMS side: install the gate, authorize the broker key, verify `known_hosts`
 
-> **Connectivity prerequisite (verified 2026-10-19):** SMS (`10.0.0.101`)
-> currently drops TCP/22 **and** ICMP from the 10.2.248.0/24 side — both this
-> workstation and in-cluster probes (vault pod `nc -z 10.0.0.101 22`) fail.
-> Before go-live, the SMS admin must allow ssh from the k3s node source
-> (`compute-lsis-2`, 10.2.248.x) — the broker pod's traffic leaves via that
-> node's SNAT. Do step A from an already-authorized access point.
+> **Connectivity (verified 2026-10-19):** the submit gateway is
+> `sms-ext.lis-lab.fr` → `192.168.4.2` with TCP/22 **OPEN** from both the
+> workstation and in-cluster (the previous cluster-internal gateway name is
+> dead: cluster-side NXDOMAIN). Broker-pod egress SNATs to the k3s node
+> uplink IPs (`10.2.248.31` amd64 / `10.2.248.247` arm64), so the key's
+> `from=` allowlist is `10.2.248.0/24`. Do step A over your own human ssh
+> session to the SMS.
 
-### A1. Paste the public key into your SMS authorized_keys
+### A1. Paste the hardened public key into your SMS authorized_keys
+
+> **Ordering:** the line pins `command="/usr/local/bin/ebrunner-gate"` — until
+> A3 installs the gate, broker-key sessions fail (missing forced command).
+> That is intentional: the key is inert until both halves exist.
 
 Run on SMS (any authorized access path):
 
 ```sh
 mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
-echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNORGDO6WO6brOnHO8geiseMqyf93WymLowzDHRq8Si slurm-runner-broker@ebpro-org' >> ~/.ssh/authorized_keys
+echo 'restrict,from="10.2.248.0/24",no-pty,command="/usr/local/bin/ebrunner-gate" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNORGDO6WO6brOnHO8geiseMqyf93WymLowzDHRq8Si slurm-runner-broker@ebpro-org' >> ~/.ssh/authorized_keys
 ```
 
-Verify (should print without password):
-`ssh -o BatchMode=yes emmanuel.bruno@localhost true && echo BROKER_KEY_OK`
+Verify (once A3's gate is installed — this is one of the gate's allow-listed
+commands; expect `/home/emmanuel.bruno`, no password):
+`ssh -o BatchMode=yes emmanuel.bruno@localhost 'printf %s "$HOME"' && echo BROKER_KEY_OK`
 
-### A2. Generate `known_hosts` and add it to the Vault leaf
+### A2. Verify the `known_hosts` pin (ALREADY seeded in Vault — verify-only)
 
-The Vault leaf intentionally lacks `known_hosts` — it can only be minted from
-a network position that can reach SMS:22. From **that** machine (not the
-cluster, until the firewall allows it):
-
-```sh
-ssh-keyscan -T 10 sms-cluster.lis-lab.fr > /tmp/sms-known_hosts
-# sanity: expect >=1 line beginning "sms-cluster.lis-lab.fr ssh-ed25519 ..."
-grep -c 'ssh-' /tmp/sms-known_hosts
-kubectl exec -i vault-0 -n vault -c vault \
-  -- env VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN="$VAULT_ROOT" \
-  vault kv patch secret/slurm/broker known_hosts="$(cat /tmp/sms-known_hosts)"
-shred -u /tmp/sms-known_hosts
-```
-
-(`kv patch` is a read-modify-write: the three existing keys are preserved —
-confirmed by the read-back below.)
-
-Verify the leaf is complete (4+1 keys):
+The host-key pin was written into the Vault leaf on 2026-10-19:
+`sms-ext.lis-lab.fr ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINSgk2mAdOLBfQnjiabHLr1D65kPeMm52zc21uN+CYBc`
+(host-key fingerprint `SHA256:hld4/x9bw43eb7bdc4oiz72pDykYBh/pzTFin7csaio`). The
+hostname-form pin is deliberate: `broker.py` dials `SMS_HOST` with
+`StrictHostKeyChecking=yes` + a dedicated `UserKnownHostsFile`, so ssh matches
+the name it dialled. Nothing to write here — **verify only**:
 
 ```sh
+# 1. key list (5 entries incl. known_hosts) + sms_host value
 kubectl exec -i vault-0 -n vault -c vault \
   -- env VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN="$VAULT_ROOT" \
   vault kv get -format=json secret/slurm/broker \
-  | python3 -c "import json,sys; print(sorted(json.load(sys.stdin)['data']['data']))"
-# expect: ['known_hosts','slurm_user','sms_host','ssh_private_key','ssh_public_key']
+  | python3 -c "import json,sys; d=json.load(sys.stdin)['data']['data']; print(sorted(d)); print(d['sms_host'])"
+# expect: ['known_hosts','slurm_user','sms_host','ssh_private_key','ssh_public_key'] + sms-ext.lis-lab.fr
+
+# 2. pinned line prints the expected host-key fingerprint
+kubectl exec -i vault-0 -n vault -c vault \
+  -- env VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN="$VAULT_ROOT" \
+  vault kv get -field=known_hosts secret/slurm/broker \
+  | ssh-keygen -l -f -
+# expect: 256 SHA256:hld4/x9bw43eb7bdc4oiz72pDykYBh/pzTFin7csaio ... (ED25519)
 ```
+
+(Optional independent re-check from any vantage that can reach
+`sms-ext.lis-lab.fr:22`: `ssh-keyscan -T 10 sms-ext.lis-lab.fr` and compare the
+ed25519 blob byte-for-byte. A mismatch is a **stop condition** — suspect a
+man-on-the-side and confirm the key with the SMS admin before touching the pin.)
+
+### A3. Install the `ebrunner-gate` forced command on the SMS
+
+Copy `slurm-runner-broker/ebrunner-gate.sh` from this repo to the SMS and
+install it as `/usr/local/bin/ebrunner-gate`, root-owned, mode `0755`. Do this
+over your own human ssh session — the broker key cannot do it (that is the
+point of the gate):
+
+```sh
+# from a machine with this checkout
+scp slurm-runner-broker/ebrunner-gate.sh emmanuel.bruno@sms-ext.lis-lab.fr:/tmp/ebrunner-gate
+ssh emmanuel.bruno@sms-ext.lis-lab.fr \
+  'sudo install -o root -g root -m 0755 /tmp/ebrunner-gate /usr/local/bin/ebrunner-gate && shred -u /tmp/ebrunner-gate'
+```
+
+The gate's header comment carries the security model + the exact
+authorized_keys line template (must match A1). If `sudo` is unavailable, the
+SMS admin performs the install. After A1+A3, run the A1 verify line.
 
 ## Step B — SMS side: Harbor login for enroot + /scratch bootstrap
 
@@ -83,7 +112,7 @@ are the same robot account the cluster already uses for node pulls (Secret
 kubectl get secret harbor-node-pull -n arc-runners -o jsonpath='{.data.\.dockerconfigjson}' \
   | base64 -d \
   | python3 -c 'import json,sys; a=json.load(sys.stdin)["auths"]["harbor.ebruno.fr"]["auth"]; print("machine harbor.ebruno.fr\nlogin %s\npassword %s" % tuple(__import__("base64").b64decode(a).decode().split(":",1)))' \
-  | ssh emmanuel.bruno@sms-cluster.lis-lab.fr 'umask 077; cat > ~/.netrc && chmod 600 ~/.netrc'
+  | ssh emmanuel.bruno@sms-ext.lis-lab.fr 'umask 077; cat > ~/.netrc && chmod 600 ~/.netrc'
 ```
 
 One-time `/scratch` bootstrap — `--output=$S/logs/ebrunner-%j.out` is opened by
@@ -91,7 +120,7 @@ One-time `/scratch` bootstrap — `--output=$S/logs/ebrunner-%j.out` is opened b
 **node-local**, so the dirs must pre-exist on every `ouranos` node:
 
 ```sh
-ssh emmanuel.bruno@sms-cluster.lis-lab.fr \
+ssh emmanuel.bruno@sms-ext.lis-lab.fr \
   'srun -p ouranos mkdir -p /scratch/emmanuel.bruno/gha-slurm/{images,work,logs}'
 # After adding NEW nodes to ouranos, repeat this line (Phase-2: move log dir to
 # the NFS-shared HOME or provision via cluster-wide automount).
@@ -125,8 +154,8 @@ Smoke the wiring before/after the flip:
 kubectl get externalsecret -n slurm-runner-broker            # both Synced
 kubectl get secret slurm-broker-ssh slurm-broker-github -n slurm-runner-broker
 kubectl logs deploy/slurm-runner-broker -n slurm-runner-broker | head -5
-# expect boot line "broker starting" with config echo; hard-fail "known_hosts"
-# => step A2 not done yet.
+# expect boot line "broker starting" with config echo; a hard-fail on the
+# known_hosts file => Vault leaf pin missing (A2) or ESO not Synced yet.
 ```
 
 ## Step E — Smoke test the tier
@@ -170,7 +199,8 @@ Failure triage: `sacct -j <id> -X -o jobid,state,exitcode,workdir` +
 * `/scratch` is node-local: image cache is per-node (each node pays one import
   per digest, flock-guarded); new ouranos nodes need the step-B mkdir for
   `--output` before their first runner lands.
-* SMS firewall must keep allowing k3s-node → sms:22 (step A banner).
+* SMS must keep allowing ssh/22 from `10.2.248.0/24` to `sms-ext.lis-lab.fr`
+  (step A banner); the key's `from=` option pins the same source range.
 * Key rotation: re-run the Vault provisioning pattern
   `vault kv patch secret/slurm/broker ssh_private_key=... ssh_public_key=...`
   (never in git), replace the authorized_keys line from A1, restart the broker.

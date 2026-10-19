@@ -39,7 +39,7 @@ spec:
               protocol: TCP
     # Submit gateway: ssh + sbatch (the ONLY submission channel — no slurmrestd)
     - toFQDNs:
-        - matchName: "sms-cluster.lis-lab.fr"
+        - matchName: "sms-ext.lis-lab.fr"
       toPorts:
         - ports:
             - port: "22"
