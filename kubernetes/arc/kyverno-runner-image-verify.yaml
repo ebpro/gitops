@@ -90,6 +90,10 @@ spec:
   webhookTimeoutSeconds: 30
   rules:
     - name: verify-arc-runner-image-signature
+      # Pinned to Kyverno 1.15's admission default (see node-arm64-arch-taint.yaml
+      # precedent): omitting it lets the Kyverno webhook inject the field, which
+      # ArgoCD SSA can never reclaim -> permanent OutOfSync churn on app `arc`.
+      skipBackgroundRequests: true
       match:
         any:
           - resources:
@@ -104,6 +108,10 @@ spec:
           mutateDigest: false
           # Runner pods reference immutable tags, not digests.
           verifyDigest: false
+          # Admission-defaulted fields pinned for SSA convergence (values equal
+          # Kyverno 1.15 defaults; same reason as skipBackgroundRequests above).
+          required: true
+          useCache: true
           # Kyverno 1.15: plain-name lookup, secret must be in the kyverno
           # namespace (see header). Harbor robot creds for the .sig fetch.
           imageRegistryCredentials:
@@ -112,7 +120,10 @@ spec:
           attestors:
             - count: 1
               entries:
-                - keyless:
+                - # Admission-defaulted field pinned for SSA convergence
+                  # (value equals Kyverno 1.15 default).
+                  signatureAlgorithm: sha256
+                  keyless:
                     issuer: "https://token.actions.githubusercontent.com"
                     # Exact signer SAN (see header "Subject pinning"). Was a
                     # repo-wide regex until 2026-10-19; keep in sync with the

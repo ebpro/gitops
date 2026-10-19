@@ -51,6 +51,10 @@ spec:
   failurePolicy: Ignore
   rules:
     - name: runner-pod-must-tolerate-runner-taints
+      # Pinned to Kyverno 1.15's admission default (see node-arm64-arch-taint.yaml
+      # precedent): omitting it lets the Kyverno webhook inject the field, which
+      # ArgoCD SSA can never reclaim -> permanent OutOfSync churn on app `arc`.
+      skipBackgroundRequests: true
       match:
         any:
           - resources:
@@ -60,6 +64,9 @@ spec:
                 matchLabels:
                   kubernetes.io/metadata.name: arc-runners
       validate:
+        # Admission-defaulted field pinned for SSA convergence (same reason as
+        # skipBackgroundRequests above; value equals Kyverno 1.15 default).
+        allowExistingViolations: true
         message: >-
           Pod in arc-runners has no runner-placement toleration: expected an
           Equal toleration for workload=runner:NoSchedule (amd64 runner nodes)
@@ -67,6 +74,9 @@ spec:
           scale set values (helm/releases/arc/<set>-scale-set-values.yaml
           tolerations block).
         cel:
+          # Admission-defaulted field pinned for SSA convergence (value equals
+          # Kyverno 1.15 default).
+          generate: false
           variables:
             - name: toleratesRunnerTaint
               expression: >-
