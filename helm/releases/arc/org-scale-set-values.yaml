@@ -22,13 +22,17 @@ dind:
   # 2026-10-13: dind sidecar was unbounded (BestEffort, no requests/limits).
   # Memory limit 3Gi (not 4Gi) so 4 runners x (8Gi runner + 3Gi dind) = 44Gi
   # stays under ~45Gi when the laptop is off and all load lands on compute-lsis-2.
+  # [SUPERSEDED 2026-10-20: limit raised 3Gi→6Gi below. The 44Gi figure was an
+  # admission-fit rationale; limits are not enforced at scheduling, requests
+  # (unchanged) still govern placement — see the 2026-10-20 comment.]
   # No CPU limit — avoid throttling docker builds.
+  # 2026-10-20: 3Gi→6Gi — cgroup-OOM (exit-137 silent kills) of Quarto render containers (JVM+Chromium+node inside dind, no per-container --memory at v1.3.36). Requests UNCHANGED (scheduling-fit unaffected: limits are not enforced at admission); worst-case overcommit 4×(8+6)=56Gi vs node 64Gi w/ 39.3Gi avail measured 2026-10-20. Companion fix: --memory + MaxRAMPercentage in render-quarto.yml (PR #42 branch, pending tag).
   resources:
     requests:
       cpu: 250m
       memory: 512Mi
     limits:
-      memory: 3Gi
+      memory: 6Gi
 containerMode:
   type: dind
 controllerServiceAccount:
