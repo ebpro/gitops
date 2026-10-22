@@ -13,7 +13,7 @@ image, which self-registers, runs exactly one job, and deregisters.
 | File | Purpose |
 |---|---|
 | `broker.py` | Poller/dispatcher. **Python 3 stdlib only** (urllib, subprocess, json, logging). GitHub App → installation token (cached 55 min, pure-stdlib RS256 JWT), queued-run polling, lazy registration-token minting, ssh-stdin token delivery, `sbatch` dispatch, `squeue`-based state reconciliation, zombie-runner sweep, ssh backoff 30 s → 5 min, structured JSON logs on stdout. |
-| `job-template.sh` | The `sbatch` script (submitted via stdin). Digest-keyed enroot image cache under `/scratch/$USER/gha-slurm` with `flock` guard, `ENVFILE` token sourcing, runner config/run, EXIT trap shredding the token file. |
+| `job-template.sh` | The `sbatch` script (submitted via stdin). Digest-keyed enroot image cache in the NFS-shared `$HOME/.cache/ebpro-runner` — one import per digest serves the whole cluster and survives `/scratch` wipes (node-local `flock` is only a per-node fast path; cross-node safety comes from atomic NFS rename of byte-identical temp installs), `ENVFILE` token sourcing, runner config/run, EXIT trap shredding the token file. Per-job work dirs stay on node-local `/scratch` (lazily created in-job); job logs go to persistent `$HOME/logs`. |
 | `Dockerfile` | `python:3.12-slim` + `openssh-client` + `curl`, runs as uid/gid **10001**. |
 | `.woodpecker.yaml` | Kaniko build + push to `harbor.ebruno.fr/library/slurm-runner-broker:sha-<short-sha>` and `:latest`. |
 

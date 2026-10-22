@@ -101,7 +101,7 @@ The gate's header comment carries the security model + the exact
 authorized_keys line template (must match A1). If `sudo` is unavailable, the
 SMS admin performs the install. After A1+A3, run the A1 verify line.
 
-## Step B — SMS side: Harbor login for enroot + /scratch bootstrap
+## Step B — SMS side: Harbor login for enroot + NFS cache/logs bootstrap
 
 The compute nodes' `enroot import` authenticates against Harbor using
 `~/.netrc` in `$HOME` (NFS-shared — one seed covers all nodes). Credentials
@@ -115,16 +115,22 @@ kubectl get secret harbor-node-pull -n arc-runners -o jsonpath='{.data.\.dockerc
   | ssh emmanuel.bruno@sms-ext.lis-lab.fr 'umask 077; cat > ~/.netrc && chmod 600 ~/.netrc'
 ```
 
-One-time `/scratch` bootstrap — `--output=$S/logs/ebrunner-%j.out` is opened by
-`slurmd` **before** the batch script runs, and `/scratch/emmanuel.bruno` is
-**node-local**, so the dirs must pre-exist on every `ouranos` node:
+One-time NFS bootstrap — `--output=$HOME/logs/ebrunner-%j.out` (broker-resolved
+absolute path) is opened by `slurmd` **before** the batch script runs, and the
+image cache + logs live in `$HOME` (NFS-shared `nfs-cluster-1:/HOME`, mounted
+identically on every node), so ONE mkdir covers the whole cluster:
 
 ```sh
 ssh emmanuel.bruno@sms-ext.lis-lab.fr \
-  'srun -p ouranos mkdir -p /scratch/emmanuel.bruno/gha-slurm/{images,work,logs}'
-# After adding NEW nodes to ouranos, repeat this line (Phase-2: move log dir to
-# the NFS-shared HOME or provision via cluster-wide automount).
+  'srun -p ouranos mkdir -p $HOME/.cache/ebpro-runner $HOME/logs'
 ```
+
+> **Multi-node & wiped-scratch semantics:** the first job to see a new image
+> digest imports once into the NFS `$HOME/.cache/ebpro-runner` cache and every
+> ouranos node reuses it (wipe-surviving; concurrent cross-node imports are
+> safe — atomic NFS rename of byte-identical files). Per-job work dirs stay on
+> node-local `/scratch`, lazily re-created in-job after any wipe; job logs
+> persist under `$HOME/logs`.
 
 ## Step C — Build the broker image (Gitea repo)
 
@@ -182,7 +188,7 @@ job passes → runner `Offline`→ deleted (ephemeral self-deregister), Slurm jo
 `COMPLETED`, env-file shredded (`ls ~/.ebrunner-*.env` empty).
 
 Failure triage: `sacct -j <id> -X -o jobid,state,exitcode,workdir` +
-`cat /scratch/emmanuel.bruno/gha-slurm/logs/ebrunner-<id>.out` on the node.
+`cat $HOME/logs/ebrunner-<id>.out` (NFS-shared — readable from the SMS too).
 
 ## Step F — Phase-1 limitations / future work
 
@@ -196,9 +202,10 @@ Failure triage: `sacct -j <id> -X -o jobid,state,exitcode,workdir` +
   the duplicate ephemeral runner self-exits and the zombie sweeper deletes its
   registration after >10 min offline (`squeue` reconciliation guards deletion
   of live ones).
-* `/scratch` is node-local: image cache is per-node (each node pays one import
-  per digest, flock-guarded); new ouranos nodes need the step-B mkdir for
-  `--output` before their first runner lands.
+* `/scratch` is node-local and periodically wiped: it holds ONLY per-job work
+  dirs + the node-local import lock (lazily re-created in-job). The enroot
+  image cache is cluster-wide in NFS `$HOME/.cache/ebpro-runner` — one import
+  per digest for the whole cluster, no per-node seeding needed on new nodes.
 * SMS must keep allowing ssh/22 from `10.2.248.0/24` to `sms-ext.lis-lab.fr`
   (step A banner); the key's `from=` option pins the same source range.
 * Key rotation: re-run the Vault provisioning pattern

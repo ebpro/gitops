@@ -375,7 +375,12 @@ class SmsClient:
                 "--time", WTIME,
                 "--cpus-per-task", CPUS,
                 "--mem", MEM,
-                "--output", "/scratch/%s/gha-slurm/logs/%s%%j.out" % (SLURM_USER, RUNNER_PREFIX),
+                # Logs go to the NFS-shared HOME (persistent, visible from every
+                # node) — /scratch is node-local and periodically wiped. Home is
+                # NFS-mounted identically on SMS and compute, so the job finds
+                # both this log path and the env file under the same $HOME.
+                # self.home is resolved by connect_check() before any dispatch.
+                "--output", "%s/logs/%s%%j.out" % (self.home, RUNNER_PREFIX),
                 "-"]
         full = "exec " + " ".join(_shell_quote(a) for a in argv)
         out = self._run(full, stdin=template, timeout=90)

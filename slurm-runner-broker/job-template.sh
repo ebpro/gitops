@@ -4,7 +4,8 @@
 #     ssh <user>@sms 'exec sbatch --export ENVFILE=...,GH_ORG=...,RUNNER_IMAGE=...,... -' < job-template.sh
 #
 # sbatch flags set by the broker (CLI, not here): -p ouranos --time --cpus-per-task
-# --mem --output=/scratch/$USER/gha-slurm/logs/ebrunner-%j.out --export (see below).
+# --mem --output=<broker-resolved absolute $HOME>/logs/ebrunner-%j.out --export
+# (see below).
 #
 # --- ssh-stdin -> env-file delivery chain (Phase 1, token handling) ----------
 # 1. Broker mints a GitHub org runner registration token LAZILY, right before
@@ -21,9 +22,20 @@
 # --- Phase-1 limitations ------------------------------------------------------
 # * No container:/services:/dind, no ACTIONS_RUNNER_CONTAINER_HOOKS (podman
 #   hook spike = Phase 2), no actions/cache URL wiring.
-# * /scratch/$USER is NODE-LOCAL: the logs dir must pre-exist on every
-#   partition node (one-time bootstrap in the runbook) because slurmd opens
-#   --output before this script runs.
+#
+# --- Storage layout (multi-node + wiped-scratch safe) -------------------------
+# HOME is NFS-shared (nfs-cluster-1:/HOME) and mounted identically on every
+# compute node — the PERSISTENT tier:
+#   $HOME/.cache/ebpro-runner : digest-keyed enroot sqsh cache; ONE import per
+#                               digest serves the whole cluster and survives
+#                               any /scratch wipe.
+#   $HOME/logs                : batch stdout/err (--output). slurmd opens the
+#                               file BEFORE this script runs, so the dir must
+#                               pre-exist (runbook step B); the in-job mkdir
+#                               below re-creates it if it ever disappears.
+# /scratch/$USER is NODE-LOCAL and PERIODICALLY WIPED — per-job ephemera only
+# (work dir + node-local import lock), all created lazily in-job; no pre-seeded
+# directory under /scratch is assumed anywhere.
 # =============================================================================
 #SBATCH --job-name=ebrunner-%j
 #SBATCH --open-mode=truncate
@@ -33,8 +45,10 @@ set -Eeuo pipefail
 : "${ENVFILE:?ENVFILE must be set by sbatch --export (path only, never the token)}"
 : "${RUNNER_IMAGE:?RUNNER_IMAGE must be set by sbatch --export (digest-pinned oci ref)}"
 : "${GH_ORG:?GH_ORG must be set by sbatch --export}"
+: "${HOME:?slurmd must set HOME (NFS-shared persistent tier: image cache + logs)}"
 
-S="/scratch/${USER:?slurmd must set USER}/gha-slurm"
+S="/scratch/${USER:?slurmd must set USER}/gha-slurm"   # node-local, wiped: per-job ephemera only
+C="$HOME/.cache/ebpro-runner"                          # NFS-persistent, cluster-wide image cache
 RUNDIR="${S}/work/${SLURM_JOB_ID:-unknown}"
 
 cleanup() {
@@ -45,7 +59,9 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 143' TERM INT
 
-mkdir -p "${S}/images" "${S}/work" "${S}/logs"
+# Everything is created lazily in-job: jobs land on ANY node and /scratch may
+# be freshly wiped (HOME cache/logs persist, but re-creating is idempotent).
+mkdir -p "$S" "$C" "$HOME/logs"
 
 # --- materialize the runner token (env-file -> process env, nothing on argv of
 # --- the submitting pipeline; config.sh below consumes it per the locked design)
@@ -53,15 +69,23 @@ mkdir -p "${S}/images" "${S}/work" "${S}/logs"
 : "${RUNNER_TOKEN:?RUNNER_TOKEN not found in ${ENVFILE}}"
 
 # --- enroot image cache keyed by DIGEST (never a tag) ------------------------
+# Persistent + cluster-wide: the first import of a digest lands in the NFS HOME
+# cache and every node reuses it (cache-hit test below), immune to wipes.
 DIGEST="${RUNNER_IMAGE##*@}"                     # sha256:72ac...
 IMGKEY="docker-${DIGEST//:/-}"                   # docker-sha256-72ac...
-SQSH="${S}/images/${IMGKEY}.sqsh"
+SQSH="${C}/${IMGKEY}.sqsh"
 
-# Serialize first-import per node with a flock (300 s budget covers a cold pull).
-exec 9>"${S}/images/.import.lock"
+# Per-node fast path: a node-local flock (300 s budget covers a cold pull)
+# keeps simultaneous jobs on the SAME node from importing twice. Cross-node
+# correctness does NOT rely on the lock: jobs on different nodes may import
+# concurrently, which is benign — identical digests import byte-identical
+# files. Correctness comes from the atomic install: import into a unique temp
+# inside $C, then mv onto SQSH (NFS rename is atomic), so a reader sees either
+# no file or a complete, correct one.
+exec 9>"${S}/.import.lock"
 flock -w 300 9
 if [ ! -f "$SQSH" ]; then
-    TMP_SQSH="${SQSH}.tmp.${SLURM_JOB_ID:-$$}"
+    TMP_SQSH="${C}/.tmp.$(hostname)-$$"
     # Harbor credentials come from ~/.netrc (NFS-shared HOME; runbook step B).
     enroot import -o "$TMP_SQSH" "docker://${RUNNER_IMAGE}"
     mv -f "$TMP_SQSH" "$SQSH"
