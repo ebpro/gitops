@@ -1,0 +1,60 @@
+# Enforce the workload=runner:NoSchedule taint on any node LABELLED workload=runner.
+#
+# Background (wave 2c, 2026-10-23): the org + large runner pods carry a toleration
+# for `workload=runner:NoSchedule` (see org/large *-scale-set-values.yaml). That
+# taint convention was introduced for the old dedicated laptop runner node
+# (pc-bruno-gpu) and its intent is documented in kyverno-runner-toleration-policy.yaml:
+# the taint belongs on a DEDICATED RUNNER NODE, never on the control plane, so CI
+# runners are fenced onto the runner box while the ARC listeners — which
+# deliberately carry no such toleration — keep running on compute-lsis-2.
+#
+# Since the 2026-10-16 laptop eviction NO live node carries the `workload=runner`
+# label, so this policy is INERT today. It re-establishes the fence automatically
+# the day a replacement runner node joins with `kubectl label node <n> workload=runner`.
+#
+# Why a policy and not a hand-taint: kubelet periodically re-provisions Node objects
+# and is excluded from Kyverno admission (`excludeGroups: system:nodes`), so a manual
+# taint can drift away. Running BOTH admission (real-time) and background (rescan) —
+# exactly like node-arm64-arch-taint.yaml — keeps the taint persistent. Background
+# Node mutation needs the node-update RBAC in kyverno-node-mutation-rbac.yaml.
+#
+# DELIBERATELY DOES NOT TAINT compute-lsis-2 (the control plane): runners tolerate
+# the taint but the listeners do not. Tainting the CP would evict every ARC listener
+# and stop the whole fleet from scaling. This is the corrected P0-2 — the original
+# draft said "taint the CP", which the repo's own toleration policy shows is wrong.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: node-workload-runner-taint
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    policies.kyverno.io/title: Dedicated runner nodes must carry the workload=runner taint
+    policies.kyverno.io/category: Multi-Tenancy
+    policies.kyverno.io/severity: low
+    policies.kyverno.io/subject: Node
+    policies.kyverno.io/description: >-
+      Keep the workload=runner:NoSchedule taint present on any node labelled
+      workload=runner so CI runners are fenced onto dedicated runner nodes and
+      platform / ARC-listener workloads stay elsewhere.
+spec:
+  validationFailureAction: Audit
+  background: true
+  admission: true
+  emitWarning: false
+  rules:
+    - name: taint-workload-runner-nodes
+      skipBackgroundRequests: false
+      match:
+        any:
+          - resources:
+              kinds: ["Node"]
+              selector:
+                matchLabels:
+                  workload: runner
+      mutate:
+        patchStrategicMerge:
+          spec:
+            taints:
+              - key: workload
+                value: "runner"
+                effect: NoSchedule

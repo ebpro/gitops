@@ -1,0 +1,96 @@
+# ARC runner fleet resource telemetry (wave 2c, 2026-10-23).
+#
+# P2-1 — recording rules capturing aggregate CPU / memory working-set /
+#   ephemeral-storage usage of the arc-runners namespace plus rolling 24h peaks,
+#   so runner right-sizing (maxRunners, requests/limits) is driven by observed
+#   peaks instead of guesswork.
+#   NOTE: VPA is deliberately NOT used here. It is idle (zero VPA objects in the
+#   cluster) and, more importantly, cannot target ARC-owned EphemeralRunner pods —
+#   VPA supports only the built-in workload kinds (Deployment/StatefulSet/...), not
+#   custom owner references. Recording rules are the correct mechanism for this fleet.
+#
+# P2-2 — arc-runners-specific alerts NOT already covered by kube-prometheus defaults
+#   or platform-alerts.yaml. Dedup evidence (2026-10-23):
+#     * node memory/disk pressure + eviction already alerted:
+#       platform-critical (NodeHighMemory, NodeDiskFilling/Critical,
+#       DiskWillFillIn48h) and the kubelet ruleset (KubeNodePressure, KubeNodeEviction).
+#     * generic pod Pending already alerted at 30m (platform-critical PodNotReady) and
+#       15m (KubePodNotReady). CI throughput degrades faster, so ArcRunnerPendingTooLong
+#       fires at 10m scoped to the arc-runners namespace only (runner pods; listeners
+#       and controller live in actions-runner-controller).
+#     * no existing alert names WHICH runner container OOMed — the actionable
+#       right-sizing signal — hence ArcRunnerOOMKilled.
+#
+# Metric availability: container_cpu_usage_seconds_total /
+# container_memory_working_set_bytes / container_fs_usage_bytes come from kubelet
+# cAdvisor; kube_pod_status_phase and
+# kube_pod_container_status_last_terminated_reason from kube-state-metrics. All are
+# present in this kube-prometheus stack. The ephemeral-storage series is informational
+# for right-sizing and harmless if a given runtime does not expose container_fs_usage_bytes.
+#
+# Selected by the Prometheus ruleSelector (matchLabels: release=kube-prometheus);
+# labels mirror the repo convention used by platform-alerts.yaml / link-shortener-alerts.yaml.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: arc-runner-monitoring
+  namespace: kube-prometheus
+  labels:
+    prometheus: kube-prometheus
+    release: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+    - name: arc-runner/recording
+      rules:
+        # Point-in-time aggregate usage across the runner namespace (excludes the
+        # container="POD" pod-sandbox aggregate and empty-container noise).
+        - record: arc_runners:cpu_cores:rate5m
+          expr: |
+            sum(rate(container_cpu_usage_seconds_total{namespace="arc-runners", container!="", container!="POD"}[5m]))
+        - record: arc_runners:memory_working_set:bytes
+          expr: |
+            sum(container_memory_working_set_bytes{namespace="arc-runners", container!="", container!="POD"})
+        - record: arc_runners:ephemeral_storage:bytes
+          expr: |
+            sum(container_fs_usage_bytes{namespace="arc-runners", container!="", container!="POD"})
+        # Rolling 24h peaks (subqueries over the recorded series) — the numbers to
+        # right-size maxRunners and requests/limits against.
+        - record: arc_runners:cpu_cores:peak_24h
+          expr: |
+            max_over_time(arc_runners:cpu_cores:rate5m[24h:5m])
+        - record: arc_runners:memory_working_set:peak_24h
+          expr: |
+            max_over_time(arc_runners:memory_working_set:bytes[24h:5m])
+        - record: arc_runners:ephemeral_storage:peak_24h
+          expr: |
+            max_over_time(arc_runners:ephemeral_storage:bytes[24h:5m])
+
+    - name: arc-runner/alerts
+      rules:
+        - alert: ArcRunnerOOMKilled
+          # A runner container's last termination was OOMKilled. Short-lived CI pods
+          # can vanish quickly, so this fires immediately (for: 0s) rather than after a
+          # dwell window. Repeated firing => raise that pool's runner memory limit or
+          # trim its concurrency.
+          expr: |
+            kube_pod_container_status_last_terminated_reason{namespace="arc-runners", reason="OOMKilled"} == 1
+          for: 0s
+          labels:
+            severity: warning
+          annotations:
+            summary: "ARC runner {{ $labels.namespace }}/{{ $labels.pod }} was OOMKilled"
+            description: "Container {{ $labels.container }} in {{ $labels.pod }} hit its memory limit. Review arc-runner/recording peak_24h series before adjusting requests/limits."
+
+        - alert: ArcRunnerPendingTooLong
+          # A runner pod cannot schedule (typically node memory/ephemeral request
+          # headroom exhausted — the exact failure P0-1 caps address). Scoped to
+          # arc-runners so it reflects CI scale-up failure, not any arbitrary pod.
+          expr: |
+            kube_pod_status_phase{namespace="arc-runners", phase="Pending"} == 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "ARC runner {{ $labels.pod }} stuck Pending >10m"
+            description: "A runner pod in arc-runners has been Pending for 10 minutes — likely no node with sufficient memory/ephemeral-storage request headroom, or the scale-set maxRunners cap is saturated."

@@ -9,6 +9,7 @@ resources:
   - crds/actions.github.com_ephemeralrunners.yaml
   - crds/actions.github.com_ephemeralrunnersets.yaml
   - node-arm64-arch-taint.yaml
+  - node-workload-runner-taint.yaml
   - kyverno-node-mutation-rbac.yaml
   - kyverno-runner-toleration-policy.yaml
   - kyverno-runner-image-verify.yaml

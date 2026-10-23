@@ -10,7 +10,8 @@
 # an exclude block. No exclusions needed for runner pods: per the
 # kyverno-runner-toleration-policy.yaml evidence, arc-runners contains only
 # EphemeralRunner-owned pods, and every one of them now runs a keyless-signed
-# sha-8e38db8 build (all four scale sets re-pinned in wave 2b).
+# build referenced by immutable digest (all four scale sets digest-pinned in
+# wave 2c; verifyDigest: true now asserts that invariant in Audit).
 #
 # Operational prerequisites for verification to actually execute (unmet deps
 # surface as audit failures / webhook errors, never as a silent pass):
@@ -106,8 +107,16 @@ spec:
           # Keep tags as-authored while auditing (mutation is moot in Audit;
           # revisit mutateDigest at Enforce time).
           mutateDigest: false
-          # Runner pods reference immutable tags, not digests.
-          verifyDigest: false
+          # 2026-10-23 (wave 2c): all four scale sets are now pinned by immutable
+          # digest (org/arm/large re-pinned to the sha-8e38db8 OCI-index digest,
+          # ai-review already was). Enforce that matching quarkus-ci-runner refs
+          # carry a digest. Still Audit mode, so this only records a violation on
+          # a tag-referenced runner pod — it does not block. ai-review has run
+          # digest-pinned under this rule since 2026-10-16, proving cosign .sig
+          # lookup resolves on @sha256: references (the .sig blob is stored under
+          # the digest the tag resolved to, so a digest ref finds the same
+          # signature that was made against tag sha-8e38db8).
+          verifyDigest: true
           # Admission-defaulted fields pinned for SSA convergence (values equal
           # Kyverno 1.15 defaults; same reason as skipBackgroundRequests above).
           required: true

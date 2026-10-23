@@ -7,6 +7,24 @@
 # 2026-10-16: laptop permanently evicted from the cluster — preferred-node
 # affinity removed; runners schedule on amd64 nodes (compute-lsis-2) only.
 # maxRunners kept at 4 (4x4Gi requests fit compute-lsis-2).
+# 2026-10-23 (wave 2c, capacity + supply-chain hardening):
+#   * maxRunners 4->2: compute-lsis-2 carries ~33.6Gi of the ~55.7Gi allocatable
+#     in platform memory REQUESTS (60%, live `kubectl describe node`), leaving
+#     ~22Gi. Every org runner pod reserves 4Gi (runner) + 512Mi (dind) = 4.5Gi of
+#     requests; at max 4 org + 2 large = 6 concurrent pods = 27Gi > 22Gi headroom,
+#     so the tail runners would sit Pending. Capping org at 2 (+ large at 1) =
+#     3 concurrent = 13.5Gi, leaving ~8.5Gi margin. Runners are scale-to-zero so
+#     this trims PEAK concurrency only, not steady-state throughput.
+#   * ephemeral-storage now requested+bounded on both containers (was BestEffort):
+#     unbounded dind scratch could silently fill the node disk and trigger
+#     DiskPressure evictions of neighbours. Worst case 3 pods x (5Gi+15Gi) = 60Gi
+#     requests vs ~176Gi allocatable — safe. dind LIMIT 30Gi evicts a runaway
+#     build before it starves the node.
+#   * runner + dind images pinned by immutable digest (see kyverno policy
+#     verify-arc-runner-images, now verifyDigest: true). quarkus-ci-runner digest
+#     = the Harbor OCI-index digest of the former sha-8e38db8 tag (byte-identical,
+#     cross-verified 2026-10-16 in ai-review-scale-set-values.yaml). docker:28-dind
+#     digest = Docker Hub OCI-index digest sha256:2a232a42... (resolves per-arch).
 runnerScaleSetName: ebpro-org
 githubConfigUrl: https://github.com/ebpro
 githubConfigSecret: arc-github-creds
@@ -16,9 +34,12 @@ scaleSetLabels:
   - ebpro-org
   - x64
 minRunners: 0
-maxRunners: 4
+maxRunners: 2
 dind:
-  image: docker:28-dind
+  # 2026-10-23: pinned by immutable OCI-index digest (was floating tag docker:28-dind,
+  # which Docker silently re-pushes). Multi-arch index resolves to the amd64 child on
+  # compute-lsis-2. UNSIGNED by design — not matched by verify-arc-runner-images.
+  image: docker:28-dind@sha256:2a232a42256f70d78e3cc5d2b5d6b3276710a0de0596c145f627ecfae90282ac
   # 2026-10-13: dind sidecar was unbounded (BestEffort, no requests/limits).
   # Memory limit 3Gi (not 4Gi) so 4 runners x (8Gi runner + 3Gi dind) = 44Gi
   # stays under ~45Gi when the laptop is off and all load lands on compute-lsis-2.
@@ -31,8 +52,10 @@ dind:
     requests:
       cpu: 250m
       memory: 512Mi
+      ephemeral-storage: 15Gi
     limits:
       memory: 6Gi
+      ephemeral-storage: 30Gi
 containerMode:
   type: dind
 controllerServiceAccount:
@@ -57,7 +80,10 @@ template:
       - name: harbor-node-pull
     containers:
       - name: runner
-        image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:sha-8e38db8
+        # 2026-10-23: digest-pinned (was :sha-8e38db8). Harbor OCI-index digest of the
+        # same 2026-10-14 cosign keyless-signed main build — byte-identical content,
+        # now an immutable reference. Cross-verified in ai-review-scale-set-values.yaml.
+        image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner@sha256:72ac7d9f25940b4f1221b32d5105d10ac3cc3c983f1b2ecf3d31ee9acc4a1c47
         command: ["/home/runner/run.sh"]
         env:
           - name: ACTIONS_RESULTS_URL
@@ -70,9 +96,11 @@ template:
           requests:
             cpu: 2
             memory: 4Gi
+            ephemeral-storage: 5Gi
           limits:
             cpu: 4
             memory: 8Gi
+            ephemeral-storage: 10Gi
 listenerTemplate:
   spec:
     imagePullSecrets:

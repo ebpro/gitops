@@ -11,6 +11,15 @@
 # 2026-10-17); CPU unchanged from the org pool. NOTE: ARC 0.14.2's AutoscalingRunnerSet CRD has no scaleDownDelay field, so
 # idle scale-down timing uses the controller default; a runner with an active job
 # is never scaled down (ARC checks for running jobs first), so mid-build is safe.
+# 2026-10-23 (wave 2c, capacity + supply-chain hardening):
+#   * maxRunners 2->1: large pods pin to compute-lsis-2 by hostname — the SAME
+#     memory-tight node the org pool uses. Platform memory requests there are
+#     ~33.6Gi of ~55.7Gi (60%). With org capped at 2, one large runner (4.5Gi of
+#     requests) keeps total concurrent runner requests ~13.5Gi inside headroom;
+#     two large + two org (4 pods, 18Gi) was marginal. large is opt-in/scale-to-zero
+#     so this only trims peak concurrency; excess `large` jobs queue, never stall org.
+#   * ephemeral-storage requested+bounded on runner + dind (was BestEffort) and
+#     images pinned by immutable digest — see org-scale-set-values.yaml header.
 runnerScaleSetName: ebpro-org-large
 githubConfigUrl: https://github.com/ebpro
 githubConfigSecret: arc-github-creds
@@ -20,10 +29,11 @@ scaleSetLabels:
   - x64
   - large
 minRunners: 0
-maxRunners: 2
+maxRunners: 1
 dind:
   # rootless dind paused 2026-10-17: Ubuntu kernel 6.8.0-142 breaks procfs newinstance mounts (rootless runtimes unbootable). Re-enable via chart dind.rootless once kernel pinned/fixed.
-  image: docker:28-dind
+  # 2026-10-23: pinned by immutable OCI-index digest (was floating tag docker:28-dind).
+  image: docker:28-dind@sha256:2a232a42256f70d78e3cc5d2b5d6b3276710a0de0596c145f627ecfae90282ac
   # 2026-10-13: bound the dind sidecar. 2 x (16Gi runner + 8Gi dind) = 48Gi
   # max on one node — inside ~55Gi allocatable. No CPU limit (builds).
   # 2026-10-17: REQUESTS right-sized to observed fleet usage (~0.2-0.4Gi/pod
@@ -34,8 +44,10 @@ dind:
     requests:
       cpu: 500m
       memory: 512Mi
+      ephemeral-storage: 15Gi
     limits:
       memory: 8Gi
+      ephemeral-storage: 30Gi
 containerMode:
   type: dind
 controllerServiceAccount:
@@ -67,7 +79,9 @@ template:
       - name: harbor-node-pull
     containers:
       - name: runner
-        image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner:sha-8e38db8
+        # 2026-10-23: digest-pinned (was :sha-8e38db8) — same 2026-10-14 cosign
+        # keyless-signed main build, now immutable. Cross-verified in ai-review values.
+        image: harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner@sha256:72ac7d9f25940b4f1221b32d5105d10ac3cc3c983f1b2ecf3d31ee9acc4a1c47
         command: ["/home/runner/run.sh"]
         env:
           - name: ACTIONS_RESULTS_URL
@@ -83,9 +97,11 @@ template:
           requests:
             cpu: 2
             memory: 4Gi
+            ephemeral-storage: 5Gi
           limits:
             cpu: 4
             memory: 16Gi
+            ephemeral-storage: 10Gi
 listenerTemplate:
   spec:
     imagePullSecrets:

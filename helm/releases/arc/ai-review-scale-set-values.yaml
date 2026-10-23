@@ -13,6 +13,9 @@
 # Targeted at the arm64 node (lima-k3s-agent) — same node as ebpro-org-arm.
 # Scale-to-zero: no persistent runner; spins up on demand when a workflow
 # requests the `best-practices` label.
+# 2026-10-23 (wave 2c): ephemeral-storage requested+bounded on the runner (was
+# BestEffort). Image already digest-pinned (2026-10-16); no dind sidecar on this
+# pool. Satisfies verify-arc-runner-images verifyDigest: true with no image change.
 runnerScaleSetName: ebpro-ai-review
 githubConfigUrl: https://github.com/ebpro
 githubConfigSecret: arc-github-creds
@@ -55,9 +58,11 @@ template:
           requests:
             cpu: 2
             memory: 4Gi
+            ephemeral-storage: 5Gi
           limits:
             cpu: 4
             memory: 8Gi
+            ephemeral-storage: 10Gi
 listenerTemplate:
   spec:
     imagePullSecrets:
