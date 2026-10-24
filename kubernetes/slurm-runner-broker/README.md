@@ -130,7 +130,9 @@ ssh emmanuel.bruno@sms-ext.lis-lab.fr \
 > ouranos node reuses it (wipe-surviving; concurrent cross-node imports are
 > safe — atomic NFS rename of byte-identical files). Per-job work dirs stay on
 > node-local `/scratch`, lazily re-created in-job after any wipe; job logs
-> persist under `$HOME/logs`.
+> persist under `$HOME/logs`. Jobs opportunistically GC `.tmp.*` import orphans
+> older than 4 h in the shared NFS cache (fresh in-progress imports on any node
+> are never touched).
 
 ## Step C — Build the broker image (Gitea repo)
 

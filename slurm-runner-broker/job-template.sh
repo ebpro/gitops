@@ -63,6 +63,9 @@ trap 'exit 143' TERM INT
 # be freshly wiped (HOME cache/logs persist, but re-creating is idempotent).
 mkdir -p "$S" "$C" "$HOME/logs"
 
+# Opportunistic GC of .tmp.* import orphans: only deletes those older than 4h (a concurrent in-progress import on any node has a fresh mtime, never touched); `|| true` makes find failure non-fatal.
+find "$C" -maxdepth 1 -name '.tmp.*' -mmin +240 -delete 2>/dev/null || true
+
 # --- materialize the runner token (env-file -> process env, nothing on argv of
 # --- the submitting pipeline; config.sh below consumes it per the locked design)
 . "$ENVFILE"
