@@ -1,6 +1,4 @@
-# AUDIT-mode cosign keyless signature verification for ARC runner images
-# (wave 2b, 2026-10-14). validationFailureAction is deliberately Audit, NOT
-# Enforce — observe the finding rate before ever blocking runner pods.
+# 2026-10-24: verified empirically — arc-selftest run 40049645239 exercised org (x64) and arm (arm64) runner admissions under verifyDigest: true with zero PolicyViolations; all four scale sets pin the same signed digests. Enforce active.
 #
 # Scope: Pods in arc-runners only (ephemeral runner pods are the ground truth;
 # the controller and all listeners run in actions-runner-controller). Only the
@@ -80,7 +78,7 @@ metadata:
       main branch (GitHub Actions OIDC identity), timestamped on public-good
       Rekor.
 spec:
-  validationFailureAction: Audit
+  validationFailureAction: Enforce
   background: false
   admission: true
   emitWarning: false
