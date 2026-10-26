@@ -62,7 +62,26 @@ template:
           limits:
             cpu: 4
             memory: 8Gi
+<<<<<<< Updated upstream
             ephemeral-storage: 10Gi
+=======
+        # Docker Hub auth for the runner-side docker client. Source: ESO
+        # kubernetes/arc/dockerhub-pull-external-secret.yaml → Secret
+        # docker-hub-registry (dockerconfigjson), projected as config.json.
+        # (ai-review runs CLI-free today; mounted defensively so a future
+        # chart dind opt-in needs no second values change.)
+        volumeMounts:
+          - name: docker-config
+            mountPath: /home/runner/.docker
+            readOnly: true
+    volumes:
+      - name: docker-config
+        secret:
+          secretName: docker-hub-registry
+          items:
+            - key: .dockerconfigjson
+              path: config.json
+>>>>>>> Stashed changes
 listenerTemplate:
   spec:
     imagePullSecrets:
