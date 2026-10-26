@@ -67,3 +67,9 @@ compliance:
     - k8s-pss-baseline-0.1
     - k8s-cis-1.23
     - k8s-pss-restricted-0.1
+
+tolerations:
+  - key: kubernetes.io/arch
+    operator: Equal
+    value: arm64
+    effect: NoSchedule
