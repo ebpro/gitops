@@ -14,7 +14,7 @@ metadata:
     app.kubernetes.io/instance: slurm-runner-broker
 spec:
   # raise to 1 after runbook steps A-C
-  replicas: 0
+  replicas: 1
   # Single-instance semantics (in-memory dispatch state + poll loop): never let
   # two brokers overlap during an update.
   strategy:
