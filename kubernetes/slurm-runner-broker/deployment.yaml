@@ -30,11 +30,13 @@ spec:
         app.kubernetes.io/instance: slurm-runner-broker
     spec:
       automountServiceAccountToken: false
-      # Lab-zone DNS: sms-ext.lis-lab.fr lives in the LAN zone that 8.8.8.8
-      # (node resolv.conf upstream) cannot see; 10.2.248.1 resolves lab + public
-      # (same pattern as kubernetes/llm-gateway/deployment.yaml). Cilium egress
-      # still gates it: DNS goes to world:53, see cilium-networkpolicy.yaml.
-      dnsPolicy: None
+      # Lab network (192.168.4.0/x) is only reachable from the host's network
+      # stack, not from the Cilium pod overlay — the broker runs on the host
+      # net. DNS follows the node's resolv.conf plus cluster search domains;
+      # the lab-zone dnsConfig below only takes effect if dnsPolicy is
+      # switched back to None (kept as the lab-DNS fallback).
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       dnsConfig:
         nameservers:
           - 10.2.248.1
