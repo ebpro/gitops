@@ -17,7 +17,7 @@ data:
   SMS_HOST: "sms-ext.lis-lab.fr"
   SLURM_USER: "emmanuel.bruno"
   # GitHub org whose queued runs are polled + where runners register.
-  GH_ORG: "ebpro-org"
+  GH_ORG: "ebpro"
   # Slurm partition + job shape for one ephemeral runner.
   SLURM_PARTITION: "ouranos"
   SLURM_CPUS: "8"

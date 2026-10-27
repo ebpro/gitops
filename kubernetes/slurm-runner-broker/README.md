@@ -2,7 +2,7 @@
 
 Brings up the ephemeral-runner tier: an in-cluster broker (`Deployment`
 `slurm-runner-broker`, currently `replicas: 0`) that polls GitHub org
-`ebpro-org` for queued runs labelled `[self-hosted, linux, x64, hpc]` and
+`ebpro` for queued runs labelled `[self-hosted, linux, x64, hpc]` and
 `sbatch`-es one ephemeral runner per queued job onto SMS partition `ouranos`
 over `ssh emmanuel.bruno@sms-ext.lis-lab.fr` (forced command
 `/usr/local/bin/ebrunner-gate` — see step A3 +
@@ -46,7 +46,7 @@ Run on SMS (any authorized access path):
 
 ```sh
 mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
-echo 'restrict,from="10.2.248.0/24",no-pty,command="/usr/local/bin/ebrunner-gate" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNORGDO6WO6brOnHO8geiseMqyf93WymLowzDHRq8Si slurm-runner-broker@ebpro-org' >> ~/.ssh/authorized_keys
+echo 'restrict,from="10.2.248.0/24",no-pty,command="/usr/local/bin/ebrunner-gate" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNORGDO6WO6brOnHO8geiseMqyf93WymLowzDHRq8Si slurm-runner-broker@ebpro' >> ~/.ssh/authorized_keys
 ```
 
 Verify (once A3's gate is installed — this is one of the gate's allow-listed
@@ -168,7 +168,7 @@ kubectl logs deploy/slurm-runner-broker -n slurm-runner-broker | head -5
 
 ## Step E — Smoke test the tier
 
-Push to any repo in `ebpro-org`:
+Push to any repo in `ebpro`:
 
 ```yaml
 # .github/workflows/hpc-smoke.yaml
