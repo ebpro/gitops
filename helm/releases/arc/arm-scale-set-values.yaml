@@ -78,21 +78,6 @@ template:
             cpu: 4
             memory: 16Gi
             ephemeral-storage: 10Gi
-        # Docker Hub auth for the runner-side docker client (client sends creds
-        # to the dind daemon at pull time). Source: ESO
-        # kubernetes/arc/dockerhub-pull-external-secret.yaml → Secret
-        # docker-hub-registry (dockerconfigjson), projected as config.json.
-        volumeMounts:
-          - name: docker-config
-            mountPath: /home/runner/.docker
-            readOnly: true
-    volumes:
-      - name: docker-config
-        secret:
-          secretName: docker-hub-registry
-          items:
-            - key: .dockerconfigjson
-              path: config.json
 listenerTemplate:
   spec:
     imagePullSecrets:
