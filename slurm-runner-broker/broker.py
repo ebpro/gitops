@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Slurm ephemeral-runner broker (Phase 1).
 
-Polls GitHub org queued workflow runs; for every queued job whose label set is
-a superset of {hpc, self-hosted, linux, x64} it submits ONE Slurm batch job via
+Polls queued workflow runs per repo (round-robin over cached repos with
+workflows); for every queued job whose label set is a superset of
+{hpc, self-hosted, linux, x64} it submits ONE Slurm batch job via
 ssh+sbatch on the SMS cluster. Each Slurm job boots an ephemeral GitHub Actions
 runner (actions/runner binary baked into the digest-pinned enroot image) that
 self-registers, runs exactly one job, and deregisters.
@@ -53,6 +54,10 @@ WTIME = os.environ["SLURM_TIME"]                       # "01:30:00"
 RUNNER_IMAGE = os.environ["RUNNER_IMAGE"]              # harbor...@sha256:... (digest REQUIRED)
 MAX_PARALLEL = int(os.environ.get("MAX_PARALLEL", "4"))
 POLL_SECONDS = int(os.environ.get("POLL_SECONDS", "15"))
+REPOS_PER_TICK = int(os.environ.get("REPOS_PER_TICK", "12"))
+REPO_REFRESH_SECONDS = int(os.environ.get("REPO_REFRESH_SECONDS", "1800"))
+RATE_LIMIT_FLOOR = int(os.environ.get("RATE_LIMIT_FLOOR", "500"))
+RATE_LIMIT_BACKOFF_MAX = 300
 
 API = "https://api.github.com"
 USER_AGENT = "slurm-runner-broker/0.1"
@@ -192,6 +197,8 @@ class GitHubClient:
             self._priv = _load_rsa_private_pem(f.read())
         self._token = None
         self._token_exp = 0.0
+        self._rate_remaining = None
+        self._rate_reset = None
 
     def _installation_token(self):
         if self._token and time.time() < self._token_exp:
@@ -199,7 +206,7 @@ class GitHubClient:
         if not self.installation_id:
             raise RuntimeError("github_app_installation_id missing")
         data = self._raw("POST",
-                         "/app/installations/%s/installation_tokens" % self.installation_id,
+                         "/app/installations/%s/access_tokens" % self.installation_id,
                          body={})
         self._token = data["token"]
         exp = time.time() + 3300  # 55 min hard cache cap (tokens live 1 h)
@@ -249,20 +256,66 @@ class GitHubClient:
         if body is not None:
             data = json.dumps(body).encode()
             req.add_header("Content-Type", "application/json")
-        with urllib.request.urlopen(req, data=data, timeout=30) as r:
-            payload = r.read()
-            return json.loads(payload) if payload.strip() else {}
+        try:
+            with urllib.request.urlopen(req, data=data, timeout=30) as r:
+                self._rate_remaining = r.headers.get("X-RateLimit-Remaining")
+                self._rate_reset = r.headers.get("X-RateLimit-Reset")
+                payload = r.read()
+                return json.loads(payload) if payload.strip() else {}
+        except urllib.error.HTTPError as e:
+            self._rate_remaining = e.headers.get("X-RateLimit-Remaining")
+            self._rate_reset = e.headers.get("X-RateLimit-Reset")
+            raise
 
     # -- endpoints used -----------------------------------------------------
-    def queued_runs(self):
+    def org_repos(self):
+        """Full names of every repo the installation can see (paginated)."""
         out, page = [], 1
         while True:
-            d = self._inst("GET", "/orgs/%s/actions/runs?status=queued&per_page=100&page=%d"
-                           % (ORG, page))
+            d = self._inst("GET", "/orgs/%s/repos?per_page=100&page=%d" % (ORG, page))
+            out.extend(r["full_name"] for r in d)
+            if len(d) < 100:
+                return out
+            page += 1
+
+    def has_workflows(self, repo_full_name):
+        """True if <repo>/.github/workflows/ exists and is non-empty."""
+        try:
+            d = self._inst("GET", "/repos/%s/contents/.github/workflows" % repo_full_name)
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return False
+            raise
+        return isinstance(d, list) and len(d) > 0
+
+    def queued_runs_for(self, repo_full_name):
+        """Queued workflow runs of ONE repo (paginated)."""
+        out, page = [], 1
+        while True:
+            d = self._inst("GET",
+                           "/repos/%s/actions/runs?status=queued&per_page=100&page=%d"
+                           % (repo_full_name, page))
             out.extend(d.get("workflow_runs", []))
             if page * 100 >= d.get("total_count", 0) or not d.get("workflow_runs"):
                 return out
             page += 1
+
+    def rate_limit_wait(self):
+        """Seconds to wait before next API call; 0 if budget OK."""
+        if self._rate_remaining is None:
+            return 0
+        try:
+            rem = int(self._rate_remaining)
+        except (TypeError, ValueError):
+            return 0
+        if rem >= RATE_LIMIT_FLOOR:
+            return 0
+        if self._rate_reset is None:
+            return RATE_LIMIT_BACKOFF_MAX
+        try:
+            return max(0, int(self._rate_reset) - int(time.time()) + 30)
+        except (TypeError, ValueError):
+            return RATE_LIMIT_BACKOFF_MAX
 
     def queued_hpc_jobs(self, repo_full_name, run_id):
         d = self._inst("GET", "/repos/%s/actions/runs/%s/jobs" % (repo_full_name, run_id))
@@ -304,7 +357,7 @@ class SmsClient:
     def _run(self, remote_cmd, stdin=None, timeout=60):
         argv = ["ssh",
                 "-o", "BatchMode=yes",
-                "-o", "ConnectTimeout=10",
+                "-o", "ConnectTimeout=30",
                 "-o", "StrictHostKeyChecking=yes",
                 "-o", "IdentitiesOnly=yes",
                 "-o", "UserKnownHostsFile=" + KNOWN_HOSTS,
@@ -380,8 +433,7 @@ class SmsClient:
                 # NFS-mounted identically on SMS and compute, so the job finds
                 # both this log path and the env file under the same $HOME.
                 # self.home is resolved by connect_check() before any dispatch.
-                "--output", "%s/logs/%s%%j.out" % (self.home, RUNNER_PREFIX),
-                "-"]
+                "--output", "%s/logs/%s%%j.out" % (self.home, RUNNER_PREFIX)]
         full = "exec " + " ".join(_shell_quote(a) for a in argv)
         out = self._run(full, stdin=template, timeout=90)
         m = re.search(r"Submitted batch job (\d+)", out.decode())
@@ -405,6 +457,9 @@ class Broker:
         #                  "envfile": str, "attempts": int}}}
         self.dispatched = {}
         self.offline_since = {}  # runner_id -> first-seen-offline ts (reconciled at boot)
+        self.workflow_repos = None
+        self.repo_refresh_at = 0.0
+        self._cursor = 0
 
     # -- boot reconciliation -------------------------------------------------
     def reconcile(self):
@@ -412,15 +467,70 @@ class Broker:
         ainfo(event="boot_reconcile", live_slurm_jobs=sorted(live))
         return live
 
+    def refresh_repo_cache(self):
+        """Rebuild the poll set: org repos x .github/workflows probe."""
+        now = time.time()
+        if self.workflow_repos is not None and \
+                now - self.repo_refresh_at < REPO_REFRESH_SECONDS:
+            return
+        try:
+            repos = self.gh.org_repos()
+        except (urllib.error.URLError, urllib.error.HTTPError) as e:
+            ainfo(event="repo_list_failed", err=str(e)[:200])
+            self.repo_refresh_at = now - REPO_REFRESH_SECONDS + 300
+            return
+        wf = []
+        for r in repos:
+            try:
+                if self.gh.has_workflows(r):
+                    wf.append(r)
+            except (urllib.error.URLError, urllib.error.HTTPError) as e:
+                if isinstance(e, urllib.error.HTTPError) and e.code == 403:
+                    # Private repo the installation lacks actions:read on —
+                    # expected noise, skip it instead of aborting the refresh.
+                    log.debug("workflow_probe_skipped",
+                              extra={"fields": {"repo": r, "err": str(e)[:200]}})
+                    continue
+                ainfo(event="workflow_probe_failed", repo=r, err=str(e)[:200])
+                self.repo_refresh_at = now - REPO_REFRESH_SECONDS + 300
+                return
+        self.workflow_repos = wf
+        self.repo_refresh_at = time.time()
+        self._cursor = 0
+        ainfo(event="repo_cache_refreshed", org_repos=len(repos),
+              workflow_repos=len(wf), repos=wf)
+
+    def _poll_worklist(self):
+        """Round-robin over workflow_repos, at most REPOS_PER_TICK per tick."""
+        runs, polled = [], set()
+        repos = self.workflow_repos or []
+        n = len(repos)
+        if n == 0:
+            return runs, polled
+        k = min(REPOS_PER_TICK, n)
+        for i in range(k):
+            repo = repos[(self._cursor + i) % n]
+            try:
+                runs.extend(self.gh.queued_runs_for(repo))
+            except urllib.error.HTTPError as e:
+                if e.code in (404, 410):
+                    continue
+                raise
+            polled.add(repo)
+        self._cursor = (self._cursor + k) % n
+        return runs, polled
+
     # -- dispatch ------------------------------------------------------------
     def poll_once(self, live):
-        runs = self.gh.queued_runs()
+        self.refresh_repo_cache()
+        runs, polled_repos = self._poll_worklist()
         queued_ids = {r["id"] for r in runs}
 
-        # Forget dispatches whose runs left the queued state (claimed or gone).
-        # Env-file lifecycle is owned by each job's EXIT trap; anything orphaned
-        # (e.g. cancelled in PD) is reaped by the periodic gc_envfiles().
+        # Forget dispatches whose runs left queued state — only for repos
+        # actually polled this tick (a skipped repo may still have queued runs).
         for rid in list(self.dispatched):
+            if self.dispatched[rid]["repo"] not in polled_repos:
+                continue
             if rid not in queued_ids:
                 del self.dispatched[rid]
 
@@ -540,7 +650,9 @@ def main():
     sms = SmsClient()
     broker = Broker(gh, sms)
     ainfo(event="broker_start", org=ORG, host=SMS_HOST, partition=PARTITION,
-          image=RUNNER_IMAGE, max_parallel=MAX_PARALLEL, poll_seconds=POLL_SECONDS)
+          image=RUNNER_IMAGE, max_parallel=MAX_PARALLEL, poll_seconds=POLL_SECONDS,
+          repos_per_tick=REPOS_PER_TICK, repo_refresh_seconds=REPO_REFRESH_SECONDS,
+          rate_limit_floor=RATE_LIMIT_FLOOR)
 
     ssh_backoff = 0
     gc_counter = 0
@@ -562,6 +674,13 @@ def main():
                               else SSH_BACKOFF_BASE, SSH_BACKOFF_MAX)
             ainfo(event="ssh_backoff", wait=ssh_backoff, err=str(e)[:300])
             time.sleep(ssh_backoff)
+            continue
+
+        rl_wait = gh.rate_limit_wait()
+        if rl_wait > 0:
+            ainfo(event="rate_limit_backoff",
+                  wait_s=min(rl_wait, RATE_LIMIT_BACKOFF_MAX))
+            time.sleep(min(rl_wait, RATE_LIMIT_BACKOFF_MAX))
             continue
 
         try:

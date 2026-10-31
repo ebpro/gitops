@@ -26,7 +26,10 @@ data:
   # Ephemeral-runner image imported by enroot on the compute nodes. MUST stay
   # digest-pinned: broker.py refuses to start on a tag (job-template.sh keys the
   # image cache by digest, never by tag).
-  RUNNER_IMAGE: "harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner@sha256:72ac7d9f25940b4f1221b32d5105d10ac3cc3c983f1b2ecf3d31ee9acc4a1c47"
+  RUNNER_IMAGE: "harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner@sha256:9873f7da19a649c2b2e6eb1395a97174e01d27449ea307a44427a7de26a0e766"
+  # Path where the job template is mounted in the broker pod (separate
+  # broker-job-template ConfigMap, see job-template-configmap.yaml).
+  JOB_TEMPLATE: "/etc/slurm-broker/job-template.sh"
   # Broker behavior.
   MAX_PARALLEL: "4"
   POLL_SECONDS: "15"

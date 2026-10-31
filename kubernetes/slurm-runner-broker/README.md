@@ -1,10 +1,10 @@
 # slurm-runner-broker — Operator Runbook (Phase 1)
 
 Brings up the ephemeral-runner tier: an in-cluster broker (`Deployment`
-`slurm-runner-broker`, currently `replicas: 0`) that polls GitHub org
-`ebpro` for queued runs labelled `[self-hosted, linux, x64, hpc]` and
-`sbatch`-es one ephemeral runner per queued job onto SMS partition `ouranos`
-over `ssh emmanuel.bruno@sms-ext.lis-lab.fr` (forced command
+`slurm-runner-broker`, currently `replicas: 1` — **enabled**) that polls
+GitHub org `ebpro` for queued runs labelled `[self-hosted, linux, x64, hpc]`
+and `sbatch`-es one ephemeral runner per queued job onto SMS partition
+`ouranos` over `ssh emmanuel.bruno@sms-ext.lis-lab.fr` (forced command
 `/usr/local/bin/ebrunner-gate` — see step A3 +
 [`../../slurm-runner-broker/ebrunner-gate.sh`](../../slurm-runner-broker/ebrunner-gate.sh)).
 
@@ -16,10 +16,29 @@ the same day: it now carries `ssh_private_key` / `ssh_public_key` / `sms_host`
 ESO policy `external-secrets` (`secret/data/*` read+list) already covers it —
 verified, no Vault change needed for ESO reads.
 
-**The broker will not start** until steps A–C are complete: the broker key is
-not yet in SMS `authorized_keys` and the forced-command gate is not yet
-installed (step A), and no image is pushed yet (step C). The `replicas: 0`
-Deployment keeps everything inert meanwhile.
+The broker is **enabled** (`replicas: 1`): it boots and enters its poll loop
+even when the runtime prerequisites below are incomplete — if the SMS side is
+not ready (key or gate missing) the ssh attempts fail and the loop backs off
+(30 s → 300 s, logged as `ssh_backoff`) and keeps retrying instead of
+exiting. The **HPC smoke test will not succeed** until ALL of the following
+hold:
+
+1. **SMS gate + broker key installed** (step A): the forced command
+   `/usr/local/bin/ebrunner-gate` exists on the SMS and the broker key is in
+   SMS `authorized_keys`.
+2. **Harbor/enroot credentials seeded in netrc format** at
+   `$HOME/.config/enroot/.credentials` on the SMS (NFS-shared `$HOME` — step
+   B). Enroot reads only `$ENROOT_CONFIG_PATH/.credentials` in netrc format —
+   never the home-directory netrc file.
+3. **Shared lz4 `.sqsh` cache prewarmed** for the pinned runner image digest
+   (step B pre-warm — compute nodes lack the import capabilities).
+4. **Broker image in lockstep with this repo**: the running
+   `slurm-runner-broker:latest` image must contain the current `broker.py`
+   (lazy registration-token endpoint + shell-quoted `sbatch` argv that never
+   carries the token in argv).
+5. **SMS gate version matches the broker's `sbatch` argv arity** (gate and
+   broker must be deployed in lockstep; the gate's header comment documents
+   its contract).
 
 Brokered key (audit fingerprint):
 `SHA256:LfCHXlnnJ8NqjyF0eg1/XJrr5z3eoZVNe4cSpo3wNv4` (ED25519)
@@ -104,15 +123,30 @@ SMS admin performs the install. After A1+A3, run the A1 verify line.
 ## Step B — SMS side: Harbor login for enroot + NFS cache/logs bootstrap
 
 The compute nodes' `enroot import` authenticates against Harbor using
-`~/.netrc` in `$HOME` (NFS-shared — one seed covers all nodes). Credentials
-are the same robot account the cluster already uses for node pulls (Secret
-`harbor-node-pull` in ns `arc-runners`). **Never print the extracted auth.**
+`$ENROOT_CONFIG_PATH/.credentials` in `$HOME` (NFS-shared — one seed covers all
+nodes). Per the NVIDIA enroot docs, this file follows the **netrc file format**
+("Credentials can be configured through the file `$ENROOT_CONFIG_PATH/.credentials`
+following the netrc file format") — it is *not* a Docker `config.json` document
+and enroot does *not* read the home-directory netrc file. The job template sets
+`ENROOT_CONFIG_PATH="$HOME/.config/enroot"`, so the working runtime file is
+`$HOME/.config/enroot/.credentials`. Credentials are the same robot account the
+cluster already uses for node pulls (Secret `harbor-node-pull` in ns
+`arc-runners`, whose `.dockerconfigjson` field holds a Docker `config.json`
+document: base64 `user:password` under `auths["harbor.ebruno.fr"].auth`).
+**Never print the extracted auth.**
 
 ```sh
 kubectl get secret harbor-node-pull -n arc-runners -o jsonpath='{.data.\.dockerconfigjson}' \
   | base64 -d \
-  | python3 -c 'import json,sys; a=json.load(sys.stdin)["auths"]["harbor.ebruno.fr"]["auth"]; print("machine harbor.ebruno.fr\nlogin %s\npassword %s" % tuple(__import__("base64").b64decode(a).decode().split(":",1)))' \
-  | ssh emmanuel.bruno@sms-ext.lis-lab.fr 'umask 077; cat > ~/.netrc && chmod 600 ~/.netrc'
+  | python3 -c 'import base64, json, sys; a=json.load(sys.stdin)["auths"]["harbor.ebruno.fr"]["auth"]; user,password=base64.b64decode(a).decode("utf-8").split(":", 1); sys.stdout.write("machine harbor.ebruno.fr\nlogin %s\npassword %s\n" % (user, password))' \
+  | ssh emmanuel.bruno@sms-ext.lis-lab.fr 'umask 077; mkdir -p ~/.config/enroot && cat > ~/.config/enroot/.credentials && chmod 600 ~/.config/enroot/.credentials'
+```
+
+Verify-only — checks the netrc shape (counts) without printing any content;
+expect `1` on all three lines:
+
+```sh
+ssh emmanuel.bruno@sms-ext.lis-lab.fr 'grep -c "^machine harbor.ebruno.fr$" ~/.config/enroot/.credentials; grep -c "^login " ~/.config/enroot/.credentials; grep -c "^password " ~/.config/enroot/.credentials'
 ```
 
 One-time NFS bootstrap — `--output=$HOME/logs/ebrunner-%j.out` (broker-resolved
@@ -123,6 +157,36 @@ identically on every node), so ONE mkdir covers the whole cluster:
 ```sh
 ssh emmanuel.bruno@sms-ext.lis-lab.fr \
   'srun -p ouranos mkdir -p $HOME/.cache/ebpro-runner $HOME/logs'
+```
+
+### Pre-warm the shared image cache (required — compute nodes cannot import)
+
+The ouranos compute nodes **lack the enroot import file capabilities**
+(`cap_sys_admin` on `enroot-aufs2ovlfs`), so an in-job `enroot import` on a
+node fails. The broker job template detects this and **fails fast** with a
+clear message instead of attempting an import — the shared cache
+`$HOME/.cache/ebpro-runner` must therefore be **pre-built on the SMS gateway**
+(which has the capabilities). One pre-warm per digest serves the whole cluster.
+
+The pre-warm must use the **same** `ENROOT_SQUASH_OPTIONS` the nodes boot with
+(`-comp lz4 -noD -exit-on-error`): the `.sqsh` must be **lz4-compressed, not
+lzo**, for the direct `enroot start` node boot path.
+
+Run on SMS (as `emmanuel.bruno`):
+
+```sh
+export ENROOT_CONFIG_PATH="$HOME/.config/enroot"
+export ENROOT_TEMP_PATH=/var/tmp/enroot-$USER
+export ENROOT_DATA_PATH=/var/tmp/enroot-$USER
+export ENROOT_RUNTIME_PATH=/var/tmp/enroot-$USER/run
+export ENROOT_SQUASH_OPTIONS='-comp lz4 -noD -exit-on-error'
+
+IMG="harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner@sha256:9873f7da19a649c2b2e6eb1395a97174e01d27449ea307a44427a7de26a0e766"
+SQSH="$HOME/.cache/ebpro-runner/docker-sha256-9873f7da19a649c2b2e6eb1395a97174e01d27449ea307a44427a7de26a0e766.sqsh"
+TMP_SQSH="${SQSH%/*}/.tmp.$(hostname)-$$"
+mkdir -p "$(dirname "$SQSH")" "$ENROOT_TEMP_PATH" "$ENROOT_DATA_PATH" "$ENROOT_RUNTIME_PATH"
+enroot import -o "$TMP_SQSH" "docker://$IMG"
+mv -f "$TMP_SQSH" "$SQSH"
 ```
 
 > **Multi-node & wiped-scratch semantics:** the first job to see a new image
@@ -148,12 +212,14 @@ ssh emmanuel.bruno@sms-ext.lis-lab.fr \
    delete the pod — or simply watch the broker pod come up in step D/E (image
    pull errors surface as `ErrImagePull`).
 
-## Step D — Flip the broker on (git-only)
+## Step D — Enabling / disabling the broker (git-only)
 
-Edit `deployment.spec.replicas: 0 -> 1` in this directory, signed commit +
-push. ArgoCD reconciles the chain (`gitops-platform` → `kubernetes-manifests`
-AppSet → app `slurm-runner-broker`). If not picked up within ~2 min, nudge the
-chain per repo rules:
+The broker is currently **enabled** (`spec.replicas: 1`). To take the tier
+offline or bring it back, edit `spec.replicas` in `deployment.yaml` in this
+directory (1 = live, 0 = inert) and push a signed commit. ArgoCD reconciles
+the chain (`gitops-platform` → `kubernetes-manifests` AppSet → app
+`slurm-runner-broker`). If not picked up within ~2 min, nudge the chain per
+repo rules:
 `kubectl annotate application gitops-platform -n argocd argocd.argoproj.io/refresh=hard --overwrite`
 
 Smoke the wiring before/after the flip:

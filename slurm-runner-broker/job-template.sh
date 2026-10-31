@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # ebrunner job template — submitted on stdin by the slurm-runner-broker:
-#     ssh <user>@sms 'exec sbatch --export ENVFILE=...,GH_ORG=...,RUNNER_IMAGE=...,... -' < job-template.sh
+#     ssh <user>@sms 'exec sbatch --export ENVFILE=...,GH_ORG=...,RUNNER_IMAGE=...,...' < job-template.sh
 #
 # sbatch flags set by the broker (CLI, not here): -p ouranos --time --cpus-per-task
 # --mem --output=<broker-resolved absolute $HOME>/logs/ebrunner-%j.out --export
@@ -46,10 +46,15 @@ set -Eeuo pipefail
 : "${RUNNER_IMAGE:?RUNNER_IMAGE must be set by sbatch --export (digest-pinned oci ref)}"
 : "${GH_ORG:?GH_ORG must be set by sbatch --export}"
 : "${HOME:?slurmd must set HOME (NFS-shared persistent tier: image cache + logs)}"
+export ENROOT_CONFIG_PATH="$HOME/.config/enroot"
+export ENROOT_SQUASH_OPTIONS='-comp lz4 -noD -exit-on-error'
 
 S="/scratch/${USER:?slurmd must set USER}/gha-slurm"   # node-local, wiped: per-job ephemera only
 C="$HOME/.cache/ebpro-runner"                          # NFS-persistent, cluster-wide image cache
 RUNDIR="${S}/work/${SLURM_JOB_ID:-unknown}"
+export ENROOT_TEMP_PATH="${ENROOT_TEMP_PATH:-${S}/tmp}"
+export ENROOT_DATA_PATH="${ENROOT_DATA_PATH:-${S}/data}"
+export ENROOT_RUNTIME_PATH="${ENROOT_RUNTIME_PATH:-${S}/run}"
 
 cleanup() {
     # Wipe the single-use token file, then the job-local run dir.
@@ -61,7 +66,7 @@ trap 'exit 143' TERM INT
 
 # Everything is created lazily in-job: jobs land on ANY node and /scratch may
 # be freshly wiped (HOME cache/logs persist, but re-creating is idempotent).
-mkdir -p "$S" "$C" "$HOME/logs"
+mkdir -p "$S" "$C" "$HOME/logs" "$ENROOT_CONFIG_PATH" "$ENROOT_TEMP_PATH" "$ENROOT_DATA_PATH" "$ENROOT_RUNTIME_PATH"
 
 # Opportunistic GC of .tmp.* import orphans: only deletes those older than 4h (a concurrent in-progress import on any node has a fresh mtime, never touched); `|| true` makes find failure non-fatal.
 find "$C" -maxdepth 1 -name '.tmp.*' -mmin +240 -delete 2>/dev/null || true
@@ -88,10 +93,15 @@ SQSH="${C}/${IMGKEY}.sqsh"
 exec 9>"${S}/.import.lock"
 flock -w 300 9
 if [ ! -f "$SQSH" ]; then
-    TMP_SQSH="${C}/.tmp.$(hostname)-$$"
-    # Harbor credentials come from ~/.netrc (NFS-shared HOME; runbook step B).
-    enroot import -o "$TMP_SQSH" "docker://${RUNNER_IMAGE}"
-    mv -f "$TMP_SQSH" "$SQSH"
+    if getcap "$(command -v enroot-aufs2ovlfs 2>/dev/null || true)" 2>/dev/null | grep -q cap_sys_admin; then
+        TMP_SQSH="${C}/.tmp.$(hostname)-$$"
+        # Harbor credentials come from $ENROOT_CONFIG_PATH/.credentials (NFS-shared HOME; runbook step B).
+        enroot import -o "$TMP_SQSH" "docker://${RUNNER_IMAGE}"
+        mv -f "$TMP_SQSH" "$SQSH"
+    else
+        echo "FATAL: runner cache missing: $SQSH. Compute nodes lack enroot import file capabilities; pre-warm this digest from the SMS gateway with ENROOT_SQUASH_OPTIONS='-comp lz4 -noD -exit-on-error'." >&2
+        exit 1
+    fi
 fi
 flock -u 9
 
@@ -102,5 +112,5 @@ flock -u 9
 # propagates the caller environment); the run/label/name contract is:
 #   name ebrunner-$SLURM_JOBID (generic prefix REQUIRED for broker reconcile).
 mkdir -p "$RUNDIR"
-enroot start -w "$RUNDIR" "$SQSH" bash -c \
+enroot start --rw --mount "${RUNDIR}:${RUNDIR}" "$SQSH" bash -c \
     'cp -a /home/runner/. '"$RUNDIR"'/ && cd '"$RUNDIR"' && ./config.sh --url https://github.com/'"$GH_ORG"' --token "$RUNNER_TOKEN" --ephemeral --unattended --labels hpc,self-hosted,linux,x64 --name ebrunner-$SLURM_JOBID && ./run.sh'

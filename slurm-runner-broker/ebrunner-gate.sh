@@ -23,7 +23,7 @@
 #     2. umask 077; cat > $HOME/.ebrunner-<32hex>.env && chmod 600 …  [stdin]
 #     3. exec 'sbatch' '--export' 'ENVFILE=$HOME/.ebrunner-<32hex>.env,…'
 #        '-p' 'ouranos' '--time' … '--cpus-per-task' … '--mem' …
-#        '--output' … '-'                                     — submit  [stdin]
+#        '--output' …                                     — submit  [stdin]
 #     4. squeue --me -h -O jobid,name,state                   — reconcile
 #     5. shred -u $HOME/.ebrunner-<32hex>.env 2>/dev/null || rm -f …  — discard
 #     6. the fixed find-based stale-env-file GC one-liner (byte-exact)
@@ -134,7 +134,7 @@ case "$cmd" in
     body=${body//"$BOUND"/$SEP}
     IFS=$SEP read -r -a argv <<< "$body"
 
-    [ "${#argv[@]}" -eq 14 ] || deny "sbatch-arity"
+    [ "${#argv[@]}" -eq 13 ] || deny "sbatch-arity"
     for a in "${argv[@]}"; do
       [[ $a =~ ^[-A-Za-z0-9_./:%=+@,]+$ ]] || deny "sbatch-token"
     done
@@ -150,10 +150,10 @@ case "$cmd" in
     [[ ${argv[10]} =~ ^[0-9]{1,8}[A-Za-z]{0,2}$ ]] || deny "sbatch-mem-value"
     [ "${argv[11]}" = "--output" ]              || deny "sbatch-output-flag"
     [[ ${argv[12]} =~ ^/[A-Za-z0-9._/%-]{1,190}$ ]] || deny "sbatch-output-value"
-    [ "${argv[13]}" = "-" ]                     || deny "sbatch-stdin"
     # --export payload: ENVFILE=<exact env-file shape>,GH_ORG=…,RUNNER_IMAGE=…,
-    # PATH=<fixed>. The script itself arrives on stdin (argv "-" -> exec below
-    # inherits the session stdin untouched; the gate never reads it).
+    # PATH=<fixed>. The script itself arrives on session stdin (no scriptfile
+    # positional; exec below inherits the session stdin untouched; the gate
+    # never reads it).
     re_export="^ENVFILE=${envf},GH_ORG=[A-Za-z0-9._-]{1,64},RUNNER_IMAGE=[A-Za-z0-9._:@/+-]{1,256},PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin\$"
     [[ ${argv[2]} =~ $re_export ]] || deny "sbatch-export-value"
     exec "${argv[@]}"

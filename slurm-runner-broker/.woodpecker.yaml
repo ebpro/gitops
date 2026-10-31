@@ -1,26 +1,31 @@
 # Woodpecker v3 pipeline for the slurm-runner-broker service image.
-# Runs in the Gitea-hosted repo (create it from this scaffold — see README.md).
-# Repo secrets required: HARBOR_USERNAME / HARBOR_PASSWORD
-#   = robot$library+backstage credentials (same pattern as bruno/link-shortener).
 # Pushes harbor.ebruno.fr/library/slurm-runner-broker:sha-<7> and :latest
 # (library is a PUBLIC Harbor project — the cluster pulls it without creds).
+# Harbor push credentials are injected from the Woodpecker GLOBAL secrets
+# HARBOR_ROBOT_USER / HARBOR_ROBOT_TOKEN via from_secret — never hardcoded.
 when:
   - event: push
     branch: main
 
 steps:
-  - name: kaniko-build-push
+  - name: build
     image: gcr.io/kaniko-project/executor:v1.23.2-debug
-    entrypoint: ["/busybox/sh", "-c"]
     environment:
-      IMAGE: harbor.ebruno.fr/library/slurm-runner-broker
+      # Woodpecker trusted-repo netrc injection writes $HOME/.netrc before user
+      # commands. Kaniko-debug sets HOME=/root but does not create /root, so pin
+      # HOME to the existing writable /kaniko directory.
+      HOME: /kaniko
+      HARBOR_USERNAME:
+        from_secret: HARBOR_ROBOT_USER
+      HARBOR_PASSWORD:
+        from_secret: HARBOR_ROBOT_TOKEN
     commands:
       - mkdir -p /kaniko/.docker
-      - printf '{"auths":{"harbor.ebruno.fr":{"auth":"%s"}}}'
-        "$(printf '%s:%s' "$HARBOR_USERNAME" "$HARBOR_PASSWORD" | base64 | tr -d '\n')"
-        > /kaniko/.docker/config.json
+      - printf '{"auths":{"harbor.ebruno.fr":{"username":"%s","password":"%s"}}}' "$HARBOR_USERNAME" "$HARBOR_PASSWORD" > /kaniko/.docker/config.json
+      - chmod 600 /kaniko/.docker/config.json
+      - SHORT_SHA="$(printf '%s' "$CI_COMMIT_SHA" | cut -c1-7)"
       - /kaniko/executor
-        --context "$CI_WORKSPACE"
-        --dockerfile "$CI_WORKSPACE/Dockerfile"
-        --destination "${IMAGE}:sha-${CI_COMMIT_SHORT_SHA}"
-        --destination "${IMAGE}:latest"
+          --context "$CI_WORKSPACE"
+          --dockerfile Dockerfile
+          --destination "harbor.ebruno.fr/library/slurm-runner-broker:sha-${SHORT_SHA}"
+          --destination "harbor.ebruno.fr/library/slurm-runner-broker:latest"

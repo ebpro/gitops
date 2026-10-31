@@ -1,9 +1,11 @@
 # Slurm ephemeral-runner broker (Phase 1). Hardening precedent: kubernetes/ci/cache-server-deployment.yaml.
 #
-# STAGED ROLLOUT: keep replicas: 0 until the operator runbook steps A-C are done
-# (kubernetes/slurm-runner-broker/README.md): public key pasted into SMS
-# authorized_keys, ~/.netrc seeded on SMS, broker image built + pushed.
-# Flip to 1 (signed commit) to bring the tier live.
+# The broker is currently ENABLED (spec.replicas = 1): it starts and
+# polls/back off even if the runtime prerequisites are incomplete. The HPC
+# smoke test (kubernetes/slurm-runner-broker/README.md) requires: SMS gate +
+# broker key installed, netrc-format enroot .credentials under
+# $HOME/.config/enroot, a prewarmed shared lz4 .sqsh cache, and a broker
+# image / SMS gate version in lockstep with this repo.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,7 +15,7 @@ metadata:
     app.kubernetes.io/name: slurm-runner-broker
     app.kubernetes.io/instance: slurm-runner-broker
 spec:
-  # raise to 1 after runbook steps A-C
+  # tier is live (1 = enabled, 0 = inert); flip via signed commit — README step D
   replicas: 1
   # Single-instance semantics (in-memory dispatch state + poll loop): never let
   # two brokers overlap during an update.
@@ -99,6 +101,10 @@ spec:
             - name: github-credentials
               mountPath: /etc/slurm-broker/github
               readOnly: true
+            - name: broker-job-template
+              mountPath: /etc/slurm-broker/job-template.sh
+              subPath: job-template.sh
+              readOnly: true
             - name: broker-home
               mountPath: /home/broker
             - name: broker-ssh
@@ -156,3 +162,7 @@ spec:
           emptyDir: {}
         - name: tmp
           emptyDir: {}
+        - name: broker-job-template
+          configMap:
+            name: broker-job-template
+            defaultMode: 493  # 0755
