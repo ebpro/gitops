@@ -53,6 +53,8 @@ data:
     : "${RUNNER_IMAGE:?RUNNER_IMAGE must be set by sbatch --export (digest-pinned oci ref)}"
     : "${GH_ORG:?GH_ORG must be set by sbatch --export}"
     : "${HOME:?slurmd must set HOME (NFS-shared persistent tier: image cache + logs)}"
+    : "${SLURM_JOB_ID:?slurmd must set SLURM_JOB_ID (runner name + enroot --env SLURM_JOB_ID)}"
+    export SLURM_JOB_ID
     export ENROOT_CONFIG_PATH="$HOME/.config/enroot"
     export ENROOT_SQUASH_OPTIONS='-comp lz4 -noD -exit-on-error'
     
@@ -79,9 +81,13 @@ data:
     find "$C" -maxdepth 1 -name '.tmp.*' -mmin +240 -delete 2>/dev/null || true
     
     # --- materialize the runner token (env-file -> process env, nothing on argv of
-    # --- the submitting pipeline; config.sh below consumes it per the locked design)
+    # --- the submitting pipeline). It is EXPORTED here because enroot does NOT
+    # --- auto-propagate the caller environment: the container receives it via
+    # --- valueless `enroot start --env RUNNER_TOKEN` (expanded from this process
+    # --- env, so the secret never reaches argv). config.sh consumes it in-container.
     . "$ENVFILE"
     : "${RUNNER_TOKEN:?RUNNER_TOKEN not found in ${ENVFILE}}"
+    export RUNNER_TOKEN
     
     # --- enroot image cache keyed by DIGEST (never a tag) ------------------------
     # Persistent + cluster-wide: the first import of a digest lands in the NFS HOME
@@ -115,9 +121,11 @@ data:
     # --- boot the ephemeral runner inside the image (workdir = RUNDIR) -----------
     # The image ships /home/runner with config.sh + run.sh baked in; copy it into
     # the node-local run dir so state (.runner, _work, _diag) lands on /scratch.
-    # $RUNNER_TOKEN and $SLURM_JOB_ID expand INSIDE the container env (enroot
-    # propagates the caller environment); the run/label/name contract is:
-    #   name ebrunner-$SLURM_JOBID (generic prefix REQUIRED for broker reconcile).
+    # enroot does NOT auto-propagate the caller environment, so RUNNER_TOKEN and
+    # SLURM_JOB_ID are passed explicitly with valueless `--env KEY` (each expands
+    # from this process env; the token stays out of argv). The run/label/name
+    # contract is: name ebrunner-$SLURM_JOB_ID (generic prefix REQUIRED for
+    # broker reconcile).
     mkdir -p "$RUNDIR"
-    enroot start --rw --mount "${RUNDIR}:${RUNDIR}" "$SQSH" bash -c \
-        'cp -a /home/runner/. '"$RUNDIR"'/ && cd '"$RUNDIR"' && ./config.sh --url https://github.com/'"$GH_ORG"' --token "$RUNNER_TOKEN" --ephemeral --unattended --labels hpc,self-hosted,linux,x64 --name ebrunner-$SLURM_JOBID && ./run.sh'
+    enroot start --rw --mount "${RUNDIR}:${RUNDIR}" --env RUNNER_TOKEN --env SLURM_JOB_ID "$SQSH" bash -c \
+        'cp -a /home/runner/. '"$RUNDIR"'/ && cd '"$RUNDIR"' && ./config.sh --url https://github.com/'"$GH_ORG"' --token "$RUNNER_TOKEN" --ephemeral --unattended --labels hpc,self-hosted,linux,x64 --name ebrunner-$SLURM_JOB_ID && ./run.sh'
