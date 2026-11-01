@@ -39,6 +39,8 @@
 # =============================================================================
 #SBATCH --job-name=ebrunner-%j
 #SBATCH --open-mode=truncate
+# TEMP: node01 /scratch is full and cannot be drained by broker user.
+#SBATCH --exclude=node01
 
 set -Eeuo pipefail
 

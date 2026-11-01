@@ -27,6 +27,11 @@ spec:
       app.kubernetes.io/instance: slurm-runner-broker
   template:
     metadata:
+      annotations:
+        # GitOps-only rollout trigger: the broker mounts job-template.sh via
+        # subPath, so ConfigMap content changes never reach a running pod.
+        # This pod-template annotation forces a new pod on annotation change.
+        kubectl.kubernetes.io/restartedAt: "2026-11-01T06:40:02Z"
       labels:
         app.kubernetes.io/name: slurm-runner-broker
         app.kubernetes.io/instance: slurm-runner-broker
