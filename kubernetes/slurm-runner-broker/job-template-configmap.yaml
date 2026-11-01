@@ -131,3 +131,4 @@ data:
     mkdir -p "$RUNDIR"
     enroot start --rw --mount "${RUNDIR}:${RUNDIR}" --env RUNNER_TOKEN --env SLURM_JOB_ID "$SQSH" bash -c \
         'cp -a /home/runner/. '"$RUNDIR"'/ && cd '"$RUNDIR"' && ./config.sh --url https://github.com/'"$GH_ORG"' --token "$RUNNER_TOKEN" --ephemeral --unattended --labels hpc,self-hosted,linux,x64 --name ebrunner-$SLURM_JOB_ID && ./run.sh'
+    # GitOps projected-volume refresh check (no functional change).
