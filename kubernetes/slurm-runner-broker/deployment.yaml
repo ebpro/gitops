@@ -27,11 +27,6 @@ spec:
       app.kubernetes.io/instance: slurm-runner-broker
   template:
     metadata:
-      annotations:
-        # GitOps-only rollout trigger: the broker mounts job-template.sh via
-        # subPath, so ConfigMap content changes never reach a running pod.
-        # This pod-template annotation forces a new pod on annotation change.
-        kubectl.kubernetes.io/restartedAt: "2026-11-01T06:40:02Z"
       labels:
         app.kubernetes.io/name: slurm-runner-broker
         app.kubernetes.io/instance: slurm-runner-broker
@@ -103,12 +98,8 @@ spec:
             - configMapRef:
                 name: broker-config
           volumeMounts:
-            - name: github-credentials
-              mountPath: /etc/slurm-broker/github
-              readOnly: true
-            - name: broker-job-template
-              mountPath: /etc/slurm-broker/job-template.sh
-              subPath: job-template.sh
+            - name: slurm-broker-config
+              mountPath: /etc/slurm-broker
               readOnly: true
             - name: broker-home
               mountPath: /home/broker
@@ -147,27 +138,36 @@ spec:
               - key: known_hosts
                 path: known_hosts
                 mode: 292  # 0444
-        - name: github-credentials
-          secret:
-            secretName: slurm-broker-github
-            defaultMode: 256  # 0400
-            items:
-              - key: github_app_id
-                path: github_app_id
-                mode: 288  # 0440
-              - key: github_app_installation_id
-                path: github_app_installation_id
-                mode: 288  # 0440
-              - key: github_app_private_key
-                path: github_app_private_key
-                mode: 288  # 0440
+        # One projected volume at /etc/slurm-broker: GitHub App credentials
+        # (secret, per-item 0440 group-readable for uid 10001 via fsGroup) and
+        # the job template (configmap, 0755). Unlike the old subPath mount, a
+        # projected volume refreshes in place, so ConfigMap content changes
+        # reach a running pod without a restart annotation.
+        - name: slurm-broker-config
+          projected:
+            defaultMode: 256  # 0400 (every item below carries an explicit mode)
+            sources:
+              - secret:
+                  name: slurm-broker-github
+                  items:
+                    - key: github_app_id
+                      path: github/github_app_id
+                      mode: 288  # 0440
+                    - key: github_app_installation_id
+                      path: github/github_app_installation_id
+                      mode: 288  # 0440
+                    - key: github_app_private_key
+                      path: github/github_app_private_key
+                      mode: 288  # 0440
+              - configMap:
+                  name: broker-job-template
+                  items:
+                    - key: job-template.sh
+                      path: job-template.sh
+                      mode: 493  # 0755
         - name: broker-home
           emptyDir: {}
         - name: broker-ssh
           emptyDir: {}
         - name: tmp
           emptyDir: {}
-        - name: broker-job-template
-          configMap:
-            name: broker-job-template
-            defaultMode: 493  # 0755
