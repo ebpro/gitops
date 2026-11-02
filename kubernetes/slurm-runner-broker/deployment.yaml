@@ -27,6 +27,13 @@ spec:
       app.kubernetes.io/instance: slurm-runner-broker
   template:
     metadata:
+      annotations:
+        # Git-only rollout lever. The broker image is referenced by :latest, so
+        # nothing in the pod template changes when Woodpecker rebuilds it, and
+        # ArgoCD would never recreate the pod to pick up new code. Bumping this
+        # value is what forces the Recreate; kubectl rollout restart is not
+        # allowed here. Keep it in sync with the commit whose broker.py must run.
+        broker.gitops/rev: "5e8c45f"
       labels:
         app.kubernetes.io/name: slurm-runner-broker
         app.kubernetes.io/instance: slurm-runner-broker

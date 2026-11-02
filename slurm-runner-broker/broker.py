@@ -371,10 +371,20 @@ class SmsClient:
         return p.stdout
 
     def connect_check(self):
-        if self.home is None:
-            self.home = self._run('printf %s "$HOME"').decode().strip()
-            if not self.home:
-                raise SshError("empty $HOME on cluster")
+        """Probe cluster reachability on EVERY call; cache only the value.
+
+        This must keep issuing SSH: main() turns an SshError raised here into
+        the exponential SSH_BACKOFF ladder (SSH_BACKOFF_BASE -> SSH_BACKOFF_MAX).
+        Short-circuiting on a cached $HOME made the probe a no-op after the
+        first successful boot, so real outages fell through to the inner
+        handler's fixed POLL_SECONDS retry instead of backing off. Observed on
+        the 24 h sms-ext outage of 2026-11-01: 5,667 ssh_error events at 15 s
+        spacing where the ladder would have produced a few hundred.
+        """
+        home = self._run('printf %s "$HOME"').decode().strip()
+        if not home:
+            raise SshError("empty $HOME on cluster")
+        self.home = home
         return self.home
 
     def write_envfile(self, token):
