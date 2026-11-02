@@ -41,6 +41,12 @@
 #SBATCH --open-mode=truncate
 # TEMP: node01 /scratch is full and cannot be drained by broker user.
 #SBATCH --exclude=node01
+# One runner per node FOR THIS USER ONLY: stops N runners from stacking their
+# node-local /scratch overlays + workspaces on a single host (what filled
+# node01). Unlike plain --exclusive, other groups keep sharing the node, so
+# this stays polite on a cluster with 14 other QOS groups. Effective ceiling
+# for parallelism becomes the number of free nodes, not CPUs/8.
+#SBATCH --exclusive=user
 
 set -Eeuo pipefail
 
