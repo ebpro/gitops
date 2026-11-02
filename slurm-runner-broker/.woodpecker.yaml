@@ -23,9 +23,18 @@ steps:
       - mkdir -p /kaniko/.docker
       - printf '{"auths":{"harbor.ebruno.fr":{"username":"%s","password":"%s"}}}' "$HARBOR_USERNAME" "$HARBOR_PASSWORD" > /kaniko/.docker/config.json
       - chmod 600 /kaniko/.docker/config.json
-      - SHORT_SHA="$(printf '%s' "$CI_COMMIT_SHA" | cut -c1-7)"
+      # The per-commit tag must never degrade to the literal "sha-". Every
+      # build used to do exactly that: SHORT_SHA was assigned in one `commands`
+      # entry and consumed in the next, and came out empty, so all builds
+      # overwrote a single bogus "sha-" tag and left older artifacts untagged
+      # (rollback then required knowing the digest by hand). Expand inline, in
+      # the same shell word as the destination that uses it, with POSIX
+      # %.7s (no `cut` dependency), and fail the build if the SHA is missing
+      # rather than silently shipping an unusable tag.
+      - 'if [ -z "$CI_COMMIT_SHA" ]; then echo "FATAL: CI_COMMIT_SHA is empty, refusing to tag sha-"; exit 1; fi'
+      - 'echo "tagging sha-$(printf %.7s "$CI_COMMIT_SHA")"'
       - /kaniko/executor
           --context "$CI_WORKSPACE"
           --dockerfile Dockerfile
-          --destination "harbor.ebruno.fr/library/slurm-runner-broker:sha-${SHORT_SHA}"
+          --destination "harbor.ebruno.fr/library/slurm-runner-broker:sha-$(printf %.7s "$CI_COMMIT_SHA")"
           --destination "harbor.ebruno.fr/library/slurm-runner-broker:latest"

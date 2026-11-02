@@ -27,13 +27,10 @@ spec:
       app.kubernetes.io/instance: slurm-runner-broker
   template:
     metadata:
-      annotations:
-        # Git-only rollout lever. The broker image is referenced by :latest, so
-        # nothing in the pod template changes when Woodpecker rebuilds it, and
-        # ArgoCD would never recreate the pod to pick up new code. Bumping this
-        # value is what forces the Recreate; kubectl rollout restart is not
-        # allowed here. Keep it in sync with the commit whose broker.py must run.
-        broker.gitops/rev: "5e8c45f"
+      # No synthetic rollout annotation any more: both images below are pinned
+      # to an immutable digest, and changing that digest is itself the git-only
+      # lever that alters the pod template and drives the Recreate rollout.
+      # (kubectl rollout restart is not permitted on this ArgoCD-managed app.)
       labels:
         app.kubernetes.io/name: slurm-runner-broker
         app.kubernetes.io/instance: slurm-runner-broker
@@ -74,7 +71,8 @@ spec:
         # user-owned 0600 key inside $HOME/.ssh. Seed an emptyDir copy here
         # (same image, same uid) so the main container gets a real HOME.
         - name: seed-ssh
-          image: harbor.ebruno.fr/library/slurm-runner-broker:latest
+          # Same immutable digest as the broker container below.
+          image: harbor.ebruno.fr/library/slurm-runner-broker@sha256:02b63cf9d00d79901b99a4af63990cfe4579dbd5298b3f7b72048a6f90be9e52
           command:
             - /bin/sh
             - -c
@@ -100,7 +98,15 @@ spec:
               mountPath: /home/broker/.ssh
       containers:
         - name: broker
-          image: harbor.ebruno.fr/library/slurm-runner-broker:latest
+          # Pinned to an immutable digest, not :latest. This is the deploy
+          # lever: Harbor tag sha-6d21861 (nested commit 6d21861, Woodpecker
+          # pipeline 23) == this digest. A new broker build reaches the cluster
+          # only when someone edits this line, so an unrelated CI push can never
+          # move it, and a rollout can never pull a half-built image. To roll
+          # back, put the previous digest back here (Harbor retains them).
+          # imagePullPolicy is deliberately unset: for a digest reference the
+          # default is IfNotPresent, which is safe because digests are immutable.
+          image: harbor.ebruno.fr/library/slurm-runner-broker@sha256:02b63cf9d00d79901b99a4af63990cfe4579dbd5298b3f7b72048a6f90be9e52
           envFrom:
             - configMapRef:
                 name: broker-config
