@@ -73,6 +73,7 @@ spec:
         - name: seed-ssh
           # Same immutable digest as the broker container below.
           image: harbor.ebruno.fr/library/slurm-runner-broker@sha256:02b63cf9d00d79901b99a4af63990cfe4579dbd5298b3f7b72048a6f90be9e52
+          imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
             - -c
@@ -104,9 +105,14 @@ spec:
           # only when someone edits this line, so an unrelated CI push can never
           # move it, and a rollout can never pull a half-built image. To roll
           # back, put the previous digest back here (Harbor retains them).
-          # imagePullPolicy is deliberately unset: for a digest reference the
-          # default is IfNotPresent, which is safe because digests are immutable.
+          # imagePullPolicy below is IfNotPresent, deliberately: the digest is
+          # immutable so a cached copy can never be stale, and the pod stops
+          # depending on Harbor at start-up. Unset resolved to Always on the
+          # live object, so every pod start re-contacted Harbor — on a cold
+          # cluster boot the broker sat in ImagePullBackoff until Harbor and its
+          # DB were up, for an image already on the node.
           image: harbor.ebruno.fr/library/slurm-runner-broker@sha256:02b63cf9d00d79901b99a4af63990cfe4579dbd5298b3f7b72048a6f90be9e52
+          imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
                 name: broker-config
