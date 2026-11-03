@@ -5,10 +5,68 @@ Brings up the ephemeral-runner tier: an in-cluster broker (`Deployment`
 GitHub org `ebpro` for queued runs labelled `[self-hosted, linux, x64, hpc]`
 and `sbatch`-es one ephemeral runner per queued job onto SMS partition
 `ouranos` over `ssh emmanuel.bruno@sms-ext.lis-lab.fr` (forced command
-`/usr/local/bin/ebrunner-gate` — see step A3 +
+`$HOME/.local/bin/ebrunner-gate` — see step A3 +
 [`../../slurm-runner-broker/ebrunner-gate.sh`](../../slurm-runner-broker/ebrunner-gate.sh)).
 
 Broker code/image scaffold: [`../../slurm-runner-broker/`](../../slurm-runner-broker/README.md).
+
+## Selecting this tier from a workflow (`runs-on`)
+
+This tier is **not** ARC-managed: the broker polls the org API itself and
+`sbatch`-es one ephemeral runner per queued job. The runner registers with
+exactly four labels (`job-template.sh`: `config.sh --labels`):
+
+```yaml
+runs-on: [self-hosted, linux, x64, hpc]
+```
+
+**All four are mandatory — `runs-on: hpc` alone never starts a runner.** The
+broker only submits a Slurm job when `{hpc, self-hosted, linux, x64}` is a
+**subset** of the job's requested labels (`broker.py: queued_hpc_jobs()` →
+`REQUIRED_LABELS.issubset(labels)`, compared lower-cased). A job asking only
+`hpc` is never dispatched: it sits in "Waiting for a runner" until cancelled and
+nothing fails anywhere — no error is logged cluster-side or on the SMS. Add `hpc`
+explicitly for anything that must land here; keep `ebpro-org` (an ARC fleet
+label the HPC runner does **not** carry) for anything that must not.
+
+### Job shape (git == live ConfigMap `broker-config`, checked 2026-11-03)
+
+| Knob | Value | Source |
+|---|---|---|
+| Partition | `ouranos` (`node[01-17]`) | `SLURM_PARTITION` |
+| Per-runner allocation | `--cpus-per-task=8`, `--mem=16G` | `SLURM_CPUS` / `SLURM_MEM` |
+| Wall time | `--time=01:30:00` — the runner is killed at 90 min | `SLURM_TIME` |
+| Concurrency | `MAX_PARALLEL=4` live Slurm jobs; `PD` counts too (`JOB_LIVE_STATES`) | `broker.py` |
+| Dispatch latency | org poll every `POLL_SECONDS=15` + `sbatch` + enroot start | `broker.py` |
+| Placement | `--exclusive=user` (one runner per node for this user); `--exclude=node01` (TEMP: its `/scratch` is full) | `job-template.sh` |
+| Runner identity | name `ebrunner-<SLURM_JOB_ID>`, `--ephemeral`, URL `https://github.com/ebpro` | `job-template.sh` |
+| Runner image | `quarkus-ci-runner@sha256:9873f7da…` — enroot `.sqsh`, digest-keyed cache in NFS `$HOME/.cache/ebpro-runner` | `RUNNER_IMAGE` |
+
+`--mem=16G` is a **hard cgroup ceiling**, not a scheduling reservation: the SMS
+runs `SelectTypeParameters=CR_CORE` (memory is not a consumable TRES — job
+`AllocTRES` carries no `mem`) with `ConstrainRAMSpace=yes`, so exceeding 16 Gi of
+RSS OOM-kills the runner mid-job while the allocation itself never blocks other
+groups.
+
+### What this tier does NOT provide (Phase 1 — documented in `job-template.sh`)
+
+- **No Docker daemon.** No `container:` jobs, no `services:`, no dind, no
+  `ACTIONS_RUNNER_CONTAINER_HOOKS` (the podman hook spike is Phase 2). Steps run
+  directly inside the enroot container. Contrast: every ARC set except
+  `ebpro-ai-review` ships a real `dind` sidecar.
+- **No `actions/cache`** — the cache-service URL is not wired, so
+  `actions/cache` save/restore cannot hit a backend here.
+- **Nothing persists between jobs.** The workspace is node-local
+  `/scratch/$USER/gha-slurm/work/<jobid>`, created lazily and shredded on exit,
+  and `/scratch` is periodically wiped on every compute node. Upload artifacts
+  you need to keep.
+- **Toolchain = the pinned image build.** Note the HPC digest (`9873f7da…`) is a
+  **different build** of `quarkus-ci-runner` than the ARC tier's (`72ac7d9f…`),
+  so tool versions can differ between the two tiers — pin explicitly if a job is
+  moved from one to the other.
+- **Batch log is the only pre-registration trail**: `sbatch --output` lands on
+  NFS `$HOME/logs/ebrunner-<jobid>.out` on the SMS — check it first when a job
+  dies before the runner shows up in the org runner list.
 
 Vault leaf `secret/data/slurm/broker` was provisioned 2026-10-19 and updated
 the same day: it now carries `ssh_private_key` / `ssh_public_key` / `sms_host`
@@ -24,7 +82,7 @@ exiting. The **HPC smoke test will not succeed** until ALL of the following
 hold:
 
 1. **SMS gate + broker key installed** (step A): the forced command
-   `/usr/local/bin/ebrunner-gate` exists on the SMS and the broker key is in
+   `$HOME/.local/bin/ebrunner-gate` exists on the SMS and the broker key is in
    SMS `authorized_keys`.
 2. **Harbor/enroot credentials seeded in netrc format** at
    `$HOME/.config/enroot/.credentials` on the SMS (NFS-shared `$HOME` — step
@@ -57,7 +115,7 @@ Brokered key (audit fingerprint):
 
 ### A1. Paste the hardened public key into your SMS authorized_keys
 
-> **Ordering:** the line pins `command="/usr/local/bin/ebrunner-gate"` — until
+> **Ordering:** the line pins `command="$HOME/.local/bin/ebrunner-gate"` — until
 > A3 installs the gate, broker-key sessions fail (missing forced command).
 > That is intentional: the key is inert until both halves exist.
 
@@ -65,7 +123,7 @@ Run on SMS (any authorized access path):
 
 ```sh
 mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
-echo 'restrict,from="10.2.248.0/24",no-pty,command="/usr/local/bin/ebrunner-gate" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNORGDO6WO6brOnHO8geiseMqyf93WymLowzDHRq8Si slurm-runner-broker@ebpro' >> ~/.ssh/authorized_keys
+echo 'restrict,from="10.2.248.0/24",no-pty,command="$HOME/.local/bin/ebrunner-gate" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNORGDO6WO6brOnHO8geiseMqyf93WymLowzDHRq8Si slurm-runner-broker@ebpro' >> ~/.ssh/authorized_keys
 ```
 
 Verify (once A3's gate is installed — this is one of the gate's allow-listed
@@ -105,20 +163,39 @@ man-on-the-side and confirm the key with the SMS admin before touching the pin.)
 ### A3. Install the `ebrunner-gate` forced command on the SMS
 
 Copy `slurm-runner-broker/ebrunner-gate.sh` from this repo to the SMS and
-install it as `/usr/local/bin/ebrunner-gate`, root-owned, mode `0755`. Do this
-over your own human ssh session — the broker key cannot do it (that is the
-point of the gate):
+install it as `$HOME/.local/bin/ebrunner-gate`, owned by the SMS account, mode
+`0755`. No root is involved: the operator is not root on the SMS, so this is a
+plain user install. Do it over your own human ssh session — the broker key
+cannot do it (that is the point of the gate):
 
 ```sh
 # from a machine with this checkout
 scp slurm-runner-broker/ebrunner-gate.sh emmanuel.bruno@sms-ext.lis-lab.fr:/tmp/ebrunner-gate
 ssh emmanuel.bruno@sms-ext.lis-lab.fr \
-  'sudo install -o root -g root -m 0755 /tmp/ebrunner-gate /usr/local/bin/ebrunner-gate && shred -u /tmp/ebrunner-gate'
+  'mkdir -p "$HOME/.local/bin" && install -m 755 /tmp/ebrunner-gate "$HOME/.local/bin/ebrunner-gate" && shred -u /tmp/ebrunner-gate'
 ```
 
 The gate's header comment carries the security model + the exact
-authorized_keys line template (must match A1). If `sudo` is unavailable, the
-SMS admin performs the install. After A1+A3, run the A1 verify line.
+authorized_keys line template (must match A1). After A1+A3, run the A1 verify
+line.
+
+### Residual risk — the gate path is user-writable
+
+A root-owned `/usr/local/bin` install would mean only root can change the
+forced command. Because we have no root on the SMS, the gate lives in
+`$HOME/.local/bin` — a path the account itself can write — so anyone who
+obtains the operator's `emmanuel.bruno` account on the SMS can replace the
+forced-command script and thereby obtain everything the gate authorizes
+(`sbatch` on `ouranos`, the `$HOME/.ebrunner-*.env` write/read shape, `squeue`,
+`shred`), with the broker's own connections as the trigger. This is a
+deliberate consequence of not having root, not an oversight. Accepted
+compensating controls: the key is `restrict` + `from="10.2.248.0/24"` +
+`no-pty`, and the key itself lives in a mode-`0700` `~/.ssh`. It strengthens
+the case for the already-planned Cilium NetworkPolicy mitigation restricting
+in-cluster/host access to the SMS: the broker's default-deny egress policy
+[`cilium-networkpolicy.yaml`](cilium-networkpolicy.yaml) is the first tier of
+that containment (it pins the only pod-side channel to
+`sms-ext.lis-lab.fr:22`).
 
 ## Step B — SMS side: Harbor login for enroot + NFS cache/logs bootstrap
 

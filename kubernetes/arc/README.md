@@ -23,21 +23,54 @@ runs-on: [ebpro-org, linux, self-hosted, x64]       # pin x86-64
 runs-on: [ebpro-org, linux, self-hosted, arm64]     # pin arm64
 ```
 
-Rendered labels per set (git → GitHub):
+Rendered labels per set. Git values, live `AutoscalingRunnerSet.spec` values and
+the effective GitHub-side labels were cross-checked 2026-11-03 and agree:
 
-| Scale set | `runnerScaleSetLabels` (in git) | Runner labels on GitHub |
-|---|---|---|
-| `ebpro-org` | `[self-hosted, linux, ebpro-org, x64]` | `self-hosted linux ebpro-org x64` |
-| `ebpro-org-arm` | `[self-hosted, linux, ebpro-org, arm64]` | `self-hosted linux ebpro-org arm64 ebpro-org-arm` |
+| Scale set | Declared `runnerScaleSetLabels` (git == live ARS) | Extra label ARC registers | `max` | dind | Placement | Runner limits (req → lim) |
+|---|---|---|---|---|---|---|
+| `ebpro-org` | `self-hosted, linux, ebpro-org, x64` | `ebpro-org` (no-op, already present) | 2 | yes | `nodeSelector: amd64` | 2c/4Gi → 4c/8Gi, 10Gi ephemeral |
+| `ebpro-org-arm` | `self-hosted, linux, ebpro-org, arm64` | `ebpro-org-arm` | 2 | yes | `nodeSelector: arm64` + arch toleration | 2c/4Gi → 4c/16Gi, 10Gi ephemeral |
+| `ebpro-org-large` | `self-hosted, linux, x64, large` | `ebpro-org-large` | 1 | yes | nodeAffinity `hostname=compute-lsis-2` (required) | 2c/4Gi → 4c/16Gi, 10Gi ephemeral |
+| `ebpro-ai-review` | `self-hosted, linux, best-practices` | `ebpro-ai-review` | 1 | **no** (runner container only) | `nodeSelector: arm64` | 2c/4Gi → 4c/8Gi, 10Gi ephemeral |
 
-ARC additionally registers each scale set's NAME as a runner label
-automatically, so the scale-set-name labels remain usable as fine-grained
-escape hatches:
+ARC registers each scale set's **NAME as an additional runner label**, so a bare
+scale-set name is a valid single-label selector and a fine-grained escape hatch.
 
-- `runs-on: ebpro-org-arm` → arm set only.
-- `runs-on: ebpro-org` → now matches **both** sets (the fleet label is shared);
-  it no longer implicitly means "x64 set" — use the explicit `x64`/`arm64`
-  selectors for arch-pinned work.
+Verified empirically 2026-11-03 — workflow `ARC label probe` (run
+`41587316050`, repo `ebpro/ghactions-test`, reusable file
+`.github/workflows/arc-label-probe.yml`): `runs-on: ebpro-org-large` was picked
+up by pod `ebpro-org-large-kc5qc-runner-f6s48` (`RUNNER_ARCH=X64`) and
+`runs-on: ebpro-org-arm` by `ebpro-org-arm-5ggd7-runner-gdcpk`
+(`RUNNER_ARCH=ARM64`). Neither string appears in those sets' declared labels
+(see table), so the extra label is real and matched by GitHub. The mechanism is
+scale-set-wide, so `ebpro-ai-review` / `ebpro-org` behave the same way — only
+the two name-only legs above were directly probed.
+
+Copy-paste selectors:
+
+```yaml
+runs-on: [self-hosted, linux, ebpro-org, x64]   # general x64 set (dind, 8Gi, max 2)
+runs-on: [self-hosted, linux, ebpro-org, arm64] # general arm64 set (dind, 16Gi, max 2)
+runs-on: [self-hosted, linux, ebpro-org]        # either general set — RANDOM arch
+runs-on: [self-hosted, linux, x64, large]       # big-RAM x64 build box (dind, 16Gi, max 1)
+runs-on: [self-hosted, linux, best-practices]   # AI review pool (NO dind, arm64, max 1)
+runs-on: ebpro-org-arm                          # name-only form: exactly that one pool
+runs-on: ebpro-org-large                        # name-only form: exactly that one pool
+runs-on: ebpro-ai-review                        # name-only form: exactly that one pool
+```
+
+Reading rules:
+
+- `ebpro-org` is the shared fleet label of the **two general sets only**. It
+  matches `ebpro-org` + `ebpro-org-arm`; it does **not** match `large` or
+  `ai-review` (neither declares it), and it can never reach the Slurm HPC tier
+  (see `kubernetes/slurm-runner-broker/README.md`).
+- `runs-on: ebpro-org` alone therefore means "either arch, first free slot" —
+  always add the explicit `x64`/`arm64` label for arch-pinned work.
+- The bare scale-set-name selectors are the only way to force one specific pool.
+- Never use the hybrid `[self-hosted, linux, x64]` (no fleet label): it is a
+  subset of the org/large **and** the HPC runner's labels, so it can be taken by
+  a runner that happens to be online while never starting one itself.
 
 Notes:
 
@@ -67,13 +100,19 @@ Notes:
 3. **All sets scale to zero.** Every scale set runs `minRunners: 0` — there is
    no warm runner and no capacity floor; the first job after an idle period
    pays a cold start (pod schedule + image pull + registration). Scaling is
-   job-driven, capped by `maxRunners`: org 4, large 2, arm 2, ai-review 1.
-   The org (3→4) and large (1→2) raises of 2026-10-12 exploit the
-   `pc-bruno-gpu` laptop's headroom (preferred runner node that may be powered
-   off); with the laptop down the extra slots can stay Pending and jobs queue —
-   `large` is opt-in/scale-to-zero, so that never stalls the default org pool
-   (see the header comments in `helm/releases/arc/org-scale-set-values.yaml` /
-   `large-scale-set-values.yaml`).
+   job-driven, capped by `maxRunners` (live ARS + git, 2026-11-03): **org 2,
+   arm 2, large 1, ai-review 1**. The 2026-10-12 laptop-era values (org 4,
+   large 2) were reduced in the 2026-10-23 wave-2c memory right-sizing; the
+   full capacity rationale is in the header comments of
+   `helm/releases/arc/org-scale-set-values.yaml` /
+   `large-scale-set-values.yaml`. Note the large pool is `maxRunners: 1` with a
+   **required** nodeAffinity on `compute-lsis-2`: a second large job queues
+   rather than spilling to another node.
+   NOTE: ARC 0.14.2 has no scale-down-delay knob. Verified 2026-11-03 two ways:
+   the vendored CRD (`kubernetes/arc/crds/actions.github.com_autoscalingrunnersets.yaml`)
+   contains zero `scaleDown*` properties, and no live ARS `spec` carries one.
+   Idle scale-down timing is therefore the controller default — but a runner
+   with an active job is never removed, so mid-build is safe.
 
 ## Multiarch (no QEMU)
 
