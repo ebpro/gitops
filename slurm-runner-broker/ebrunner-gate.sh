@@ -3,12 +3,12 @@
 # ebrunner-gate — forced-command SSH wrapper for the slurm-runner-broker key
 #
 # INSTALL TARGET (SMS submit gateway, see runbook step A3):
-#   /usr/local/bin/ebrunner-gate    root:root, mode 0755
+#   $HOME/.local/bin/ebrunner-gate  user-owned (emmanuel.bruno), mode 0755
 #   kubernetes/slurm-runner-broker/README.md ("Step A — A3")
 #
 # EXACT AUTHORIZED_KEYS LINE TEMPLATE (real key material lives in runbook A1;
 # never paste a placeholder there):
-#   restrict,from="10.2.248.0/24",no-pty,command="/usr/local/bin/ebrunner-gate" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNORGDO6WO6brOnHO8geiseMqyf93WymLowzDHRq8Si slurm-runner-broker@ebpro-org
+#   restrict,from="10.2.248.0/24",no-pty,command="$HOME/.local/bin/ebrunner-gate" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNORGDO6WO6brOnHO8geiseMqyf93WymLowzDHRq8Si slurm-runner-broker@ebpro-org
 #
 # SECURITY MODEL
 # The broker ED25519 key (fingerprint
