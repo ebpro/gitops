@@ -26,8 +26,12 @@ broker only submits a Slurm job when `{hpc, self-hosted, linux, x64}` is a
 `REQUIRED_LABELS.issubset(labels)`, compared lower-cased). A job asking only
 `hpc` is never dispatched: it sits in "Waiting for a runner" until cancelled and
 nothing fails anywhere — no error is logged cluster-side or on the SMS. Add `hpc`
-explicitly for anything that must land here; keep `ebpro-org` (an ARC fleet
-label the HPC runner does **not** carry) for anything that must not.
+explicitly for anything that must land here. Conversely, a fleet-less x64 job
+(`[self-hosted, linux, x64]`) **can be picked up by an HPC runner that happens
+to be online** (that selector is a subset of the HPC labels) even though it can
+never *start* one — if a job must never touch this tier, include an ARC fleet
+label (`ebpro-org`, or `large`/`best-practices`, which the HPC runner does not
+carry).
 
 ### Job shape (git == live ConfigMap `broker-config`, checked 2026-11-03)
 

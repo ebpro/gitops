@@ -52,6 +52,7 @@ Copy-paste selectors:
 runs-on: [self-hosted, linux, ebpro-org, x64]   # general x64 set (dind, 8Gi, max 2)
 runs-on: [self-hosted, linux, ebpro-org, arm64] # general arm64 set (dind, 16Gi, max 2)
 runs-on: [self-hosted, linux, ebpro-org]        # either general set — RANDOM arch
+runs-on: [self-hosted, linux, x64]              # either x64 set (org or large) — pool NOT pinned; may also be taken by a live HPC runner (see rules)
 runs-on: [self-hosted, linux, x64, large]       # big-RAM x64 build box (dind, 16Gi, max 1)
 runs-on: [self-hosted, linux, best-practices]   # AI review pool (NO dind, arm64, max 1)
 runs-on: ebpro-org-arm                          # name-only form: exactly that one pool
@@ -68,9 +69,14 @@ Reading rules:
 - `runs-on: ebpro-org` alone therefore means "either arch, first free slot" —
   always add the explicit `x64`/`arm64` label for arch-pinned work.
 - The bare scale-set-name selectors are the only way to force one specific pool.
-- Never use the hybrid `[self-hosted, linux, x64]` (no fleet label): it is a
-  subset of the org/large **and** the HPC runner's labels, so it can be taken by
-  a runner that happens to be online while never starting one itself.
+- The fleet-less hybrid `[self-hosted, linux, x64]` is **valid and does scale
+  runners up** — re-verified 2026-11-03 (probe run `41588966507`): the leg was
+  served by the org-x64 set (`ebpro-org-hflxm-runner-8z2b8`). But it does not
+  pin a pool: eligible runners are the org-x64 set **and** `large` (both label
+  supersets), and a *transiently online* HPC runner may also take it. It can
+  never start an HPC runner (the broker requires `hpc` in the selector) and
+  never matches arm or `ai-review`. Use it only for pool-agnostic x64 work;
+  prefer the explicit fleet selectors above for deterministic placement.
 
 Notes:
 
@@ -81,10 +87,13 @@ Notes:
   guaranteed by each scale set's `template.spec.nodeSelector`
   (`kubernetes.io/arch: amd64`/`arm64`), which pins the runner pod to nodes of
   that arch — the label cannot drift from the machine.
-- Historical (pre-unification): with per-set label sets, hybrids like
-  `[self-hosted, linux, x64]` were observed not to trigger a scale event (job
-  queued forever, verified 2026-08-20; no error raised anywhere). Use the
-  selectors above — they all name the fleet explicitly.
+- Historical (pre-unification): with the old per-set label sets, hybrids like
+  `[self-hosted, linux, x64]` were observed NOT to trigger a scale event (job
+  queued forever, verified 2026-08-20; no error raised anywhere). That is
+  superseded: under the current unified labels the hybrid DOES scale up
+  (verified 2026-11-03, probe run `41588966507`) — the behaviour is purely a
+  function of which label sets exist, so re-probe after any label change
+  instead of trusting either observation.
 
 ### Usage rules
 
