@@ -90,6 +90,9 @@ PostgreSQL instances are deployed via **CloudNativePG (CNPG)** operator as `Clus
 | Descheduler       | ❌ Planned  | kubesphere                     | Pod placement optimization     |
 | Keycloak          | 🚧 Deployed  | keycloak                       | Central SSO / Identity Provider |
 
+## Node Operations Tooling
+- **`infrastructure/node-fence/`** — `fence-runner-node.sh`, the control-plane-side SOP for fencing a K3s CI runner node without freezing ARC (GitHub Actions) runners. It applies the fence in one gesture (cordon + `quarantine=true` label + deleting the ARC runner **pods** still bound to the node, never their `EphemeralRunner`/`EphemeralRunnerSet` CRs) because `cordon` does not evict already-scheduled pods and ghost runner pods silently pin `maxRunners`. It runs **control-plane-side** (on an admin host where the API server is reachable, not on the node being fenced) and needs no RBAC change — the git-managed `node-ops` ServiceAccount already carries the rights it uses. Operator runbook: `infrastructure/node-fence/README.md`; the laptop-side lifecycle tooling is `infrastructure/laptop/`.
+
 ## SSO & Identity
 Central authentication via Keycloak (CodeCentric Operator) → GitOps-managed.
 
