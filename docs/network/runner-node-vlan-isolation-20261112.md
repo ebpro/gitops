@@ -534,6 +534,18 @@ Contraintes pour toute reproduction :
 - Tout `ssh` est appelé avec `-o BatchMode=yes -o ConnectTimeout=5` et placé sous `timeout`, pour ne jamais bloquer une session sur un poste éteint ou injoignable.
 - Les seules commandes cluster utilisées sont en **lecture seule** ; aucune commande mutante (`patch`, `apply`, `scale`, `delete`, `exec` modifiant l'état) n'a été exécutée pour produire ce dossier. Aucun `sudo` n'est requis, sauf pour le relevé `ufw status` de C5, exécuté par l'opérateur du poste.
 
+### 7.1 Défaut connu du harnais (cause directe de la rétractation de C2)
+
+**Le défaut n'était pas dans le réseau, il était dans le récepteur.** `/tmp/opencode/udp_recv.py` **ne vidait son compteur que tous les 25 paquets reçus et à la sortie du programme**. Toute salve de **moins de 25 datagrammes** ne produisait donc **aucune sortie lisible** — ce qui a été lu comme « 0 reçu » alors que **rien n'avait été mesuré**. C'est ce mécanisme, et non le réseau, qui a fabriqué le faux `0/15` de C2 (§3 C2, déclarée **nulle**).
+
+**Conséquences de méthode, pour toute reprise de mesure :**
+
+- **(a)** un compteur UDP doit être vidé **à chaque paquet reçu** — ou le comptage doit être tenu côté émetteur, ce qui est la forme de `probe_send.py` et ce qui a rendu **C3** fiable ;
+- **(b)** **un compteur à zéro n'est une observation que si l'on a prouvé que le récepteur sait imprimer autre chose que zéro** — la charge de la preuve est sur le harnais, pas sur le réseau ;
+- **(c)** **le critère de rétablissement du réseau reste C1** (`cilium_vxlan rx_packets` **strictement > 0**), **pas un compteur applicatif** : un compteur applicatif peut être faux pour une raison de harnais, ce qui n'est pas le cas d'un compteur de device tenue par le noyau.
+
+**Statut de l'outillage (factuel) :** les scripts du tableau ci-dessus sont des **artefacts de debug jetés** sous `/tmp/opencode/` — et, côté guest lima, sous `~/.opsprobe/`. **Ce ne sont pas des outils versionnés** dans le dépôt, et rien n'assure leur stabilité entre deux exécutions.
+
 ---
 
 ## 8. Limites de traçabilité et inconnues assumées
@@ -545,11 +557,70 @@ Déclarées pour que le lecteur ne prenne aucun élément de ce dossier pour plu
 3. **Aucun accès à la politique réseau** (§4) : le mécanisme de filtrage côté VLAN est **déduit**, pas observé. Si un sysadmin réseau confirmait ou infirmait la règle, ce serait §4 qui devrait être corrigé, pas les mesures §3.
 4. **`lima-k3s-agent` non mesuré directement** (SSH refusé) : F2 (§6.1.1) est une **présomption** fondée sur F1, pas une mesure. Les compteurs `cilium_vxlan` de ce nœud n'ont pas été relevés.
 5. **Instantanés ponctuels** : toutes les valeurs de §3 sont des mesures du 2026-11-12, à un état donné du réseau (VPN/posture du portable incluses). Elles ne sont pas automatiquement valables après un changement de réseau ou d'équipement amont ; c'est pourquoi chaque bloc redonne sa commande.
-6. **Le `CONNECTED` de `10.2.248.247:443` (C6) n'est pas expliqué** de façon satisfaisante. Non creusé, sans impact sur le verdict (qui repose sur C1–C4).
+6. **Le `CONNECTED` de `10.2.248.247:443` (C6) n'est pas expliqué** de façon satisfaisante. Non creusé, sans impact sur le verdict (qui repose sur **C1** et sur **C5**/**C6** uniquement — **C4 étant retirée en tant que preuve** (§3) : la sélectivité constatée reste un **fait mesuré**, seule sa localisation — M1 vs M3 — ne l'est pas).
 7. **Statut git réel du lot de mitigation (corrigé le 2026-11-12).** À la date du diagnostic, ni le manifeste de quarantaine (§6.3) ni l'outillage de validation bidirectionnelle (§6.4) n'existaient dans le dépôt. Ils ont **depuis été écrits et commités localement** (`7c6171c`) : le manifeste `kubernetes/arc/node-quarantine-taint.yaml` et son référencement dans `kubernetes/arc/kustomization.yaml` **sont commités**, ils ne sont **pas poussés** sur `main`. Ce dossier documente donc un problème et une mitigation **écrites mais non déployées** : rien ici n'atteste que ces fichiers sont en service dans le cluster (voir §6.3.1 pour l'écart entre dépôt et service).
 8. **Le correctif Cilium (§6.2) est MORT — décision actée, et non plus un audit en cours ; rien n'est appliqué à Cilium.** Rappel explicite, car l'existence d'une clé Helm identifiée (`tunnelSourcePortRange`) pourrait être lue comme une correction en service ou en évaluation : elle ne l'est pas. L'option « épingler `tunnel-source-port-range: 8472-8472` » est **morte** pour deux raisons indépendantes et mesurées : (a) le noyau **refuse la modification en place** (`sudo ip link set dev cilium_vxlan type vxlan srcport 8472 8472` → `Error: Cannot change port range.`), donc il faudrait **détruire puis recréer le device**, soit en pratique **redémarrer l'agent Cilium sur les trois nœuds**, soit **couper le seul tunnel sain du cluster** (`lima` ↔ `compute-lsis-2`) ; (b) **la valeur n'a jamais été déployée** — le `cilium-config` en service porte `"0-0"`, qui est la **valeur par défaut du chart** (ligne 166 de la capture brute `/tmp/opencode/cilium_live_cm.json`) : il n'y a rien à « dé-figer ». Détail en §6.2 et §6.2.1.
 9. **Rétracté — la variante chiffrement WireGuard n'est plus une piste de correction** (§6.2.1, option B′). Elle n'était motivée **que** par la cause « nos réponses sont reçues comme des sessions entrantes non sollicitées », aujourd'hui **réfutée** (§0, §3 C2/C3, §4) ; elle est **non vérifiée** dans notre build (Cilium 1.20.0 + kernel `7.0.0-42-generic` + k3s) ; et elle coûte, elle aussi, **un redémarrage des agents sur les 3 nœuds pour aucun gain démontré**. **Rien n'est appliqué à Cilium**, et rien ne l'a jamais été (§6.2). **Ce qui reste bel et bien ouvert — et n'est pas la même chose :** départager le mécanisme de filtrage (« `8472` entrant bloqué » vs « session entrante non sollicitée bloquée ») est **impossible sans privilège root sur un nœud** ; aucune de ces deux hypothèses n'a pu être testée en réel. Cette impossibilité est le **blocker du dossier** (cf. point 2 ci-dessus sur M1 vs M3), pas un arbitrage entre correctifs.
 10. **Piège de formulation : `kube-proxy-replacement` — ne jamais n'en écrire qu'une moitié.** Le `cilium-config` en service **demande** `kube-proxy-replacement: "true"` (ligne 112 de la capture brute `/tmp/opencode/cilium_live_cm.json`), **alors que l'exécution relève `Partial` avec `Host: Legacy`** (agent en service, Cilium `v1.20.0`, chart `cilium-1.20.0`). Les deux moitiés sont vraies simultanément : la valeur demandée n'est pas le mode effectif. **Toute phrase qui écrit seulement « KPR est désactivé » est fausse ; toute phrase qui écrit seulement « KPR est `true` » l'est aussi.** Les deux mentions doivent voyager ensemble.
+
+---
+
+## 9. Conséquence opérationnelle : la mitigation a gelé la CI
+
+Le §6.3 établit le cordon comme **seule fence operative** ; ce §9 en consigne le coût, mesuré le 2026-11-12. La fence a atteint son objectif réseau et, exactement pour cela, elle a arrêté la CI. **Ces items sont des conséquences CI (CI-1…CI-4), ce ne sont pas des mesures réseau — ne pas les confondre avec C1…C6 de §3.**
+
+### CI-1 — **Fait confirmé (mesuré 2026-11-12 ~23:45)** : un nœud cordonné n'est pas un nœud vidé
+
+`kubectl cordon` **n'évince pas** les pods déjà planifiés. En fence-ant `pc-bruno-gpu` par cordon seul (§6.3), 2 pods ARC `EphemeralRunner` y sont restés **~5 h** en `Init:ImagePullBackOff` — conséquence directe du §2.3 : le registre `harbor.ebruno.fr` est `10.2.248.31:443`, un flux **terminé par un pod distant**, donc traversant le tunnel cassé — et consommaient **100 %** du quota `maxRunners: 2`. Le listener ne créait donc strictement rien pour les 2 jobs en file.
+
+**Preuves verbatim** (relevées 2026-11-12 ~23:45) :
+
+```sh
+$ kubectl get ephemeralrunnerset -n arc-runners
+ebpro-org-hflxm   DESIRED=2   CURRENT=2   PENDING=2   RUNNING=0
+```
+
+et, dans le pod listener `ebpro-org-574b8f8f-listener` (namespace `actions-runner-controller`), la ligne émise par `cmd/ghalistener/scaler.(*Scaler).setDesiredWorkerState` :
+
+```
+"assigned job":2,"decision":2,"min":0,"max":2,"currentRunnerCount":2
+```
+
+Cette ligne se répétait **à peu près toutes les 50 s pendant des heures** : l'aveu était dans les journaux, et il y était **silencieux** — un scaler qui décide `2` et constate qu'il a déjà `2` ne lève aucune alarme.
+
+**Précision géographique indispensable :** les **pods** runner vivent dans le namespace **`arc-runners`**, alors que le contrôleur et les listeners vivent dans **`actions-runner-controller`**. Confondre les deux fait chercher les pods au mauvais endroit — c'est exactement ce qui fait perdre du temps en milieu d'incident.
+
+**Leçon de méthode :** **un nœud cordonné n'est pas un nœud vidé.** Fencer sans éviction, c'est **gaspiller de la capacité de runners**, et ce gaspillage reste invisible tant qu'on ne regarde pas `PENDING` / `RUNNING` de l'`EphemeralRunnerSet` : `DESIRED=2 CURRENT=2` seul ne dit rien d'anormal ; c'est `PENDING=2 RUNNING=0` qui dit que deux jobs attendent sans aucun runner en état de les prendre.
+
+### CI-2 — **Fait confirmé + Recommandation** : le remède appliqué, et sa limite
+
+Remède effectivement appliqué : supprimer les **pods**, pas les CR.
+
+```sh
+$ kubectl delete pod -n arc-runners <les 2 pods>
+```
+
+**Effet mesuré :** runners sains recréés sur `compute-lsis-2` en **~25 s**, `PENDING=0 RUNNING=2`, et les 2 jobs **déjà `assigned`** (runnerID **14173** et **14174**) ont été repris **sans relance manuelle de workflow**.
+
+**Motif à écrire noir sur blanc :** supprimer les **pods** en **préservant les CR `EphemeralRunner`** réutilise l'enregistrement du runner côté GitHub — l'assignation job ↔ runner survit donc à la suppression. Supprimer les CR `EphemeralRunner` / `EphemeralRunnerSet` **risque en revanche d'orpheliner les jobs assignés**.
+
+**Limite à conserver telle quelle :** ce comportement est **vérifié pour cette version d'ARC et ce flux uniquement**. Ce n'est ni une garantie amont ni une règle générale ; il faut le re-vérifier sur la version déployée avant d'en faire un geste automatique.
+
+### CI-3 — **Fait confirmé (récurrence)** : les hooks laptop ne sont pas une fence
+
+C'est le **2ᵉ** incident de cette classe : le 2026-10-13, des pods runner zombies issus d'un auto-drain qui avait sauté silencieusement (API injoignable hors VPN) affamaient déjà `ebpro-org` — cf. le bullet « Laptop runner-node lifecycle » de `AGENTS.md`. Même profil dans les deux épisodes : des pods runner occupent la capacité sur un nœud qui ne peut plus rien aller chercher.
+
+**Recommandation qui en découle : les hooks côté laptop ne sont pas une fence fiable.** Le nettoyage des pods runner d'un nœud fence-é doit pouvoir être exécuté **depuis le plan de contrôle sain**, et ne **jamais** dépendre d'une action sur la machine défaillante — une machine isolée par son propre VLAN est précisément une machine depuis laquelle on ne peut pas compter agir.
+
+### CI-4 — **Fait confirmé** : aucun prérequis de droit pour CI-2 / CI-3
+
+Aucune évolution RBAC n'est nécessaire pour appliquer CI-2 et la recommandation de CI-3 : le `ClusterRole` `node-ops` de `kubernetes/arc/node-ops-rbac.yaml` grantit **déjà** `pods: get, list, delete` **à l'échelle du cluster** — plus `nodes: get, list, patch`, `pods/eviction: create` et `daemonsets: get, list`. Le geste qui a débloqué la CI était donc **déjà dans les droits existants** de l'outillage de ce dossier ; il ne demandait qu'à être écrit.
+
+### Décisions au 2026-11-12
+
+- **`pc-bruno-gpu` reste cordonné.** **Décision actée**, tant que M1 et M3 (§8 point 2) ne sont pas départagés : le data-plane n'est pas rétabli au critère de C1, donc le dé-fencer ferait revenir immédiatement les symptômes de §2 et reproduirait CI-1.
+- **Rien n'est appliqué à Cilium.** **Décision actée**, inchangée depuis §6.2 / §8 point 8 : aucune modification du plan de données n'a été portée, et aucune recette de correction n'est proposée ici.
+- **`maxRunners` n'est pas augmenté.** **Option refusée par l'humain** : elle n'aurait pas dégelé les deux jobs en cours, le quota étant **déjà saturé** par les pods du nœud fence-é. Augmenter le quota ne retirait pas les pods qui le consommaient.
 
 ---
 
