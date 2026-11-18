@@ -1,0 +1,26 @@
+# ebruno-hosts-sync.service — refresh the managed /etc/hosts block with the
+# CURRENT lima-k3s-agent InternalIP (the worker address is a DHCP lease; see
+# bin/resolve-cluster-ip.sh header). Triggered by ebruno-hosts-sync.timer and
+# at boot; enable the TIMER, not this unit.
+#
+# Adjust ExecStart if this repo lives elsewhere, and RUNNER_OPS_KUBECONFIG if
+# the node-ops kubeconfig is not under this user's home.
+#
+# The systemd environment has neither HOME nor the Nix profile in PATH (same
+# trap as runner-auto-leave.service — see infrastructure/laptop/README.md), so
+# both the kubeconfig and kubectl's location are provided explicitly here.
+# kubectl also exists on the ssh fallback host, so a missing local kubectl is
+# a degraded path, not a fatal one.
+[Unit]
+Description=Refresh the gitops-standalone managed block in /etc/hosts with the live cluster IP
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=RUNNER_OPS_KUBECONFIG=/home/bruno/.kube/node-ops.conf
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/home/bruno/.nix-profile/bin
+ExecStart=/bin/bash /home/bruno/gitops/infrastructure/laptop/standalone/bin/sync-ebruno-hosts.sh --write
+# Worst case inside the script: resolver attempt 1 (timeout 20) + attempt 2
+# (timeout 25) + file rewrite — capped by the script's own outer `timeout 60`.
+TimeoutStartSec=90

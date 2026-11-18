@@ -1,0 +1,21 @@
+# ebruno-hosts-sync.timer — THIS is the unit to arm on the laptop:
+#   sudo systemctl enable --now ebruno-hosts-sync.timer
+# (the .service carries no [Install]: it is only ever activated from here,
+# same pattern as runner-netprobe.timer.)
+#
+# OnBootSec=2min: give VPN + network-online time to settle before the first
+# resolution (the script fails loudly but harmlessly if neither path works;
+# the next tick retries).
+# OnUnitActiveSec=15min: the lima-k3s-agent address is a DHCP lease, so the
+# mapping self-heals within 15 min of a change — this is the mitigation for
+# "never hardcode .247". No Persistent=: a missed tick is meaningless, the
+# value is re-resolved live on every run.
+[Unit]
+Description=Every 15min: re-point the gitops-standalone /etc/hosts block at the live cluster IP
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=15min
+
+[Install]
+WantedBy=timers.target

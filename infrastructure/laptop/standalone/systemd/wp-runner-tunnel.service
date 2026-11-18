@@ -1,0 +1,57 @@
+# wp-runner-tunnel.service — persistent SSH tunnel: laptop -> compute-lsis-2
+# -> kubectl port-forward of the in-cluster Service woodpecker-server:9000,
+# landing on 127.0.0.1:9000 for the (future) local Woodpecker agent.
+#
+# WHY A TUNNEL AT ALL: the gRPC port 9000 is exposed on no joinable IP
+# (measured 2026-11-18: RST on 10.2.248.31:9000 and on the lima worker —
+# Traefik routes HTTP only, no NodePort for gRPC). Until git decides a real
+# exposure (TCPRoute/NodePort — out of this kit's scope), the agent's only
+# path is through an host that already holds cluster-local reachability.
+# The ssh TARGET is compute-lsis-2 (host-terminated ssh:22 works from the
+# laptop). NEVER target 10.2.248.247 for ssh: measured tonight, key auth is
+# refused there. Both are host-terminated flows, which is exactly the class
+# that still works while the pod-terminated tunnel (M1) is broken.
+#
+# Mechanics: -L forwards laptop:127.0.0.1:9000 to the REMOTE end of the ssh
+# channel; the remote sshd therefore runs kubectl port-forward listening on
+# 127.0.0.1:19000 (internal port distinct to avoid any clash), and the -L map
+# 9000->19000 rides the ssh connection. ExitOnForwardFailure=yes makes a dead
+# forward a service failure instead of a silent lie; BatchMode=yes forbids any
+# interactive prompt (key auth only — if you are being asked for a password,
+# fix your ssh keys, do not remove this flag). ServerAliveInterval re-probes
+# the TCP path so half-dead tunnels die and Restart= rebuilds them.
+#
+# Install as a USER unit (needs YOUR ssh keys/config; the system-wide root
+# user has none of that):
+#   mkdir -p ~/.config/systemd/user
+#   cp wp-runner-tunnel.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now wp-runner-tunnel.service
+#   loginctl enable-linger "$(whoami)"    # keep it up without an open session
+# No --request-timeout here on purpose: it would kill the long-lived
+# port-forward stream after the cap. Reconnection is handled by
+# Restart=on-failure + RestartSec=10 instead.
+[Unit]
+Description=SSH tunnel exposing cluster Woodpecker gRPC (svc/woodpecker-server:9000) on 127.0.0.1:9000
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/ssh -N \
+  -o BatchMode=yes \
+  -o ConnectTimeout=5 \
+  -o ServerAliveInterval=30 \
+  -o ServerAliveCountMax=3 \
+  -o ExitOnForwardFailure=yes \
+  -L 127.0.0.1:9000:127.0.0.1:19000 \
+  compute-lsis-2 \
+  'kubectl -n ci port-forward --address 127.0.0.1 --listen 127.0.0.1:19000 svc/woodpecker-server 19000:9000'
+Restart=on-failure
+RestartSec=10
+# One restart per 10 s is the storm cap; a laptop off-VPN simply flaps harmlessly.
+StartLimitIntervalSec=60
+StartLimitBurst=6
+
+[Install]
+WantedBy=default.target
