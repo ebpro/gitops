@@ -22,7 +22,11 @@ data:
   SLURM_PARTITION: "ouranos"
   SLURM_CPUS: "8"
   SLURM_MEM: "16G"
-  SLURM_TIME: "01:30:00"
+  # 2026-11-17: 01:30:00 -> 02:00:00 for hybrid notebook placement — render
+  # jobs may now land on a live HPC runner, and the reusable render job
+  # timeout is 120 min, which a 90-min wall time would steal mid-run.
+  # Cost accepted: each HPC runner holds a Slurm node up to 2h.
+  SLURM_TIME: "02:00:00"
   # Ephemeral-runner image imported by enroot on the compute nodes. MUST stay
   # digest-pinned: broker.py refuses to start on a tag (job-template.sh keys the
   # image cache by digest, never by tag).

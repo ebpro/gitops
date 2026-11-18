@@ -27,10 +27,15 @@ spec:
       app.kubernetes.io/instance: slurm-runner-broker
   template:
     metadata:
-      # No synthetic rollout annotation any more: both images below are pinned
-      # to an immutable digest, and changing that digest is itself the git-only
-      # lever that alters the pod template and drives the Recreate rollout.
-      # (kubectl rollout restart is not permitted on this ArgoCD-managed app.)
+      # Rollout levers (kubectl rollout restart is not permitted on this
+      # ArgoCD-managed app):
+      #  * image change  -> bump the pinned digest below (immutable; Harbor
+      #    retains old digests for rollback);
+      #  * config change -> envFrom never hot-reloads, so the checksum of the
+      #    broker-config data lines below is the git-only template lever that
+      #    drives the Recreate restart (2026-11-17: SLURM_TIME bump).
+      annotations:
+        slurm-runner-broker/config: 627d8e165c2c80cc1a0060560d4d881d516a1f0f9e9eccc106ffb6b0a689e360
       labels:
         app.kubernetes.io/name: slurm-runner-broker
         app.kubernetes.io/instance: slurm-runner-broker

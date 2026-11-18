@@ -39,7 +39,7 @@ carry).
 |---|---|---|
 | Partition | `ouranos` (`node[01-17]`) | `SLURM_PARTITION` |
 | Per-runner allocation | `--cpus-per-task=8`, `--mem=16G` | `SLURM_CPUS` / `SLURM_MEM` |
-| Wall time | `--time=01:30:00` — the runner is killed at 90 min | `SLURM_TIME` |
+| Wall time | `--time=02:00:00` — the runner is killed at 2h (2026-11-17: up from 90 min, so a hybrid-placed 120-min render job is never stolen mid-run) | `SLURM_TIME` |
 | Concurrency | `MAX_PARALLEL=4` live Slurm jobs; `PD` counts too (`JOB_LIVE_STATES`) | `broker.py` |
 | Dispatch latency | org poll every `POLL_SECONDS=15` + `sbatch` + enroot start | `broker.py` |
 | Placement | `--exclusive=user` (one runner per node for this user); `--exclude=node01` (TEMP: its `/scratch` is full) | `job-template.sh` |
