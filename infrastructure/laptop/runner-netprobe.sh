@@ -104,8 +104,12 @@ if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
   exit 1
 fi
 
-NODE="$(hostname 2>/dev/null || true)"
-# The node name lands in kubectl argv — a malformed hostname aborts before any
+# NODE_NAME is an explicit identity override (the dry-run/self-test hook documented
+# in infrastructure/laptop/README.md). Whatever is resolved here — the override or
+# the real hostname — is the value every log line and every kubectl argv below
+# carries.
+NODE="${NODE_NAME:-$(hostname 2>/dev/null || true)}"
+# The node name lands in kubectl argv — a malformed name aborts before any
 # command is built. Fail-open (exit 0): a machine that cannot name itself has
 # nothing to fence.
 if [ -z "${NODE}" ] || [[ ! "${NODE}" =~ ^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$ ]]; then

@@ -181,7 +181,7 @@ every tick it runs:
 
 | Condition | Probe | Why it is required |
 |---|---|---|
-| Control plane up | `GET /api/v1/nodes/$NODE_NAME` | Proves `node-ops` works and the node really exists — which also catches a **deleted** node object (a clean `runner-leave.sh` deletes it), so the probe goes silent instead of fighting the join flow. |
+| Control plane up | TCP `10.2.248.31:6443` (plain connect — no TLS handshake, no API call) | Without the API there is no control at all, so the probe could not cordon even if it wanted to; and CP-down is the laptop's normal **off-VPN resting state**, which must never become a fence condition. Note the node object is **not** part of this gate: it is read only *inside* the fence pass (`get node $NODE_NAME -o jsonpath={.spec.unschedulable}`). A **deleted** node object (a clean `runner-leave.sh` deletes it) therefore shows up as a recurring `ERROR: cannot read node …` about every 30 s **with zero mutation** — stop the timer (`sudo systemctl stop runner-netprobe.timer`) before a prolonged leave. |
 | Data plane down | TCP `10.2.248.31:443` | Pod-terminated on purpose: that address has no host socket, it is the k3s ServiceLB DNAT onto a remote Traefik pod, so every attempt crosses the tunnel (same reasoning as the `runner-join.sh` preflight). `Ready` — and 6443 — prove nothing about it. |
 | The break is **local** | delta of `/sys/class/net/cilium_vxlan/statistics/rx_packets` across the strike window | This correlation is what separates a broken tunnel on **this** interface from a dead remote service. An uncorrelated failure does **not** count as a strike. |
 
@@ -212,11 +212,15 @@ manage `quarantine=true` — the probe covers the tunnel, `runner-join.sh` guard
 deliberate quarantine, two independent fences. Consequence: a deliberate cordon is
 never fought, and a node under both fences is not uncordoned by the join flow.
 
-**Everything is fail-open** (`exit 0` + one log line): missing kubeconfig, missing
-`kubectl`, unreachable API, undecodable token or CA, unresolved node name. A probe
-that cannot reach the cluster can repair nothing, and firing during network setup or
-teardown is how you get a flapping `spec.unschedulable`. The only non-zero exit is
-an internal assertion failure (`BUG:`), which cannot be an environment condition.
+**Everything is fail-open** (`exit 0` + one log line, nothing mutated): a missing or
+unreadable kubeconfig — the script only ever resolves a *path*, it decodes no token
+and no CA itself — a missing `kubectl`, an unreachable API, or an unusable node name
+(empty/malformed `hostname`, or a `NODE_NAME` override that is not a valid name). A
+probe that cannot reach the cluster can repair nothing, and firing during network
+setup or teardown is how you get a flapping `spec.unschedulable`. The only non-zero
+exits are the bash-older-than-4 guard (fires before any command is built) and an
+internal assertion failure (`INTERNAL ERROR:`) — a programming error in the probe,
+never an environment condition.
 
 **Budget** — the unit's `TimeoutStartSec=150` is a computed worst case; every step
 is `--request-timeout=10s`-capped:
@@ -253,14 +257,23 @@ journalctl -u runner-netprobe.service --since "-10m" | tail -5
 
 Idle ticks log nothing, so expect ~2 lines/minute at most. Output appears only on
 the way to a fence, on a fence, and on environment problems. The strike counter
-lives in `/run/runner-netprobe` (tmpfs → a reboot starts clean); its last-line
-format is `<DP-fail> <strike> <rx_packets-at-first-strike>`. After a complete fence
-pass the counter resets, so a still-broken tunnel re-asserts cordon + purge every
-~90 s: idempotent by construction, and a node the probe fenced **stays** cordoned
-until a human lifts it.
+lives in `/run/runner-netprobe/streak` (tmpfs → a reboot starts clean): **a single
+integer on one line** — the current count of consecutive locally-corroborated data
+plane failures. It is rewritten on every strike and reset to `0` both on recovery
+(CP OK + DP OK) and after a complete fence pass; an unreadable or malformed file
+just restarts the count at 0 and is never fatal. Under `NETPROBE_DRYRUN=1` the
+counter is the sibling `streak.dryrun`, so tests never disturb production. A
+still-broken tunnel therefore re-asserts cordon + purge every ~90 s: idempotent by
+construction, and a node the probe fenced **stays** cordoned until a human lifts it.
+Expect the same on a node that is *already* cordoned (e.g. the probe armed through
+a manual cordon or a leave/join cycle): with the data plane dead it re-runs the
+pass, skips the cordon as already active, usually finds no pod, and logs about
+every 90 s — that is the armed state working as designed, not a failure.
 
 Dry-run and self-test hooks (under `NETPROBE_DRYRUN=1` no mutation is ever executed;
-the demo hooks are inert outside dry-run):
+the demo hooks are inert outside dry-run). `NODE_NAME` is the one non-`NETPROBE_*`
+input: it replaces `hostname` as the node the probe reads and fences, **in real runs
+too** — set it deliberately and never leave it in a systemd drop-in.
 
 ```bash
 NETPROBE_DRYRUN=1 NODE_NAME=pc-bruno-gpu ./runner-netprobe.sh
