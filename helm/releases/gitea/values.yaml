@@ -65,9 +65,13 @@ deployment:
     - name: GITEA__security__INSTALL_LOCK
       value: "true"
     - name: GITEA__oauth2__ACCESS_TOKEN_EXPIRATION_TIME
-      value: "864000"
+      # One year (2026-11-18): Woodpecker stores its OAuth login token and never
+      # refreshes it — the previous 10-day expiry (864000) killed every Woodpecker
+      # pipeline ~10 days after each manual login with "could not load config from
+      # forge: ... invalid username, password or token".
+      value: "31536000"
     - name: GITEA__oauth2__REFRESH_TOKEN_EXPIRATION_TIME
-      value: "2160"
+      value: "31536000"
 
 gitea:
   admin:
@@ -109,8 +113,11 @@ gitea:
     repository:
       DEFAULT_PRIVATE: private
     oauth2:
-      ACCESS_TOKEN_EXPIRATION_TIME: 864000
-      REFRESH_TOKEN_EXPIRATION_TIME: 2160
+      # One-year OAuth token expiry — mirrors the GITEA__oauth2__ACCESS_TOKEN_
+      # EXPIRATION_TIME env above (env wins; kept in sync to avoid drift).
+      # Woodpecker never refreshes its login token (see env comment).
+      ACCESS_TOKEN_EXPIRATION_TIME: 31536000
+      REFRESH_TOKEN_EXPIRATION_TIME: 31536000
 
 postgresql:
   enabled: false
