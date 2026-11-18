@@ -35,7 +35,7 @@ spec:
       #    broker-config data lines below is the git-only template lever that
       #    drives the Recreate restart (2026-11-17: SLURM_TIME bump).
       annotations:
-        slurm-runner-broker/config: 627d8e165c2c80cc1a0060560d4d881d516a1f0f9e9eccc106ffb6b0a689e360
+        slurm-runner-broker/config: 329769ad5e5877d85617edb9eb98f4335494ec30b5613664a6e90f68e4c93e13
       labels:
         app.kubernetes.io/name: slurm-runner-broker
         app.kubernetes.io/instance: slurm-runner-broker
@@ -77,7 +77,7 @@ spec:
         # (same image, same uid) so the main container gets a real HOME.
         - name: seed-ssh
           # Same immutable digest as the broker container below.
-          image: harbor.ebruno.fr/library/slurm-runner-broker@sha256:02b63cf9d00d79901b99a4af63990cfe4579dbd5298b3f7b72048a6f90be9e52
+          image: harbor.ebruno.fr/library/slurm-runner-broker@sha256:4b22d08e1c8f3e775f9dc9e8b0b4a4ee1e80c79a7de6de8b13bef3645d720f5d
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
@@ -105,8 +105,8 @@ spec:
       containers:
         - name: broker
           # Pinned to an immutable digest, not :latest. This is the deploy
-          # lever: Harbor tag sha-6d21861 (nested commit 6d21861, Woodpecker
-          # pipeline 23) == this digest. A new broker build reaches the cluster
+          # lever: Harbor tag sha-bb2fd4d (commit bb2fd4d, Woodpecker
+          # pipeline 27) == this digest. A new broker build reaches the cluster
           # only when someone edits this line, so an unrelated CI push can never
           # move it, and a rollout can never pull a half-built image. To roll
           # back, put the previous digest back here (Harbor retains them).
@@ -116,7 +116,7 @@ spec:
           # live object, so every pod start re-contacted Harbor — on a cold
           # cluster boot the broker sat in ImagePullBackoff until Harbor and its
           # DB were up, for an image already on the node.
-          image: harbor.ebruno.fr/library/slurm-runner-broker@sha256:02b63cf9d00d79901b99a4af63990cfe4579dbd5298b3f7b72048a6f90be9e52
+          image: harbor.ebruno.fr/library/slurm-runner-broker@sha256:4b22d08e1c8f3e775f9dc9e8b0b4a4ee1e80c79a7de6de8b13bef3645d720f5d
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:

@@ -29,6 +29,7 @@ implementation (pow()); keys accepted: PEM PKCS#1 "RSA PRIVATE KEY" and PKCS#8
 """
 
 import base64
+import calendar
 import hashlib
 import json
 import logging
@@ -58,6 +59,28 @@ REPOS_PER_TICK = int(os.environ.get("REPOS_PER_TICK", "12"))
 REPO_REFRESH_SECONDS = int(os.environ.get("REPO_REFRESH_SECONDS", "1800"))
 RATE_LIMIT_FLOOR = int(os.environ.get("RATE_LIMIT_FLOOR", "500"))
 RATE_LIMIT_BACKOFF_MAX = 300
+
+# ---- Hybrid overflow (2026-11-18) -------------------------------------------
+# Fleet-less x64 jobs ([self-hosted, linux, x64] — the notebook render jobs)
+# are ARC-primary: ARC scales a runner up for them, and they may STEAL an
+# already-live HPC runner (their selector is a label subset of the HPC
+# runner's), but by default they never START one. HYBRID_OVERFLOW_ENABLED
+# makes this broker the ARC spill: a hybrid job whose run is older than
+# HYBRID_GRACE_SECONDS (GitHub `created_at` — restart-proof, no memory state)
+# in a repo matching HYBRID_OVERFLOW_REPOS also starts an ephemeral HPC
+# runner. Bounds: HYBRID_MAX_PARALLEL is a sub-cap of the SHARED MAX_PARALLEL
+# budget (hybrid nodes are never additive — a render wave can hold at most 2
+# of the 16 usable ouranos nodes); pure-HPC jobs are always dispatched first
+# (pass order) since they have no fallback tier; fleet-labelled selectors
+# (ebpro-org / large / best-practices) never overflow — the hybrid matcher
+# requires the EXACT label set, not a superset.
+HYBRID_OVERFLOW_ENABLED = (os.environ.get("HYBRID_OVERFLOW_ENABLED", "false")
+                           .lower() in ("1", "true", "yes", "on"))
+HYBRID_GRACE_SECONDS = int(os.environ.get("HYBRID_GRACE_SECONDS", "600"))
+HYBRID_MAX_PARALLEL = int(os.environ.get("HYBRID_MAX_PARALLEL", "2"))
+HYBRID_OVERFLOW_REPOS = re.compile(
+    os.environ.get("HYBRID_OVERFLOW_REPOS", "notebook-[a-z0-9-]+"))
+HYBRID_LABELS = frozenset({"self-hosted", "linux", "x64"})
 
 API = "https://api.github.com"
 USER_AGENT = "slurm-runner-broker/0.1"
@@ -328,6 +351,22 @@ class GitHubClient:
                 jobs.append(j)
         return jobs
 
+    def queued_hybrid_jobs(self, repo_full_name, run_id):
+        """Queued jobs whose label set is EXACTLY the fleet-less x64 hybrid set.
+
+        Exact-set match (contrast with queued_hpc_jobs' superset match): a job
+        that adds a fleet label (ebpro-org / large / best-practices) is
+        fleet-pinned for ARC and must never start an HPC runner.
+        """
+        d = self._inst("GET", "/repos/%s/actions/runs/%s/jobs" % (repo_full_name, run_id))
+        jobs = []
+        for j in d.get("jobs", []):
+            if j.get("status") != "queued":
+                continue
+            if {l.lower() for l in j.get("labels", [])} == HYBRID_LABELS:
+                jobs.append(j)
+        return jobs
+
     def registration_token(self):
         d = self._inst("POST", "/orgs/%s/actions/runners/registration-token" % ORG, body={})
         tok = d["token"]
@@ -456,6 +495,24 @@ def _shell_quote(s):
     return "'" + s.replace("'", "'\\''") + "'"
 
 
+def _run_age_seconds(iso_ts):
+    """Age in seconds of a run from its API `created_at` (ISO-8601 Z), or None.
+
+    None on missing/unparsable timestamps: the hybrid gate then treats the run
+    as not yet aged (no dispatch) — fail closed. calendar.timegm interprets the
+    parsed struct as UTC (matching the `Z` suffix) regardless of the process
+    timezone — unlike the mktime+time.timezone idiom, which is only exact in a
+    UTC container.
+    """
+    if not iso_ts:
+        return None
+    try:
+        t = time.strptime(iso_ts, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        return None
+    return max(0, int(time.time() - calendar.timegm(t)))
+
+
 # ---------------------------------------------------------------------------
 # Broker core
 # ---------------------------------------------------------------------------
@@ -464,8 +521,9 @@ class Broker:
         self.gh = gh
         self.sms = sms
         # gh_run_id -> {"repo": full_name, "jobs": {gh_job_id: {"slurm": int,
-        #                  "envfile": str, "attempts": int}}}
+        #                  "envfile": str, "attempts": int, "origin": "hpc"|"hybrid"}}}
         self.dispatched = {}
+        self.hybrid_aged = {}   # run_id -> True once the hybrid grace was crossed (logged once)
         self.offline_since = {}  # runner_id -> first-seen-offline ts (reconciled at boot)
         self.workflow_repos = None
         self.repo_refresh_at = 0.0
@@ -531,6 +589,12 @@ class Broker:
         return runs, polled
 
     # -- dispatch ------------------------------------------------------------
+    def _hybrid_live(self, live):
+        """Live Slurm jobs started for hybrid overflow (sub-cap accounting)."""
+        return sum(1 for e in self.dispatched.values()
+                   for meta in e["jobs"].values()
+                   if meta.get("origin") == "hybrid" and meta["slurm"] in live)
+
     def poll_once(self, live):
         self.refresh_repo_cache()
         runs, polled_repos = self._poll_worklist()
@@ -542,61 +606,135 @@ class Broker:
             if self.dispatched[rid]["repo"] not in polled_repos:
                 continue
             if rid not in queued_ids:
+                self.hybrid_aged.pop(rid, None)
                 del self.dispatched[rid]
 
-        active = len(live)
+        # st carries the tick's running counters: active = live Slurm jobs
+        # (shared MAX_PARALLEL budget, hpc + hybrid), hybrid_live = the
+        # hybrid-origin subset (HYBRID_MAX_PARALLEL sub-cap). fresh = slurm
+        # ids dispatched EARLIER in this tick: they are not yet in the
+        # start-of-tick squeue snapshot, so the dead-job resubmit pass must
+        # not mistake them for dead jobs (a run matched by both passes would
+        # otherwise double-submit within one tick).
+        st = {"active": len(live), "hybrid_live": self._hybrid_live(live),
+              "fresh": set()}
+
+        # Pass 1: pure-HPC jobs (labels ⊇ REQUIRED_LABELS) — always first,
+        # they have no fallback tier. Pass 2: hybrid overflow (exact fleet-less
+        # x64 set), gated by grace age + repo regex + sub-cap.
         for run in runs:
-            rid = run["id"]
-            repo = run["repository"]["full_name"]
-            entry = self.dispatched.get(rid)
+            self._dispatch_run(run, live, st, hybrid=False)
+        if HYBRID_OVERFLOW_ENABLED:
+            for run in runs:
+                self._dispatch_run(run, live, st, hybrid=True)
+        return st["active"]
 
-            if entry is None:
-                if active >= MAX_PARALLEL:
-                    ainfo(event="cap_reached", active=active, skipped_run=rid)
-                    continue
-                try:
-                    jobs = self.gh.queued_hpc_jobs(repo, rid)
-                except urllib.error.HTTPError as e:
-                    if e.code in (404, 410):
-                        continue
-                    raise
-                if not jobs:
-                    continue
-                self.dispatched[rid] = entry = {"repo": repo, "jobs": {}}
-                for j in jobs:
-                    if active >= MAX_PARALLEL:
-                        break
-                    result = self._dispatch_one(j["id"])
-                    if result is not None:
-                        slurm_id, envfile = result
-                        entry["jobs"][j["id"]] = {"slurm": slurm_id, "envfile": envfile,
-                                                  "attempts": 1}
-                        active += 1
-                ainfo(event="run_dispatched", run=rid, repo=repo,
-                      jobs={str(k): v["slurm"] for k, v in entry["jobs"].items()})
+    def _dispatch_run(self, run, live, st, hybrid):
+        """Dispatch the eligible queued jobs of ONE run; mutates st in place.
 
-            else:
-                # Run still queued: did any dispatched job die before claiming it?
-                for gh_job_id, meta in list(entry["jobs"].items()):
-                    if meta["slurm"] in live:
-                        continue
-                    # Slurm job gone; runner never (yet) flipped the run out of queued.
-                    if meta["attempts"] >= 3:  # initial + 2 resubmits
-                        ainfo(event="dispatch_gave_up", run=rid, job=gh_job_id,
-                              attempts=meta["attempts"])
-                        continue
-                    if active >= MAX_PARALLEL:
-                        continue
-                    result = self._dispatch_one(gh_job_id)
-                    if result is not None:
-                        new_id, envfile = result
-                        meta["slurm"] = new_id
-                        meta["envfile"] = envfile
-                        meta["attempts"] += 1
-                        active += 1
-                        ainfo(event="resubmitted", run=rid, job=gh_job_id,
-                              slurm=new_id, attempt=meta["attempts"])
-        return active
+        hybrid=False: pure-HPC jobs (label superset match, behaviour unchanged).
+        hybrid=True:  exact fleet-less {self-hosted,linux,x64} jobs, only once
+                      the run's created_at age ≥ HYBRID_GRACE_SECONDS, the repo
+                      matches HYBRID_OVERFLOW_REPOS, and the sub-cap allows it.
+        A run that already has a dispatch entry also gets its dead Slurm jobs
+        resubmitted (initial + 2 resubmits) and any still-queued job appended.
+        """
+        rid = run["id"]
+        repo = run["repository"]["full_name"]
+        entry = self.dispatched.get(rid)
+
+        if entry is None and st["active"] >= MAX_PARALLEL:
+            ainfo(event="cap_reached", active=st["active"], skipped_run=rid,
+                  tier="hybrid" if hybrid else "hpc")
+            return
+
+        if hybrid:
+            age = _run_age_seconds(run.get("created_at"))
+            if age is None or age < HYBRID_GRACE_SECONDS:
+                return
+            if not HYBRID_OVERFLOW_REPOS.search(repo):
+                return
+            if rid not in self.hybrid_aged:
+                self.hybrid_aged[rid] = True
+                ainfo(event="hybrid_overflow_armed", run=rid, repo=repo, age_s=age)
+            try:
+                jobs = self.gh.queued_hybrid_jobs(repo, rid)
+            except urllib.error.HTTPError as e:
+                if e.code in (404, 410):
+                    return
+                raise
+        else:
+            try:
+                jobs = self.gh.queued_hpc_jobs(repo, rid)
+            except urllib.error.HTTPError as e:
+                if e.code in (404, 410):
+                    return
+                raise
+        if not jobs:
+            return
+
+        # Run still queued with a prior entry: did any dispatched job die
+        # before claiming it?
+        if entry is not None:
+            for gh_job_id, meta in list(entry["jobs"].items()):
+                if meta["slurm"] in live or meta["slurm"] in st["fresh"]:
+                    continue
+                # Slurm job gone; runner never (yet) flipped the run out of queued.
+                if meta["attempts"] >= 3:  # initial + 2 resubmits
+                    ainfo(event="dispatch_gave_up", run=rid, job=gh_job_id,
+                          attempts=meta["attempts"])
+                    continue
+                if st["active"] >= MAX_PARALLEL:
+                    continue
+                if meta.get("origin") == "hybrid" and \
+                        st["hybrid_live"] >= HYBRID_MAX_PARALLEL:
+                    continue
+                result = self._dispatch_one(gh_job_id)
+                if result is not None:
+                    new_id, envfile = result
+                    meta["slurm"] = new_id
+                    meta["envfile"] = envfile
+                    meta["attempts"] += 1
+                    st["active"] += 1
+                    st["fresh"].add(new_id)
+                    if meta.get("origin") == "hybrid":
+                        st["hybrid_live"] += 1
+                    ainfo(event="resubmitted", run=rid, job=gh_job_id,
+                          slurm=new_id, attempt=meta["attempts"],
+                          origin=meta.get("origin"))
+
+        new_entry = entry is None
+        if new_entry:
+            self.dispatched[rid] = entry = {"repo": repo, "jobs": {}}
+
+        for j in jobs:
+            gid = j["id"]
+            if gid in entry["jobs"]:
+                continue
+            if st["active"] >= MAX_PARALLEL:
+                ainfo(event="cap_reached", active=st["active"], skipped_run=rid,
+                      tier="hybrid" if hybrid else "hpc")
+                break
+            if hybrid and st["hybrid_live"] >= HYBRID_MAX_PARALLEL:
+                ainfo(event="hybrid_cap_reached", active=st["active"],
+                      hybrid_live=st["hybrid_live"], skipped_run=rid)
+                break
+            result = self._dispatch_one(gid)
+            if result is not None:
+                slurm_id, envfile = result
+                entry["jobs"][gid] = {"slurm": slurm_id, "envfile": envfile,
+                                      "attempts": 1,
+                                      "origin": "hybrid" if hybrid else "hpc"}
+                st["active"] += 1
+                st["fresh"].add(slurm_id)
+                if hybrid:
+                    st["hybrid_live"] += 1
+                ainfo(event="job_dispatched", run=rid, job=gid, slurm=slurm_id,
+                      origin="hybrid" if hybrid else "hpc")
+
+        if new_entry:
+            ainfo(event="run_dispatched", run=rid, repo=repo,
+                  jobs={str(k): v["slurm"] for k, v in entry["jobs"].items()})
 
     def _dispatch_one(self, gh_job_id):
         """Mint token -> ssh-deliver env file -> sbatch. Returns (slurm_id, envfile) or None."""
@@ -662,7 +800,11 @@ def main():
     ainfo(event="broker_start", org=ORG, host=SMS_HOST, partition=PARTITION,
           image=RUNNER_IMAGE, max_parallel=MAX_PARALLEL, poll_seconds=POLL_SECONDS,
           repos_per_tick=REPOS_PER_TICK, repo_refresh_seconds=REPO_REFRESH_SECONDS,
-          rate_limit_floor=RATE_LIMIT_FLOOR)
+          rate_limit_floor=RATE_LIMIT_FLOOR,
+          hybrid_overflow=HYBRID_OVERFLOW_ENABLED,
+          hybrid_grace_s=HYBRID_GRACE_SECONDS,
+          hybrid_max_parallel=HYBRID_MAX_PARALLEL,
+          hybrid_repos=HYBRID_OVERFLOW_REPOS.pattern)
 
     ssh_backoff = 0
     gc_counter = 0

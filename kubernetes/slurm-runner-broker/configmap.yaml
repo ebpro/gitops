@@ -36,4 +36,19 @@ data:
   JOB_TEMPLATE: "/etc/slurm-broker/job-template.sh"
   # Broker behavior.
   MAX_PARALLEL: "4"
+  # Hybrid overflow (2026-11-18): jobs whose label set is EXACTLY
+  # {self-hosted,linux,x64} (the ARC hybrid fleet is fleet-less + scale-to-zero)
+  # may spill onto an ephemeral HPC runner as an ARC spill, after a grace.
+  # Master switch (kill-switch: set "false" and re-annotate to disarm).
+  HYBRID_OVERFLOW_ENABLED: "true"
+  # Minimum run age (GitHub created_at — restart-proof, no memory state)
+  # before hybrid dispatch, so ARC scale-up (2-4 min cold start) can win first.
+  HYBRID_GRACE_SECONDS: "600"
+  # Sub-cap of the SHARED MAX_PARALLEL budget (never additive): max HPC
+  # runners held concurrently by the overflow.
+  HYBRID_MAX_PARALLEL: "2"
+  # Repos eligible for overflow (regex search on repo full name) — the
+  # fleet-less notebook render wave only. ebpro-org / large / best-practices
+  # never overflow (their jobs carry the hpc label and match pass 1).
+  HYBRID_OVERFLOW_REPOS: "notebook-[a-z0-9-]+"
   POLL_SECONDS: "15"

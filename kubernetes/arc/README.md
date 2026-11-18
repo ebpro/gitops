@@ -52,7 +52,7 @@ Copy-paste selectors:
 runs-on: [self-hosted, linux, ebpro-org, x64]   # general x64 set (dind, 8Gi, max 2)
 runs-on: [self-hosted, linux, ebpro-org, arm64] # general arm64 set (dind, 16Gi, max 2)
 runs-on: [self-hosted, linux, ebpro-org]        # either general set — RANDOM arch
-runs-on: [self-hosted, linux, x64]              # either x64 set (org or large) — pool NOT pinned; may also be taken by a live HPC runner (see rules)
+runs-on: [self-hosted, linux, x64]              # either x64 set (org or large) — pool NOT pinned; may also be taken by a live HPC runner (see rules); and (since 2026-11-18) may START one in notebook-* repos after a 10-min grace (hybrid overflow — see rules)
 runs-on: [self-hosted, linux, x64, large]       # big-RAM x64 build box (dind, 16Gi, max 1)
 runs-on: [self-hosted, linux, best-practices]   # AI review pool (NO dind, arm64, max 1)
 runs-on: ebpro-org-arm                          # name-only form: exactly that one pool
@@ -73,9 +73,14 @@ Reading rules:
   runners up** — re-verified 2026-11-03 (probe run `41588966507`): the leg was
   served by the org-x64 set (`ebpro-org-hflxm-runner-8z2b8`). But it does not
   pin a pool: eligible runners are the org-x64 set **and** `large` (both label
-  supersets), and a *transiently online* HPC runner may also take it. It can
-  never start an HPC runner (the broker requires `hpc` in the selector) and
-  never matches arm or `ai-review`. Use it only for pool-agnostic x64 work;
+  supersets), and a *transiently online* HPC runner may also take it — and,
+  since 2026-11-18, it can also **start** one: the broker's hybrid overflow
+  spills runs older than 10 min in repos matching `notebook-[a-z0-9-]+` onto
+  an ephemeral HPC runner (sub-cap 2 of the shared MAX_PARALLEL=4 budget,
+  kill-switch `HYBRID_OVERFLOW_ENABLED` — full semantics in
+  `kubernetes/slurm-runner-broker/README.md`). It never matches arm or
+  `ai-review`, and a fleet-labelled run can never overflow (its label set is
+  not the exact hybrid set). Use it only for pool-agnostic x64 work;
   prefer the explicit fleet selectors above for deterministic placement.
 
 Notes:

@@ -3,8 +3,10 @@
 Brings up the ephemeral-runner tier: an in-cluster broker (`Deployment`
 `slurm-runner-broker`, currently `replicas: 1` — **enabled**) that polls
 GitHub org `ebpro` for queued runs labelled `[self-hosted, linux, x64, hpc]`
-and `sbatch`-es one ephemeral runner per queued job onto SMS partition
-`ouranos` over `ssh emmanuel.bruno@sms-ext.lis-lab.fr` (forced command
+(and, since 2026-11-18, spills older fleet-less x64 runs in `notebook-*`
+repos onto the same tier — hybrid overflow, see below) and `sbatch`-es one
+ephemeral runner per queued job onto SMS partition `ouranos` over
+`ssh emmanuel.bruno@sms-ext.lis-lab.fr` (forced command
 `$HOME/.local/bin/ebrunner-gate` — see step A3 +
 [`../../slurm-runner-broker/ebrunner-gate.sh`](../../slurm-runner-broker/ebrunner-gate.sh)).
 
@@ -28,12 +30,14 @@ broker only submits a Slurm job when `{hpc, self-hosted, linux, x64}` is a
 nothing fails anywhere — no error is logged cluster-side or on the SMS. Add `hpc`
 explicitly for anything that must land here. Conversely, a fleet-less x64 job
 (`[self-hosted, linux, x64]`) **can be picked up by an HPC runner that happens
-to be online** (that selector is a subset of the HPC labels) even though it can
-never *start* one — if a job must never touch this tier, include an ARC fleet
-label (`ebpro-org`, or `large`/`best-practices`, which the HPC runner does not
+to be online** (that selector is a subset of the HPC labels) — and, since
+2026-11-18, it can also **start** one via the hybrid overflow below (run
+older than `HYBRID_GRACE_SECONDS` in a repo matching `HYBRID_OVERFLOW_REPOS`).
+If a job must never touch this tier, include an ARC fleet label
+(`ebpro-org`, or `large`/`best-practices`, which the HPC runner does not
 carry).
 
-### Job shape (git == live ConfigMap `broker-config`, checked 2026-11-03)
+### Job shape (git == live ConfigMap `broker-config`, checked 2026-11-18)
 
 | Knob | Value | Source |
 |---|---|---|
@@ -41,6 +45,7 @@ carry).
 | Per-runner allocation | `--cpus-per-task=8`, `--mem=16G` | `SLURM_CPUS` / `SLURM_MEM` |
 | Wall time | `--time=02:00:00` — the runner is killed at 2h (2026-11-17: up from 90 min, so a hybrid-placed 120-min render job is never stolen mid-run) | `SLURM_TIME` |
 | Concurrency | `MAX_PARALLEL=4` live Slurm jobs; `PD` counts too (`JOB_LIVE_STATES`) | `broker.py` |
+| Hybrid overflow | enabled (2026-11-18): grace `HYBRID_GRACE_SECONDS=600` s, sub-cap `HYBRID_MAX_PARALLEL=2` of the shared budget, repos `HYBRID_OVERFLOW_REPOS=notebook-[a-z0-9-]+` | `HYBRID_*` (see §Hybrid overflow) |
 | Dispatch latency | org poll every `POLL_SECONDS=15` + `sbatch` + enroot start | `broker.py` |
 | Placement | `--exclusive=user` (one runner per node for this user); `--exclude=node01` (TEMP: its `/scratch` is full) | `job-template.sh` |
 | Runner identity | name `ebrunner-<SLURM_JOB_ID>`, `--ephemeral`, URL `https://github.com/ebpro` | `job-template.sh` |
@@ -51,6 +56,45 @@ runs `SelectTypeParameters=CR_CORE` (memory is not a consumable TRES — job
 `AllocTRES` carries no `mem`) with `ConstrainRAMSpace=yes`, so exceeding 16 Gi of
 RSS OOM-kills the runner mid-job while the allocation itself never blocks other
 groups.
+
+### Hybrid overflow — ARC spill for fleet-less x64 runs (2026-11-18)
+
+The fleet-less selector `[self-hosted, linux, x64]` is the shape of the
+notebook render wave, but ARC's x64 capacity for it is 3 concurrent (org max
+2 + large max 1), scale-to-zero, 2–4 min cold start — while a render burst
+queues ~20. The broker is the spill tier for exactly those runs:
+
+- **Two-pass dispatch, pure HPC first.** Pass 1 is byte-identical to the
+  pre-2026-11-18 behaviour: label-superset match on
+  `{hpc, self-hosted, linux, x64}`. Pass 2 (only when
+  `HYBRID_OVERFLOW_ENABLED=true`) matches the EXACT set
+  `{self-hosted, linux, x64}` — a run labelled `hpc` is never seen by pass 2,
+  and a fleet-labelled run (`ebpro-org`/`large`/`best-practices`) can never
+  overflow (its label set is not the exact set).
+- **Grace.** The run's GitHub `created_at` must be at least
+  `HYBRID_GRACE_SECONDS` (600) old before pass 2 dispatches — restart-proof
+  (no memory state), and long enough for ARC scale-up (2–4 min cold start)
+  to win first. Each arming is logged once: `hybrid_overflow_armed`.
+- **Bounds.** Hybrid dispatch shares the `MAX_PARALLEL=4` Slurm budget
+  (never additive) and is additionally capped at `HYBRID_MAX_PARALLEL=2`
+  concurrent hybrid-origin runners (initial dispatch AND resubmit). Over the
+  shared budget: `cap_reached` with `tier=hybrid`; over the sub-cap:
+  `hybrid_cap_reached`. Both skip the run for this tick only — it retries
+  next poll.
+- **Scope.** `HYBRID_OVERFLOW_REPOS` (regex search on the repo full name,
+  live value `notebook-[a-z0-9-]+`) restricts the overflow to the notebook
+  render repos.
+- **Kill-switch.** `HYBRID_OVERFLOW_ENABLED: "false"` in `broker-config` +
+  recompute the `slurm-runner-broker/config` checksum annotation (the
+  standard config-change lever) disarms the tier at the next pod start;
+  `spec.replicas: 0` stops the broker entirely (step D).
+- **Zero SMS-side change.** The `sbatch` argv and the `ebrunner-gate`
+  contract are identical for hybrid and pure-HPC dispatch; only the broker's
+  selection logic changed (`broker.py`, commit `d944f64`).
+- **Broker JSON log events:** `broker_start` (echoes all four knobs),
+  `job_dispatched` / `resubmitted` (carry `origin=hpc|hybrid`),
+  `run_dispatched`, `cap_reached` (carries `tier`), plus hybrid-specific
+  `hybrid_overflow_armed` and `hybrid_cap_reached`.
 
 ### What this tier does NOT provide (Phase 1 — documented in `job-template.sh`)
 
