@@ -64,7 +64,7 @@ spec:
         repoURL: https://dl.gitea.com/charts/
         version: 12.6.0
         syncWave: '20'
-        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/gitea/values.yaml?v=7
+        valueURL: https://raw.githubusercontent.com/ebpro/gitops/main/helm/releases/gitea/values.yaml?v=8
       - app: harbor
         chart: harbor
         namespace: harbor
