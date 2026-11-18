@@ -1,0 +1,25 @@
+# runner-netprobe.timer — the heartbeat. THIS is the unit to arm on the laptop:
+#   sudo systemctl enable --now runner-netprobe.timer
+# (the .service carries no [Install]: it is only ever activated from here.)
+#
+# OnBootSec=120 gives the boot + k3s-agent join a two-minute grace before the
+# first probe — runner-join.sh itself polls the data plane for up to 120 s, and
+# after a clean leave the node is cordoned anyway (a fence pass would no-op).
+#
+# AccuracySec: systemd's DEFAULT timer accuracy is 1 minute — left at that
+# default, an OnUnitActiveSec=30s cadence is rounded up by up to +60 s and the
+# 3-strike anti-flap window (~90 s) drifts silently. AccuracySec=1s keeps it
+# deterministic: 3 strikes ≈ 90 s from "data plane gone" to "node fenced".
+#
+# No Persistent=: after a power cycle the strike history is meaningless (the
+# tmpfs counter is gone too) — the probe simply re-measures from scratch.
+[Unit]
+Description=Heartbeat every 30s: auto-fence netprobe for the CI runner node
+
+[Timer]
+OnBootSec=120
+OnUnitActiveSec=30s
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

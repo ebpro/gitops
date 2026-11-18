@@ -13,6 +13,8 @@ goes through the GitOps-managed `node-ops` ServiceAccount
 | `runner-net-cleanup.sh` | Purge helper: removes leftover Cilium ip-rules / nft tables / cgroup socket-LB eBPF programs that survive `systemctl stop k3s-agent`. Called by leave + auto-leave; idempotent, safe to run by hand (`sudo ./runner-net-cleanup.sh`). Never reboots. |
 | `runner-auto-leave.sh` | Best-effort drain fired on ANY initiated poweroff/reboot/suspend. Always exits 0, prints nothing on shutdown. Must run as **root** (it stops `k3s-agent`) and resolves its kubeconfig and `kubectl` path explicitly — the shutdown environment has neither `HOME` nor the Nix profile in `PATH`. |
 | `runner-auto-leave.service` | Type=oneshot RemainAfterExit unit; drain hook runs on ExecStop — must be **started** (not just enabled) to be armed. `TimeoutStopSec=180` is a measured budget, see "Hook budget and why it is 180 s". No `User=` on purpose. |
+| `runner-netprobe.sh` | Unattended data-plane probe (every 30 s): when the control-plane API is reachable but pod-terminated traffic through the Cilium tunnel is dead, it fences **this** node itself — `cordon` plus deletion of the ARC runner **pods** still bound to it. Never touches the `EphemeralRunner`/`EphemeralRunnerSet` CRs, never labels, taints or uncordons. See "Network probe / auto-fence". |
+| `runner-netprobe.service` / `.timer` | Units for the probe: root-level `Type=oneshot` + 30 s timer, deliberately with **no k3s dependency** (it must run while `k3s-agent` is down). Not covered by `install.sh` — installed by hand, see below. |
 | `logind-runner-node.conf` | systemd-logind drop-in source; installed to `/etc/systemd/logind.conf.d/99-runner-node.conf`. Keeps a lid movement from sleeping the node while on AC. See "Lid and suspend policy". |
 | `install.sh` | One-time installer: copies scripts + unit system-wide, installs the logind drop-in, closes the GNOME lid action on AC, and writes the kubeconfig. |
 
@@ -163,6 +165,124 @@ cordoned, `k3s-agent` stopped, `runner-net-cleanup.sh` PASS.
 - Key hygiene: WireGuard private keys / preshared keys must **never** be
   committed to this repo or pasted into chats/tickets; on suspected exposure,
   rotate the peer key at wg-lum-users.
+
+## Network probe / auto-fence
+
+Both incidents of this class — 2026-10-13 (auto-drain silently skipped off-VPN)
+and 2026-11-12 (user-VLAN ingress isolation) — were discovered **by hand**, hours
+later, while ARC sat at `maxRunners: 2` with 0/2 runners ready. `runner-auto-leave.sh`
+only covers *initiated* teardowns: a node whose data plane dies underneath it is
+still `Ready`, still cordoned by nobody, still holding runner pods. The probe is
+the missing third leg — the node fences **itself**, from the one side that can
+actually see the tunnel.
+
+**Decision rule** — it acts only when all three hold, and it checks all three on
+every tick it runs:
+
+| Condition | Probe | Why it is required |
+|---|---|---|
+| Control plane up | `GET /api/v1/nodes/$NODE_NAME` | Proves `node-ops` works and the node really exists — which also catches a **deleted** node object (a clean `runner-leave.sh` deletes it), so the probe goes silent instead of fighting the join flow. |
+| Data plane down | TCP `10.2.248.31:443` | Pod-terminated on purpose: that address has no host socket, it is the k3s ServiceLB DNAT onto a remote Traefik pod, so every attempt crosses the tunnel (same reasoning as the `runner-join.sh` preflight). `Ready` — and 6443 — prove nothing about it. |
+| The break is **local** | delta of `/sys/class/net/cilium_vxlan/statistics/rx_packets` across the strike window | This correlation is what separates a broken tunnel on **this** interface from a dead remote service. An uncorrelated failure does **not** count as a strike. |
+
+Three consecutive strikes (~90 s) are required, so a transient never reacts. Both
+probes target the **same** host (`10.2.248.31` = `compute-lsis-2`), which is the
+point: API-up + VIP-down can only be about the overlay, not about that machine.
+**Never `ping`** — ICMP to a ClusterIP/VIP has no ServiceLB path and fails on a
+perfectly healthy node.
+
+**What it does** — two mutations, in that order, and nothing else:
+
+1. `kubectl cordon $NODE_NAME`.
+2. `get pods -n arc-runners --field-selector spec.nodeName=$NODE_NAME`, then
+   `delete pod` for that whole list **in one argv**, validated by `assert_pod_delete`
+   (namespace pinned to `arc-runners`, name regex, no selectors or flags, zero
+   names refused) **before** execution — the same pattern as
+   `infrastructure/node-fence/fence-runner-node.sh`. A post-verification `get`
+   confirms the pods are gone and logs loudly if any survived, because that
+   residual is exactly what pins ARC `maxRunners`.
+
+It deletes **pods, never the CRs**: with the `EphemeralRunner` objects alive, pod
+recreation reuses the GitHub-side runner registration, so already-`assigned` jobs
+resume without a manual workflow re-run (measured 2026-11-12). It never labels,
+never taints (the quarantine taint does not survive admission here anyway — see
+`kubernetes/arc/node-quarantine-taint.yaml`), and **never uncordons**: recovery is
+a human decision taken from the control-plane side. It also deliberately does not
+manage `quarantine=true` — the probe covers the tunnel, `runner-join.sh` guards
+deliberate quarantine, two independent fences. Consequence: a deliberate cordon is
+never fought, and a node under both fences is not uncordoned by the join flow.
+
+**Everything is fail-open** (`exit 0` + one log line): missing kubeconfig, missing
+`kubectl`, unreachable API, undecodable token or CA, unresolved node name. A probe
+that cannot reach the cluster can repair nothing, and firing during network setup or
+teardown is how you get a flapping `spec.unschedulable`. The only non-zero exit is
+an internal assertion failure (`BUG:`), which cannot be an environment condition.
+
+**Budget** — the unit's `TimeoutStartSec=150` is a computed worst case; every step
+is `--request-timeout=10s`-capped:
+
+| Stage | Budget |
+|---|---|
+| API node lookup | ≈ 12 s |
+| VXLAN counter + VIP probe, × 3 strikes | ≈ 36 s |
+| cordon | ≈ 12 s |
+| pod enumeration | ≈ 12 s |
+| one delete call (bounded by the 30 s eviction grace) + post-verify `get` | ≈ 45 s |
+| **total** | **≈ 119 s** |
+
+`AccuracySec=1s` is mandatory: systemd's default 1-minute timer coarseness exceeds
+the 30 s interval, so strikes would stop being consecutive.
+
+### Install and verify (not covered by `install.sh`)
+
+`install.sh` copies a hardcoded file list and does **not** install the probe:
+
+```bash
+cd infrastructure/laptop
+sudo install -m 0755 runner-netprobe.sh /usr/local/bin/runner-netprobe.sh
+sudo cp runner-netprobe.service runner-netprobe.timer /etc/systemd/system/
+sudo systemctl daemon-reload && sudo systemctl enable --now runner-netprobe.timer
+```
+
+The service has no `[Install]` section by design — only the timer is enabled.
+Cadence check:
+
+```bash
+journalctl -u runner-netprobe.service --since "-10m" | tail -5
+```
+
+Idle ticks log nothing, so expect ~2 lines/minute at most. Output appears only on
+the way to a fence, on a fence, and on environment problems. The strike counter
+lives in `/run/runner-netprobe` (tmpfs → a reboot starts clean); its last-line
+format is `<DP-fail> <strike> <rx_packets-at-first-strike>`. After a complete fence
+pass the counter resets, so a still-broken tunnel re-asserts cordon + purge every
+~90 s: idempotent by construction, and a node the probe fenced **stays** cordoned
+until a human lifts it.
+
+Dry-run and self-test hooks (under `NETPROBE_DRYRUN=1` no mutation is ever executed;
+the demo hooks are inert outside dry-run):
+
+```bash
+NETPROBE_DRYRUN=1 NODE_NAME=pc-bruno-gpu ./runner-netprobe.sh
+NETPROBE_DRYRUN=1 NODE_NAME=pc-bruno-gpu NETPROBE_DEMO_PODS="runner-a runner-b" NETPROBE_DEMO_UNCORDON=1 ./runner-netprobe.sh
+```
+
+### When the probe fires
+
+That is the supported resting state being enforced automatically — read it, do not
+undo it. On the node: leave it cordoned, `sudo systemctl stop k3s-agent`, run
+`sudo ./runner-net-cleanup.sh`, then work through the read-only probes in "Home vs
+lab operation" to tell "this VPN drops the overlay UDP" from user-VLAN ingress
+isolation. Lifting stays the documented human flow: `fence-runner-node.sh --unfence
+--yes <node>` from the control plane, or the three gestures in the "QUARANTINED"
+troubleshooting entry — and only after `cilium_vxlan rx_packets` is measured moving.
+
+Known limitation: that same timeout on the VIP is also the signature of leftover
+Cilium hijack state (last troubleshooting bullet), which the counter correlation
+cannot distinguish from a genuine ingress block — both are local conditions, and
+both justify the fence. The M1-vs-M3 root cause on the user VLAN remains an
+unresolved blocker (`docs/network/runner-node-vlan-isolation-20261112.md`); this
+probe is a mitigation, not a fix, and it applies **nothing** to Cilium.
 
 ## Remote shutdown
 `ssh bruno@pc-bruno-gpu sudo poweroff` fires the same drain hook

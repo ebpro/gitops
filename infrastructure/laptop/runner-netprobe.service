@@ -1,0 +1,35 @@
+# runner-netprobe.service — the probe/auto-fence action itself. Triggered by
+# runner-netprobe.timer every ~30 s; do NOT enable or start this unit directly,
+# enable the TIMER (there is deliberately no [Install] section here).
+#
+# NO dependency on k3s-agent ON PURPOSE (contrast with runner-auto-leave.service,
+# which orders itself after k3s-agent because its STOP must run while the kubelet
+# is still alive): this probe must keep running EXACTLY when the agent/Cilium is
+# broken or stopped — a dead data plane under a live control plane is the failure
+# it exists to catch (2026-11-12: node Ready, API reachable, cilium_vxlan rx
+# frozen at 0, CI frozen ~5 h). It needs no cluster-local anything: only the
+# host network, to reach the API (10.2.248.31:6443) and probe the VIP.
+#
+# No User= on purpose (same as runner-auto-leave.service): the unit runs as root,
+# which is what can read the node-ops kubeconfig under /root or /home/bruno and
+# write /run/runner-netprobe. The systemd environment has neither HOME nor the
+# Nix profile in PATH — runner-netprobe.sh therefore resolves its kubeconfig and
+# kubectl explicitly, exactly like its sibling hook. Cluster-side permissions
+# come from the git-managed node-ops ServiceAccount (kubernetes/arc/node-ops-rbac.yaml:
+# nodes get/list/patch + pods get/list/delete — precisely cordon + pod deletion,
+# nothing more), never from the local user.
+[Unit]
+Description=Auto-fence this CI runner node when the Cilium data plane dies (netprobe)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/runner-netprobe.sh
+# Worst-case budget, from the code paths (each kubectl: --request-timeout=10s
+# inside an outer `timeout 15`; each TCP probe `timeout 6`):
+#   CP probe 6 + DP probe 6 + sleep 2 + node read 15 + cordon 15 + read-back 15
+#   + enumerate 15 + delete 15 + post-delete re-check 15  =  ~119 s
+# If a run outlives the 30 s timer interval, systemd simply skips that tick
+# (a oneshot is never started twice) — cadence degrades, never duplicates.
+TimeoutStartSec=150
