@@ -7,9 +7,12 @@ spec:
   entryPoints:
     - websecure
   routes:
-    # gRPC agent traffic only; UI (priority-less, matched by absence of the
-    # Content-Type header) is served by kubernetes/ingress/woodpecker-ingress.yaml.
-    # If that UI route's priority is ever raised to >=100 this discrimination breaks.
+    # gRPC agent traffic only. The UI is served by a separate plain Ingress
+    # (kubernetes/ingress/woodpecker-ingress.yaml), which Traefik translates to an
+    # HTTP router at the default priority 0. This route wins for gRPC requests via
+    # priority: 100 plus the Content-Type matcher; browser requests do not match the
+    # header and fall through to the priority-0 UI router. If the UI router's priority
+    # is ever raised to >=100 with an overlapping rule, this discrimination breaks.
     - match: Host(`woodpecker.ebruno.fr`) && HeadersRegexp(`Content-Type`, `^application/grpc`)
       kind: Rule
       priority: 100

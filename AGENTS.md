@@ -12,7 +12,7 @@
 - **Immutable cluster state** — The cluster must NEVER be touched directly. All changes flow through git. Violating this rule causes split-brain: ArgoCD will detect drift and rollback within 180s. If an AppSet hasn't re-rendered, refresh `gitops-platform` app first, then wait for the chain to propagate.
 
 ## Architecture
-- **K3s v1.36.4+k3s1** — Two-node cluster: `compute-lsis-2` (amd64 control-plane, kernel 6.8.0-142) + `lima-k3s-agent` (arm64 worker, kernel 6.8.0-139)
+- **K3s v1.36.4+k3s1** — Two-node cluster: `compute-lsis-2` (amd64 control-plane, kernel 6.8.0-142) + `lima-k3s-agent` (arm64 worker, kernel 6.8.0-147)
 - **Cilium CNI** — Tunnel mode, eBPF observability
 - **ArgoCD v3.5.1** — Auto-sync with prune/selfHeal
 - **CloudNativePG v0.29+** — PostgreSQL management via `Cluster` CRDs
