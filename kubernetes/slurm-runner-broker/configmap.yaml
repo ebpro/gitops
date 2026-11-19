@@ -19,7 +19,14 @@ data:
   # GitHub org whose queued runs are polled + where runners register.
   GH_ORG: "ebpro"
   # Slurm partition + job shape for one ephemeral runner.
-  SLURM_PARTITION: "ouranos"
+  # 2026-11-19: ouranos -> cpu. Every GPU-bearing partition (ouranos, gpu,
+  # besteffort) enforces a cluster-local policy that rejects GPU-less jobs
+  # ("sbatch: error: You must have at least one GPU on this partition") — CI
+  # runs are CPU-only by design, so 162/162 submissions were denied and no
+  # hybrid job ever dispatched. `cpu` is the admin-provisioned GPU-less
+  # partition (node11 only, 128 CPUs, no gres TRES, MaxTime 7d); the
+  # ebrunner-gate argv pin moved with it (same commit; reinstall per A3).
+  SLURM_PARTITION: "cpu"
   SLURM_CPUS: "8"
   SLURM_MEM: "16G"
   # 2026-11-17: 01:30:00 -> 02:00:00 for hybrid notebook placement — render

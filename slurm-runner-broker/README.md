@@ -3,7 +3,7 @@
 Phase-1 broker for the **Slurm ephemeral-runner tier**: an in-cluster service that
 watches GitHub org `ebpro-org` for queued workflow runs labelled
 `[self-hosted, linux, x64, hpc]` and dispatches one Slurm job per matching queued
-job on the SMS cluster (`sms-cluster.lis-lab.fr`, partition `ouranos`). Each Slurm
+job on the SMS cluster (`sms-cluster.lis-lab.fr`, partition `cpu`). Each Slurm
 job boots an **ephemeral** `actions/runner` from the digest-pinned
 `harbor.ebruno.fr/quarkus-microservices/quarkus-ci-runner@sha256:72ac7d9f…` enroot
 image, which self-registers, runs exactly one job, and deregisters.

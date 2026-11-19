@@ -22,7 +22,7 @@
 #     1. printf %s "$HOME"                                    — connect_check
 #     2. umask 077; cat > $HOME/.ebrunner-<32hex>.env && chmod 600 …  [stdin]
 #     3. exec 'sbatch' '--export' 'ENVFILE=$HOME/.ebrunner-<32hex>.env,…'
-#        '-p' 'ouranos' '--time' … '--cpus-per-task' … '--mem' …
+#        '-p' 'cpu' '--time' … '--cpus-per-task' … '--mem' …
 #        '--output' …                                     — submit  [stdin]
 #     4. squeue --me -h -O jobid,name,state                   — reconcile
 #     5. shred -u $HOME/.ebrunner-<32hex>.env 2>/dev/null || rm -f …  — discard
@@ -43,7 +43,7 @@
 #
 #   PAIRED MAINTENANCE: this allow-list mirrors broker.py's SmsClient. If any
 #   remote command shape changes, update this gate in the SAME commit and
-#   reinstall on the SMS (runbook A3). The partition pin ('ouranos') and the
+#   reinstall on the SMS (runbook A3). The partition pin ('cpu') and the
 #   GC literal (-mmin +120) intentionally hard-pin ConfigMap/broker constants.
 # =============================================================================
 set -u
@@ -141,7 +141,7 @@ case "$cmd" in
     [ "${argv[0]}" = "sbatch" ]                 || deny "sbatch-argv0"
     [ "${argv[1]}" = "--export" ]               || deny "sbatch-export-flag"
     [ "${argv[3]}" = "-p" ]       &&
-      [ "${argv[4]}" = "ouranos" ]              || deny "sbatch-partition"
+      [ "${argv[4]}" = "cpu" ]                  || deny "sbatch-partition"
     [ "${argv[5]}" = "--time" ]                 || deny "sbatch-time-flag"
     [[ ${argv[6]} =~ ^[0-9][0-9:.-]{0,15}$ ]]   || deny "sbatch-time-value"
     [ "${argv[7]}" = "--cpus-per-task" ]        || deny "sbatch-cpus-flag"

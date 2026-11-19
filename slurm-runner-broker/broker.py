@@ -48,7 +48,7 @@ import uuid
 SMS_HOST = os.environ["SMS_HOST"]                      # sms-cluster.lis-lab.fr
 SLURM_USER = os.environ["SLURM_USER"]                  # emmanuel.bruno (Phase 1; dedicated ghaci = runbook TODO)
 ORG = os.environ["GH_ORG"]                             # ebpro-org
-PARTITION = os.environ["SLURM_PARTITION"]              # ouranos
+PARTITION = os.environ["SLURM_PARTITION"]              # cpu
 CPUS = os.environ["SLURM_CPUS"]                        # "8"
 MEM = os.environ["SLURM_MEM"]                          # "16G"
 WTIME = os.environ["SLURM_TIME"]                       # e.g. "02:00:00"
@@ -69,9 +69,10 @@ RATE_LIMIT_BACKOFF_MAX = 300
 # HYBRID_GRACE_SECONDS (GitHub `created_at` — restart-proof, no memory state)
 # in a repo matching HYBRID_OVERFLOW_REPOS also starts an ephemeral HPC
 # runner. Bounds: HYBRID_MAX_PARALLEL is a sub-cap of the SHARED MAX_PARALLEL
-# budget (hybrid nodes are never additive — a render wave can hold at most 2
-# of the 16 usable ouranos nodes); pure-HPC jobs are always dispatched first
-# (pass order) since they have no fallback tier; fleet-labelled selectors
+# budget (hybrid nodes are never additive — the single-node `cpu` partition
+# holds at most 1 running render runner; a 2nd sits PD); pure-HPC jobs are
+# always dispatched first (pass order) since they have no fallback tier;
+# fleet-labelled selectors
 # (ebpro-org / large / best-practices) never overflow — the hybrid matcher
 # requires the EXACT label set, not a superset.
 HYBRID_OVERFLOW_ENABLED = (os.environ.get("HYBRID_OVERFLOW_ENABLED", "false")

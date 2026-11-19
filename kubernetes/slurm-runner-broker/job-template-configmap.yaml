@@ -10,7 +10,7 @@ data:
     # ebrunner job template — submitted on stdin by the slurm-runner-broker:
     #     ssh <user>@sms 'exec sbatch --export ENVFILE=...,GH_ORG=...,RUNNER_IMAGE=...,...' < job-template.sh
     #
-    # sbatch flags set by the broker (CLI, not here): -p ouranos --time --cpus-per-task
+    # sbatch flags set by the broker (CLI, not here): -p <SLURM_PARTITION> --time --cpus-per-task
     # --mem --output=<broker-resolved absolute $HOME>/logs/ebrunner-%j.out --export
     # (see below).
     #
@@ -77,6 +77,12 @@ data:
         # Wipe the single-use token file, then the job-local run dir.
         shred -u "$ENVFILE" 2>/dev/null || rm -f "$ENVFILE" 2>/dev/null || true
         rm -rf "$RUNDIR" 2>/dev/null || true
+        # 2026-11-19: also self-clean the node-local enroot paths under $S (tmp/
+        # data/ = import scratch + container data) so the node's /scratch is left
+        # as found. Safe: --exclusive=user means no other job of this user is on
+        # the node while ours runs (a successor sits PD until we exit), and any
+        # successor re-creates its paths lazily via the mkdir -p at job start.
+        rm -rf "$S/tmp" "$S/data" "$S/run" 2>/dev/null || true
     }
     trap cleanup EXIT
     trap 'exit 143' TERM INT

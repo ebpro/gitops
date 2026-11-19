@@ -5,7 +5,7 @@ Brings up the ephemeral-runner tier: an in-cluster broker (`Deployment`
 GitHub org `ebpro` for queued runs labelled `[self-hosted, linux, x64, hpc]`
 (and, since 2026-11-18, spills older fleet-less x64 runs in `notebook-*`
 repos onto the same tier — hybrid overflow, see below) and `sbatch`-es one
-ephemeral runner per queued job onto SMS partition `ouranos` over
+ephemeral runner per queued job onto SMS partition `cpu` over
 `ssh emmanuel.bruno@sms-ext.lis-lab.fr` (forced command
 `$HOME/.local/bin/ebrunner-gate` — see step A3 +
 [`../../slurm-runner-broker/ebrunner-gate.sh`](../../slurm-runner-broker/ebrunner-gate.sh)).
@@ -37,11 +37,11 @@ If a job must never touch this tier, include an ARC fleet label
 (`ebpro-org`, or `large`/`best-practices`, which the HPC runner does not
 carry).
 
-### Job shape (git == live ConfigMap `broker-config`, checked 2026-11-18)
+### Job shape (git == live ConfigMap `broker-config`, checked 2026-11-19)
 
 | Knob | Value | Source |
 |---|---|---|
-| Partition | `ouranos` (`node[01-17]`) | `SLURM_PARTITION` |
+| Partition | `cpu` (node11 only — the admin-provisioned GPU-less partition; the GPU-bearing partitions reject GPU-less jobs, 2026-11-19) | `SLURM_PARTITION` |
 | Per-runner allocation | `--cpus-per-task=8`, `--mem=16G` | `SLURM_CPUS` / `SLURM_MEM` |
 | Wall time | `--time=02:00:00` — the runner is killed at 2h (2026-11-17: up from 90 min, so a hybrid-placed 120-min render job is never stolen mid-run) | `SLURM_TIME` |
 | Concurrency | `MAX_PARALLEL=4` live Slurm jobs; `PD` counts too (`JOB_LIVE_STATES`) | `broker.py` |
@@ -234,7 +234,7 @@ forced command. Because we have no root on the SMS, the gate lives in
 `$HOME/.local/bin` — a path the account itself can write — so anyone who
 obtains the operator's `emmanuel.bruno` account on the SMS can replace the
 forced-command script and thereby obtain everything the gate authorizes
-(`sbatch` on `ouranos`, the `$HOME/.ebrunner-*.env` write/read shape, `squeue`,
+(`sbatch` on `cpu`, the `$HOME/.ebrunner-*.env` write/read shape, `squeue`,
 `shred`), with the broker's own connections as the trigger. This is a
 deliberate consequence of not having root, not an oversight. Accepted
 compensating controls: the key is `restrict` + `from="10.2.248.0/24"` +
@@ -281,12 +281,12 @@ identically on every node), so ONE mkdir covers the whole cluster:
 
 ```sh
 ssh emmanuel.bruno@sms-ext.lis-lab.fr \
-  'srun -p ouranos mkdir -p $HOME/.cache/ebpro-runner $HOME/logs'
+  'srun -p cpu mkdir -p $HOME/.cache/ebpro-runner $HOME/logs'
 ```
 
 ### Pre-warm the shared image cache (required — compute nodes cannot import)
 
-The ouranos compute nodes **lack the enroot import file capabilities**
+The SMS compute nodes **lack the enroot import file capabilities**
 (`cap_sys_admin` on `enroot-aufs2ovlfs`), so an in-job `enroot import` on a
 node fails. The broker job template detects this and **fails fast** with a
 clear message instead of attempting an import — the shared cache
@@ -316,7 +316,7 @@ mv -f "$TMP_SQSH" "$SQSH"
 
 > **Multi-node & wiped-scratch semantics:** the first job to see a new image
 > digest imports once into the NFS `$HOME/.cache/ebpro-runner` cache and every
-> ouranos node reuses it (wipe-surviving; concurrent cross-node imports are
+> node reuses it (wipe-surviving; concurrent cross-node imports are
 > safe — atomic NFS rename of byte-identical files). Per-job work dirs stay on
 > node-local `/scratch`, lazily re-created in-job after any wipe; job logs
 > persist under `$HOME/logs`. Jobs opportunistically GC `.tmp.*` import orphans

@@ -33,9 +33,10 @@ spec:
       #    retains old digests for rollback);
       #  * config change -> envFrom never hot-reloads, so the checksum of the
       #    broker-config data lines below is the git-only template lever that
-      #    drives the Recreate restart (2026-11-17: SLURM_TIME bump).
+      #    drives the Recreate restart (2026-11-17: SLURM_TIME bump;
+      #    2026-11-19: SLURM_PARTITION ouranos -> cpu).
       annotations:
-        slurm-runner-broker/config: 329769ad5e5877d85617edb9eb98f4335494ec30b5613664a6e90f68e4c93e13
+        slurm-runner-broker/config: c2bf51efec5e5134e00ed4eb1a0fae6271c6190f5254adeac63fc907f1f28580
       labels:
         app.kubernetes.io/name: slurm-runner-broker
         app.kubernetes.io/instance: slurm-runner-broker
