@@ -7,6 +7,22 @@
 
 ---
 
+## Révision du 2026-11-19 — campagne WireGuard et voie gRPC retenue
+
+> Cette section corrige et complète l'analyse du 2026-11-12 sur la base de mesures directes. Les constats ci-dessous remplacent les hypothèses précédentes ; la section d'origine est conservée pour l'historique.
+
+- **M1 corrigé, non abrogé.** Le réseau du campus **livre bien l'UDP de retour pour un flux initié par le client** (handshake WireGuard + ping 5/5, ~2 ms dans les deux sens) et **ne fait pas de PAT** : la VM lima voit le portable sous `10.2.251.152:51821`, port source préservé. Ce qui reste exact : **aucun flux initié par le serveur n'est jamais livré** — or Cilium exige précisément ce sens (pair → `portable:8472`). La jointure du portable comme nœud k3s reste donc **FERMÉE**, pour la bonne raison. La théorie « ports source VXLAN » est **rétractée** : l'échec dépend de l'**initiation du flux**, jamais de la forme du port.
+- **WireGuard = transport ponctuel validé, refusé comme substrat permanent** (dorsale du nœud, fiabilité, ruling debout : RIEN est appliqué à Cilium).
+- **Forwarder** : v1 (DNAT → ClusterIP) **structurellement impossible** (`DNAT` est un verdict terminal ; `KUBE-SERVICES` n'est jamais re-parcouru ; aucune route `10.43.0.0/16` sur le nœud). v2 (DNAT → IP de pod relue) **fonctionne** (`FORWARDER_V2_OK`) **mais épingle une IP de pod** → mort silencieuse au re-scheduling ; sa MASQUERADE est d'ailleurs redondante (`CILIUM_POST_nat` SNAT déjà en place).
+- **Voie de production retenue (Phase 2).** Exposer le gRPC agent Woodpecker `:9000` via une **`IngressRoute` Traefik HTTP (`traefik.io/v1alpha1`) sur l'entrée `websecure`/443**, hôte public `woodpecker.ebruno.fr`, backend en **`scheme: h2c`**, discrimination par en-tête `Content-Type: ^application/grpc` (priority 100), TLS terminé par Traefik via le resolver ACME `letsencrypt-ovh` (cert déjà émis pour ce SAN, dans `/data/acme.json`, **sans Secret K8s**). Manifeste GitOps pur, réconcilié par ArgoCD, rollback = `git revert`. Côté agent (serveur **v3.17.0**) : `WOODPECKER_SERVER=woodpecker.ebruno.fr:443`, `WOODPECKER_GRPC_SECURE=true`, `WOODPECKER_GRPC_VERIFY=true` — **il n'existe pas de schéma `grpcs://`** dans Woodpecker v3.
+- **Identité de la VM lima (`10.2.248.247`), prouvée en chaîne.** Hôte physique `compute-lsis-1` = `10.2.248.32` (**macOS 26.6.2**), une seule instance `limactl` (`k3s-agent`), `boot_id` identique au `NodeStatus`, InternalIP `.247`. **Kernel de la VM : `6.8.0-147`** (le « 139 » des notes précédentes était recopié de la doc — à corriger partout). MAC stable `52:55:55:00:20:c6` (réservable en DHCP ; pas de PTR/DNS, `NXDOMAIN` normal).
+- **Leçon AppArmor.** `wg-quick up` échouait en `Permission denied` **même en root** : le profil n'autorise que `/etc/wireguard/{,**}`, il fallait déplacer la config dans `/etc/wireguard/`.
+- **Adressage WG de test** : VM `10.200.0.1`, portable `10.200.0.2`, `/24`, ports d'écoute 51820 (VM) / 51821 (portable). Les `AllowedIPs` CIDR globaux (`10.42.0.0/16`, `10.43.0.0/16`) sont **abandonnés** : ils entrent en conflit avec le Cilium local du portable (nœud cordonné jamais retiré) → `RTNETLINK answers: File exists` ; `wg-quick` fait alors un rollback propre.
+- **État du campus variable dans la journée** (mesuré : `.247:80/443` black-holés à 13 h, vivants à 18 h le même jour) — ne jamais figer une mesure comme vérité permanente.
+- **Rulings debout.** Rien appliqué à Cilium ; `cordon` est la clôture opérante (le taint `quarantine` ne survit pas à l'admission) ; le portable reste cordonné+quarantaine tant que M1-vs-M3 n'est pas départagé par un `tcpdump` root sur `compute-lsis-2` (jamais exécuté) ; `maxRunners` inchangé. La **validation e2e depuis le portable** de la voie gRPC reste **bloquée** par ce même souci data-plane user-VLAN, indépendant du design réseau — elle se fait d'abord depuis un hôte du serveur VLAN.
+
+---
+
 ## 0. Verdict
 
 > **⚠ RÉTRACTION (2026-11-12).** La version initiale de cette section affirmait une cause. Elle est **fausse** et nulle part ailleurs dans ce dossier elle ne doit être lue comme vraie. Détail et motifs en §4 ; correction des deux erreurs matérielles (port jamais figé, WireGuard jamais activé) en §6.2 et §8.
